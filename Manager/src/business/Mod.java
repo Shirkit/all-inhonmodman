@@ -71,16 +71,17 @@ public class Mod {
      */
 
     public Mod(String path) throws FileNotFoundException, IOException {
+
         setPath(path);
+        XML xml = new XML();
+        ZIP zip = new ZIP();
+        File retorno = zip.openZIP(new File("C:\\peu.honmod"));
+        System.out.println(retorno.getAbsolutePath());
+        //retorno = new File(retorno.getAbsolutePath() + "\\mod.xml");
+        //xml.loadXML(retorno);
 
         
 
-        FileInputStream fis = new FileInputStream(file);
-        System.out.println(file.getAbsolutePath());
-        XStream xstream = new XStream(new DomDriver());
-        xstream.alias("modification", Mod.class);
-        System.out.println(xstream.toXML(this));
-        Mod test = (Mod) xstream.fromXML(fis);
 
 
     }
