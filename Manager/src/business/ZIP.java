@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.Random;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
@@ -21,30 +22,35 @@ import java.util.zip.ZipOutputStream;
 public class ZIP {
 
     /**
-     * Files are stored in OS temporary folder.
-     * @param file of the .honmod file.
-     * @return the folder with the unzipped files.
-     * @throws IOException
+     *
+     * @param honmod the file .honmod to be extracted.
+     * @return folder with the files extracted.
+     * @throws IOException if an I/O error has occurred
+     * @throws FileNotFoundException if a file is missing. Use the Exception.getMessage(). Possible values:
+     * <br/><b>honmod</b>
      */
-    public File openZIP(File honmod) throws IOException {
+    public File openZIP(File honmod) throws FileNotFoundException, IOException {
+
+        if (!honmod.exists()) {
+            throw new FileNotFoundException("honmod");
+        }
 
         ZipFile zipFile = new ZipFile(honmod.getAbsolutePath());
         Enumeration entries = zipFile.entries();
-        File file;
 
-        int id = new Random().nextInt();
-        file = new File(System.getProperty("java.io.tmpdir") + "\\ModManager\\");
+        // creating the temp folder
+        File file = new File(System.getProperty("java.io.tmpdir") + File.separator + "ModManager" + File.separator + honmod.getName());
         if (!file.exists()) {
             file.mkdirs();
         }
 
+        // creating the temp file and it's Streammer
+        FileOutputStream output;
+
         while (entries.hasMoreElements()) {
             ZipEntry entry = (ZipEntry) entries.nextElement();
-
-            if (entry.getName().equals(Mod.MOD_FILENAME)) {
-                copyInputStream(zipFile.getInputStream(entry),
-                        new BufferedOutputStream(new FileOutputStream(zipFile.getName())));
-            }
+            copyInputStream(zipFile.getInputStream(entry), output = new FileOutputStream(file.getAbsolutePath() + File.separator + entry.getName()));
+            output.close();
         }
         zipFile.close();
 
@@ -58,15 +64,14 @@ public class ZIP {
         while ((len = in.read(buffer)) >= 0) {
             out.write(buffer, 0, len);
         }
-
-        in.close();
-        out.close();
     }
 
     /**
      *
      * @param source Path to the folder to be compressed.
      * @param destination Path to where the .zip file will be created.
+     * @throws FileNotFoundException if coudln't create/open a extracted file.
+     * @throws IOException if an I/O error has occurred
      */
     public void createZIP(String source, String file) throws FileNotFoundException, IOException {
 

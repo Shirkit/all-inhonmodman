@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 
-
 /**
  * @author Shirkit
  *
@@ -62,30 +61,27 @@ public class Mod {
         this.icon = icon;
     }
 
-
     /**
      * Mod constructor
      * @param path
      * @throws FileNotFoundException
      * @throws IOException
      */
-
     public Mod(String path) throws FileNotFoundException, IOException {
 
         setPath(path);
         XML xml = new XML();
         ZIP zip = new ZIP();
         File retorno = zip.openZIP(new File("C:\\peu.honmod"));
-        System.out.println(retorno.getAbsolutePath());
+        if (retorno.isDirectory()) {
+            System.out.println(retorno);
+        }
         //retorno = new File(retorno.getAbsolutePath() + "\\mod.xml");
         //xml.loadXML(retorno);
 
-        
+
 
 
 
     }
-
-    
-
 }
