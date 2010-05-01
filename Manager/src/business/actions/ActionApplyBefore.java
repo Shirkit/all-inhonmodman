@@ -1,10 +1,12 @@
 package business.actions;
 
+import java.util.ArrayList;
+
 /**
  * If the specified other mod is enabled, this mod will be applied after/before it.
  * @author Shirkit
  */
-public class ActionApply extends Action {
+public class ActionApplyBefore extends Action {
 
     private String name;
     private String version;

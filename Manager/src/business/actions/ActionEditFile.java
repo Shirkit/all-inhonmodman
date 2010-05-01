@@ -1,5 +1,10 @@
 package business.actions;
 
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+import com.thoughtworks.xstream.annotations.XStreamImplicit;
+import java.util.ArrayList;
+
 /**
  * Edits a file from resources0.s2z or one that has already been copied.
  * <br/>If condition is specified this editfile tag is only executed if the given condition is true; uses the same syntax as for copyfile.
@@ -8,37 +13,21 @@ package business.actions;
  * <br/>Every operation interacts with a "cursor" variable which points to a area in the file and starts out at the beginning of the file.
  * @author Shirkit
  */
+@XStreamAlias("editfile")
 public class ActionEditFile extends Action {
 
+    @XStreamAlias("name")
+    @XStreamAsAttribute
     private String name;
+    @XStreamAlias("condition")
+    @XStreamAsAttribute
     private String condition;
+    @XStreamImplicit
+    private ArrayList<Action> actions = new ArrayList<Action>();
 
-    /**
-     * @return the name
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * @param name the name to set
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     * @return the condition
-     */
-    public String getCondition() {
-        return condition;
-    }
-
-    /**
-     * @param condition the condition to set
-     */
-    public void setCondition(String condition) {
-        this.condition = condition;
+    public ActionEditFile() {
+        setType(EDIT_FILE);
+        actions.add(new ActionEditFileFind());
     }
 
 }

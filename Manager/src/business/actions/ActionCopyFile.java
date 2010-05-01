@@ -1,5 +1,7 @@
 package business.actions;
 
+import java.util.ArrayList;
+
 /**
  *  Copies a supportive file from the mod archive.<br/>If "path2" is not specified the file "path1" is copied, if it is "path2" is copied and renamed to "path1".<br/>
  *        Overwrite specifies a controlled behaviour in case the target file already exists:<br/>

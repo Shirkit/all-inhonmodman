@@ -4,7 +4,7 @@ package business.actions;
  * Deletes the string pointed to by the "cursor". Does not require a source string.
  * @author Shirkit
  */
-public class ActionEditFileDelete {
+public class ActionEditFileDelete extends Action {
 
     private String value;
 

@@ -1,12 +1,18 @@
 package business.actions;
 
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+
 /**
  * synonym for "insert" is "add"
  * <br/>Inserts the source string at the "cursor", either before or after as the position attribute specifies.
  * @author Shirkit
  */
+@XStreamAlias("insert")
 public class ActionEditFileInsert extends Action {
 
+    @XStreamAlias("position")
+    @XStreamAsAttribute
     private String position;
     private String value;
 

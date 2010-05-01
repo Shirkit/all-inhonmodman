@@ -1,5 +1,8 @@
 package business.actions;
 
+import com.thoughtworks.xstream.annotations.XStreamOmitField;
+import java.util.ArrayList;
+
 /**
  * Action of what the mod does.
  * @author Shirkit
@@ -20,7 +23,7 @@ public class Action {
     public static final String DELETE = "delete";
 
     // Attributes
-
+    @XStreamOmitField
     private String type;
 
     public String getType() {

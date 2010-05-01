@@ -1,5 +1,8 @@
 package business.actions;
 
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+
 /**
  * synonyms for "find" are "seek" and "search"
  * <br/>Moves the "cursor" to the next occurrence of the source string
@@ -7,13 +10,20 @@ package business.actions;
  * <br/>"start"     -> Beginning of the file (synonyms: "begin", "head", "before")
  * <br/>"end"       -> End of the file (synonyms: "tail", "after", "eof")
  * <br/>any integer -> Move forward the specified number of characters (negative values allowed)
-
  * @author Shirkit
  */
+@XStreamAlias("find")
 public class ActionEditFileFind extends Action {
 
+    @XStreamAlias("position")
+    @XStreamAsAttribute
     private String position;
-    private String value;
+    private String content;
+
+    public ActionEditFileFind() {
+        setType(FIND);
+        this.content = "conteudo";
+    }
 
     /**
      * @return the position
@@ -32,15 +42,20 @@ public class ActionEditFileFind extends Action {
     /**
      * @return the value
      */
-    public String getValue() {
-        return value;
+    public String getContent() {
+        return content;
     }
 
     /**
      * @param value the value to set
      */
-    public void setValue(String value) {
-        this.value = value;
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    @Override
+    public String toString() {
+        return getContent();
     }
 
 

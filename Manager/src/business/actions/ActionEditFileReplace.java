@@ -4,7 +4,7 @@ package business.actions;
  * Replaces the string pointed to by the "cursor" with the source string.
  * @author Shirkit
  */
-public class ActionEditFileReplace {
+public class ActionEditFileReplace extends Action {
 
     private String value;
 
