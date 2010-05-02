@@ -23,11 +23,14 @@ public class ActionEditFile extends Action {
     @XStreamAsAttribute
     private String condition;
     @XStreamImplicit
-    private ArrayList<Action> actions = new ArrayList<Action>();
+    private ArrayList<ActionEditFileActions> actions = new ArrayList<ActionEditFileActions>();
 
     public ActionEditFile() {
         setType(EDIT_FILE);
-        actions.add(new ActionEditFileFind());
+    }
+
+    public ArrayList<ActionEditFileActions> getActions() {
+        return this.actions;
     }
 
 }

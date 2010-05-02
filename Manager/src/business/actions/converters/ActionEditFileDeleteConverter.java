@@ -1,22 +1,22 @@
 package business.actions.converters;
 
-import business.actions.ActionEditFileFind;
+import business.actions.ActionEditFileDelete;
 import com.thoughtworks.xstream.converters.basic.AbstractSingleValueConverter;
 
 /**
  *
  * @author Shirkit
  */
-public class ActionEditFileFindConverter extends AbstractSingleValueConverter {
+public class ActionEditFileDeleteConverter extends AbstractSingleValueConverter {
 
     @Override
     public boolean canConvert(Class type) {
-        return type.equals(ActionEditFileFind.class);
+        return type.equals(ActionEditFileDelete.class);
     }
 
     @Override
     public Object fromString(String string) {
-        ActionEditFileFind action = new ActionEditFileFind();
+        ActionEditFileDelete action = new ActionEditFileDelete();
         action.setContent(string);
         return action;
     }

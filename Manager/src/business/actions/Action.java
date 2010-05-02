@@ -1,7 +1,6 @@
 package business.actions;
 
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
-import java.util.ArrayList;
 
 /**
  * Action of what the mod does.

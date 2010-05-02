@@ -1,16 +1,14 @@
 package business;
 
 import business.actions.*;
-import business.actions.converters.ActionEditFileFindConverter;
 import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.xml.AbstractXmlDriver;
 import com.thoughtworks.xstream.io.xml.DomDriver;
-import com.thoughtworks.xstream.io.xml.XStream11XmlFriendlyReplacer;
-import com.thoughtworks.xstream.io.xml.XmlFriendlyReplacer;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 /**
  *
@@ -18,28 +16,27 @@ import java.io.FileOutputStream;
  */
 public class XML {
 
-    /*FileInputStream fis = new FileInputStream(file);
-    System.out.println(file.getAbsolutePath());
-    XStream xstream = new XStream(new DomDriver());
-    xstream.alias("modification", Mod.class);
-    System.out.println(xstream.toXML(this));
-    Mod test = (Mod) xstream.fromXML(fis);*/
-    public DomDriver getDriver() {
+    private DomDriver getDriver() {
         return new DomDriver("UTF-8", null);
     }
 
-    public void saveXML(Mod what, File where) throws FileNotFoundException {
+    public void saveXML(Mod what, File where) throws FileNotFoundException, UnsupportedEncodingException, IOException {
 
-        XStream xstream = new XStream();
+        XStream xstream = new XStream(getDriver());
         xstream = updateAlias(xstream);
+
+        // this part is to solve the < > printing bug. I didn't found out any other ways to do it
+        String temp = xstream.toXML(what);
+        temp = temp.replaceAll("&lt;", "<");
+        temp = temp.replaceAll("&gt;", ">");
         FileOutputStream fos = new FileOutputStream(where);
-        xstream.toXML(what, fos);
+        fos.write(temp.getBytes("UTF-8"));
     }
 
     public Mod loadXML(File file) throws FileNotFoundException {
 
         if (file.exists()) {
-            XStream xstream = new XStream(new DomDriver());
+            XStream xstream = new XStream(getDriver());
             xstream = updateAlias(xstream);
             return (Mod) xstream.fromXML(new FileInputStream(file));
         } else {
@@ -48,7 +45,7 @@ public class XML {
 
     }
 
-    public XStream updateAlias(XStream xstream) {
+    private XStream updateAlias(XStream xstream) {
 
         xstream.processAnnotations(Mod.class);
         xstream.processAnnotations(Action.class);
@@ -65,8 +62,7 @@ public class XML {
         xstream.processAnnotations(ActionRequirement.class);
 
         xstream.aliasField("find", ActionEditFileFind.class, "seek");
-
-        xstream.registerConverter(new ActionEditFileFindConverter());
+        xstream.aliasField("find", ActionEditFileFind.class, "search");
 
         return xstream;
 

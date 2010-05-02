@@ -2,15 +2,14 @@ package business;
 
 import business.actions.Action;
 import business.actions.ActionEditFile;
-import com.thoughtworks.xstream.XStream;
+import business.actions.ActionEditFileActions;
+import business.actions.ActionEditFileFind;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -80,15 +79,16 @@ public class Mod {
 
         setPath(path);
         XML xml = new XML();
-        //File f = new File("C:\\mod.xml");
-        //if (f.exists()) {
-        //    System.out.println(xml.loadXML(f).editfile.get(0).getName());
-        //}
-        this.name = "Nome";
-        ActionEditFile a = new ActionEditFile();
-        actions.add(a);
-        xml.loadXML(new File("C:\\ae.xml"));
-        System.out.println(actions.get(0).getType());
+
+        /*Mod a = xml.loadXML(new File("C:\\ae.xml"));
+        ActionEditFileFind b = (ActionEditFileFind) ((ActionEditFile) a.actions.get(0)).getActions().get(0);
+        System.out.println(b.getContent());*/
+
+        /*this.name = "nome";
+        this.actions.add(new ActionEditFile());
+        ((ActionEditFile) this.actions.get(0)).getActions().add((ActionEditFileActions) new ActionEditFileFind());
+        xml.saveXML(this, new File("C:\\opa.xml"));*/
+
 
     }
 
@@ -176,15 +176,15 @@ public class Mod {
         return updatedownloadurl;
     }
 
-    public void setPath(String path) {
+    private void setPath(String path) {
         this.path = path;
     }
 
-    public String getPath() {
+    private String getPath() {
         return path;
     }
 
-    public void setFile(File file) {
+    private void setFile(File file) {
         this.file = file;
     }
 
@@ -199,7 +199,7 @@ public class Mod {
         return icon;
     }
 
-    public void setIcon(File icon) {
+    private void setIcon(File icon) {
         this.icon = icon;
     }
 }

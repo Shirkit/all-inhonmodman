@@ -1,7 +1,9 @@
 package business.actions;
 
+import business.actions.converters.ActionEditFileFindConverter;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+import com.thoughtworks.xstream.annotations.XStreamConverter;
 
 /**
  * synonyms for "find" are "seek" and "search"
@@ -13,6 +15,7 @@ import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
  * @author Shirkit
  */
 @XStreamAlias("find")
+@XStreamConverter(ActionEditFileFindConverter.class)
 public class ActionEditFileFind extends Action {
 
     @XStreamAlias("position")
@@ -22,7 +25,6 @@ public class ActionEditFileFind extends Action {
 
     public ActionEditFileFind() {
         setType(FIND);
-        this.content = "conteudo";
     }
 
     /**
@@ -40,22 +42,25 @@ public class ActionEditFileFind extends Action {
     }
 
     /**
-     * @return the value
+     * @return the content
      */
     public String getContent() {
         return content;
     }
 
     /**
-     * @param value the value to set
+     * @param content the content to set
      */
     public void setContent(String content) {
         this.content = content;
     }
 
+    /**
+     * Replaced to be used by the XStreamConverter
+     */
     @Override
     public String toString() {
-        return getContent();
+        return "<![CDATA[" + getContent() + "]]>";
     }
 
 
