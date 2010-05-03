@@ -1,7 +1,9 @@
 package business.actions;
 
+import business.actions.converters.ActionEditFileInsertConverter;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+import com.thoughtworks.xstream.annotations.XStreamConverter;
 
 /**
  * synonym for "insert" is "add"
@@ -9,12 +11,17 @@ import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
  * @author Shirkit
  */
 @XStreamAlias("insert")
+@XStreamConverter(ActionEditFileInsertConverter.class)
 public class ActionEditFileInsert extends Action {
 
     @XStreamAlias("position")
     @XStreamAsAttribute
     private String position;
-    private String value;
+    private String content;
+
+    public ActionEditFileInsert() {
+        setType(INSERT);
+    }
 
     /**
      * @return the position
@@ -31,16 +38,24 @@ public class ActionEditFileInsert extends Action {
     }
 
     /**
-     * @return the value
+     * @return the content
      */
-    public String getValue() {
-        return value;
+    public String getContent() {
+        return content;
     }
 
     /**
-     * @param value the value to set
+     * @param content the content to set
      */
-    public void setValue(String value) {
-        this.value = value;
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    /**
+     * Replaced to be used by the XStreamConverter
+     */
+    @Override
+    public String toString() {
+        return "<![CDATA[" + getContent() + "]]>";
     }
 }

@@ -1,13 +1,20 @@
 package business.actions;
 
+import business.actions.converters.ActionEditFileDeleteConverter;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.annotations.XStreamConverter;
 
 /**
  * Deletes the string pointed to by the "cursor". Does not require a source string.
  * @author Shirkit
  */
 @XStreamAlias("delete")
-public class ActionEditFileDelete extends Action {
+@XStreamConverter(ActionEditFileDeleteConverter.class)
+public class ActionEditFileDelete extends Action implements ActionEditFileActions {
+
+    public ActionEditFileDelete() {
+        setType(DELETE);
+    }
 
     private String content;
 

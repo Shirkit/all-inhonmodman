@@ -16,7 +16,7 @@ import com.thoughtworks.xstream.annotations.XStreamConverter;
  */
 @XStreamAlias("find")
 @XStreamConverter(ActionEditFileFindConverter.class)
-public class ActionEditFileFind extends Action {
+public class ActionEditFileFind extends Action implements ActionEditFileActions {
 
     @XStreamAlias("position")
     @XStreamAsAttribute

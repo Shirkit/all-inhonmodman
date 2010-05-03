@@ -1,6 +1,7 @@
 package business.actions;
 
-import java.util.ArrayList;
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 
 /**
  *  Copies a supportive file from the mod archive.<br/>If "path2" is not specified the file "path1" is copied, if it is "path2" is copied and renamed to "path1".<br/>
@@ -15,12 +16,23 @@ import java.util.ArrayList;
  *       ('BardUI' or ('Improved UI by Barter[v1.08]' and 'Improved UI Addon - Juking Map')) and not 'Tiny UI'<br/>
  * @author Shirkit
  */
+@XStreamAlias("copyfile")
 public class ActionCopyFile extends Action {
 
+    @XStreamAlias("name")
+    @XStreamAsAttribute
     private String name; // Path1
+    @XStreamAlias("source")
+    @XStreamAsAttribute
     private String source; // Path2
+    @XStreamAlias("overwrite")
+    @XStreamAsAttribute
     private String overwrite; // yes | no | newer
+    @XStreamAlias("version")
+    @XStreamAsAttribute
     private String version;
+    @XStreamAlias("condition")
+    @XStreamAsAttribute
     private String condition;
 
     /**

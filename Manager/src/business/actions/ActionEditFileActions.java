@@ -14,7 +14,8 @@ public interface ActionEditFileActions {
     /**
      * Replaced to be used by the XStreamConverter
      */
-    public String toString(String string);
+    @Override
+    public String toString();
 
     /**
      * @return the content

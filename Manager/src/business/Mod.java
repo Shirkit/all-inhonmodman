@@ -1,9 +1,6 @@
 package business;
 
 import business.actions.Action;
-import business.actions.ActionEditFile;
-import business.actions.ActionEditFileActions;
-import business.actions.ActionEditFileFind;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
@@ -59,26 +56,27 @@ public class Mod {
     private String updatedownloadurl;
     // Extra
     @XStreamOmitField
-    private File file;
+    private File folder;
     @XStreamOmitField
-    private File icon;
-    @XStreamOmitField
+    /**
+     * path of the .honmod file
+     */
     private String path;
     @XStreamOmitField
-    private String iconPath;
-    @XStreamImplicit
     private ArrayList<Action> actions = new ArrayList<Action>();
 
     /**
      * Mod constructor
-     * @param path
+     * @param path to the .honmod file
      * @throws FileNotFoundException
      * @throws IOException
      */
     public Mod(String path) throws FileNotFoundException, IOException {
 
         setPath(path);
-        XML xml = new XML();
+        ZIP zip = new ZIP();
+        setFolder(zip.openZIP(new File(path)));
+
 
         /*Mod a = xml.loadXML(new File("C:\\ae.xml"));
         ActionEditFileFind b = (ActionEditFileFind) ((ActionEditFile) a.actions.get(0)).getActions().get(0);
@@ -128,13 +126,6 @@ public class Mod {
     }
 
     /**
-     * @return the iconPath
-     */
-    public String getIconPath() {
-        return iconPath;
-    }
-
-    /**
      * @return the application
      */
     public String getApplication() {
@@ -180,26 +171,48 @@ public class Mod {
         this.path = path;
     }
 
+    /**
+     *
+     * @return the path of the .honmod file.
+     */
     private String getPath() {
         return path;
     }
 
-    private void setFile(File file) {
-        this.file = file;
+    /**
+     * 
+     * @param folder with the .honmod content inside it.
+     */
+    private void setFolder(File folder) {
+        this.folder = folder;
     }
 
     /**
-     * @return the folder with the .honmod files inside it.
+     * @return the folder with the .honmod content inside it.
      */
-    public File getFile() {
-        return file;
+    public File getFolder() {
+        return folder;
     }
 
-    public File getIcon() {
-        return icon;
+    public File getIcon() throws FileNotFoundException {
+        int i = 0;
+        while (getFolder().listFiles()[i] != null) {
+            if (getFolder().listFiles()[i].getName().equals(Mod.ICON_FILENAME)) {
+                return getFolder().listFiles()[i];
+            }
+            i++;
+        }
+        throw new FileNotFoundException();
     }
 
-    private void setIcon(File icon) {
-        this.icon = icon;
+    public File getHonmod() throws FileNotFoundException {
+        int i = 0;
+        while (getFolder().listFiles()[i] != null) {
+            if (getFolder().listFiles()[i].getName().equals(Mod.MOD_FILENAME)) {
+                return getFolder().listFiles()[i];
+            }
+            i++;
+        }
+        throw new FileNotFoundException();
     }
 }
