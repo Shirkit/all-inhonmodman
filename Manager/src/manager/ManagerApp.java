@@ -4,6 +4,10 @@
 
 package manager;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.jdesktop.application.Application;
 import org.jdesktop.application.SingleFrameApplication;
 
@@ -39,7 +43,15 @@ public class ManagerApp extends SingleFrameApplication {
     /**
      * Main method launching the application.
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws FileNotFoundException, IOException {
+        Game g = new Game("D:\\Jogos\\Heroes");
+        try {
+            g.getVersion();
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(ManagerApp.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(ManagerApp.class.getName()).log(Level.SEVERE, null, ex);
+        }
         launch(ManagerApp.class, args);
     }
 }
