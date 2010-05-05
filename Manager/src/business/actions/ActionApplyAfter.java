@@ -4,7 +4,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 
 /**
- * If the specified other mod is enabled, this mod will be applied after/before it.
+ * If the specified other mod is enabled, this mod will be applied after it.
  * @author Shirkit
  */
 @XStreamAlias("applyafter")

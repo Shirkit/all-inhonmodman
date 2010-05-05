@@ -20,7 +20,15 @@ public class XML {
         return new DomDriver("UTF-8", null);
     }
 
-    public void saveXML(Mod what, File where) throws FileNotFoundException, UnsupportedEncodingException, IOException {
+    /**
+     * Save the XML in the passed parameter of the passed Mod.
+     * @param what Mod to be saved.
+     * @param where path to the File that the Mod's content will be saved.
+     * @throws FileNotFoundException if the passed param 'where' was not found.
+     * @throws UnsupportedEncodingException
+     * @throws IOException random I/O exception.
+     */
+    public void modToXml(Mod what, File where) throws FileNotFoundException, UnsupportedEncodingException, IOException {
 
         XStream xstream = new XStream(getDriver());
         xstream = updateAlias(xstream);
@@ -33,7 +41,13 @@ public class XML {
         fos.write(temp.getBytes("UTF-8"));
     }
 
-    public Mod loadXML(File file) throws FileNotFoundException {
+    /**
+     * Loads the content of a XML file into a Mod.
+     * @param file to be read.
+     * @return the Mod with all fields already filled up.
+     * @throws FileNotFoundException
+     */
+    public Mod xmlToMod(File file) throws FileNotFoundException {
 
         if (file.exists()) {
             XStream xstream = new XStream(getDriver());
@@ -45,6 +59,11 @@ public class XML {
 
     }
 
+    /**
+     *  This method is to help the XStream to find all the alias in the Classes and to input the synoms of the operations.
+     * @param xstream
+     * @return
+     */
     private XStream updateAlias(XStream xstream) {
 
         xstream.processAnnotations(Mod.class);

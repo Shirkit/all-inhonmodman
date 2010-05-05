@@ -19,7 +19,7 @@ public class Mod {
 
     // Constants
     public static final String MOD_FILENAME = "mod.xml";
-    public static final String ICON_FILENAME = "mod.xml";
+    public static final String ICON_FILENAME = "icon.png";
     // Attributes with Alias
     @XStreamAlias("name")
     @XStreamAsAttribute
@@ -194,6 +194,10 @@ public class Mod {
         return folder;
     }
 
+    /**
+     * @return File of the icon.
+     * @throws FileNotFoundException if the icon wasn't found.
+     */
     public File getIcon() throws FileNotFoundException {
         int i = 0;
         while (getFolder().listFiles()[i] != null) {
@@ -205,6 +209,11 @@ public class Mod {
         throw new FileNotFoundException();
     }
 
+    /**
+     * @return File of the .honmod file.
+     * @throws FileNotFoundException if the .honmod file wasn't found.
+     * @see File
+     */
     public File getHonmod() throws FileNotFoundException {
         int i = 0;
         while (getFolder().listFiles()[i] != null) {

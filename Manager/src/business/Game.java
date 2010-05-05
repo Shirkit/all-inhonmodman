@@ -1,4 +1,4 @@
-package manager;
+package business;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -13,17 +13,54 @@ public class Game {
 
     private String path;
     private String version;
+    private static Game instance = null;
 
-    public Game(String path) throws FileNotFoundException, IOException {
-        setVersion(getVersion(path));
-        setPath(path);
+    /**
+     * @param path to the HoN folder.
+     * @throws FileNotFoundException if HoN folder doesn't exist.
+     * @throws IOException if happened some I/O exception.
+     */
+    private Game() {
+        this.path = null;
+        this.version = null;
+        
+    }
+     /**
+      * This method is used to get the only instance of this class that is running. Since the game is unique, there is no point of having more than one instance of this class.
+      * @return the instance.
+      */
+    public static Game getInstance() {
+        if(instance == null) {
+            instance = new Game();
+        }
+        return instance;
     }
 
     /**
-     * @return the game version.
+     * @return the version of HoN.
+     * @throws FileNotFoundException if HoN folder doesn't exist. Possible values:
+     * <br/>"Hon folder doesn't exist".
+     * <br/>"Hon file wasn't found".
+     * @throws IOException if happened some I/O exception.
+     * @throws IllegalArgumentException if the attribute 'path' is null.
+     */
+    public String getVersion() throws IllegalArgumentException, FileNotFoundException, IOException {
+        if(this.path == null) {
+            throw new IllegalArgumentException("Attribute 'path' not set yet.");
+        }
+        if (this.version == null) {
+            setVersion(getVersion(getPath()));
+            return this.version;
+        } else {
+            return this.version;
+        }
+    }
+
+    /**
+     * @return the game version. This method checks for the path of the game, and from there he tries to get it's version.
      */
     private String getVersion(String path) throws FileNotFoundException, IOException {
-
+        // Different folder for diffrent OS
         File folder = new File(path);
         File honWindows = new File(folder.getAbsolutePath() + File.separator + "hon.exe");
         File honLinux = new File(folder.getAbsolutePath() + File.separator + "hon-x86");
@@ -49,6 +86,13 @@ public class Game {
 
     }
 
+    /**
+     *
+     * @param file of the 'hon.exe'. This algorithm was taken from the HoN ModManager.
+     * @return a String with the game version.
+     * @throws FileNotFoundException if the @param File hon was not found.
+     * @throws IOException if occurred some I/O exception while reading/writing.
+     */
     private String getGameVersionWindows(File hon) throws FileNotFoundException, IOException {
         FileImageInputStream fos = new FileImageInputStream(hon);
         byte[] buffer = new byte[(int) hon.length()];
@@ -70,6 +114,13 @@ public class Game {
         return gameVersion;
     }
 
+    /**
+     *
+     * @param file of the 'hon.exe'. This algorithm was taken from the HoN ModManager.
+     * @return a String with the game version.
+     * @throws FileNotFoundException if the @param File hon was not found.
+     * @throws IOException if occurred some I/O exception while reading/writing.
+     */
     private String getGameVersionLinux(File hon) throws FileNotFoundException, IOException {
         FileImageInputStream fos = new FileImageInputStream(hon);
         byte[] buffer = new byte[(int) hon.length()];
@@ -91,6 +142,14 @@ public class Game {
         return gameVersion;
     }
 
+    /**
+     *
+     * @param buffer is the search place.
+     * @param needle is the thing that is you are looking for.
+     * @return
+     * <br/><b>-1</b> if nothing was found.
+     * <br/>A integer of the position found.
+     */
     private int FindInByteStream(byte[] buffer, byte[] needle) {
         for (int i = 0; i < (buffer.length - needle.length); i++) {
             int j;
@@ -107,7 +166,7 @@ public class Game {
     }
 
     /**
-     * needs implementation
+     * needs implementation?
      * @return
      */
     public boolean isGameOpen() {
@@ -115,10 +174,11 @@ public class Game {
     }
 
     /**
-     * @param path to the HoN folder
+     * This method is required to be used before using the other methods in this class.
+     * @param path to the HoN folder.
      */
-    public void setPath(String path) {
-        this.path = path;
+    public void setPath(File path) {
+        this.path = path.getAbsolutePath();
     }
 
     /**
@@ -133,19 +193,5 @@ public class Game {
      */
     private void setVersion(String version) {
         this.version = version;
-    }
-
-    /**
-     * @return the version of HoN.
-     * @throws FileNotFoundException if HoN folder doesn't exist.
-     * @throws IOException if happened some I/O exception.
-     */
-    public String getVersion() throws FileNotFoundException, IOException {
-        if (this.version == null) {
-            setVersion(getVersion(getPath()));
-            return this.version;
-        } else {
-            return this.version;
-        }
     }
 }

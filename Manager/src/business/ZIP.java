@@ -54,6 +54,12 @@ public class ZIP {
         return file;
     }
 
+    /**
+     *
+     * @param in
+     * @param out
+     * @throws IOException
+     */
     public void copyInputStream(InputStream in, OutputStream out) throws IOException {
         byte[] buffer = new byte[1024];
         int len;
@@ -66,7 +72,7 @@ public class ZIP {
     /**
      *
      * @param source Path to the folder to be compressed.
-     * @param destination Path to where the .zip file will be created.
+     * @param file Path to where the .zip file will be created.
      * @throws FileNotFoundException if coudln't create/open a extracted file.
      * @throws IOException if an I/O error has occurred
      */
