@@ -72,6 +72,9 @@
                 <Property name="text" type="java.lang.String" resourceKey="jMenuItem6.text"/>
                 <Property name="name" type="java.lang.String" value="jMenuItem6" noResource="true"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem6ActionPerformed"/>
+              </Events>
             </MenuItem>
           </SubComponents>
         </Menu>
@@ -140,7 +143,7 @@
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
-          <EmptySpace min="0" pref="277" max="32767" attributes="0"/>
+          <EmptySpace min="0" pref="279" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
   </Layout>

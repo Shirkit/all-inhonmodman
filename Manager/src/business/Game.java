@@ -57,6 +57,7 @@ public class Game {
     }
 
     /**
+     * @param path is a String with the path to the HoN folder.
      * @return the game version. This method checks for the path of the game, and from there he tries to get it's version.
      */
     private String getVersion(String path) throws FileNotFoundException, IOException {
@@ -176,9 +177,14 @@ public class Game {
     /**
      * This method is required to be used before using the other methods in this class.
      * @param path to the HoN folder.
+     * @throws FileNotFoundException if HoN folder doesn't exist. Possible values:
+     * <br/>"Hon folder doesn't exist".
+     * <br/>"Hon file wasn't found".
+     * @throws IOException if happened some I/O exception.
      */
-    public void setPath(File path) {
+    public void setPath(File path) throws FileNotFoundException, IOException {
         this.path = path.getAbsolutePath();
+        setVersion(getVersion(path.getAbsolutePath()));
     }
 
     /**

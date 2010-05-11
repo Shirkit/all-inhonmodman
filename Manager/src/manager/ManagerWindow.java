@@ -8,16 +8,14 @@
  *
  * Created on 05/05/2010, 17:56:02
  */
-
 package manager;
 
 import business.Game;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -105,6 +103,11 @@ public class ManagerWindow extends javax.swing.JFrame {
 
         jMenuItem6.setText(resourceMap.getString("jMenuItem6.text")); // NOI18N
         jMenuItem6.setName("jMenuItem6"); // NOI18N
+        jMenuItem6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem6ActionPerformed(evt);
+            }
+        });
         jMenu3.add(jMenuItem6);
 
         jMenuBar1.add(jMenu3);
@@ -144,7 +147,7 @@ public class ManagerWindow extends javax.swing.JFrame {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 277, Short.MAX_VALUE)
+            .addGap(0, 279, Short.MAX_VALUE)
         );
 
         pack();
@@ -162,20 +165,44 @@ public class ManagerWindow extends javax.swing.JFrame {
         f.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         f.setDialogTitle("Select the HoN folder");
         f.showOpenDialog(this);
-        Game.getInstance().setPath(f.getSelectedFile());
+        try {
+            Game.getInstance().setPath(f.getSelectedFile());
+            System.out.println(Game.getInstance().getVersion());
+        } catch (FileNotFoundException ex) {
+            if (ex.getMessage().equalsIgnoreCase("Hon folder doesn't exist")) {
+                JOptionPane.showMessageDialog(this, "HoN folder doesn't seem to exist.\nPlease, be sure to set a valid folder path.", "HoN folder error", JOptionPane.ERROR_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, "HoN launcher couldn't be found.\nPlease, be sure to set a valid folder path.", "HoN launcher error", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(this, "For some reason, the HoN launcher couldn't be open.", "Random I/O Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_jMenuItem5ActionPerformed
 
-    /**
-    * @param args the command line arguments
-    */
-    public static void main(String args[]) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new ManagerWindow().setVisible(true);
+    private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
+        try {
+            // TODO add your handling code here:
+            Game.getInstance().setPath(new File(JOptionPane.showInputDialog(null, "Enter the full path to the game", "Enter", JOptionPane.QUESTION_MESSAGE)));
+        } catch (FileNotFoundException ex) {
+            if (ex.getMessage().equalsIgnoreCase("Hon folder doesn't exist")) {
+                JOptionPane.showMessageDialog(this, "HoN folder doesn't seem to exist.\nPlease, be sure to set a valid folder path.", "HoN folder error", JOptionPane.ERROR_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, "HoN launcher couldn't be found.\nPlease, be sure to set a valid folder path.", "HoN launcher error", JOptionPane.ERROR_MESSAGE);
             }
-        });
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(this, "For some reason, the HoN launcher couldn't be open.", "Random I/O Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_jMenuItem6ActionPerformed
+    /**
+     * @param args the command line arguments
+     */
+    /*public static void main(String args[]) {
+    java.awt.EventQueue.invokeLater(new Runnable() {
+    public void run() {
+    new ManagerWindow().setVisible(true);
     }
-
+    });
+    }*/
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu3;
@@ -194,5 +221,4 @@ public class ManagerWindow extends javax.swing.JFrame {
     private javax.swing.JPopupMenu.Separator jSeparator2;
     private javax.swing.JPopupMenu.Separator jSeparator3;
     // End of variables declaration//GEN-END:variables
-
 }
