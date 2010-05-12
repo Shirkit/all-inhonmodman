@@ -1,7 +1,6 @@
 /*
  * ManagerApp.java
  */
-
 package manager;
 
 import java.io.FileNotFoundException;
@@ -18,8 +17,10 @@ public class ManagerApp extends SingleFrameApplication {
     /**
      * At startup create and show the main frame of the application.
      */
-    @Override protected void startup() {
-        show(new ManagerWindow());
+    @Override
+    protected void startup() {
+        //show(new ManagerWindow());
+        show(new NewJFrame());
     }
 
     /**
@@ -27,7 +28,8 @@ public class ManagerApp extends SingleFrameApplication {
      * Windows shown in our application come fully initialized from the GUI
      * builder, so this additional configuration is not needed.
      */
-    @Override protected void configureWindow(java.awt.Window root) {
+    @Override
+    protected void configureWindow(java.awt.Window root) {
     }
 
     /**

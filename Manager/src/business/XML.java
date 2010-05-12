@@ -16,7 +16,7 @@ import java.io.UnsupportedEncodingException;
  */
 public class XML {
 
-    private DomDriver getDriver() {
+    private static DomDriver getDriver() {
         return new DomDriver("UTF-8", null);
     }
 
@@ -28,7 +28,7 @@ public class XML {
      * @throws UnsupportedEncodingException
      * @throws IOException random I/O exception.
      */
-    public void modToXml(Mod what, File where) throws FileNotFoundException, UnsupportedEncodingException, IOException {
+    public static void modToXml(Mod what, File where) throws FileNotFoundException, UnsupportedEncodingException, IOException {
 
         XStream xstream = new XStream(getDriver());
         xstream = updateAlias(xstream);
@@ -47,7 +47,7 @@ public class XML {
      * @return the Mod with all fields already filled up.
      * @throws FileNotFoundException
      */
-    public Mod xmlToMod(File file) throws FileNotFoundException {
+    public static Mod xmlToMod(File file) throws FileNotFoundException {
 
         if (file.exists()) {
             XStream xstream = new XStream(getDriver());
@@ -64,7 +64,7 @@ public class XML {
      * @param xstream
      * @return
      */
-    private XStream updateAlias(XStream xstream) {
+    private static XStream updateAlias(XStream xstream) {
 
         xstream.processAnnotations(Mod.class);
         xstream.processAnnotations(Action.class);

@@ -19,14 +19,15 @@ import java.util.zip.ZipOutputStream;
 public class ZIP {
 
     /**
-     *
+     * This is the main method. It unzips the .honmod file.
      * @param honmod the file .honmod to be extracted.
+     * @param folder the folder to where the .honmod file will be extracted.
      * @return folder with the files extracted.
      * @throws IOException if an I/O error has occurred
      * @throws FileNotFoundException if a file is missing. Use the Exception.getMessage(). Possible values:
      * <br/><b>honmod</b>
      */
-    public File openZIP(File honmod) throws FileNotFoundException, IOException {
+    public static File openZIP(File honmod, String folder) throws FileNotFoundException, IOException {
 
         if (!honmod.exists()) {
             throw new FileNotFoundException("honmod");
@@ -36,7 +37,7 @@ public class ZIP {
         Enumeration entries = zipFile.entries();
 
         // creating the temp folder
-        File file = new File(System.getProperty("java.io.tmpdir") + File.separator + "ModManager" + File.separator + honmod.getName());
+        File file = new File(folder);
         if (!file.exists()) {
             file.mkdirs();
         }
@@ -60,7 +61,7 @@ public class ZIP {
      * @param out
      * @throws IOException
      */
-    public void copyInputStream(InputStream in, OutputStream out) throws IOException {
+    public static void copyInputStream(InputStream in, OutputStream out) throws IOException {
         byte[] buffer = new byte[1024];
         int len;
 
@@ -76,11 +77,10 @@ public class ZIP {
      * @throws FileNotFoundException if coudln't create/open a extracted file.
      * @throws IOException if an I/O error has occurred
      */
-    public void createZIP(String source, String file) throws FileNotFoundException, IOException {
+    public static void createZIP(String source, String file) throws FileNotFoundException, IOException {
 
         // creates the buffer to generate the zip
         ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(file));
-
         zipDir(source, zos);
         zos.close();
     }
@@ -92,7 +92,7 @@ public class ZIP {
      * @throws FileNotFoundException
      * @throws IOException
      */
-    public void zipDir(String dir2zip, ZipOutputStream zos) throws FileNotFoundException, IOException {
+    private static void zipDir(String dir2zip, ZipOutputStream zos) throws FileNotFoundException, IOException {
         File zipDir = new File(dir2zip);
 
         //get a listing of the directory content

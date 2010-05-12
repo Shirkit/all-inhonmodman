@@ -64,30 +64,58 @@ public class Mod {
     private String path;
     @XStreamOmitField
     private ArrayList<Action> actions = new ArrayList<Action>();
+    @XStreamOmitField
+    private int id;
 
     /**
-     * Mod constructor
-     * @param path to the .honmod file
-     * @throws FileNotFoundException
-     * @throws IOException
+     * Mod constructor.
      */
-    public Mod(String path) throws FileNotFoundException, IOException {
+    public Mod() {
 
-        setPath(path);
-        ZIP zip = new ZIP();
-        setFolder(zip.openZIP(new File(path)));
+    }
+    
+    /**
+     * Copies the passed mod by param to this mod.
+     * @param mod
+     * @deprecated no sense on this method.
+     */
+    private void copy(Mod mod) {
+        this.actions = mod.actions;
+        this.application = mod.getApplication();
+        this.appversion = mod.getAppVersion();
+        this.author = mod.getAuthor();
+        this.date = mod.getDate();
+        this.description = mod.getDescription();
+        this.mmversion = mod.getMmVersion();
+        this.name = mod.getName();
+        this.updatecheckurl = mod.getUpdateCheckUrl();
+        this.version = mod.getVersion();
+        this.weblink = mod.getWeLiink();
+    }
 
+    public File getXmlFile() throws FileNotFoundException {
+        for (int i = 0; i > this.getFolder().listFiles().length; i++) {
+            if (getFolder().listFiles()[i].getName().equals(MOD_FILENAME)) {
+                return getFolder().listFiles()[i];
+            }
+        }
+        throw new FileNotFoundException("mod.xml");
+    }
 
-        /*Mod a = xml.loadXML(new File("C:\\ae.xml"));
-        ActionEditFileFind b = (ActionEditFileFind) ((ActionEditFile) a.actions.get(0)).getActions().get(0);
-        System.out.println(b.getContent());*/
-
-        /*this.name = "nome";
-        this.actions.add(new ActionEditFile());
-        ((ActionEditFile) this.actions.get(0)).getActions().add((ActionEditFileActions) new ActionEditFileFind());
-        xml.saveXML(this, new File("C:\\opa.xml"));*/
-
-
+    /**
+     * This method compares 2 mods to check if they are equal. It currently tests for the mod's version, name and author.
+     * @param mod to be compared to.
+     * @return true if mods are equal. false otherwise.
+     */
+    public boolean equals(Mod mod) {
+        if (this.getVersion().equals(mod.getVersion())) {
+            if (this.getName().equals(mod.getName())) {
+                if (this.getAuthor().equals(mod.getAuthor())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -167,7 +195,10 @@ public class Mod {
         return updatedownloadurl;
     }
 
-    private void setPath(String path) {
+    /**
+     * @param path the path of the .honmod file.
+     */
+    public void setPath(String path) {
         this.path = path;
     }
 
@@ -175,7 +206,7 @@ public class Mod {
      *
      * @return the path of the .honmod file.
      */
-    private String getPath() {
+    public String getPath() {
         return path;
     }
 
@@ -183,7 +214,7 @@ public class Mod {
      * 
      * @param folder with the .honmod content inside it.
      */
-    private void setFolder(File folder) {
+    public void setFolder(File folder) {
         this.folder = folder;
     }
 
@@ -192,6 +223,14 @@ public class Mod {
      */
     public File getFolder() {
         return folder;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     /**
