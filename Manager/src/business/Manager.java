@@ -40,7 +40,7 @@ public class Manager {
     }
 
     /**
-     * This method is used to get the running instance of the Manager class.
+     * This method is used to get the running instance of the Manager class. This method is equal to getInstance(), but it's shorter.
      * @return the instance.
      * @see getInstance()
      */
