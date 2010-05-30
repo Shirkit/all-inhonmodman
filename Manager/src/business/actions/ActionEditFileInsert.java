@@ -12,7 +12,7 @@ import com.thoughtworks.xstream.annotations.XStreamConverter;
  */
 @XStreamAlias("insert")
 @XStreamConverter(ActionEditFileInsertConverter.class)
-public class ActionEditFileInsert extends Action {
+public class ActionEditFileInsert extends Action implements ActionEditFileActions {
 
     @XStreamAlias("position")
     @XStreamAsAttribute

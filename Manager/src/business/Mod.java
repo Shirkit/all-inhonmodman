@@ -7,7 +7,6 @@ import com.thoughtworks.xstream.annotations.XStreamImplicit;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -62,10 +61,12 @@ public class Mod {
      * path of the .honmod file
      */
     private String path;
-    @XStreamOmitField
+    @XStreamImplicit
     private ArrayList<Action> actions = new ArrayList<Action>();
     @XStreamOmitField
     private int id;
+    @XStreamOmitField
+    private boolean enabled;
 
     /**
      * Mod constructor.
@@ -93,7 +94,10 @@ public class Mod {
         this.weblink = mod.getWeLiink();
     }
 
-    public File getXmlFile() throws FileNotFoundException {
+    public File getXmlFile() throws NullPointerException, FileNotFoundException {
+        if (getFolder() == null) {
+            throw new NullPointerException();
+        }
         for (int i = 0; i > this.getFolder().listFiles().length; i++) {
             if (getFolder().listFiles()[i].getName().equals(MOD_FILENAME)) {
                 return getFolder().listFiles()[i];
@@ -116,6 +120,26 @@ public class Mod {
             }
         }
         return false;
+    }
+
+    /**
+     * The actions (such as applyafter, insert, editfile) are stored in this array list.
+     * @return the array list of the actions.
+     */
+    public ArrayList<Action> getActions() {
+        return actions;
+    }
+
+    public String getUpdatecheckurl() {
+        return updatecheckurl;
+    }
+
+    public String getUpdatedownloadurl() {
+        return updatedownloadurl;
+    }
+
+    public String getWeblink() {
+        return weblink;
     }
 
     /**
@@ -248,19 +272,4 @@ public class Mod {
         throw new FileNotFoundException();
     }
 
-    /**
-     * @return File of the .honmod file.
-     * @throws FileNotFoundException if the .honmod file wasn't found.
-     * @see File
-     */
-    public File getHonmod() throws FileNotFoundException {
-        int i = 0;
-        while (getFolder().listFiles()[i] != null) {
-            if (getFolder().listFiles()[i].getName().equals(Mod.MOD_FILENAME)) {
-                return getFolder().listFiles()[i];
-            }
-            i++;
-        }
-        throw new FileNotFoundException();
-    }
 }

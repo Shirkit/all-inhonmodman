@@ -37,19 +37,4 @@ public class ActionApplyAfter extends Action {
         return version;
     }
 
-    /**
-     *
-     * @param name of the Other mod to be applied before this mod.
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     *
-     * @param version of the Other mod to be applied before this mod.
-     */
-    public void setVersion(String version) {
-        this.version = version;
-    }
 }

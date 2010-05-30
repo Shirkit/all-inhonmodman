@@ -55,13 +55,7 @@ public class ZIP {
         return file;
     }
 
-    /**
-     *
-     * @param in
-     * @param out
-     * @throws IOException
-     */
-    public static void copyInputStream(InputStream in, OutputStream out) throws IOException {
+    private static void copyInputStream(InputStream in, OutputStream out) throws IOException {
         byte[] buffer = new byte[1024];
         int len;
 
