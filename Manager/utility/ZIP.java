@@ -1,5 +1,6 @@
 package utility;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -9,6 +10,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
@@ -17,6 +19,40 @@ import java.util.zip.ZipOutputStream;
  * @author Shirkit
  */
 public class ZIP {
+
+    /**
+     * Retrives only one file given by it's relative path and name and retrives a byte array of it.
+     * @param zip is the zip file to search in.
+     * @param filename is the file to look for.
+     * @return byte[] of the file.
+     * @throws IOException if an I/O error has occurred.
+     * @throws FileNotFoundException if a file is missing. Use the Exception.getMessage(). Or the zip file wasn't found, or the filename wasn't found inside the zip.
+     * @throws ZipException if a random ZipException occourred.
+     */
+    public static byte[] getFile(File zip, String filename) throws FileNotFoundException, ZipException, IOException {
+        if (!zip.exists()) {
+            throw new FileNotFoundException(zip.getName());
+        }
+
+        ZipFile zipFile = new ZipFile(zip);
+        Enumeration entries = zipFile.entries();
+
+        ByteArrayOutputStream output;
+        byte[] result = null;
+
+        while (entries.hasMoreElements()) {
+            ZipEntry entry = (ZipEntry) entries.nextElement();
+
+            if (entry.getName().equals(filename)) {
+                copyInputStream(zipFile.getInputStream(entry), output = new ByteArrayOutputStream());
+                result = output.toByteArray();
+                output.close();
+                return result;
+            }
+        }
+
+        throw new FileNotFoundException(filename);
+    }
 
     /**
      * This is the main method. It unzips the .honmod file.

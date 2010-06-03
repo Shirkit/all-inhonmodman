@@ -2,7 +2,6 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package business.actions.converters;
 
 import business.actions.ActionEditFileFind;
@@ -20,7 +19,9 @@ public class ActionEditFileFindConverter implements Converter {
 
     public void marshal(Object o, HierarchicalStreamWriter writer, MarshallingContext mc) {
         ActionEditFileFind value = (ActionEditFileFind) o;
-        writer.addAttribute("position", value.getPosition());
+        if (value.getPosition() != null) {
+            writer.addAttribute("position", value.getPosition());
+        }
         writer.setValue(value.getContent());
     }
 
@@ -34,5 +35,4 @@ public class ActionEditFileFindConverter implements Converter {
     public boolean canConvert(Class type) {
         return type.equals(ActionEditFileFind.class);
     }
-
 }

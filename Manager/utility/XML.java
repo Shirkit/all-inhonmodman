@@ -75,6 +75,19 @@ public class XML {
     }
 
     /**
+     * Loads the content of a XML String into a Mod.
+     * @param fileString to be read.
+     * @return the Mod with all fields already filled up.
+     */
+    public static Mod xmlToMod(String fileString) {
+
+        XStream xstream = new XStream(getDriver());
+        xstream = updateAlias(xstream);
+        return (Mod) xstream.fromXML(fileString);
+
+    }
+
+    /**
      *  This method is to help the XStream to find all the alias in the Classes and to input the synoms of the operations.
      * @param xstream
      * @return
