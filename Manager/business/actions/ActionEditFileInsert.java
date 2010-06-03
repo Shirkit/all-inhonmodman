@@ -1,6 +1,7 @@
 package business.actions;
 
 import business.actions.converters.ActionEditFileInsertConverter;
+import business.actions.converters.ActionEditFileInsertConverter2;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
@@ -11,7 +12,7 @@ import com.thoughtworks.xstream.annotations.XStreamConverter;
  * @author Shirkit
  */
 @XStreamAlias("insert")
-@XStreamConverter(ActionEditFileInsertConverter.class)
+@XStreamConverter(ActionEditFileInsertConverter2.class)
 public class ActionEditFileInsert extends Action implements ActionEditFileActions {
 
     @XStreamAlias("position")
