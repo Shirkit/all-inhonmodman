@@ -57,6 +57,17 @@ public class Mod {
         return filename;
     }
 
+    public String getModpath() {
+        return modpath;
+    }
+
+    public String getPath() {
+        if (modpath.endsWith("/"))
+            return modpath + filename;
+        else
+            return modpath + "/" + filename;
+    }
+
     public String getName() {
         return name;
     }
@@ -102,7 +113,7 @@ public class Mod {
     }
 
     public byte[] getIcon() throws FileNotFoundException, IOException {
-        FileInputStream fis = new FileInputStream(modpath+filename);
+        FileInputStream fis = new FileInputStream(getPath());
         ZipInputStream zis = new ZipInputStream(new BufferedInputStream(fis));
         ZipEntry entry;
 
@@ -120,7 +131,10 @@ public class Mod {
     }
 
     public Document getXML() throws FileNotFoundException, IOException {
-        FileInputStream fis = new FileInputStream(modpath+filename);
+        File f = new File(getPath());
+        System.out.println(f + (f.exists() ? " is found" : " is missing"));
+
+        FileInputStream fis = new FileInputStream(getPath());
         ZipInputStream zis = new ZipInputStream(new BufferedInputStream(fis));
         ZipEntry entry;
 
