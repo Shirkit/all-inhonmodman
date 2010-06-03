@@ -53,6 +53,8 @@ public class Mod {
     @XStreamAlias("updatedownloadurl")
     @XStreamAsAttribute
     private String updatedownloadurl;
+    @XStreamImplicit
+    private ArrayList<Action> actions = new ArrayList<Action>();
     // Extra
     @XStreamOmitField
     private File folder;
@@ -61,12 +63,12 @@ public class Mod {
      * path of the .honmod file
      */
     private String path;
-    @XStreamImplicit
-    private ArrayList<Action> actions = new ArrayList<Action>();
     @XStreamOmitField
     private int id;
     @XStreamOmitField
     private boolean enabled;
+    @XStreamOmitField
+    private int priority;
 
     /**
      * Mod constructor.
@@ -94,6 +96,12 @@ public class Mod {
         this.weblink = mod.getWebLink();
     }
 
+    /**
+     * @deprecated No sense on this.
+     * @return
+     * @throws NullPointerException
+     * @throws FileNotFoundException
+     */
     public File getXmlFile() throws NullPointerException, FileNotFoundException {
         if (getFolder() == null) {
             throw new NullPointerException();
@@ -246,6 +254,7 @@ public class Mod {
     }
 
     /**
+     * @deprecated Wrong implementation.
      * @return File of the icon.
      * @throws FileNotFoundException if the icon wasn't found.
      */
@@ -258,6 +267,28 @@ public class Mod {
             i++;
         }
         throw new FileNotFoundException();
+    }
+
+    /**
+     * Method to check if the mod is enabled.
+     * @return true if the mod is enabled, false otherwise.
+     */
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    /**
+     * Method to enable the current mod/
+     */
+    public void enable() {
+        enabled = true;
+    }
+
+    /**
+     * Method to disable the current mod/
+     */
+    public void disable() {
+        enabled = false;
     }
 
 }
