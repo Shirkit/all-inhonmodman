@@ -10,7 +10,7 @@
  */
 package vision;
 
-import manager.Game;
+import utility.Game;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
