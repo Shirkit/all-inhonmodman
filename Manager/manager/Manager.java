@@ -26,12 +26,12 @@ public class Manager {
 
     private static Manager instance = null;
     private ArrayList<OuterMod> list;
-    private ManagerOptions options = null;
-    private static String MANAGER_FOLDER = "C:\\Manager";
-    private static String MODS_FOLDER = "temp";
-    private static String HONMODS_FOLDER = "honmod";
+    private ManagerOptions options = null; // What does this do?
+    private static String MANAGER_FOLDER = "C:\\Manager"; // Is this necessary?
+    private static String MODS_FOLDER = "mod";
+    private static String HON_FOLDER = "hon"; // We need this
     private ArrayList<OuterMod> lastMods;
-    private int nextPriority;
+    private int nextPriority; // What is this for?
 
     private Manager() {
         list = new ArrayList<OuterMod>();
@@ -46,18 +46,6 @@ public class Manager {
      * @see get()
      */
     public static Manager getInstance() {
-        if (instance == null) {
-            instance = new Manager();
-        }
-        return instance;
-    }
-
-    /**
-     * This method is used to get the running instance of the Manager class. This method is equal to getInstance(), but it's shorter.
-     * @return the instance.
-     * @see getInstance()
-     */
-    public static Manager get() {
         if (instance == null) {
             instance = new Manager();
         }
