@@ -58,9 +58,9 @@ public class Mod {
     // Extra
     @XStreamOmitField
     private File folder;
-    @XStreamOmitField
+    @XStreamOmitField // Deprecated
     /**
-     * path of the .honmod file
+     * Absolute path of the .honmod file
      */
     private String path;
     @XStreamOmitField
@@ -231,7 +231,7 @@ public class Mod {
     }
 
     /**
-     * 
+     * @deprecated No sense on this.
      * @param folder with the .honmod content inside it.
      */
     public void setFolder(File folder) {
@@ -239,6 +239,7 @@ public class Mod {
     }
 
     /**
+     * @deprecated No sense on this.
      * @return the folder with the .honmod content inside it.
      */
     public File getFolder() {
