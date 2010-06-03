@@ -12,11 +12,21 @@ import utility.ZIP;
 import business.actions.Action;
 import business.actions.ActionApplyAfter;
 import business.actions.ActionApplyBefore;
+import business.actions.ActionIncompatibility;
+import business.actions.ActionRequirement;
+
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+
+import com.mallardsoft.tuple.*;
 
 /**
  *
@@ -25,18 +35,22 @@ import java.util.Random;
 public class Manager {
 
     private static Manager instance = null;
-    private ArrayList<OuterMod> list;
+    private ArrayList<Mod> mods;
+    private ArrayList<ArrayList<Pair<String, String>>> deps;
+    private ArrayList<ArrayList<Pair<String, String>>> cons;
     private ManagerOptions options = null; // What does this do?
     private static String MANAGER_FOLDER = "C:\\Manager"; // Is this necessary?
     private static String MODS_FOLDER = "mod";
     private static String HON_FOLDER = "hon"; // We need this
-    private ArrayList<OuterMod> lastMods;
+    private ArrayList<Mod> lastMods;
     private int nextPriority;
 
     private Manager() {
-        list = new ArrayList<OuterMod>();
+        mods = new ArrayList<Mod>();
+        deps = new ArrayList<ArrayList<Pair<String, String> > >();
+        cons = new ArrayList<ArrayList<Pair<String, String> > >();
         options = new ManagerOptions();
-        lastMods = new ArrayList<OuterMod>();
+        lastMods = new ArrayList<Mod>();
         nextPriority = 0;
     }
 
@@ -51,13 +65,49 @@ public class Manager {
         }
         return instance;
     }
+    
+    public void setModPath(String p) {
+    	MODS_FOLDER = p;
+    }
+    
+    public void setGamePath(String p) {
+    	HON_FOLDER = p;
+    }
+    
+    private void buildGraphs() {
+    	for(int i = 0; i < mods.size(); i++) {
+    		int length = mods.get(i).getActions().size();
+    		for(int j = 0; j < length; j++) {
+    			if(mods.get(i).getActions().get(j).getClass() == ActionApplyAfter.class) {
+    				// do something
+    			}
+    			else if(mods.get(i).getActions().get(j).getClass() == ActionApplyBefore.class) {
+    				// do something
+    			}
+    			else if(mods.get(i).getActions().get(j).getClass() == ActionIncompatibility.class) {
+    				
+    			}
+    			else if(mods.get(i).getActions().get(j).getClass() == ActionRequirement.class) {
+    				Pair<String, String> mod = Tuple.from(((ActionRequirement)mods.get(i).getActions().get(j)).getName(), ((ActionRequirement)mods.get(i).getActions().get(j)).getVersion());
+    				if(deps.get(i) == null) {
+    					ArrayList<Pair<String, String> > temp = new ArrayList<Pair<String, String> >();
+    					temp.add(mod);
+    					deps.add(i, temp);
+    				}
+    				else {
+    					deps.get(i).add(mod);
+    				}
+    			}
+    		}
+    	}
+    }
 
     /**
      * Adds a singleVersion to the list of mods. This list the real thing that the Manager uses, this is the main thing around here.
      * @param singleVersion to be added.
      */
     private void addMod(Mod mod) {
-        list.add(new OuterMod(mod));
+        mods.add(mod);
     }
 
     /**
@@ -67,7 +117,7 @@ public class Manager {
      * @throws NoSuchFieldException if the passed singleVersion wasn't found in the list.
      * @see Mod.equals(Mod singleVersion)
      */
-    public OuterMod removeMod(OuterMod mod) throws NoSuchFieldException {
+    public Mod removeMod(Mod mod) throws NoSuchFieldException {
         for (int i = 0; i < list.size(); i++) {
             OuterMod m = list.get(i);
             if (m.equals(mod)) {
@@ -86,8 +136,8 @@ public class Manager {
         while (test) {
             id = r.nextInt();
             boolean pass = true;
-            for (int j = 0; j < list.size(); j++) {
-                if (list.get(j).getMod().getId() == id) {
+            for (int j = 0; j < mods.size(); j++) {
+                if (mods.get(j).getId() == id) {
                     pass = false;
                 }
             }
@@ -95,7 +145,15 @@ public class Manager {
                 test = false;
             }
         }
+        
+        Mod m = XML.xmlToMod(honmod);
+        m.setPath(honmod.getAbsolutePath());
+        m.setId(id);
+        m.disable();
+        addMod(m);
 
+
+        /*
         // Extract the content
         File modPath = ZIP.openZIP(honmod, MANAGER_FOLDER + File.separator + MODS_FOLDER + File.separator + id);
         File[] content = modPath.listFiles();
@@ -109,6 +167,7 @@ public class Manager {
                 addMod(m);
             }
         }
+        */
     }
 
     /**
