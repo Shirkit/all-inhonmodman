@@ -31,7 +31,7 @@ public class Manager {
     private static String MODS_FOLDER = "mod";
     private static String HON_FOLDER = "hon"; // We need this
     private ArrayList<OuterMod> lastMods;
-    private int nextPriority; // What is this for?
+    private int nextPriority;
 
     private Manager() {
         list = new ArrayList<OuterMod>();

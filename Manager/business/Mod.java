@@ -91,7 +91,7 @@ public class Mod {
         this.name = mod.getName();
         this.updatecheckurl = mod.getUpdateCheckUrl();
         this.version = mod.getVersion();
-        this.weblink = mod.getWeLiink();
+        this.weblink = mod.getWebLink();
     }
 
     public File getXmlFile() throws NullPointerException, FileNotFoundException {
@@ -128,18 +128,6 @@ public class Mod {
      */
     public ArrayList<Action> getActions() {
         return actions;
-    }
-
-    public String getUpdatecheckurl() {
-        return updatecheckurl;
-    }
-
-    public String getUpdatedownloadurl() {
-        return updatedownloadurl;
-    }
-
-    public String getWeblink() {
-        return weblink;
     }
 
     /**
@@ -201,7 +189,7 @@ public class Mod {
     /**
      * @return the weblink
      */
-    public String getWeLiink() {
+    public String getWebLink() {
         return weblink;
     }
 

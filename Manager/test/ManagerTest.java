@@ -19,7 +19,7 @@ import java.io.FileNotFoundException;
 public class ManagerTest {
 
     public static void main(String args[]) throws FileNotFoundException {
-        File f = new File("C:\\2.xml");
+        File f = new File("/Users/penn/Documents/Development/HoNMoDMan/Manager/test/2.xml");
         Mod m = XML.xmlToMod(f);
         System.err.println(Manager.getInstance().compareModsVersions(m.getVersion(), "0.0.0.0.1-1.27"));
     }

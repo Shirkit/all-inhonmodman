@@ -13,7 +13,7 @@ public class ActionIncompatibility extends Action {
     @XStreamAlias("name")
     @XStreamAsAttribute
     private String name;
-    @XStreamAlias("name")
+    @XStreamAlias("version")
     @XStreamAsAttribute
     private String version;
 

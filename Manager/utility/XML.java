@@ -52,7 +52,7 @@ public class XML {
 
         temp = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + temp;
 
-        System.out.print(temp);
+        //System.out.print(temp);
         FileOutputStream fos = new FileOutputStream(where);
         fos.write(temp.getBytes("UTF-8"));
     }
