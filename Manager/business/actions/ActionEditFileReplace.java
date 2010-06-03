@@ -31,13 +31,4 @@ public class ActionEditFileReplace extends Action implements ActionEditFileActio
     public void setContent(String content) {
         this.content = content;
     }
-
-    /**
-     * Replaced to be used by the XStreamConverter
-     */
-    @Override
-    public String toString() {
-        return "<![CDATA[" + getContent() + "]]>";
-    }
-
 }

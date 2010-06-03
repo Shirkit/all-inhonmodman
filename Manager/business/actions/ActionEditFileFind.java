@@ -55,13 +55,4 @@ public class ActionEditFileFind extends Action implements ActionEditFileActions 
         this.content = content;
     }
 
-    /**
-     * Replaced to be used by the XStreamConverter
-     */
-    @Override
-    public String toString() {
-        return "<![CDATA[" + getContent() + "]]>";
-    }
-
-
 }

@@ -11,11 +11,6 @@ package business.actions;
  */
 public interface ActionEditFileActions {
 
-    /**
-     * Replaced to be used by the XStreamConverter
-     */
-    @Override
-    public String toString();
 
     /**
      * @return the content
