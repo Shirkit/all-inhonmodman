@@ -1,4 +1,4 @@
-package business.actions;
+    package business.actions;
 
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
@@ -58,13 +58,16 @@ public class Action {
     private String type;
 
     /**
-     *
      * @return the type of the action. See list of constants
+     * @deprecated This isn't going to work. Check wich class it is with the getClass method if (action.getClass() == ActionCopyFile.class)
      */
     public String getType() {
         return type;
     }
 
+    /**
+     * @deprecated This isn't going to work. Check wich class it is with the getClass method if (action.getClass() == ActionCopyFile.class)
+     */
     public void setType(String type) {
         this.type = type;
     }

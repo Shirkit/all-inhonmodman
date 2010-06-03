@@ -94,7 +94,7 @@ public class Manager {
         int id = 0;
         boolean test = true;
 
-        // Generate a singleVersion ID
+        // Generate a singleVersion ID. This probally will be replaced in some time.
         while (test) {
             id = r.nextInt();
             boolean pass = true;
@@ -108,9 +108,11 @@ public class Manager {
             }
         }
 
+        // Extract the content
         File modPath = ZIP.openZIP(honmod, MANAGER_FOLDER + File.separator + MODS_FOLDER + File.separator + id);
         File[] content = modPath.listFiles();
         for (int i = 0; i < content.length; i++) {
+            // Check for the mod.xml file and loads the mod
             if (content[i].getName().equals(Mod.MOD_FILENAME)) {
                 Mod m = XML.xmlToMod(content[i].getAbsoluteFile());
                 m.setId(id);
@@ -130,6 +132,11 @@ public class Manager {
         return list;
     }
 
+    /**
+     * In developing.
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
     public void applyEnabledMods() throws FileNotFoundException, IOException {
 
         for (int i = 0; i < list.size(); i++) {
@@ -153,6 +160,12 @@ public class Manager {
         }
     }
 
+    /**
+     * In developing
+     * @param index
+     * @return
+     * @throws NumberFormatException
+     */
     public int calculatePriority(int index) throws NumberFormatException {
         System.out.println(index);
         if (index == -1) {
@@ -207,6 +220,10 @@ public class Manager {
         return list.get(index - 1).getPriority();
     }
 
+    /**
+     * In developing.
+     * @return
+     */
     public boolean checkLoop() {
         boolean result = true;
 

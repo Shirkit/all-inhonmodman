@@ -42,7 +42,7 @@ public class Game {
      * <br/>"Hon folder doesn't exist".
      * <br/>"Hon file wasn't found".
      * @throws IOException if happened some I/O exception.
-     * @throws IllegalArgumentException if the attribute 'path' is null.
+     * @throws IllegalArgumentException if the attribute Game.path is null.
      */
     public String getVersion() throws IllegalArgumentException, FileNotFoundException, IOException {
         if(this.path == null) {
