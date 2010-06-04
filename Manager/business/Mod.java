@@ -79,9 +79,8 @@ public class Mod {
      * Mod constructor.
      */
     public Mod() {
-
     }
-    
+
     /**
      * Copies the passed mod by param to this mod.
      * @param mod
@@ -284,17 +283,18 @@ public class Mod {
     }
 
     /**
-     * Method to enable the current mod/
+     * <b>This should only be called by the Manager.</b><br/>
+     * Method to enable the current mod
      */
     public void enable() {
         enabled = true;
     }
 
     /**
-     * Method to disable the current mod/
+     * <b>This should only be called by the Manager.</b><br/>
+     * Method to disable the current mod
      */
     public void disable() {
         enabled = false;
     }
-
 }
