@@ -77,6 +77,12 @@ public class Manager {
         HON_FOLDER = p;
     }
 
+    /**
+     * This function will get the applied mods in resource999.s2z
+     * It is not complete yet
+     * @return ArrayList<Mod> of Applied Mods
+     * @throws IOException
+     */
     public ArrayList<Mod> getAppliedMods() throws IOException {
         for (int i = 0; i < mods.size(); i++) {
             mods.get(i).disable();
