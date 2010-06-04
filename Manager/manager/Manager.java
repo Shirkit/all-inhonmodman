@@ -49,7 +49,7 @@ public class Manager {
     private ArrayList<Mod> applied;
     private ManagerOptions options = null; // What does this do?
     private static String MANAGER_FOLDER = "C:\\Manager"; // Is this necessary?
-    private static String MODS_FOLDER = "/Users/penn/Library/Application Support/Heroes of Newerth/game/mods/";
+    private static String MODS_FOLDER = "";
     private static String HON_FOLDER = "hon"; // We need this
     private static String MODS_LIST = "list.txt";
     private ArrayList<Mod> lastMods;
@@ -354,6 +354,8 @@ public class Manager {
      */
     public boolean enableMod(String name) {
     	Mod m = getMod(name);
+    	if(m.isEnabled())
+    		return true;
     	if(checkdeps(m) && !checkcons(m)) {
     		// enable it
     		mods.get(mods.indexOf(m)).enable();
@@ -370,6 +372,8 @@ public class Manager {
      */
     public boolean diableMod(String name) {
     	Mod m = getMod(name);
+    	if(!m.isEnabled())
+    		return true;
     	if(!revcheckdeps(m)) {
     		// disable it
     		mods.get(mods.indexOf(m)).disable();
@@ -557,6 +561,7 @@ public class Manager {
     */
 
     /**
+     * Not really working
      * Compares the singleVersion of a Mod and another versionExpression.
      * @param singleVersion is the base version to be compared of. For example, a Mod's version go in here ('1.3', '3.2.57').
      * @param versionExpression generally you put the ApplyAfter, ApplyBefore, ConditionVersion here ('1.35-*').
