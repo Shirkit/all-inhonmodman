@@ -79,7 +79,7 @@ public class Manager {
 
     /**
      * This function will get the applied mods in resource999.s2z
-     * It is not complete yet
+     * It is not complete yet, will need saved settings from Manager Options
      * @return ArrayList<Mod> of Applied Mods
      * @throws IOException
      */
