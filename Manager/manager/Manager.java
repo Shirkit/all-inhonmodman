@@ -77,6 +77,22 @@ public class Manager {
         HON_FOLDER = p;
     }
 
+    public void setManagerPath(String p) {
+        MANAGER_FOLDER = p;
+    }
+
+    public String getModPath() {
+        return MODS_FOLDER;
+    }
+
+    public String getGamePath() {
+        return HON_FOLDER;
+    }
+
+    public String getManagerPath() {
+        return MANAGER_FOLDER;
+    }
+
     /**
      * This function will get the applied mods in resource999.s2z
      * It is not complete yet, will need saved settings from Manager Options
@@ -438,6 +454,14 @@ public class Manager {
         }
 
         return stack;
+    }
+
+    public boolean saveOptions(File path) throws IOException {
+        return this.options.saveOptions(path);
+    }
+
+    public void loadOptions(File path) throws FileNotFoundException {
+        this.options.loadOptions(path);
     }
 
     /*

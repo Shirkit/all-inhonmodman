@@ -81,6 +81,12 @@ public class Mod {
     public Mod() {
     }
 
+    public Mod(String name, String version, String author) {
+        this.version = version;
+        this.name = name;
+        this.author = author;
+    }
+
     /**
      * Copies the passed mod by param to this mod.
      * @param mod

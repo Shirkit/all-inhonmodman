@@ -1,5 +1,6 @@
 package utility;
 
+import business.ManagerOptions;
 import business.Mod;
 import business.actions.*;
 import com.thoughtworks.xstream.XStream;
@@ -20,7 +21,7 @@ import java.io.Writer;
  */
 public class XML {
 
-    private static DomDriver getDriver() {
+    public static DomDriver getDriver() {
         return new DomDriver("UTF-8");
     }
 
@@ -35,7 +36,7 @@ public class XML {
     public static void modToXml(Mod what, File where) throws FileNotFoundException, UnsupportedEncodingException, IOException {
 
         XStream xstream = new XStream(getDriver());
-        xstream = updateAlias(xstream);
+        updateAlias(xstream);
 
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -43,17 +44,23 @@ public class XML {
         xstream.toXML(what, writer);
         String temp = outputStream.toString("UTF-8");
 
-        // this part is to solve the HTML characters printing bug. I didn't found out any other ways to do it
-        temp = temp.replaceAll("&lt;", "<");
-        temp = temp.replaceAll("&gt;", ">");
-        temp = temp.replaceAll("&quot;", "\"");
-        temp = temp.replaceAll("&apos;", "\'");
-        temp = temp.replaceAll("&amp;", "\'");
+        temp = replaceInvalidHtmlChars(temp);
 
         temp = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + temp;
 
         FileOutputStream fos = new FileOutputStream(where);
         fos.write(temp.getBytes("UTF-8"));
+    }
+
+    public static String replaceInvalidHtmlChars(String input) {
+        // this part is to solve the HTML characters printing bug. I didn't found out any other ways to do it
+        String temp = input;
+        temp = temp.replaceAll("&lt;", "<");
+        temp = temp.replaceAll("&gt;", ">");
+        temp = temp.replaceAll("&quot;", "\"");
+        temp = temp.replaceAll("&apos;", "\'");
+        temp = temp.replaceAll("&amp;", "\'");
+        return temp;
     }
 
     /**
@@ -66,7 +73,7 @@ public class XML {
 
         if (file.exists()) {
             XStream xstream = new XStream(getDriver());
-            xstream = updateAlias(xstream);
+            updateAlias(xstream);
             return (Mod) xstream.fromXML(new FileInputStream(file));
         } else {
             throw new FileNotFoundException();
@@ -92,7 +99,7 @@ public class XML {
      * @param xstream
      * @return
      */
-    private static XStream updateAlias(XStream xstream) {
+    public static XStream updateAlias(XStream xstream) {
 
         xstream.processAnnotations(Mod.class);
         xstream.processAnnotations(Action.class);
@@ -107,6 +114,7 @@ public class XML {
         xstream.processAnnotations(ActionEditFileReplace.class);
         xstream.processAnnotations(ActionIncompatibility.class);
         xstream.processAnnotations(ActionRequirement.class);
+        xstream.processAnnotations(ManagerOptions.class);
 
         xstream.aliasField("find", ActionEditFileFind.class, "seek");
         xstream.aliasField("find", ActionEditFileFind.class, "search");
