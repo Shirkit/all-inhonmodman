@@ -6,13 +6,9 @@ import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 /**
  * @author Shirkit
@@ -61,9 +57,6 @@ public class Mod {
     @XStreamImplicit
     private ArrayList<Action> actions = new ArrayList<Action>();
     // Extra
-    @XStreamOmitField
-    private File folder;
-    @XStreamOmitField // Deprecated
     /**
      * Absolute path of the .honmod file
      */
@@ -72,8 +65,6 @@ public class Mod {
     private int id;
     @XStreamOmitField
     private boolean enabled;
-    @XStreamOmitField
-    private int priority;
 
     /**
      * Mod constructor.
@@ -104,40 +95,6 @@ public class Mod {
         this.updatecheckurl = mod.getUpdateCheckUrl();
         this.version = mod.getVersion();
         this.weblink = mod.getWebLink();
-    }
-
-    /**
-     * @deprecated No sense on this.
-     * @return
-     * @throws NullPointerException
-     * @throws FileNotFoundException
-     */
-    public File getXmlFile() throws NullPointerException, FileNotFoundException {
-        if (getFolder() == null) {
-            throw new NullPointerException();
-        }
-        for (int i = 0; i > this.getFolder().listFiles().length; i++) {
-            if (getFolder().listFiles()[i].getName().equals(MOD_FILENAME)) {
-                return getFolder().listFiles()[i];
-            }
-        }
-        throw new FileNotFoundException("mod.xml");
-    }
-
-    /**
-     * This method compares 2 mods to check if they are equal. It currently tests for the mod's version, name and author.
-     * @param mod to be compared to.
-     * @return true if mods are equal. false otherwise.
-     */
-    public boolean equals(Mod mod) {
-        if (this.getVersion().equals(mod.getVersion())) {
-            if (this.getName().equals(mod.getName())) {
-                if (this.getAuthor().equals(mod.getAuthor())) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     /**
@@ -240,44 +197,12 @@ public class Mod {
         return path;
     }
 
-    /**
-     * @deprecated No sense on this.
-     * @param folder with the .honmod content inside it.
-     */
-    public void setFolder(File folder) {
-        this.folder = folder;
-    }
-
-    /**
-     * @deprecated No sense on this.
-     * @return the folder with the .honmod content inside it.
-     */
-    public File getFolder() {
-        return folder;
-    }
-
     public int getId() {
         return id;
     }
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    /**
-     * @deprecated Wrong implementation.
-     * @return File of the icon.
-     * @throws FileNotFoundException if the icon wasn't found.
-     */
-    public File getIcon() throws FileNotFoundException {
-        int i = 0;
-        while (getFolder().listFiles()[i] != null) {
-            if (getFolder().listFiles()[i].getName().equals(Mod.ICON_FILENAME)) {
-                return getFolder().listFiles()[i];
-            }
-            i++;
-        }
-        throw new FileNotFoundException();
     }
 
     /**
@@ -307,6 +232,8 @@ public class Mod {
     /**
      * Override for HashSet comparison
      */
+    @Override
+    @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
     public boolean equals(Object o) {
     	Mod compare = (Mod)o;
     	
@@ -316,6 +243,7 @@ public class Mod {
     		return false;
     }
     
+    @Override
     public int hashCode() {
     	return this.getName().hashCode() + (int)this.getVersion().hashCode();	
     }

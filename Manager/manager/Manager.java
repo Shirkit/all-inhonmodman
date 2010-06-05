@@ -13,10 +13,8 @@ import business.actions.ActionApplyBefore;
 import business.actions.ActionIncompatibility;
 import business.actions.ActionRequirement;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,7 +25,6 @@ import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.Set;
 import java.util.Stack;
-import java.util.TreeSet;
 
 import com.mallardsoft.tuple.*;
 import java.security.InvalidParameterException;
@@ -215,24 +212,6 @@ public class Manager {
     }
 
     /**
-     * Searches in the list of mods if the passed singleVersion is equal (using Mod.equals() method).
-     * @param singleVersion to be removed.
-     * @return the removed singleVersion if it was found.
-     * @throws NoSuchFieldException if the passed singleVersion wasn't found in the list.
-     * @see Mod.equals(Mod singleVersion)
-     */
-    /*
-    public Mod removeMod(Mod mod) throws NoSuchFieldException {
-    for (int i = 0; i < list.size(); i++) {
-    OuterMod m = list.get(i);
-    if (m.equals(mod)) {
-    return list.remove(i);
-    }
-    }
-    throw new NoSuchFieldException("Mod wasn't found");
-    }
-     */
-    /**
      * This function is used internally from the GUI itself automatically when launch to initiate existing mods.
      * @param honmod is the file (.honmod) to be add.
      */
@@ -242,50 +221,15 @@ public class Manager {
         }
 
         Random r = new Random();
-        int id = 0;
         boolean test = true;
 
-        // Generate a singleVersion ID. This probally will be replaced in some time.
-        while (test) {
-            id = r.nextInt();
-            boolean pass = true;
-            for (int j = 0; j < mods.size(); j++) {
-                if (mods.get(j).getId() == id) {
-                    pass = false;
-                }
-            }
-            if (pass == true) {
-                test = false;
-            }
-        }
-
         String xml = new String(ZIP.getFile(honmod, "mod.xml"));
-        //System.out.println(xml);
 
         Mod m = XML.xmlToMod(xml);
         System.out.println("Name: " + m.getName());
         m.setPath(honmod.getAbsolutePath());
-        m.setId(id);
-//        if(zip)
-//        	m.disable();
+        m.setId(0);
         addMod(m);
-
-
-        /*
-        // Extract the content
-        File modPath = ZIP.openZIP(honmod, MANAGER_FOLDER + File.separator + MODS_FOLDER + File.separator + id);
-        File[] content = modPath.listFiles();
-        for (int i = 0; i < content.length; i++) {
-        // Check for the mod.xml file and loads the mod
-        if (content[i].getName().equals(Mod.MOD_FILENAME)) {
-        Mod m = XML.xmlToMod(content[i].getAbsoluteFile());
-        m.setId(id);
-        m.setPath(honmod.getAbsolutePath());
-        m.setFolder(null);
-        addMod(m);
-        }
-        }
-         */
     }
 
     /**
@@ -352,7 +296,7 @@ public class Manager {
                 }
 
                 // compareModsVersion might not be working properly, ask him to fix it or something
-                if(!compareModsVersions(Tuple.get2(dep), d.getVersion())) {
+                if(!compareModsVersions(d.getVersion(), Tuple.get2(dep))) {
                 	System.out.println("weird");
                 	return false;
                 }
@@ -644,6 +588,11 @@ public class Manager {
     public boolean compareModsVersions(String singleVersion, String expressionVersion) throws InvalidParameterException {
 
         boolean result = false;
+
+        
+        if (expressionVersion == null) {
+            expressionVersion = "*";
+        }
 
         if ((expressionVersion.equals("*")) || (expressionVersion.equals(singleVersion)) || (expressionVersion.equals("*-*")) || (expressionVersion.equals(""))) {
             result = true;

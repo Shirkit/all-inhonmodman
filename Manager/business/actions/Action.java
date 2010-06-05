@@ -59,7 +59,7 @@ public class Action {
 
     /**
      * @return the type of the action. See list of constants
-     * @deprecated This isn't going to work. Check wich class it is with the getClass method if (action.getClass() == ActionCopyFile.class)
+     * @deprecated This is already working properly =D
      * @see Use getClass() or instanceof instead
      */
     public String getType() {
