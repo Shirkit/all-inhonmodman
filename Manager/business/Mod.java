@@ -303,4 +303,20 @@ public class Mod {
     public void disable() {
         enabled = false;
     }
+    
+    /**
+     * Override for HashSet comparison
+     */
+    public boolean equals(Object o) {
+    	Mod compare = (Mod)o;
+    	
+    	if(compare.getName().equals(this.getName()) && compare.getVersion().equals(this.getVersion()))
+    		return true;
+    	else
+    		return false;
+    }
+    
+    public int hashCode() {
+    	return this.getName().hashCode() + (int)this.getVersion().hashCode();	
+    }
 }

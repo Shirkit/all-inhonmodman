@@ -21,10 +21,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.Random;
+import java.util.Set;
 import java.util.Stack;
+import java.util.TreeSet;
 
 import com.mallardsoft.tuple.*;
 import java.security.InvalidParameterException;
@@ -39,14 +42,14 @@ public class Manager {
     private ArrayList<Mod> mods;
     private ArrayList<ArrayList<Pair<String, String>>> deps;
     private ArrayList<ArrayList<Pair<String, String>>> cons;
-    private ArrayList<Mod> applied;
+    private Set<Mod> applied;
     private ManagerOptions options = null; // What does this do?
     private static String MANAGER_FOLDER = "C:\\Manager"; // Is this necessary?
     private static String MODS_FOLDER = "";
-    private static String HON_FOLDER = "hon"; // We need this
-    private static String MODS_LIST = "list.txt";
+    private static String HON_FOLDER = ""; // We need this
+    private static String OPTIONS_PATH = ""; // Stores the absolute path to the option file
     private ArrayList<Mod> lastMods;
-    private int nextPriority;
+    private int nextPriority; // This is not necessary
 
     private Manager() {
         mods = new ArrayList<Mod>();
@@ -80,6 +83,10 @@ public class Manager {
     public void setManagerPath(String p) {
         MANAGER_FOLDER = p;
     }
+    
+    public void setOptionsPath(String p) {
+    	OPTIONS_PATH = p;
+    }
 
     public String getModPath() {
         return MODS_FOLDER;
@@ -92,6 +99,36 @@ public class Manager {
     public String getManagerPath() {
         return MANAGER_FOLDER;
     }
+    
+    public String getOptionsPath() {
+    	return OPTIONS_PATH;
+    }
+    
+    /**
+     * This function is just for testing purpose
+     * @param name
+     */
+    public void setAppliedMod(String name) {
+    	if(applied.add(getMod(name)))
+    		System.out.println("Setting mod " + name + " to applied successfully");
+    	else
+    		System.out.println("Setting mod " + name + " to applied NOT successfully");
+    	
+    }
+    public void saveOptions() throws IOException {
+    	options.saveOptions(new File(OPTIONS_PATH));
+    }
+    /**
+     * This functions above are just for testing
+     */
+    
+    /**
+     * This will return the arraylist of applied mods
+     * @return
+     */
+    public Set<Mod> getAppliedMods() {
+    	return applied;
+    }
 
     /**
      * This function will get the applied mods in resource999.s2z
@@ -99,11 +136,10 @@ public class Manager {
      * @return ArrayList<Mod> of Applied Mods
      * @throws IOException
      */
-    public ArrayList<Mod> getAppliedMods() throws IOException {
-        for (int i = 0; i < mods.size(); i++) {
-            mods.get(i).disable();
-        }
-
+    public Set<Mod> loadAppliedMods() throws IOException {
+    	return options.loadOptions(new File(OPTIONS_PATH)) ? options.getAppliedMods() : new HashSet<Mod>();
+    	
+    	/*
         File list = new File(MODS_FOLDER + MODS_LIST); // the path needs to be take care of
         ArrayList<Mod> tmp = new ArrayList<Mod>();
         if (list.exists()) {
@@ -121,6 +157,7 @@ public class Manager {
         }
 
         return tmp;
+        */
     }
 
     /**
@@ -128,10 +165,15 @@ public class Manager {
      * @throws IOException 
      */
     public void buildGraphs() throws IOException {
-        applied = getAppliedMods();
+    	// First reset all new added mods from startup
+        for (int i = 0; i < mods.size(); i++) {
+            mods.get(i).disable();
+        }
+        
+        // Get all applied mods from the ManagerOptions if there is any and update the lists
+        applied = loadAppliedMods();
 
-        System.out.println("Size of deps " + deps.size());
-
+        // Now building the graph
         for (int i = 0; i < mods.size(); i++) {
             int length = mods.get(i).getActions().size();
             for (int j = 0; j < length; j++) {
@@ -280,13 +322,13 @@ public class Manager {
      * @param name
      * @return Mod
      */
-    public Mod getEnabledMod(String name) throws NoSuchElementException {
+    public Mod getEnabledMod(String name) {
         Mod m = getMod(name);
         if (m != null && m.isEnabled()) {
             return m;
         }
 
-        throw new NoSuchElementException(name);
+        return null;
     }
 
     /**
@@ -369,6 +411,7 @@ public class Manager {
     public boolean enableMod(String name) {
         Mod m = getMod(name);
         if (m.isEnabled()) {
+        	System.out.println("Mod " + name + " already enabled");
             return true;
         }
         if (checkdeps(m) && !checkcons(m)) {
@@ -388,6 +431,7 @@ public class Manager {
     public boolean diableMod(String name) {
         Mod m = getMod(name);
         if (!m.isEnabled()) {
+        	System.out.println("Mod " + name + " already disabled");
             return true;
         }
         if (!revcheckdeps(m)) {

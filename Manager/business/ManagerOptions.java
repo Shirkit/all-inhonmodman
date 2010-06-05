@@ -14,6 +14,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Set;
+
 import manager.Manager;
 import utility.XML;
 
@@ -34,29 +36,30 @@ public class ManagerOptions {
     @XStreamAsAttribute
     private String HON_FOLDER;
     @XStreamAsAttribute
-    @XStreamAlias("mod")
-    private ArrayList<Mod> list;
+    @XStreamAlias("applied")
+    private Set<Mod> applied;
 
     public boolean saveOptions(File path) throws IOException {
         boolean success = true;
 
         Manager manager = Manager.getInstance();
 
-        this.list = new ArrayList<Mod>();
-
+        this.setAppliedMods(manager.getAppliedMods());
         this.setGamePath(manager.getModPath());
         this.setManagerPath(getManagerPath());
         this.setModPath(manager.getModPath());
 
+        /*
         ArrayList<Mod> list3 = manager.getMods(); // manager.getAppliedMods() in future
 
         // this is going to be shortened when manager.getAppliedMods() works
         for (int i = 0; i < list3.size(); i++) {
             if (list3.get(i).isEnabled()) {
                 Mod m = new Mod(list3.get(i).getName(), list3.get(i).getVersion(), list3.get(i).getAuthor());
-                this.list.add(m);
+                this.applied.add(m);
             }
         }
+        */
 
         XStream xstream = new XStream(XML.getDriver());
         XML.updateAlias(xstream);
@@ -73,19 +76,26 @@ public class ManagerOptions {
         return success;
     }
 
-    public ArrayList<Mod> loadOptions(File path) throws FileNotFoundException {
+    public boolean loadOptions(File path) throws FileNotFoundException {
+    	if(!path.exists())
+    		return false;
+    	
         XStream xstream = new XStream(XML.getDriver());
         xstream = XML.updateAlias(xstream);
 
-        ManagerOptions loadOptions = (ManagerOptions) xstream.fromXML(new FileInputStream(path));
+        ManagerOptions tmp = (ManagerOptions) xstream.fromXML(new FileInputStream(path));
+        this.setGamePath(tmp.getGamePath());
+        this.setManagerPath(tmp.getManagerPath());
+        this.setModPath(tmp.getModPath());
+        this.setAppliedMods(tmp.getAppliedMods());
 
         Manager manager = Manager.getInstance();
 
-        manager.setGamePath(loadOptions.getGamePath());
-        manager.setManagerPath(loadOptions.getManagerPath());
-        manager.setModPath(loadOptions.getModPath());
+        manager.setGamePath(tmp.getGamePath());
+        manager.setManagerPath(tmp.getManagerPath());
+        manager.setModPath(tmp.getModPath());
 
-        return loadOptions.listMods();
+        return true;
 
     }
 
@@ -100,6 +110,10 @@ public class ManagerOptions {
     public void setManagerPath(String p) {
         MANAGER_FOLDER = p;
     }
+    
+    public void setAppliedMods(Set<Mod> list) {
+    	applied = list;
+    }
 
     public String getModPath() {
         return MODS_FOLDER;
@@ -113,7 +127,7 @@ public class ManagerOptions {
         return MANAGER_FOLDER;
     }
 
-    public ArrayList<Mod> listMods() {
-        return this.list;
+    public Set<Mod> getAppliedMods() {
+        return applied;
     }
 }
