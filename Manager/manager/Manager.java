@@ -352,12 +352,11 @@ public class Manager {
                 }
 
                 // compareModsVersion might not be working properly, ask him to fix it or something
-    			/*
                 if(!compareModsVersions(Tuple.get2(dep), d.getVersion())) {
-                System.out.println("weird");
-                return false;
+                	System.out.println("weird");
+                	return false;
                 }
-                 */
+                
             }
 
             return true;
@@ -513,30 +512,37 @@ public class Manager {
      * @throws FileNotFoundException
      * @throws IOException
      */
-    /*
-    public void applyMods() throws FileNotFoundException, IOException {
-    ArrayList<Mod> applyOrder = sortMods();
-    for (int i = 0; i < list.size(); i++) {
-    OuterMod m = list.get(i);
-    if (m.isEnabled()) {
-    for (int j = 0; j < m.getMod().getActions().size(); j++) {
-    Action action = m.getMod().getActions().get(j);
+	public void applyMods() throws FileNotFoundException, IOException {
+		Stack<Mod> applyOrder = sortMods();
+		while(!applyOrder.isEmpty()) {
+			
+		}
+		/*
+		for (int i = 0; i < list.size(); i++) {
+			OuterMod m = list.get(i);
+			if (m.isEnabled()) {
+				for (int j = 0; j < m.getMod().getActions().size(); j++) {
+					Action action = m.getMod().getActions().get(j);
 
-    if (action.getType().equals(Action.APPLY_AFTER)) {
-    ActionApplyAfter after = (ActionApplyAfter) action;
-    String otherModName = after.getName();
-    for (int k = 0; k < list.size(); k++) {
-    if (list.get(k).getMod().getName().equalsIgnoreCase(otherModName)) {
-    if (compareModsVersions(m.getMod().getVersion(), after.getVersion())) {
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-     */
+					if (action.getType().equals(Action.APPLY_AFTER)) {
+						ActionApplyAfter after = (ActionApplyAfter) action;
+						String otherModName = after.getName();
+						for (int k = 0; k < list.size(); k++) {
+							if (list.get(k).getMod().getName()
+									.equalsIgnoreCase(otherModName)) {
+								if (compareModsVersions(
+										m.getMod().getVersion(), after
+												.getVersion())) {
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		*/
+	}
+
     /*
      * In developing
      * @param index
