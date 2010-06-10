@@ -28,6 +28,8 @@ import java.util.Stack;
 
 import com.mallardsoft.tuple.*;
 import java.security.InvalidParameterException;
+import utility.ModEnabledException;
+import utility.ModNotEnabledException;
 
 /**
  *
@@ -80,9 +82,9 @@ public class Manager {
     public void setManagerPath(String p) {
         MANAGER_FOLDER = p;
     }
-    
+
     public void setOptionsPath(String p) {
-    	OPTIONS_PATH = p;
+        OPTIONS_PATH = p;
     }
 
     public String getModPath() {
@@ -96,35 +98,37 @@ public class Manager {
     public String getManagerPath() {
         return MANAGER_FOLDER;
     }
-    
+
     public String getOptionsPath() {
-    	return OPTIONS_PATH;
+        return OPTIONS_PATH;
     }
-    
+
     /**
      * This function is just for testing purpose
      * @param name
      */
     public void setAppliedMod(String name) {
-    	if(applied.add(getMod(name)))
-    		System.out.println("Setting mod " + name + " to applied successfully");
-    	else
-    		System.out.println("Setting mod " + name + " to applied NOT successfully");
-    	
+        if (applied.add(getMod(name))) {
+            System.out.println("Setting mod " + name + " to applied successfully");
+        } else {
+            System.out.println("Setting mod " + name + " to applied NOT successfully");
+        }
+
     }
+
     public void saveOptions() throws IOException {
-    	options.saveOptions(new File(OPTIONS_PATH));
+        options.saveOptions(new File(OPTIONS_PATH));
     }
+
     /**
      * This functions above are just for testing
      */
-    
     /**
      * This will return the arraylist of applied mods
      * @return
      */
     public Set<Mod> getAppliedMods() {
-    	return applied;
+        return applied;
     }
 
     /**
@@ -134,27 +138,27 @@ public class Manager {
      * @throws IOException
      */
     public Set<Mod> loadAppliedMods() throws IOException {
-    	return options.loadOptions(new File(OPTIONS_PATH)) ? options.getAppliedMods() : new HashSet<Mod>();
-    	
-    	/*
+        return options.loadOptions(new File(OPTIONS_PATH)) ? options.getAppliedMods() : new HashSet<Mod>();
+
+        /*
         File list = new File(MODS_FOLDER + MODS_LIST); // the path needs to be take care of
         ArrayList<Mod> tmp = new ArrayList<Mod>();
         if (list.exists()) {
-            BufferedReader in = new BufferedReader(new FileReader(list));
-            try {
-                String line = null;
+        BufferedReader in = new BufferedReader(new FileReader(list));
+        try {
+        String line = null;
 
-                while ((line = in.readLine()) != null) {
-                    tmp.add(mods.indexOf(getMod(line.trim())), getMod(line.trim()));
-                    mods.get(mods.indexOf(getMod(line.trim()))).enable();
-                }
-            } catch (IOException e) {
-                throw e;
-            }
+        while ((line = in.readLine()) != null) {
+        tmp.add(mods.indexOf(getMod(line.trim())), getMod(line.trim()));
+        mods.get(mods.indexOf(getMod(line.trim()))).enable();
+        }
+        } catch (IOException e) {
+        throw e;
+        }
         }
 
         return tmp;
-        */
+         */
     }
 
     /**
@@ -162,11 +166,11 @@ public class Manager {
      * @throws IOException 
      */
     public void buildGraphs() throws IOException {
-    	// First reset all new added mods from startup
+        // First reset all new added mods from startup
         for (int i = 0; i < mods.size(); i++) {
             mods.get(i).disable();
         }
-        
+
         // Get all applied mods from the ManagerOptions if there is any and update the lists
         applied = loadAppliedMods();
 
@@ -219,12 +223,7 @@ public class Manager {
         if (!honmod.exists()) {
             throw new FileNotFoundException();
         }
-
-        Random r = new Random();
-        boolean test = true;
-
         String xml = new String(ZIP.getFile(honmod, "mod.xml"));
-
         Mod m = XML.xmlToMod(xml);
         System.out.println("Name: " + m.getName());
         m.setPath(honmod.getAbsolutePath());
@@ -258,7 +257,7 @@ public class Manager {
             }
         }
 
-        return null;
+        throw new NoSuchElementException(name); 
     }
 
     /**
@@ -280,7 +279,7 @@ public class Manager {
      * @param m
      * @return True if all dependencies are satisfied else false
      */
-    private boolean checkdeps(Mod m) {
+    private boolean checkdeps(Mod m) throws ModNotEnabledException {
         // get a list of dependencies
         ArrayList<Pair<String, String>> list = deps.get(mods.indexOf(m));
         if (list == null || list.isEmpty()) {
@@ -292,15 +291,14 @@ public class Manager {
                 Pair<String, String> dep = (Pair<String, String>) e.nextElement();
                 Mod d = getEnabledMod(Tuple.get1(dep));
                 if (d == null) {
-                    return false;
+                    throw new ModNotEnabledException(Tuple.get1(dep), Tuple.get2(dep));
                 }
 
                 // compareModsVersion might not be working properly, ask him to fix it or something
-                if(!compareModsVersions(d.getVersion(), Tuple.get2(dep))) {
-                	System.out.println("weird");
-                	return false;
+                if (!compareModsVersions(d.getVersion(), Tuple.get2(dep))) {
+                    throw new ModNotEnabledException(Tuple.get1(dep), Tuple.get2(dep));
                 }
-                
+
             }
 
             return true;
@@ -310,9 +308,9 @@ public class Manager {
     /**
      * This function checks to see if there is any conflict
      * @param m
-     * @return True if there is any, false otherwise
+     * @return False if there isn't any conflict.
      */
-    private boolean checkcons(Mod m) {
+    private boolean checkcons(Mod m) throws ModEnabledException {
         // get a list of conflicts
         ArrayList<Pair<String, String>> list = cons.get(mods.indexOf(m));
         if (list == null || list.isEmpty()) {
@@ -322,7 +320,7 @@ public class Manager {
         while (e.hasMoreElements()) {
             Pair<String, String> check = (Pair<String, String>) e.nextElement();
             if (getEnabledMod(Tuple.get1(check)) != null) {
-                return true;
+                throw new ModEnabledException(Tuple.get1(check), Tuple.get2(check));
             }
         }
         return false;
@@ -347,23 +345,16 @@ public class Manager {
     }
 
     /**
-     * This function trys to enable the mod with the name given and return true if succeeded or false if not
-     * @param name
-     * @return Whether the function enable the mod successfully
+     * This function trys to enable the mod with the name given. Throws exceptions if didn't no success while enabling the mod.
+     * @param name of the mod
+     * @throws ModEnabledException if a mod was enabled and caused an incompatibility with the Mod that is being tryied to apply.
+     * @throws ModNotEnabledException if a mod that was required by this mod wasn't enabled.
      */
-    public boolean enableMod(String name) {
+    public void enableMod(String name) throws ModEnabledException, ModNotEnabledException {
         Mod m = getMod(name);
-        if (m.isEnabled()) {
-        	System.out.println("Mod " + name + " already enabled");
-            return true;
-        }
-        if (checkdeps(m) && !checkcons(m)) {
-            // enable it
+        if (!m.isEnabled() && checkdeps(m) && !checkcons(m)) {
             mods.get(mods.indexOf(m)).enable();
-            return true;
         }
-        System.out.println("Can't enable mod " + name);
-        return false;
     }
 
     /**
@@ -374,7 +365,7 @@ public class Manager {
     public boolean diableMod(String name) {
         Mod m = getMod(name);
         if (!m.isEnabled()) {
-        	System.out.println("Mod " + name + " already disabled");
+            System.out.println("Mod " + name + " already disabled");
             return true;
         }
         if (!revcheckdeps(m)) {
@@ -456,128 +447,36 @@ public class Manager {
      * @throws FileNotFoundException
      * @throws IOException
      */
-	public void applyMods() throws FileNotFoundException, IOException {
-		Stack<Mod> applyOrder = sortMods();
-		while(!applyOrder.isEmpty()) {
-			
-		}
-		/*
-		for (int i = 0; i < list.size(); i++) {
-			OuterMod m = list.get(i);
-			if (m.isEnabled()) {
-				for (int j = 0; j < m.getMod().getActions().size(); j++) {
-					Action action = m.getMod().getActions().get(j);
+    public void applyMods() throws FileNotFoundException, IOException {
+        Stack<Mod> applyOrder = sortMods();
+        while (!applyOrder.isEmpty()) {
+        }
+        /*
+        for (int i = 0; i < list.size(); i++) {
+        OuterMod m = list.get(i);
+        if (m.isEnabled()) {
+        for (int j = 0; j < m.getMod().getActions().size(); j++) {
+        Action action = m.getMod().getActions().get(j);
 
-					if (action.getType().equals(Action.APPLY_AFTER)) {
-						ActionApplyAfter after = (ActionApplyAfter) action;
-						String otherModName = after.getName();
-						for (int k = 0; k < list.size(); k++) {
-							if (list.get(k).getMod().getName()
-									.equalsIgnoreCase(otherModName)) {
-								if (compareModsVersions(
-										m.getMod().getVersion(), after
-												.getVersion())) {
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		*/
-	}
-
-    /*
-     * In developing
-     * @param index
-     * @return
-     * @deprecated Not using this anymore, no reason
-     * @throws NumberFormatException
-     */
-    /*
-    public int calculatePriority(int index) throws NumberFormatException {
-    System.out.println(index);
-    if (index == -1) {
-    index = 0;
-    } else {
-    if (list.get(index).getPriority() != -999999999) {
-    return list.get(index).getPriority();
-    }
-    }
-    lastMods.add(list.get(index));
-    if (checkLoop()) {
-    if (list.get(index).getPriority() == -999999999) {
-    list.get(index).setPriority(nextPriority);
-    nextPriority++;
-
-    return nextPriority;
-    } else {
-    throw new NumberFormatException("can't resolve priority");
-    }
-    }
-    for (int i = 0; i < list.get(index).getMod().getActions().size(); i++) {
-    if (list.get(index).getMod().getActions().get(i).getClass() == ActionApplyAfter.class) {
-    ActionApplyAfter applyafter = (ActionApplyAfter) list.get(index).getMod().getActions().get(i);
-    for (int j = 0; j < list.size(); j++) {
-    if (list.get(j).getMod().getName().equals(applyafter.getName())) {
-    if (compareModsVersions(list.get(j).getMod().getVersion(), applyafter.getVersion())) {
-    list.get(index).setPriority(calculatePriority(j) + 1);
-    }
-    }
-    }
-    } else if (list.get(index).getMod().getActions().get(i).getClass() == ActionApplyBefore.class) {
-    ActionApplyBefore applybefore = (ActionApplyBefore) list.get(index).getMod().getActions().get(i);
-    for (int j = 0; j < list.size(); j++) {
-    if (list.get(j).getMod().getName().equals(applybefore.getName())) {
-    if (compareModsVersions(list.get(j).getMod().getVersion(), applybefore.getVersion())) {
-    list.get(index).setPriority(calculatePriority(j) - 1);
-    }
-    }
-    }
-    }
+        if (action.getType().equals(Action.APPLY_AFTER)) {
+        ActionApplyAfter after = (ActionApplyAfter) action;
+        String otherModName = after.getName();
+        for (int k = 0; k < list.size(); k++) {
+        if (list.get(k).getMod().getName()
+        .equalsIgnoreCase(otherModName)) {
+        if (compareModsVersions(
+        m.getMod().getVersion(), after
+        .getVersion())) {
+        }
+        }
+        }
+        }
+        }
+        }
+        }
+         */
     }
 
-    if (list.get(index).getPriority() == -999999999) {
-    list.get(index).setPriority(nextPriority);
-    nextPriority++;
-    }
-
-    index++;
-    if (index < list.size()) {
-    calculatePriority(index);
-    }
-    return list.get(index - 1).getPriority();
-    }
-     */
-    /*
-     * In developing.
-     * @deprecated not using it
-     * @return
-     */
-    /*
-    public boolean checkLoop() {
-    boolean result = true;
-
-    for (int i = 0; i < lastMods.size(); i++) {
-    ArrayList<OuterMod> checkList = new ArrayList<OuterMod>(lastMods.subList(0, i));
-    for (int j = 0; j < checkList.size(); j++) {
-    if (list.contains(checkList.get(j))) {
-    if ((j + 1) < checkList.size()) {
-    if (list.get(list.indexOf(checkList.get(j + 1))) != checkList.get(j + 1)) {
-    result = false;
-    }
-    }
-    }
-    }
-    }
-
-    if (lastMods.size() >= 1) {
-    return false;
-    }
-
-    return result;
-    }
-     */
     /**
      * Compares the singleVersion of a Mod and another expressionVersion.
      * @param singleVersion is the base version to be compared of. For example, a Mod's version go in here ('1.3', '3.2.57').
@@ -589,7 +488,7 @@ public class Manager {
 
         boolean result = false;
 
-        
+
         if (expressionVersion == null) {
             expressionVersion = "*";
         }
