@@ -665,7 +665,6 @@ public class Manager {
         	}
         	else {
         	}
-        	}
         }
         /*
         boolean quotes = false;
