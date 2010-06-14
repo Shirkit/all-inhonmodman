@@ -60,6 +60,16 @@ public class ManagerCtrl {
         view.labelVisitWebsiteAddMouseListener(new VisitWebsiteListener());
         // Add file drop functionality
         new FileDrop(view, new DropListener());
+        // Load mods from mods folder (if any)
+        try {
+            model.loadMods();
+        } catch (IOException ex) {
+            logger.error("Unable to load mods from mod folder. Message: "+ex.getMessage());
+            view.showMessage("error.loadmodfiles", "error.loadmodfiles.title", JOptionPane.ERROR_MESSAGE);
+        }
+        view.tableRemoveListSelectionListener(lsl);
+        model.updateNotify();
+        view.tableAddListSelectionListener(lsl);
     }
 
     /**
@@ -130,7 +140,7 @@ public class ManagerCtrl {
                 for (int i=0; i<files.length; i++) {
                     logger.info("Opening mod file: " + files[i].getName());
                     try {
-                        model.addHonmod(files[i]);
+                        model.addHonmod(files[i], true);
                         // Save directory for future use
                         this.currentDir = files[i].getParentFile();
                     } catch (IOException ioe) {
@@ -300,7 +310,7 @@ public class ManagerCtrl {
                 File honmod = files[i];
                 if (honmod.getName().endsWith(".honmod")) {
                     try {
-                        model.addHonmod(honmod);
+                        model.addHonmod(honmod, true);
                         updated = true;
                     } catch (IOException e) {
                         logger.info("Opening mod file failed. Message: "+e.getMessage());

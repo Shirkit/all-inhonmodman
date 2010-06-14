@@ -24,6 +24,9 @@ import java.util.Stack;
 import java.util.StringTokenizer;
 
 import com.mallardsoft.tuple.*;
+import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.security.InvalidParameterException;
 import java.util.Observable;
 import org.apache.log4j.Logger;
@@ -50,8 +53,8 @@ public class Manager extends Observable {
     private Set<Mod> applied;
     private ManagerOptions options;
     private static String MANAGER_FOLDER = "C:\\Manager";
-    private static String MODS_FOLDER = "C:\\";
-    private static String HON_FOLDER = ""; // We need this
+    private static String MODS_FOLDER = "C:\\Heroes of Newerth\\game\\mods";
+    private static String HON_FOLDER = "C:\\Heroes of Newerth"; // We need this
     private static String OPTIONS_PATH = ""; // Stores the absolute path to the option file
     private static String HOMEPAGE = "http://forums.heroesofnewerth.com/showthread.php?t=25883";
     private ArrayList<Mod> lastMods;
@@ -209,11 +212,36 @@ public class Manager extends Observable {
         setChanged();
         notifyObservers();
     }
+
+    public void loadMods() throws IOException {
+        File modsFolder = new File(MODS_FOLDER);
+
+        // Get mod files from the directory
+        FileFilter fileFilter = new FileFilter() {
+            public boolean accept(File file) {
+                String fileName = file.getName();
+                if ((!file.isDirectory()) &&        /* Filter out directories */
+                    (!fileName.startsWith(".")) &&  /* Filter out hidden files and current dir */
+                    (fileName.endsWith(".honmod"))) /* Filter only .honmod files */
+                    return true;
+                else
+                    return false;
+            }
+        };
+        File[] files = modsFolder.listFiles(fileFilter);
+        if (files.length == 0) return;
+        // Go through all the mods and load them
+        for (int i=0;i<files.length;i++) {
+            addHonmod(files[i], false);
+        }
+    }
+
     /**
      * This function is used internally from the GUI itself automatically when launch to initiate existing mods.
      * @param honmod is the file (.honmod) to be add.
+     * @param copy flag to indicate whether to copy the file to mods folder
      */
-    public void addHonmod(File honmod) throws FileNotFoundException, IOException {
+    public void addHonmod(File honmod, boolean copy) throws FileNotFoundException, IOException {
         if (!honmod.exists()) {
             throw new FileNotFoundException();
         }
@@ -224,7 +252,29 @@ public class Manager extends Observable {
         logger.info("Mod file opened. Mod name: "+m.getName());
         m.setPath(honmod.getAbsolutePath());
         m.setId(0);
+        if (copy) {
+            // Copy the honmod file to mods directory
+            copyFile(honmod, new File(MODS_FOLDER+File.separator+honmod.getName()));
+            logger.info("Mod file copied to mods older");
+        }
         addMod(m);
+    }
+
+    private static void copyFile(File in, File out) throws IOException {
+        FileInputStream fis  = new FileInputStream(in);
+        FileOutputStream fos = new FileOutputStream(out);
+        try {
+            byte[] buf = new byte[1024];
+            int i = 0;
+            while ((i = fis.read(buf)) != -1) {
+                fos.write(buf, 0, i);
+            }
+        } catch (IOException e) {
+            throw e;
+        } finally {
+            if (fis != null) fis.close();
+            if (fos != null) fos.close();
+        }
     }
 
     /**
