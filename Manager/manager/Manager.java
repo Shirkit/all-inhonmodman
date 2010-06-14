@@ -21,6 +21,7 @@ import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.Stack;
+import java.util.StringTokenizer;
 
 import com.mallardsoft.tuple.*;
 import java.security.InvalidParameterException;
@@ -409,8 +410,8 @@ public class Manager {
      */
     public void applyMods() throws FileNotFoundException, IOException {
         Stack<Mod> applyOrder = sortMods();
-        for (int i = 0; i < applyOrder.size(); i++) {
-            Mod mod = applyOrder.get(i);
+        while (!applyOrder.isEmpty()) {
+            Mod mod = applyOrder.pop();
             for (int j = 0; j < mod.getActions().size(); j++) {
                 Action action = mod.getActions().get(j);
                 if (action.getClass().equals(ActionCopyFile.class)) {
@@ -633,9 +634,40 @@ public class Manager {
 
     public boolean isValidCondition(String condition) {
         boolean valid = true;
+        boolean inQuote = false;
 
         System.out.println(condition);
 
+        StringTokenizer st = new StringTokenizer(condition, "\' ()", true);
+        while (st.hasMoreTokens()) {
+        	String token = st.nextToken();
+        	System.out.println(token);
+        	System.out.println("----------------");
+        
+        	if (token.equalsIgnoreCase("\'")) {
+	    		if (inQuote)
+	    			inQuote = false;
+	    		else
+	    			inQuote = true;
+        	}
+        	else if (token.equalsIgnoreCase(" ")) {
+	    		if (inQuote) {
+	    			
+	    		}
+	    		else {
+	    		}
+        	}
+        	else if (token.equalsIgnoreCase("(")) {
+        		
+        	}
+        	else if (token.equalsIgnoreCase(")")) {
+        		
+        	}
+        	else {
+        	}
+        	}
+        }
+        /*
         boolean quotes = false;
         for (int i = 0; i < condition.length(); i++) {
             switch (condition.charAt(i)) {
@@ -689,6 +721,7 @@ public class Manager {
                 }
             }
         }
+        */
         return valid;
     }
 }

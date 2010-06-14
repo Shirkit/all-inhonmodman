@@ -22,15 +22,15 @@ public class ActionEditFileDelete extends Action implements ActionEditFileAction
     /**
      * @deprecated This method is not used by this action. It doesn't contain a content.
      */
-    public String getContent() throws NotImplementedException {
-        throw new NotImplementedException();
+    public String getContent() {
+        return content;
     }
 
     /**
      * @deprecated This method is not used by this action. It doesn't contain a content.
      */
-    public void setContent(String content) throws NotImplementedException {
-        throw new NotImplementedException();
+    public void setContent(String content) {
+        this.content = content;
     }
 
 }
