@@ -74,9 +74,9 @@ public class ManagerOptions {
         return success;
     }
 
-    public boolean loadOptions(File path) throws FileNotFoundException {
+    public void loadOptions(File path) throws FileNotFoundException {
     	if(!path.exists())
-    		return false;
+    		throw new FileNotFoundException(path.getName());
     	
         XStream xstream = new XStream(XML.getDriver());
         xstream = XML.updateAlias(xstream);
@@ -92,9 +92,6 @@ public class ManagerOptions {
         manager.setGamePath(tmp.getGamePath());
         manager.setManagerPath(tmp.getManagerPath());
         manager.setModPath(tmp.getModPath());
-
-        return true;
-
     }
 
     public void setModPath(String p) {

@@ -33,4 +33,31 @@ public class ActionEditFile extends Action {
         return this.actions;
     }
 
+    /**
+     * The file name to be edited.
+     * @return the name of the file to be edited
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * If the condition attribute is specified the copying is only performed if the given condition is true. A condition can consist of another mod being enabled or disabled or a boolean expression combining multiple such conditions. Examples of valid condition strings:
+     * <br/>'Tiny UI'
+     * <br/>not 'Tiny UI'
+     * <br/>'Tiny UI[v3.0]' and 'Automatic Ability Learner[v1.1-1.5]'
+     * <br/>('BardUI' or ('Improved UI by Barter[v1.08]' and 'Improved UI Addon - Juking Map')) and not 'Tiny UI' -->
+     * @return the condition
+     */
+    public String getCondition() {
+        return condition;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setCondition(String condition) {
+        this.condition = condition;
+    }
 }

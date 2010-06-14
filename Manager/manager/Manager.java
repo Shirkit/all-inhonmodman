@@ -8,10 +8,7 @@ import business.ManagerOptions;
 import business.Mod;
 import utility.XML;
 import utility.ZIP;
-import business.actions.ActionApplyAfter;
-import business.actions.ActionApplyBefore;
-import business.actions.ActionIncompatibility;
-import business.actions.ActionRequirement;
+import business.actions.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -22,7 +19,6 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
-import java.util.Random;
 import java.util.Set;
 import java.util.Stack;
 
@@ -42,21 +38,25 @@ public class Manager {
     private ArrayList<ArrayList<Pair<String, String>>> deps;
     private ArrayList<ArrayList<Pair<String, String>>> cons;
     private Set<Mod> applied;
-    private ManagerOptions options = null; // What does this do?
-    private static String MANAGER_FOLDER = "C:\\Manager"; // Is this necessary?
+    private ManagerOptions options;
+    private static String MANAGER_FOLDER = "C:\\Manager";
     private static String MODS_FOLDER = "";
-    private static String HON_FOLDER = ""; // We need this
-    private static String OPTIONS_PATH = ""; // Stores the absolute path to the option file
-    private ArrayList<Mod> lastMods;
-    private int nextPriority; // This is not necessary
+    private static String HON_FOLDER = "";
+    private static String OPTIONS_PATH = "";
 
     private Manager() {
         mods = new ArrayList<Mod>();
         deps = new ArrayList<ArrayList<Pair<String, String>>>();
         cons = new ArrayList<ArrayList<Pair<String, String>>>();
         options = new ManagerOptions();
-        lastMods = new ArrayList<Mod>();
-        nextPriority = 0;
+        try {
+            // Load options
+            options.loadOptions(new File(OPTIONS_PATH));
+            applied = options.getAppliedMods();
+        } catch (FileNotFoundException ex) {
+            //Logger.getLogger(Manager.class.getName()).log(Level.SEVERE, null, ex);
+            applied = new HashSet<Mod>();
+        }
     }
 
     /**
@@ -132,36 +132,6 @@ public class Manager {
     }
 
     /**
-     * This function will get the applied mods in resource999.s2z
-     * It is not complete yet, will need saved settings from Manager Options
-     * @return ArrayList<Mod> of Applied Mods
-     * @throws IOException
-     */
-    public Set<Mod> loadAppliedMods() throws IOException {
-        return options.loadOptions(new File(OPTIONS_PATH)) ? options.getAppliedMods() : new HashSet<Mod>();
-
-        /*
-        File list = new File(MODS_FOLDER + MODS_LIST); // the path needs to be take care of
-        ArrayList<Mod> tmp = new ArrayList<Mod>();
-        if (list.exists()) {
-        BufferedReader in = new BufferedReader(new FileReader(list));
-        try {
-        String line = null;
-
-        while ((line = in.readLine()) != null) {
-        tmp.add(mods.indexOf(getMod(line.trim())), getMod(line.trim()));
-        mods.get(mods.indexOf(getMod(line.trim()))).enable();
-        }
-        } catch (IOException e) {
-        throw e;
-        }
-        }
-
-        return tmp;
-         */
-    }
-
-    /**
      * This should be called after adding all the honmod files to build and initialize the arrays
      * @throws IOException 
      */
@@ -170,9 +140,6 @@ public class Manager {
         for (int i = 0; i < mods.size(); i++) {
             mods.get(i).disable();
         }
-
-        // Get all applied mods from the ManagerOptions if there is any and update the lists
-        applied = loadAppliedMods();
 
         // Now building the graph
         for (int i = 0; i < mods.size(); i++) {
@@ -244,6 +211,7 @@ public class Manager {
      * This function returns the mod from the arraylist mods
      * @param name
      * @return Mod
+     * @throws NoSuchElementException if the mod wasn't found
      */
     public Mod getMod(String name) throws NoSuchElementException {
         // get the enumration object for ArrayList mods
@@ -257,7 +225,7 @@ public class Manager {
             }
         }
 
-        throw new NoSuchElementException(name); 
+        throw new NoSuchElementException(name);
     }
 
     /**
@@ -434,47 +402,108 @@ public class Manager {
         return stack;
     }
 
-    public boolean saveOptions(File path) throws IOException {
-        return this.options.saveOptions(path);
-    }
-
-    public void loadOptions(File path) throws FileNotFoundException {
-        this.options.loadOptions(path);
-    }
-
-    /*
+    /**
      * In developing.
      * @throws FileNotFoundException
      * @throws IOException
      */
     public void applyMods() throws FileNotFoundException, IOException {
         Stack<Mod> applyOrder = sortMods();
-        while (!applyOrder.isEmpty()) {
-        }
-        /*
-        for (int i = 0; i < list.size(); i++) {
-        OuterMod m = list.get(i);
-        if (m.isEnabled()) {
-        for (int j = 0; j < m.getMod().getActions().size(); j++) {
-        Action action = m.getMod().getActions().get(j);
+        for (int i = 0; i < applyOrder.size(); i++) {
+            Mod mod = applyOrder.get(i);
+            for (int j = 0; j < mod.getActions().size(); j++) {
+                Action action = mod.getActions().get(j);
+                if (action.getClass().equals(ActionCopyFile.class)) {
+                    // copy a file
+                } else if (action.getClass().equals(ActionEditFile.class)) {
+                    ActionEditFile editfile = (ActionEditFile) action;
+                    if (isValidCondition(action)) {
+                    }
+                    int cursor = 0;
+                    int cursor2 = 0;
+                    boolean isSelected = false;
+                    String toEdit = new String(ZIP.getFile(new File(HON_FOLDER + File.separator + "game" + File.separator + "resources0.s2z"), editfile.getName()));
+                    String afterEdit = new String(toEdit);
+                    for (int k = 0; k < editfile.getActions().size(); k++) {
+                        ActionEditFileActions editFileAction = editfile.getActions().get(k);
+                        if (editFileAction.getClass().equals(ActionEditFileDelete.class)) {
+                            //ActionEditFileDelete delete = (ActionEditFileDelete) editFileAction;
+                            if (isSelected) {
+                                afterEdit = toEdit.substring(0, cursor) + toEdit.substring(cursor2);
+                                isSelected = false;
+                            } else {
+                            }
+                        } else if (editFileAction.getClass().equals(ActionEditFileFind.class)) {
+                            ActionEditFileFind find = (ActionEditFileFind) editFileAction;
+                            if (find.getPosition() != null) {
+                                if (find.isPositionAtStart()) {
+                                    cursor = 0;
+                                    cursor2 = 0;
+                                    isSelected = true;
+                                } else if (find.isPositionAtEnd()) {
+                                    cursor = toEdit.length();
+                                    cursor2 = cursor;
+                                    isSelected = true;
+                                } else {
+                                    try {
+                                        cursor = Integer.parseInt(find.getPosition());
+                                        if (cursor < 0) {
+                                            cursor = toEdit.length() - (cursor * (-1));
+                                        }
+                                        cursor2 = cursor;
+                                        isSelected = true;
+                                    } catch (NumberFormatException e) {
+                                        // it isn't a valid number or word, can't apply
+                                    }
+                                }
+                            } else {
+                                cursor = toEdit.indexOf(find.getContent());
+                                if (cursor == -1) {
+                                    // couldn't find the string, can't apply
+                                }
+                                cursor2 = cursor + find.getContent().length();
+                                isSelected = true;
+                            }
+                        } else if (editFileAction.getClass().equals(ActionEditFileFindUp.class)) {
+                            ActionEditFileFindUp findup = (ActionEditFileFindUp) editFileAction;
+                            cursor = toEdit.lastIndexOf(findup.getContent());
+                            if (cursor == -1) {
+                                // couldn't find the string, can't apply
+                            }
+                            cursor2 = cursor + findup.getContent().length();
+                            isSelected = true;
+                        } else if (editFileAction.getClass().equals(ActionEditFileInsert.class)) {
+                            ActionEditFileInsert insert = (ActionEditFileInsert) editFileAction;
+                            if (isSelected) {
+                                if (insert.isPositionAfter()) {
+                                    afterEdit = toEdit.substring(0, cursor2) + insert.getContent() + toEdit.substring(cursor2);
+                                } else if (insert.isPositionBefore()) {
+                                    afterEdit = toEdit.substring(0, cursor) + insert.getContent() + toEdit.substring(cursor);
+                                } else {
+                                    // position is invalid, can't apply
+                                }
+                            }
+                        } else if (editFileAction.getClass().equals(ActionEditFileReplace.class)) {
+                            ActionEditFileReplace replace = (ActionEditFileReplace) editFileAction;
+                            if (isSelected) {
+                                afterEdit = toEdit.replace(toEdit.substring(cursor, cursor2), replace.getContent());
+                                isSelected = false;
+                            } else {
+                                // the guy didn't select anything yet, can't apply
+                            }
+                        } else {
+                            // unsupported action edit file
+                        }
+                    }
 
-        if (action.getType().equals(Action.APPLY_AFTER)) {
-        ActionApplyAfter after = (ActionApplyAfter) action;
-        String otherModName = after.getName();
-        for (int k = 0; k < list.size(); k++) {
-        if (list.get(k).getMod().getName()
-        .equalsIgnoreCase(otherModName)) {
-        if (compareModsVersions(
-        m.getMod().getVersion(), after
-        .getVersion())) {
+
+                } else if (action.getClass().equals(ActionApplyAfter.class) || action.getClass().equals(ActionApplyBefore.class) || action.getClass().equals(ActionIncompatibility.class) || action.getClass().equals(ActionRequirement.class)) {
+                    // nothing to do
+                } else {
+                    // unsupported aciton
+                }
+            }
         }
-        }
-        }
-        }
-        }
-        }
-        }
-         */
     }
 
     /**
@@ -553,5 +582,113 @@ public class Manager {
             throw new InvalidParameterException();
         }
         return result;
+    }
+
+    private boolean isValidCondition(Action action) {
+        String condition = null;
+        if (action.getClass().equals(ActionEditFile.class)) {
+            ActionEditFile editfile = (ActionEditFile) action;
+            condition = editfile.getCondition();
+        } else if (action.getClass().equals(ActionCopyFile.class)) {
+            ActionCopyFile copyfile = (ActionCopyFile) action;
+            condition = copyfile.getCondition();
+        }
+        if (condition.isEmpty() || condition == null || condition.equals("")) {
+            return true;
+        }
+        int parentheses = 0;
+        boolean quotes = false;
+        int blocks = 0;
+        for (int i = 0; i < condition.length(); i++) {
+            switch (condition.charAt(i)) {
+                case '\'':
+                    quotes = !quotes;
+                case '(':
+                    if (!quotes) {
+                        parentheses += 1;
+                    }
+                    break;
+                case ')':
+                    if (!quotes) {
+                        parentheses -= 1;
+                    }
+                    break;
+                case '[':
+                    if (quotes) {
+                        blocks += 1;
+                    }
+                    break;
+                case ']':
+                    if (quotes) {
+                        blocks -= 1;
+                    }
+                    break;
+            }
+        }
+        if (parentheses != 0 || quotes == false || blocks != 0) {
+            // invalid condition, can't apply
+        }
+        return isValidCondition(condition);
+    }
+
+    public boolean isValidCondition(String condition) {
+        boolean valid = true;
+
+        System.out.println(condition);
+
+        boolean quotes = false;
+        for (int i = 0; i < condition.length(); i++) {
+            switch (condition.charAt(i)) {
+                case '\'':
+                    quotes = !quotes;
+                    break;
+                case 'n':
+                    if (!quotes && condition.charAt(i + 1) == 'o' && condition.charAt(i + 2) == 't') {
+                        return !isValidCondition(condition.substring(i + 3));
+                    }
+                    break;
+                case 'o':
+                    if (!quotes && condition.charAt(i + 1) == 'r') {
+                        return isValidCondition(condition.substring(0, i)) || isValidCondition(condition.substring(i + 2));
+                    }
+                    break;
+                case 'a':
+                    if (!quotes && condition.charAt(i + 1) == 'n' && condition.charAt(i + 2) == 'd') {
+                        return isValidCondition(condition.substring(0, i)) && isValidCondition(condition.substring(i + 3));
+                    }
+                    break;
+                case '(':
+                    if (!quotes) {
+                        return isValidCondition(condition.substring(i + 1, condition.lastIndexOf(")")));
+                    }
+                    break;
+            }
+        }
+
+        for (int i = 0; i < condition.length(); i++) {
+            switch (condition.charAt(i)) {
+                case '\'': {
+                    int quote = i;
+                    String subString = condition.substring(quote + 1, condition.indexOf('\'', quote + 1));
+                    String version = "*";
+                    String name;
+                    if (subString.contains("[")) {
+                        version = subString.substring(subString.indexOf("["), subString.indexOf("]"));
+                        name = subString.substring(0, subString.indexOf("["));
+                    } else {
+                        name = subString;
+                    }
+                    try {
+                        if (!compareModsVersions(getMod(name).getVersion(), version)) {
+                            return false;
+                        }
+                    } catch (NoSuchElementException e) {
+                        return false;
+                    }
+                    return true;
+                }
+            }
+        }
+        return valid;
     }
 }

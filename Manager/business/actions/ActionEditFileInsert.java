@@ -50,4 +50,18 @@ public class ActionEditFileInsert extends Action implements ActionEditFileAction
     public void setContent(String content) {
         this.content = content;
     }
+
+    public boolean isPositionAfter() {
+        if (this.getPosition().equalsIgnoreCase("after")) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isPositionBefore() {
+        if (this.getPosition().equalsIgnoreCase("before")) {
+            return true;
+        }
+        return false;
+    }
 }

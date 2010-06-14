@@ -4,6 +4,7 @@ import business.actions.converters.ActionEditFileFindConverter;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
+import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
 /**
  * synonyms for "find" are "seek" and "search"
@@ -55,4 +56,17 @@ public class ActionEditFileFind extends Action implements ActionEditFileActions 
         this.content = content;
     }
 
+    public boolean isPositionAtStart() {
+        if (this.position.equalsIgnoreCase("start") || this.position.equalsIgnoreCase("begin") || this.position.equalsIgnoreCase("head") || this.position.equalsIgnoreCase("before")) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isPositionAtEnd() {
+        if (this.position.equalsIgnoreCase("end") || this.position.equalsIgnoreCase("tail") || this.position.equalsIgnoreCase("after") || this.position.equalsIgnoreCase("eof")) {
+            return true;
+        }
+        return false;
+    }
 }
