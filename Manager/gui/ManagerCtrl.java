@@ -12,6 +12,7 @@ import Manager.gui.l10n.L10n;
 import business.Mod;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import Manager.utility.FileDrop;
 import java.io.IOException;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
@@ -57,6 +58,8 @@ public class ManagerCtrl {
         view.tableAddListSelectionListener(lsl);
         view.tableAddModelListener(new TableEditListener());
         view.labelVisitWebsiteAddMouseListener(new VisitWebsiteListener());
+        // Add file drop functionality
+        new FileDrop(view, new DropListener());
     }
 
     /**
@@ -213,7 +216,12 @@ public class ManagerCtrl {
         public void actionPerformed(ActionEvent e) {
             logger.info("Applying mods...");
             // TODO: Test
-            // model.applyMods();
+            try {
+                model.applyMods();
+            } catch (Exception ex) {
+                logger.info("Exception: "+ex.getMessage());
+                ex.printStackTrace();
+            }
             view.showMessage(L10n.getString("message.modsapplied"),
                              L10n.getString("message.modsapplied.title"),
                              JOptionPane.INFORMATION_MESSAGE);
@@ -281,6 +289,29 @@ public class ManagerCtrl {
             view.tableRemoveListSelectionListener(lsl);
             model.updateNotify();
             view.tableAddListSelectionListener(lsl);
+        }
+    }
+
+    class DropListener implements FileDrop.Listener {
+        public void filesDropped( java.io.File[] files ) {
+            boolean updated = false;
+            logger.info("Files dropped: "+files.length);
+            for (int i=0;i<files.length;i++) {
+                File honmod = files[i];
+                if (honmod.getName().endsWith(".honmod")) {
+                    try {
+                        model.addHonmod(honmod);
+                        updated = true;
+                    } catch (IOException e) {
+                        logger.info("Opening mod file failed. Message: "+e.getMessage());
+                    }
+                }
+            }
+            if (updated) {
+                view.tableRemoveListSelectionListener(lsl);
+                model.updateNotify();
+                view.tableAddListSelectionListener(lsl);
+            }
         }
     }
 

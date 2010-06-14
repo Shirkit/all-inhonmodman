@@ -50,7 +50,6 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         setDetailsVisible(false);
         // This thing here is working along with formComponentShown to solve the fucking bug of not showing the correct size when running the app
         this.setResizable(false);
-
     }
 
     /** This method is called from within the constructor to
@@ -163,7 +162,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         labelModIcon.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Manager/gui/resources/icon.png"))); // NOI18N
         labelModIcon.setName("labelModIcon"); // NOI18N
 
-        labelModName.setFont(new java.awt.Font("Tahoma", 1, 14));
+        labelModName.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         labelModName.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         labelModName.setText("mod name");
         labelModName.setName("labelModName"); // NOI18N
@@ -232,7 +231,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(panelModDetailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(labelModAuthor, javax.swing.GroupLayout.DEFAULT_SIZE, 167, Short.MAX_VALUE)
-                                    .addComponent(labelModName, javax.swing.GroupLayout.DEFAULT_SIZE, 167, Short.MAX_VALUE))))
+                                    .addComponent(labelModName, javax.swing.GroupLayout.PREFERRED_SIZE, 167, javax.swing.GroupLayout.PREFERRED_SIZE))))
                         .addContainerGap())
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelModDetailsLayout.createSequentialGroup()
                         .addComponent(buttonEnableMod, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)
