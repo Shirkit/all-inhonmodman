@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package vision;
+package manager.gui;
 
 import business.Mod;
 import javax.swing.Icon;

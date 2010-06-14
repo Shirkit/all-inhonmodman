@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package manager;
+package Manager.manager;
 
 import business.ManagerOptions;
 import business.Mod;
@@ -25,14 +25,23 @@ import java.util.StringTokenizer;
 
 import com.mallardsoft.tuple.*;
 import java.security.InvalidParameterException;
+import java.util.Observable;
+import org.apache.log4j.Logger;
 import utility.ModEnabledException;
 import utility.ModNotEnabledException;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 
 /**
+ * Implementation of the core functionality of HoN modification manager. This class is
+ * the 'model' part of the MVC framework used for creating manager GUI. After any updates
+ * that should result in UI changes (such as new mod added) it should call updateNotify
+ * method which will notify observers to refresh. This class should never directly call
+ * view or controller classes.
  *
  * @author Shirkit
  */
-public class Manager {
+public class Manager extends Observable {
 
     private static Manager instance = null;
     private ArrayList<Mod> mods;
@@ -41,9 +50,13 @@ public class Manager {
     private Set<Mod> applied;
     private ManagerOptions options;
     private static String MANAGER_FOLDER = "C:\\Manager";
-    private static String MODS_FOLDER = "";
-    private static String HON_FOLDER = "";
-    private static String OPTIONS_PATH = "";
+    private static String MODS_FOLDER = "C:\\";
+    private static String HON_FOLDER = ""; // We need this
+    private static String OPTIONS_PATH = ""; // Stores the absolute path to the option file
+    private static String HOMEPAGE = "http://forums.heroesofnewerth.com/showthread.php?t=25883";
+    private ArrayList<Mod> lastMods;
+    private int nextPriority; // This is not necessary
+    private static Logger logger = Logger.getLogger(Manager.class.getPackage().getName());
 
     private Manager() {
         mods = new ArrayList<Mod>();
@@ -102,6 +115,10 @@ public class Manager {
 
     public String getOptionsPath() {
         return OPTIONS_PATH;
+    }
+
+    public String getHomepage() {
+        return HOMEPAGE;
     }
 
     /**
@@ -184,6 +201,15 @@ public class Manager {
     }
 
     /**
+     * Set status of the MVC model to changed and notify all registered observers.
+     * Call this method when the data model changed and UI has to be updated.
+     */
+    public void updateNotify() {
+        // Notify observers that model has been updated
+        setChanged();
+        notifyObservers();
+    }
+    /**
      * This function is used internally from the GUI itself automatically when launch to initiate existing mods.
      * @param honmod is the file (.honmod) to be add.
      */
@@ -193,10 +219,80 @@ public class Manager {
         }
         String xml = new String(ZIP.getFile(honmod, "mod.xml"));
         Mod m = XML.xmlToMod(xml);
-        System.out.println("Name: " + m.getName());
+        Icon icon = new ImageIcon(ZIP.getFile(honmod, "icon.png"));
+        m.setIcon(icon);
+        logger.info("Mod file opened. Mod name: "+m.getName());
         m.setPath(honmod.getAbsolutePath());
         m.setId(0);
         addMod(m);
+    }
+
+    /**
+     * Open website of the selected mod
+     *
+     * @param modIndex index of the mod in the list of mods
+     * @return 0 on success, -1 if opening websites is not supported on this platform
+     * @throws IndexOutOfBoundsException in case index is not in the mod list
+     */
+    public int openModWebsite(int modIndex) throws IndexOutOfBoundsException {
+        Mod mod = mods.get(modIndex);
+        String url = mod.getWebLink();
+
+        return openWebsite(url);
+    }
+
+    /**
+     * Open specified website in the default browser. This method is using java
+     * Desktop API and therefore requires Java 1.6. Also, this operation might not
+     * be supported on all platforms.
+     *
+     * @param url url of the website to open
+     * @return 0 on success, -1 in case the operation is not supported on this platform
+     */
+    public int openWebsite(String url) {
+        if(!java.awt.Desktop.isDesktopSupported()) {
+            logger.info("Opening websites is not supported");
+            return -1;
+        }
+        java.awt.Desktop desktop = java.awt.Desktop.getDesktop();
+        if( !desktop.isSupported( java.awt.Desktop.Action.BROWSE ) ) {
+            logger.info("Opening websites is not supported");
+            return -1;
+        }
+
+        try {
+            java.net.URI uri = new java.net.URI(url);
+            desktop.browse( uri );
+        } catch (Exception e) {
+            logger.error("Unable to open website: "+e.getMessage());
+            e.printStackTrace();
+            return -1;
+        }
+        return 0;
+    }
+
+    /**
+     * Open folder containing mods. The folder is opened using OS specific explorer
+     * and therefore might not be supported on all platforms. This operation uses java
+     * Desktop API and requires Java 1.6
+     *
+     * @return 0 on succuess, -1 in case the operation is not supported on this platform
+     */
+    public int openModFolder() {
+        if(!java.awt.Desktop.isDesktopSupported()) {
+            logger.info("Opening local folders is not supported");
+            return -1;
+        }
+        java.awt.Desktop desktop = java.awt.Desktop.getDesktop();
+
+        try {
+            desktop.open(new File(this.getModPath()));
+        } catch (Exception e) {
+            logger.error("Unable to open local folder: "+e.getMessage());
+            e.printStackTrace();
+            return -1;
+        }
+        return 0;
     }
 
     /**
@@ -206,6 +302,17 @@ public class Manager {
      */
     public ArrayList<Mod> getMods() {
         return mods;
+    }
+
+    /**
+     * Get mod at specified index
+     *
+     * @param index index of the mod in the list of mods
+     * @return mod at the given index
+     * @throws IndexOutOfBoundsException in case index does not exist in the list of mods
+     */
+    public Mod getMod(int index) throws IndexOutOfBoundsException {
+        return (Mod)mods.get(index);
     }
 
     /**

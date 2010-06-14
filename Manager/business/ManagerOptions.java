@@ -14,7 +14,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Set;
 
-import manager.Manager;
+import Manager.manager.Manager;
 import utility.XML;
 
 /**

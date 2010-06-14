@@ -6,9 +6,8 @@ import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import javax.swing.Icon;
 
 /**
  * @author Shirkit
@@ -65,6 +64,8 @@ public class Mod {
     private int id;
     @XStreamOmitField
     private boolean enabled;
+    @XStreamOmitField
+    private Icon icon;
 
     /**
      * Mod constructor.
@@ -228,7 +229,23 @@ public class Mod {
     public void disable() {
         enabled = false;
     }
-    
+
+    /**
+     * Sets the icon of a mod
+     * @param icon Icon for this mod
+     */
+    public void setIcon(Icon icon) {
+        this.icon = icon;
+    }
+
+    /**
+     * Returns icon of a mod
+     * @return icon for this mod
+     */
+    public Icon getIcon() {
+        return icon;
+    }
+
     /**
      * Override for HashSet comparison
      */
