@@ -1,19 +1,26 @@
-/**
- * ManagerAboutBox.java
- */
 
 package Manager.gui;
 
+import java.awt.Frame;
 import org.jdesktop.application.Action;
+import Manager.gui.l10n.L10n;
+import Manager.manager.Manager;
 
 /**
- * @author Shirkit
- * The about box.
+ * About dialog
+ *
+ * @author Shirkit, Kovo
  */
 public class ManagerAboutBox extends javax.swing.JDialog {
+    Frame parent;
+    Manager model;
+    // Link to license
+    private static final String licenseWeb = "http://www.gnu.org/licenses/gpl.html";
 
-    public ManagerAboutBox(java.awt.Frame parent) {
-        super(parent);
+    public ManagerAboutBox(Frame _parent, Manager _model) {
+        super(_parent);
+        this.parent = _parent;
+        this.model = _model;
         initComponents();
         getRootPane().setDefaultButton(closeButton);
     }
@@ -32,73 +39,166 @@ public class ManagerAboutBox extends javax.swing.JDialog {
 
         closeButton = new javax.swing.JButton();
         javax.swing.JLabel appTitleLabel = new javax.swing.JLabel();
-        javax.swing.JLabel versionLabel = new javax.swing.JLabel();
         javax.swing.JLabel appVersionLabel = new javax.swing.JLabel();
-        javax.swing.JLabel appDescLabel = new javax.swing.JLabel();
+        javax.swing.JLabel appVersion = new javax.swing.JLabel();
+        javax.swing.JLabel appHomepageLabel = new javax.swing.JLabel();
+        javax.swing.JLabel appHomepage = new javax.swing.JLabel();
+        labelModIcon = new javax.swing.JLabel();
+        appLicenseLabel = new javax.swing.JLabel();
+        appLicense = new javax.swing.JLabel();
+        appAuthorsLabel = new javax.swing.JLabel();
+        appAuthors = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        aboutTextArea = new javax.swing.JTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance().getContext().getResourceMap(ManagerAboutBox.class);
-        setTitle(resourceMap.getString("title")); // NOI18N
+        setTitle(L10n.getString("about.title"));
         setModal(true);
         setName("aboutBox"); // NOI18N
         setResizable(false);
 
         javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance().getContext().getActionMap(ManagerAboutBox.class, this);
         closeButton.setAction(actionMap.get("closeAboutBox")); // NOI18N
+        closeButton.setText(L10n.getString("about.button.close"));
         closeButton.setName("closeButton"); // NOI18N
 
         appTitleLabel.setFont(appTitleLabel.getFont().deriveFont(appTitleLabel.getFont().getStyle() | java.awt.Font.BOLD, appTitleLabel.getFont().getSize()+4));
+        org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance().getContext().getResourceMap(ManagerAboutBox.class);
+        appTitleLabel.setText(resourceMap.getString("appTitleLabel.text")); // NOI18N
         appTitleLabel.setName("appTitleLabel"); // NOI18N
 
-        versionLabel.setFont(versionLabel.getFont().deriveFont(versionLabel.getFont().getStyle() | java.awt.Font.BOLD));
-        versionLabel.setText(resourceMap.getString("versionLabel.text")); // NOI18N
-        versionLabel.setName("versionLabel"); // NOI18N
-
+        appVersionLabel.setFont(appVersionLabel.getFont().deriveFont(appVersionLabel.getFont().getStyle() | java.awt.Font.BOLD));
+        appVersionLabel.setText(L10n.getString("about.version.label"));
         appVersionLabel.setName("appVersionLabel"); // NOI18N
 
-        appDescLabel.setText(resourceMap.getString("appDescLabel.text")); // NOI18N
-        appDescLabel.setName("appDescLabel"); // NOI18N
+        appVersion.setText(this.model.getVersion());
+        appVersion.setName("appVersion"); // NOI18N
+
+        appHomepageLabel.setFont(appHomepageLabel.getFont().deriveFont(appHomepageLabel.getFont().getStyle() | java.awt.Font.BOLD));
+        appHomepageLabel.setText(L10n.getString("about.homepage.label"));
+        appHomepageLabel.setName("appHomepageLabel"); // NOI18N
+
+        appHomepage.setText(this.model.getHomepage());
+        appHomepage.setName("appHomepage"); // NOI18N
+
+        labelModIcon.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Manager/gui/resources/icon.png"))); // NOI18N
+        labelModIcon.setName("labelModIcon"); // NOI18N
+
+        appLicenseLabel.setFont(resourceMap.getFont("appLicenseLabel.font")); // NOI18N
+        appLicenseLabel.setText(L10n.getString("about.license.label"));
+        appLicenseLabel.setName("appLicenseLabel"); // NOI18N
+
+        appLicense.setText(L10n.getString("about.license"));
+        appLicense.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        appLicense.setName("appLicense"); // NOI18N
+        appLicense.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                appLicenseMouseClicked(evt);
+            }
+        });
+
+        appAuthorsLabel.setFont(resourceMap.getFont("appAuthorsLabel.font")); // NOI18N
+        appAuthorsLabel.setText(L10n.getString("about.authors.label"));
+        appAuthorsLabel.setName("appAuthorsLabel"); // NOI18N
+
+        appAuthors.setText(resourceMap.getString("appAuthors.text")); // NOI18N
+        appAuthors.setName("appAuthors"); // NOI18N
+
+        jScrollPane1.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        jScrollPane1.setName("jScrollPane1"); // NOI18N
+
+        aboutTextArea.setBackground(resourceMap.getColor("descTextArea.background")); // NOI18N
+        aboutTextArea.setColumns(20);
+        aboutTextArea.setEditable(false);
+        aboutTextArea.setFont(resourceMap.getFont("descTextArea.font")); // NOI18N
+        aboutTextArea.setLineWrap(true);
+        aboutTextArea.setRows(3);
+        aboutTextArea.setText(L10n.getString("about.description"));
+        aboutTextArea.setWrapStyleWord(true);
+        aboutTextArea.setAutoscrolls(false);
+        aboutTextArea.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        aboutTextArea.setName("descTextArea"); // NOI18N
+        jScrollPane1.setViewportView(aboutTextArea);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(360, Short.MAX_VALUE)
-                .addComponent(closeButton)
-                .addContainerGap())
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(appDescLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 360, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(appTitleLabel)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 378, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(versionLabel)
+                        .addComponent(labelModIcon)
+                        .addGap(18, 18, 18)
+                        .addComponent(appTitleLabel))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(appAuthorsLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(appLicenseLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(appVersionLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(appHomepageLabel, javax.swing.GroupLayout.Alignment.LEADING))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(appVersionLabel)))
-                .addContainerGap(61, Short.MAX_VALUE))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(appVersion, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 297, Short.MAX_VALUE)
+                            .addComponent(appHomepage, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 297, Short.MAX_VALUE)
+                            .addComponent(appLicense, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 297, Short.MAX_VALUE)
+                            .addComponent(appAuthors, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 297, Short.MAX_VALUE)))
+                    .addComponent(closeButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(appTitleLabel)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(26, 26, 26)
+                        .addComponent(appTitleLabel))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(labelModIcon)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(appDescLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 197, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(appHomepageLabel)
+                    .addComponent(appHomepage, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(versionLabel)
-                    .addComponent(appVersionLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 19, Short.MAX_VALUE)
+                    .addComponent(appVersionLabel)
+                    .addComponent(appVersion, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(appLicenseLabel)
+                    .addComponent(appLicense))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(appAuthorsLabel)
+                    .addComponent(appAuthors))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(closeButton)
-                .addContainerGap())
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    /**
+     * Open license text ina web browser
+     */
+    private void appLicenseMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_appLicenseMouseClicked
+        model.openWebsite(licenseWeb);
+    }//GEN-LAST:event_appLicenseMouseClicked
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextArea aboutTextArea;
+    private javax.swing.JLabel appAuthors;
+    private javax.swing.JLabel appAuthorsLabel;
+    private javax.swing.JLabel appLicense;
+    private javax.swing.JLabel appLicenseLabel;
     private javax.swing.JButton closeButton;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel labelModIcon;
     // End of variables declaration//GEN-END:variables
     
 }

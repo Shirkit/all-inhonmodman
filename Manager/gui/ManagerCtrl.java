@@ -14,8 +14,11 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import Manager.utility.FileDrop;
 import java.io.IOException;
+import java.util.prefs.Preferences;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
@@ -35,6 +38,7 @@ public class ManagerCtrl {
     Manager model;
     ManagerGUI view;
     ListSelectionListener lsl;
+    private Preferences prefs;
 
     /**
      * Initialize event listeners.
@@ -46,6 +50,7 @@ public class ManagerCtrl {
         this.model = model;
         this.view = view;
 
+        // Add listeners to view components
         view.buttonAddModAddActionListener(new AddModListener());
         view.buttonEnableModAddActionListener(new EnableModListener());
         view.itemApplyModsAddActionListener(new ApplyModsListener());
@@ -58,9 +63,14 @@ public class ManagerCtrl {
         view.tableAddListSelectionListener(lsl);
         view.tableAddModelListener(new TableEditListener());
         view.labelVisitWebsiteAddMouseListener(new VisitWebsiteListener());
+        view.buttonApplyLafAddActionListener(new ApplyLafListener());
+        view.buttonOkAddActionListener(new PrefsOkListener());
+        view.buttonCancelAddActionListener(new PrefsCancelListener());
+        view.buttonHonFolderAddActionListener(new ChooseFolderHonListener());
         // Add file drop functionality
         new FileDrop(view, new DropListener());
         // Load mods from mods folder (if any)
+        // TODO: shouldn't this be somewhere else?
         try {
             model.loadMods();
         } catch (IOException ex) {
@@ -302,6 +312,9 @@ public class ManagerCtrl {
         }
     }
 
+    /**
+     * Listener for Drop action on the main form
+     */
     class DropListener implements FileDrop.Listener {
         public void filesDropped( java.io.File[] files ) {
             boolean updated = false;
@@ -326,13 +339,102 @@ public class ManagerCtrl {
     }
 
     /**
+     * Listener for 'Apply LaF' button. Canges LaF of the application
+     */
+    class ApplyLafListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            // Get selected LaF and apply it
+            String lafClass = view.getSelectedLafClass();
+            try {
+                if (lafClass.equals("default")) {
+                    logger.info("Changing LaF to Default");
+                    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                } else {
+                    logger.info("Changing LaF to "+lafClass);
+                    UIManager.setLookAndFeel(lafClass);
+                }
+                // Update UI
+                SwingUtilities.updateComponentTreeUI(view);
+                SwingUtilities.updateComponentTreeUI(view.getPrefsDialog());
+                view.pack();
+                view.getPrefsDialog().pack();
+            } catch (Exception ex) {
+                logger.warn("Unable to change Look and feel: "+ex.getMessage());
+                //TODO: some error message?
+            }
+        }
+    }
+
+    /**
+     * Listener for 'Ok' button on the preferences dialog
+     */
+    class PrefsOkListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            // Save language choice
+            prefs = Preferences.userNodeForPackage(L10n.class);
+            String lang = view.getSelectedLanguage();
+            if (lang.equals(L10n.getDefaultLocale())) {
+                prefs.remove(Manager.PREFS_LOCALE);
+            } else {
+                prefs.put(Manager.PREFS_LOCALE, lang);
+            }
+            // Save HoN folder
+            // TODO: check that selected folder contains HoN
+            prefs = Preferences.userNodeForPackage(Manager.class);
+            prefs.put(Manager.PREFS_HONFOLDER, view.getSelectedHonFolder());
+            // Save CL arguments
+            if (view.getCLArguments().equals("")) {
+                prefs.remove(Manager.PREFS_CLARGUMENTS);
+            } else {
+                prefs.put(Manager.PREFS_CLARGUMENTS, view.getCLArguments());
+            }
+            // Save selected LaF
+            if (view.getSelectedLafClass().equals("default")) {
+                prefs.remove(Manager.PREFS_LAF);
+            } else {
+                prefs.put(Manager.PREFS_LAF, view.getSelectedLafClass());
+            }
+            // TODO: Check that LaF was applied
+            // Hide dialog
+            view.getPrefsDialog().setVisible(false);
+        }
+    }
+
+    /**
+     * Listener for 'Choose HoN folder' button. Lets user navigate through
+     * filesystem and select folder where HoN is installed
+     */
+    class ChooseFolderHonListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            JFileChooser fc = new JFileChooser();
+            fc.setAcceptAllFileFilterUsed(false);
+            fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            int returnVal = fc.showOpenDialog(view);
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                File directory = fc.getSelectedFile();
+                view.setTextFieldHonFolder(directory.getPath());
+                logger.info("Hon folder selected: "+directory.getPath());
+            }
+        }
+    }
+
+    /**
+     * Listener for 'Cancel' button on preferences dialog
+     */
+    class PrefsCancelListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            view.getPrefsDialog().setVisible(false);
+        }
+    }
+
+    /**
      * Listener for 'Exit' menu item
      */
     class ExitListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             // Close the main window
             logger.info("Closing HonModManager...");
-            view.dispose();
+            System.exit(0);
         }
     }
 }

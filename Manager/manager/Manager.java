@@ -1,9 +1,7 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package Manager.manager;
 
+import Manager.utility.WindowsRegistry;
 import business.ManagerOptions;
 import business.Mod;
 import utility.XML;
@@ -29,6 +27,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.security.InvalidParameterException;
 import java.util.Observable;
+import java.util.prefs.Preferences;
 import org.apache.log4j.Logger;
 import utility.ModEnabledException;
 import utility.ModNotEnabledException;
@@ -56,10 +55,16 @@ public class Manager extends Observable {
     private static String MODS_FOLDER = "C:\\Heroes of Newerth\\game\\mods";
     private static String HON_FOLDER = "C:\\Heroes of Newerth"; // We need this
     private static String OPTIONS_PATH = ""; // Stores the absolute path to the option file
-    private static String HOMEPAGE = "http://forums.heroesofnewerth.com/showthread.php?t=25883";
+    private static String HOMEPAGE = "http://sourceforge.net/projects/all-inhonmodman";
+    private static String VERSION = "0.1 BETA";     // Version string shown in About dialog
     private ArrayList<Mod> lastMods;
     private int nextPriority; // This is not necessary
     private static Logger logger = Logger.getLogger(Manager.class.getPackage().getName());
+    // Preferences constants - use these constants instead of strings to reduce typo errors
+    public static final String PREFS_LOCALE = "locale";
+    public static final String PREFS_LAF = "laf";
+    public static final String PREFS_CLARGUMENTS = "clarguments";
+    public static final String PREFS_HONFOLDER = "honfolder";
 
     private Manager() {
         mods = new ArrayList<Mod>();
@@ -73,6 +78,82 @@ public class Manager extends Observable {
         } catch (FileNotFoundException ex) {
             //Logger.getLogger(Manager.class.getName()).log(Level.SEVERE, null, ex);
             applied = new HashSet<Mod>();
+        }
+        // Find HoN folder
+        String folder = findHonFolder();
+        if (folder != null) {
+            logger.info("Setting HoN folder to: "+folder);
+            Preferences prefs = Preferences.userNodeForPackage(Manager.class);
+            prefs.put(Manager.PREFS_HONFOLDER, folder);
+        }
+    }
+
+    /**
+     * Try to find HoN installation folder on different platforms.
+     *
+     * @return folder where HoN is installed or null if such folder cannot be found
+     */
+    private String findHonFolder() {
+        // Try to find HoN folder in case we are on Windows
+        if (isWindows()) {
+            // Get the folder from uninstall info in windows registry saved by HoN
+            String registryData = WindowsRegistry.getRecord("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\hon", "InstallLocation");
+            if (!registryData.isEmpty()) {
+                return registryData;
+            }
+            // We didnt find HoN folder in the registry, try something else?
+            return null;
+        }
+        // Try to find HoN folder in case we are on Linux
+        if (isLinux()) {
+
+        }
+        // Try to find HoN folder in case we are on Mac
+        if (isMac()) {
+
+        }
+        return null;
+    }
+
+    /**
+     * Check if we are on MS Windows OS
+     * TODO: this needs to be tested on different systems
+     *
+     * @return true if the platform is MS Windows, false otherwise
+     */
+    private boolean isWindows() {
+        if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Check if we are on Linux OS
+     * TODO: this needs to be tested on different systems
+     *
+     * @return true if the platform is Linux
+     */
+    private boolean isLinux() {
+        if (System.getProperty("os.name").toLowerCase().contains("linux")) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Check if we are on Apple Mac OS
+     * TODO: this needs to be tested on different systems
+     *
+     * @return true if the platform is Apple Mac OS
+     */
+    private boolean isMac() {
+        if (System.getProperty("os.name").toLowerCase().contains("mac")) {
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -88,6 +169,9 @@ public class Manager extends Observable {
         return instance;
     }
 
+    /*
+     * Various getters and setters
+     */
     public void setModPath(String p) {
         MODS_FOLDER = p;
     }
@@ -122,6 +206,10 @@ public class Manager extends Observable {
 
     public String getHomepage() {
         return HOMEPAGE;
+    }
+
+    public String getVersion() {
+        return VERSION;
     }
 
     /**
@@ -213,9 +301,13 @@ public class Manager extends Observable {
         notifyObservers();
     }
 
+    /**
+     * Load all mods from the mods folder
+     *
+     * @throws IOException
+     */
     public void loadMods() throws IOException {
         File modsFolder = new File(MODS_FOLDER);
-
         // Get mod files from the directory
         FileFilter fileFilter = new FileFilter() {
             public boolean accept(File file) {

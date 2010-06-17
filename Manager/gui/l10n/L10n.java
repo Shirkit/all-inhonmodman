@@ -7,6 +7,7 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
 import org.apache.log4j.Logger;
+import Manager.manager.Manager;
 
 /**
  * Takes care of HonModMan localization.
@@ -18,6 +19,7 @@ public class L10n
 {
     // This is where property files with translations are
     private static final String RESOURCE_NAME="Manager.gui.l10n.HonModMan";
+    private static final String DEFAULT_LOCALE = "en";
     private static ResourceBundle resource;
     private static Preferences prefs;
     private static Logger logger = Logger.getLogger(L10n.class.getPackage().getName());
@@ -39,7 +41,7 @@ public class L10n
      */
     public static void load() throws IOException {
         prefs = Preferences.userNodeForPackage(L10n.class);
-        languageLocale = prefs.get("locale","DUMMY_DEFAULT");
+        languageLocale = prefs.get(Manager.PREFS_LOCALE,"DUMMY_DEFAULT");
         load(languageLocale);
     }
     
@@ -137,5 +139,9 @@ public class L10n
      */
     public static String getLanguageLocale() {
     	return languageLocale;
+    }
+
+    public static String getDefaultLocale() {
+        return DEFAULT_LOCALE;
     }
 }
