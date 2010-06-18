@@ -1,12 +1,13 @@
 package business;
 
-import business.actions.Action;
+import business.actions.*;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import javax.swing.Icon;
 
 /**
@@ -104,6 +105,37 @@ public class Mod {
      */
     public ArrayList<Action> getActions() {
         return actions;
+    }
+
+    /**
+     * Get list of actions of a specified type
+     * 
+     * @param type type of actions to return. See Action.java for action constants
+     * @return list of actions of the given type (empty if there are none)
+     */
+    public ArrayList<Action> getActions(String type) {
+        Action act;
+        ArrayList<Action> typeActions = new ArrayList<Action>();
+        for (Iterator actionsIter = actions.iterator(); actionsIter.hasNext(); ) {
+            act = (Action)actionsIter.next();
+            if (act.getClass() == getTypeActionClass(type)) typeActions.add(act);
+        }
+        return typeActions;
+    }
+
+    private Class getTypeActionClass(String type) {
+        if (type.equals(Action.APPLY_AFTER)) return ActionApplyAfter.class;
+        if (type.equals(Action.APPLY_BEFORE)) return ActionApplyBefore.class;
+        if (type.equals(Action.COPY_FILE)) return ActionCopyFile.class;
+        if (type.equals(Action.DELETE)) return ActionEditFileDelete.class;
+        if (type.equals(Action.EDIT_FILE)) return ActionEditFile.class;
+        if (type.equals(Action.FIND)) return ActionEditFileFind.class;
+        if (type.equals(Action.FIND_UP)) return ActionEditFileFindUp.class;
+        if (type.equals(Action.INCOMPATIBILITY)) return ActionIncompatibility.class;
+        if (type.equals(Action.INSERT)) return ActionEditFileInsert.class;
+        if (type.equals(Action.REPLACE)) return ActionEditFileReplace.class;
+        if (type.equals(Action.REQUIREMENT)) return ActionRequirement.class;
+        return Action.class;
     }
 
     /**

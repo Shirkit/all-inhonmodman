@@ -21,6 +21,10 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import org.apache.log4j.Logger;
 import javax.swing.UIManager;
+import business.actions.Action;
+import business.actions.ActionRequirement;
+import java.util.Iterator;
+import javax.swing.DefaultListModel;
 
 /**
  * Main form of the ModManager. This class is the 'view' part of the MVC framework
@@ -124,9 +128,13 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         panelModDescription = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         areaModDesc = new javax.swing.JTextArea();
+        labelRequirements = new javax.swing.JLabel();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        listRequirements = new javax.swing.JList();
         labelVisitWebsite = new javax.swing.JLabel();
         labelModStatus = new javax.swing.JLabel();
         buttonEnableMod = new javax.swing.JButton();
+        buttonUpdateMod = new javax.swing.JButton();
         mainMenu = new javax.swing.JMenuBar();
         menuFile = new javax.swing.JMenu();
         itemApplyMods = new javax.swing.JMenuItem();
@@ -249,7 +257,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle(L10n.getString("application.title"));
-        setMinimumSize(new java.awt.Dimension(700, 350));
+        setMinimumSize(new java.awt.Dimension(700, 450));
         setName("Form"); // NOI18N
         addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentShown(java.awt.event.ComponentEvent evt) {
@@ -302,7 +310,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         labelModIcon.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Manager/gui/resources/icon.png"))); // NOI18N
         labelModIcon.setName("labelModIcon"); // NOI18N
 
-        labelModName.setFont(new java.awt.Font("Tahoma", 1, 14));
+        labelModName.setFont(labelModName.getFont().deriveFont(labelModName.getFont().getStyle() | java.awt.Font.BOLD, labelModName.getFont().getSize()+3));
         labelModName.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         labelModName.setText("mod name");
         labelModName.setName("labelModName"); // NOI18N
@@ -321,7 +329,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         areaModDesc.setBackground(new java.awt.Color(212, 208, 200));
         areaModDesc.setColumns(20);
         areaModDesc.setEditable(false);
-        areaModDesc.setFont(new java.awt.Font("Tahoma", 0, 11));
+        areaModDesc.setFont(buttonAddMod.getFont());
         areaModDesc.setLineWrap(true);
         areaModDesc.setRows(5);
         areaModDesc.setText("mod desc");
@@ -331,30 +339,55 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         areaModDesc.setName("areaModDesc"); // NOI18N
         jScrollPane2.setViewportView(areaModDesc);
 
+        labelRequirements.setFont(labelRequirements.getFont().deriveFont(labelRequirements.getFont().getStyle() | java.awt.Font.BOLD));
+        labelRequirements.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        labelRequirements.setText(L10n.getString("label.requires"));
+        labelRequirements.setName("labelRequirements"); // NOI18N
+
+        jScrollPane3.setName("jScrollPane3"); // NOI18N
+
+        listRequirements.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        listRequirements.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        listRequirements.setName("listRequirements"); // NOI18N
+        listRequirements.setSelectionBackground(new java.awt.Color(212, 208, 200));
+        listRequirements.setSelectionForeground(new java.awt.Color(51, 51, 51));
+        jScrollPane3.setViewportView(listRequirements);
+
         javax.swing.GroupLayout panelModDescriptionLayout = new javax.swing.GroupLayout(panelModDescription);
         panelModDescription.setLayout(panelModDescriptionLayout);
         panelModDescriptionLayout.setHorizontalGroup(
             panelModDescriptionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 221, Short.MAX_VALUE)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 236, Short.MAX_VALUE)
+            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 236, Short.MAX_VALUE)
+            .addComponent(labelRequirements, javax.swing.GroupLayout.PREFERRED_SIZE, 236, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
         panelModDescriptionLayout.setVerticalGroup(
             panelModDescriptionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 265, Short.MAX_VALUE)
+            .addGroup(panelModDescriptionLayout.createSequentialGroup()
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 191, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(labelRequirements)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
-        labelVisitWebsite.setFont(new java.awt.Font("Tahoma", 1, 12));
+        labelVisitWebsite.setFont(labelVisitWebsite.getFont().deriveFont(labelVisitWebsite.getFont().getStyle() | java.awt.Font.BOLD, labelVisitWebsite.getFont().getSize()+1));
         labelVisitWebsite.setForeground(new java.awt.Color(51, 102, 255));
         labelVisitWebsite.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         labelVisitWebsite.setText(L10n.getString("label.visitwebsite"));
         labelVisitWebsite.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         labelVisitWebsite.setName("labelVisitWebsite"); // NOI18N
 
+        labelModStatus.setFont(labelModStatus.getFont().deriveFont(labelModStatus.getFont().getStyle() | java.awt.Font.BOLD));
         labelModStatus.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         labelModStatus.setText("mod status");
         labelModStatus.setName("labelModStatus"); // NOI18N
 
         buttonEnableMod.setText(L10n.getString("button.enablemod"));
         buttonEnableMod.setName("buttonEnableMod"); // NOI18N
+
+        buttonUpdateMod.setText(L10n.getString("button.updatemod"));
+        buttonUpdateMod.setName("buttonUpdateMod"); // NOI18N
 
         javax.swing.GroupLayout panelModDetailsLayout = new javax.swing.GroupLayout(panelModDetails);
         panelModDetails.setLayout(panelModDetailsLayout);
@@ -363,21 +396,20 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
             .addGroup(panelModDetailsLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(panelModDetailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(panelModDescription, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(panelModDetailsLayout.createSequentialGroup()
+                        .addComponent(labelModIcon)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(panelModDetailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(labelVisitWebsite, javax.swing.GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE)
-                            .addComponent(labelModStatus, javax.swing.GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE)
-                            .addComponent(panelModDescription, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(panelModDetailsLayout.createSequentialGroup()
-                                .addComponent(labelModIcon)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(panelModDetailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(labelModAuthor, javax.swing.GroupLayout.PREFERRED_SIZE, 167, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(labelModName, javax.swing.GroupLayout.PREFERRED_SIZE, 167, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                        .addContainerGap())
+                            .addComponent(labelModAuthor, javax.swing.GroupLayout.PREFERRED_SIZE, 184, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(labelModName, javax.swing.GroupLayout.PREFERRED_SIZE, 184, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelModDetailsLayout.createSequentialGroup()
-                        .addComponent(buttonEnableMod, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(61, 61, 61))))
+                        .addComponent(buttonEnableMod, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(buttonUpdateMod, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(labelVisitWebsite, javax.swing.GroupLayout.PREFERRED_SIZE, 238, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(labelModStatus, javax.swing.GroupLayout.PREFERRED_SIZE, 238, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
         );
         panelModDetailsLayout.setVerticalGroup(
             panelModDetailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -390,12 +422,14 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                         .addComponent(labelModAuthor)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(panelModDescription, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(11, 11, 11)
                 .addComponent(labelVisitWebsite)
                 .addGap(2, 2, 2)
                 .addComponent(labelModStatus)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(buttonEnableMod)
+                .addGroup(panelModDetailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(buttonEnableMod)
+                    .addComponent(buttonUpdateMod))
                 .addContainerGap())
         );
 
@@ -407,9 +441,9 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                 .addContainerGap()
                 .addGroup(panelModListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panelModListLayout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 323, Short.MAX_VALUE)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 308, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(panelModDetails, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(panelModDetails, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(panelModListLayout.createSequentialGroup()
                         .addComponent(buttonApplyMods, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -678,6 +712,21 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
             buttonEnableMod.setText(L10n.getString("button.enablemod"));
             labelModStatus.setText(L10n.getString("label.modstatus.disabled"));
         }
+        // Display mod incompatibility
+        ArrayList<Action> reqs = new ArrayList<Action>();
+        reqs.addAll(mod.getActions(Action.REQUIREMENT));
+        DefaultListModel dlm = new DefaultListModel();
+        String elem;
+        for (Iterator actIter = reqs.iterator(); actIter.hasNext(); ) {
+            Action act = (Action)actIter.next();
+            if (act.getClass() == ActionRequirement.class) {
+                elem = ((ActionRequirement)act).getName();
+                if (((ActionRequirement)act).getVersion() != null)
+                    elem += " (ver. "+((ActionRequirement)act).getVersion()+")";
+                dlm.addElement(elem);
+            }
+        }
+        listRequirements.setModel(dlm);
     }
 
     /**
@@ -700,6 +749,9 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         areaModDesc.setVisible(visible);
         labelVisitWebsite.setVisible(visible);
         labelModStatus.setVisible(visible);
+        labelRequirements.setVisible(visible);
+        listRequirements.setVisible(visible);
+        buttonUpdateMod.setVisible(visible);
         buttonEnableMod.setVisible(visible);
     }
 
@@ -861,6 +913,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     private javax.swing.JButton buttonEnableMod;
     private javax.swing.JButton buttonHonFolder;
     private javax.swing.JButton buttonOk;
+    private javax.swing.JButton buttonUpdateMod;
     private javax.swing.JComboBox comboBoxChooseLanguage;
     private javax.swing.JComboBox comboBoxLafs;
     private javax.swing.JDialog dialogOptions;
@@ -875,6 +928,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JPopupMenu.Separator jSeparator4;
     private javax.swing.JLabel labelCLArguments;
@@ -884,8 +938,10 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     private javax.swing.JLabel labelModIcon;
     private javax.swing.JLabel labelModName;
     private javax.swing.JLabel labelModStatus;
+    private javax.swing.JLabel labelRequirements;
     private javax.swing.JLabel labelSelectLaf;
     private javax.swing.JLabel labelVisitWebsite;
+    private javax.swing.JList listRequirements;
     private javax.swing.JMenuBar mainMenu;
     private javax.swing.JMenu menuFile;
     private javax.swing.JMenu menuHelp;

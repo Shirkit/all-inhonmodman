@@ -63,8 +63,6 @@ public class ManagerAboutBox extends javax.swing.JDialog {
         closeButton.setName("closeButton"); // NOI18N
 
         appTitleLabel.setFont(appTitleLabel.getFont().deriveFont(appTitleLabel.getFont().getStyle() | java.awt.Font.BOLD, appTitleLabel.getFont().getSize()+4));
-        org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance().getContext().getResourceMap(ManagerAboutBox.class);
-        appTitleLabel.setText(resourceMap.getString("appTitleLabel.text")); // NOI18N
         appTitleLabel.setName("appTitleLabel"); // NOI18N
 
         appVersionLabel.setFont(appVersionLabel.getFont().deriveFont(appVersionLabel.getFont().getStyle() | java.awt.Font.BOLD));
@@ -84,7 +82,7 @@ public class ManagerAboutBox extends javax.swing.JDialog {
         labelModIcon.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Manager/gui/resources/icon.png"))); // NOI18N
         labelModIcon.setName("labelModIcon"); // NOI18N
 
-        appLicenseLabel.setFont(resourceMap.getFont("appLicenseLabel.font")); // NOI18N
+        appLicenseLabel.setFont(appLicenseLabel.getFont().deriveFont(appLicenseLabel.getFont().getStyle() | java.awt.Font.BOLD));
         appLicenseLabel.setText(L10n.getString("about.license.label"));
         appLicenseLabel.setName("appLicenseLabel"); // NOI18N
 
@@ -97,20 +95,19 @@ public class ManagerAboutBox extends javax.swing.JDialog {
             }
         });
 
-        appAuthorsLabel.setFont(resourceMap.getFont("appAuthorsLabel.font")); // NOI18N
+        appAuthorsLabel.setFont(appAuthorsLabel.getFont().deriveFont(appAuthorsLabel.getFont().getStyle() | java.awt.Font.BOLD));
         appAuthorsLabel.setText(L10n.getString("about.authors.label"));
         appAuthorsLabel.setName("appAuthorsLabel"); // NOI18N
 
-        appAuthors.setText(resourceMap.getString("appAuthors.text")); // NOI18N
+        appAuthors.setText("Shirkit, Pennsu, Kovo");
         appAuthors.setName("appAuthors"); // NOI18N
 
         jScrollPane1.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         jScrollPane1.setName("jScrollPane1"); // NOI18N
 
-        aboutTextArea.setBackground(resourceMap.getColor("descTextArea.background")); // NOI18N
         aboutTextArea.setColumns(20);
         aboutTextArea.setEditable(false);
-        aboutTextArea.setFont(resourceMap.getFont("descTextArea.font")); // NOI18N
+        aboutTextArea.setFont(new java.awt.Font("Tahoma", 0, 11)); // NOI18N
         aboutTextArea.setLineWrap(true);
         aboutTextArea.setRows(3);
         aboutTextArea.setText(L10n.getString("about.description"));
@@ -139,11 +136,11 @@ public class ManagerAboutBox extends javax.swing.JDialog {
                             .addComponent(appVersionLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(appHomepageLabel, javax.swing.GroupLayout.Alignment.LEADING))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(appVersion, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 297, Short.MAX_VALUE)
-                            .addComponent(appHomepage, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 297, Short.MAX_VALUE)
-                            .addComponent(appLicense, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 297, Short.MAX_VALUE)
-                            .addComponent(appAuthors, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 297, Short.MAX_VALUE)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(appVersion, javax.swing.GroupLayout.DEFAULT_SIZE, 297, Short.MAX_VALUE)
+                            .addComponent(appHomepage, javax.swing.GroupLayout.DEFAULT_SIZE, 297, Short.MAX_VALUE)
+                            .addComponent(appLicense, javax.swing.GroupLayout.DEFAULT_SIZE, 297, Short.MAX_VALUE)
+                            .addComponent(appAuthors, javax.swing.GroupLayout.DEFAULT_SIZE, 297, Short.MAX_VALUE)))
                     .addComponent(closeButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
@@ -174,7 +171,7 @@ public class ManagerAboutBox extends javax.swing.JDialog {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(appAuthorsLabel)
-                    .addComponent(appAuthors))
+                    .addComponent(appAuthors, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(closeButton)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
