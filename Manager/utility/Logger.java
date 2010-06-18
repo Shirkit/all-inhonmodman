@@ -22,7 +22,7 @@ public class Logger {
 
     public Logger() throws IOException {
         logger = java.util.logging.Logger.getLogger("ManagerLogger");
-        fh = new FileHandler("C:\\mylog.log", true);
+        fh = new FileHandler("/Users/penn/Documents/Development/HoNMoDMan/Manager/mylog.log", true);
         logger.setLevel(Level.ALL);
         logger.addHandler(fh);
         SimpleFormatter formatter = new SimpleFormatter();

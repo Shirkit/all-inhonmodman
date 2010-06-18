@@ -51,9 +51,9 @@ public class Manager extends Observable {
     private ArrayList<ArrayList<Pair<String, String>>> cons;
     private Set<Mod> applied;
     private ManagerOptions options;
-    private static String MANAGER_FOLDER = "C:\\Manager";
-    private static String MODS_FOLDER = "C:\\Heroes of Newerth\\game\\mods";
-    private static String HON_FOLDER = "C:\\Heroes of Newerth"; // We need this
+    private static String MANAGER_FOLDER = "/Users/penn/Documents/Development/HoNMoDMan/Manager/manager";
+    private static String MODS_FOLDER = "/Users/penn/Library/Application Support/Heroes of Newerth/game/mods";
+    private static String HON_FOLDER = "/Applications/Heroes of Newerth"; // We need this
     private static String OPTIONS_PATH = ""; // Stores the absolute path to the option file
     private static String HOMEPAGE = "http://sourceforge.net/projects/all-inhonmodman";
     private static String VERSION = "0.1 BETA";     // Version string shown in About dialog
@@ -843,133 +843,185 @@ public class Manager extends Observable {
             ActionCopyFile copyfile = (ActionCopyFile) action;
             condition = copyfile.getCondition();
         }
-        if (condition.isEmpty() || condition == null || condition.equals("")) {
+        if (condition.isEmpty() || condition == null) {
             return true;
         }
-        int parentheses = 0;
-        boolean quotes = false;
-        int blocks = 0;
-        for (int i = 0; i < condition.length(); i++) {
-            switch (condition.charAt(i)) {
-                case '\'':
-                    quotes = !quotes;
-                case '(':
-                    if (!quotes) {
-                        parentheses += 1;
-                    }
-                    break;
-                case ')':
-                    if (!quotes) {
-                        parentheses -= 1;
-                    }
-                    break;
-                case '[':
-                    if (quotes) {
-                        blocks += 1;
-                    }
-                    break;
-                case ']':
-                    if (quotes) {
-                        blocks -= 1;
-                    }
-                    break;
-            }
-        }
-        if (parentheses != 0 || quotes == false || blocks != 0) {
-            // invalid condition, can't apply
-        }
+//        int parentheses = 0;
+//        boolean quotes = false;
+//        int blocks = 0;
+//        for (int i = 0; i < condition.length(); i++) {
+//            switch (condition.charAt(i)) {
+//                case '\'':
+//                    quotes = !quotes;
+//                case '(':
+//                    if (!quotes) {
+//                        parentheses += 1;
+//                    }
+//                    break;
+//                case ')':
+//                    if (!quotes) {
+//                        parentheses -= 1;
+//                    }
+//                    break;
+//                case '[':
+//                    if (quotes) {
+//                        blocks += 1;
+//                    }
+//                    break;
+//                case ']':
+//                    if (quotes) {
+//                        blocks -= 1;
+//                    }
+//                    break;
+//            }
+//        }
+//        if (parentheses != 0 || quotes == false || blocks != 0) {
+//            // invalid condition, can't apply
+//        }
         return isValidCondition(condition);
     }
+    
+    /**
+     * findNextExpression returns the next expression from the given StringTokenizer
+     * @param st
+     * @return
+     */
+    private String findNextExpression(StringTokenizer st) {
+    	while (st.hasMoreTokens()) {
+    		String token = st.nextToken();
+    		if (token.equalsIgnoreCase("\'")) {
+        		String mod = "";
+        		do {
+        			String next = st.nextToken();
+        			if (next.equalsIgnoreCase("\'"))
+        				break;
+        			mod += next;
+        		} while(st.hasMoreTokens());
+        		
+        		return mod;
+    		}
+        	else if (token.equalsIgnoreCase(" ")) {
+	    		continue;
+        	}
+        	else if (token.equalsIgnoreCase("(")) {
+        		String cond = "";
+        		boolean done = false;
+        		int level = 0;
+        		do {
+        			String next = st.nextToken();
+        			if (next.equalsIgnoreCase("("))
+        				level++;
+        			else if (next.equalsIgnoreCase(")")) {
+        				if (level == 0 && !done)
+        					break;
+        				else
+        					level--;
+        			}
+        			
+        			cond += next;
+        		} while(!done && st.hasMoreTokens());
 
+        		return cond;
+        	}
+        	else if (token.equalsIgnoreCase("not")) {
+        		String ret = token;
+        		ret += findNextExpression(st);
+        		return ret;
+        	}
+    	}
+    	
+    	return "";
+    }
+    
+    /**
+     * validVesion checks to see if the version for m is within the condition set by version on the other parameter
+     * in development
+     * @param m
+     * @param version
+     * @return
+     */
+    public boolean validVersion(Mod m, String version) {
+    	return true;
+    }
+
+    /**
+     * isValidCondition evaluates the condition string and return the result of it
+     * Looks like it's working now, almost
+     * @param condition
+     * @return
+     */
     public boolean isValidCondition(String condition) {
         boolean valid = true;
-        boolean inQuote = false;
 
-        System.out.println(condition);
+//        System.out.println(condition);
 
         StringTokenizer st = new StringTokenizer(condition, "\' ()", true);
         while (st.hasMoreTokens()) {
         	String token = st.nextToken();
-        	System.out.println(token);
-        	System.out.println("----------------");
+//        	System.out.println("**" + token + "**");
         
         	if (token.equalsIgnoreCase("\'")) {
-	    		if (inQuote)
-	    			inQuote = false;
-	    		else
-	    			inQuote = true;
+        		String mod = "";
+        		do {
+        			String next = st.nextToken();
+        			if (next.equalsIgnoreCase("\'"))
+        				break;
+        			mod += next;
+        		} while(st.hasMoreTokens());
+        		
+        		try {
+        			String version = "";
+        			if(mod.endsWith("]")) {
+        				version = mod.substring(mod.indexOf('[')+1, mod.length()-1);
+        				mod = mod.substring(0, mod.indexOf('['));
+        			}
+        			System.out.println(version);
+        			Mod m = getMod(mod);
+        			valid = (m.isEnabled() && validVersion(m, version));
+        		} catch (NoSuchElementException e) {
+        			valid = false;
+        		}
         	}
         	else if (token.equalsIgnoreCase(" ")) {
-	    		if (inQuote) {
-	    			
-	    		}
-	    		else {
-	    		}
+	    		continue;
         	}
         	else if (token.equalsIgnoreCase("(")) {
-        		
+        		String cond = "";
+        		boolean done = false;
+        		int level = 0;
+        		do {
+        			String next = st.nextToken();
+        			if (next.equalsIgnoreCase("("))
+        				level++;
+        			else if (next.equalsIgnoreCase(")")) {
+        				if (level == 0 && !done)
+        					break;
+        				else
+        					level--;
+        			}
+        			
+        			cond += next;
+        		} while(!done && st.hasMoreTokens());
+
+        		return isValidCondition(cond);
         	}
         	else if (token.equalsIgnoreCase(")")) {
-        		
+        		return false;
         	}
         	else {
+        		String next = findNextExpression(st);
+        		if (token.equalsIgnoreCase("not")) {
+        			valid = !isValidCondition(next);
+        		}
+        		else if (token.equalsIgnoreCase("and")) {
+        			valid = (valid && isValidCondition(next));
+        		}
+        		else if (token.equalsIgnoreCase("or")) {
+        			valid = (valid || isValidCondition(next));
+        		}
         	}
         }
-        /*
-        boolean quotes = false;
-        for (int i = 0; i < condition.length(); i++) {
-            switch (condition.charAt(i)) {
-                case '\'':
-                    quotes = !quotes;
-                    break;
-                case 'n':
-                    if (!quotes && condition.charAt(i + 1) == 'o' && condition.charAt(i + 2) == 't') {
-                        return !isValidCondition(condition.substring(i + 3));
-                    }
-                    break;
-                case 'o':
-                    if (!quotes && condition.charAt(i + 1) == 'r') {
-                        return isValidCondition(condition.substring(0, i)) || isValidCondition(condition.substring(i + 2));
-                    }
-                    break;
-                case 'a':
-                    if (!quotes && condition.charAt(i + 1) == 'n' && condition.charAt(i + 2) == 'd') {
-                        return isValidCondition(condition.substring(0, i)) && isValidCondition(condition.substring(i + 3));
-                    }
-                    break;
-                case '(':
-                    if (!quotes) {
-                        return isValidCondition(condition.substring(i + 1, condition.lastIndexOf(")")));
-                    }
-                    break;
-            }
-        }
 
-        for (int i = 0; i < condition.length(); i++) {
-            switch (condition.charAt(i)) {
-                case '\'': {
-                    int quote = i;
-                    String subString = condition.substring(quote + 1, condition.indexOf('\'', quote + 1));
-                    String version = "*";
-                    String name;
-                    if (subString.contains("[")) {
-                        version = subString.substring(subString.indexOf("["), subString.indexOf("]"));
-                        name = subString.substring(0, subString.indexOf("["));
-                    } else {
-                        name = subString;
-                    }
-                    try {
-                        if (!compareModsVersions(getMod(name).getVersion(), version)) {
-                            return false;
-                        }
-                    } catch (NoSuchElementException e) {
-                        return false;
-                    }
-                    return true;
-                }
-            }
-        }
-        */
         return valid;
     }
 }
