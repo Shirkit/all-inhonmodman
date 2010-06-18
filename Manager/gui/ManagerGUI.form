@@ -406,7 +406,7 @@
                   <EmptySpace min="-2" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
-                          <Component id="jScrollPane1" pref="308" max="32767" attributes="0"/>
+                          <Component id="jScrollPane1" pref="292" max="32767" attributes="0"/>
                           <EmptySpace type="unrelated" min="-2" max="-2" attributes="0"/>
                           <Component id="panelModDetails" min="-2" pref="270" max="-2" attributes="0"/>
                       </Group>
@@ -425,8 +425,8 @@
               <Group type="102" alignment="1" attributes="0">
                   <EmptySpace min="-2" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="1" attributes="0">
-                      <Component id="panelModDetails" alignment="0" pref="424" max="32767" attributes="1"/>
-                      <Component id="jScrollPane1" alignment="0" pref="424" max="32767" attributes="0"/>
+                      <Component id="panelModDetails" alignment="0" pref="394" max="32767" attributes="1"/>
+                      <Component id="jScrollPane1" alignment="0" pref="394" max="32767" attributes="0"/>
                   </Group>
                   <EmptySpace min="-2" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
@@ -485,7 +485,7 @@
           <Properties>
             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
               <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                <TitledBorder title="&lt;User Code&gt;">
+                <TitledBorder title="&lt;C&#xf3;digo do usu&#xe1;rio&gt;">
                   <Connection PropertyName="titleX" code="&quot; &quot;+L10n.getString(&quot;panel.details.label&quot;)+&quot; &quot;" type="code"/>
                 </TitledBorder>
               </Border>
@@ -608,7 +608,7 @@
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
-                          <Component id="jScrollPane2" pref="191" max="32767" attributes="0"/>
+                          <Component id="jScrollPane2" pref="149" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="labelRequirements" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
@@ -692,10 +692,10 @@
                         </Property>
                         <Property name="selectionMode" type="int" value="0"/>
                         <Property name="name" type="java.lang.String" value="listRequirements" noResource="true"/>
-                        <Property name="selectionBackground" type="java.awt.Color" noResource="true" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                        <Property name="selectionBackground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                           <Color blue="c8" green="d0" red="d4" type="rgb"/>
                         </Property>
-                        <Property name="selectionForeground" type="java.awt.Color" noResource="true" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                        <Property name="selectionForeground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                           <Color blue="33" green="33" red="33" type="rgb"/>
                         </Property>
                       </Properties>

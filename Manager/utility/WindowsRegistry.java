@@ -1,5 +1,5 @@
 
-package Manager.utility;
+package utility;
 
 import java.lang.reflect.Method;
 import java.util.prefs.Preferences;

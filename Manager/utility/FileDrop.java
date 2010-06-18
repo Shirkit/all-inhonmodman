@@ -1,4 +1,4 @@
-package Manager.utility;
+package utility;
 
 import java.awt.datatransfer.DataFlavor;
 import java.io.BufferedReader;

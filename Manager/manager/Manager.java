@@ -1,7 +1,7 @@
 
-package Manager.manager;
+package manager;
 
-import Manager.utility.WindowsRegistry;
+import utility.WindowsRegistry;
 import business.ManagerOptions;
 import business.Mod;
 import utility.XML;
@@ -321,7 +321,7 @@ public class Manager extends Observable {
             }
         };
         File[] files = modsFolder.listFiles(fileFilter);
-        if (files.length == 0) return;
+        if (files == null || files.length == 0) return;
         // Go through all the mods and load them
         for (int i=0;i<files.length;i++) {
             addHonmod(files[i], false);

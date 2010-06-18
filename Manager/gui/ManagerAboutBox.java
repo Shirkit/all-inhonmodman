@@ -1,10 +1,10 @@
 
-package Manager.gui;
+package gui;
 
 import java.awt.Frame;
 import org.jdesktop.application.Action;
-import Manager.gui.l10n.L10n;
-import Manager.manager.Manager;
+import gui.l10n.L10n;
+import manager.Manager;
 
 /**
  * About dialog

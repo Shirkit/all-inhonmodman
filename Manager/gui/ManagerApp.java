@@ -1,8 +1,9 @@
 /*
  * ManagerApp.java
  */
-package Manager.gui;
+package gui;
 
+import manager.Manager;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,8 +13,7 @@ import org.jdesktop.application.Application;
 import org.jdesktop.application.SingleFrameApplication;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-import Manager.gui.l10n.L10n;
-import Manager.manager.Manager;
+import gui.l10n.L10n;
 
 /**
  * @author Shirkit
@@ -26,7 +26,7 @@ public class ManagerApp extends SingleFrameApplication {
     ManagerCtrl ctrl;   // Controller
 
     // File with log4j configuration
-    private static final String LOGGER_PROPS = "Manager/utility/log4j.properties";
+    private static final String LOGGER_PROPS = "utility/log4j.properties";
 
     /**
      * At startup create and show the main frame of the application. This is where

@@ -1,9 +1,9 @@
 
-package Manager.gui;
+package gui;
 
 import javax.swing.JOptionPane;
-import Manager.gui.l10n.L10n;
-import Manager.manager.Manager;
+import gui.l10n.L10n;
+import manager.Manager;
 import business.Mod;
 import java.awt.Toolkit;
 import java.awt.event.ActionListener;
@@ -307,7 +307,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         panelModDetails.setName("panelModDetails"); // NOI18N
         panelModDetails.setPreferredSize(new java.awt.Dimension(255, 420));
 
-        labelModIcon.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Manager/gui/resources/icon.png"))); // NOI18N
+        labelModIcon.setIcon(new javax.swing.ImageIcon(getClass().getResource("/gui/resources/icon.png"))); // NOI18N
         labelModIcon.setName("labelModIcon"); // NOI18N
 
         labelModName.setFont(labelModName.getFont().deriveFont(labelModName.getFont().getStyle() | java.awt.Font.BOLD, labelModName.getFont().getSize()+3));

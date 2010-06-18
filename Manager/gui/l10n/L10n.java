@@ -1,5 +1,5 @@
 
-package Manager.gui.l10n;
+package gui.l10n;
 
 import java.io.IOException;
 import java.util.Locale;
@@ -7,7 +7,7 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
 import org.apache.log4j.Logger;
-import Manager.manager.Manager;
+import manager.Manager;
 
 /**
  * Takes care of HonModMan localization.
@@ -18,7 +18,7 @@ import Manager.manager.Manager;
 public class L10n
 {
     // This is where property files with translations are
-    private static final String RESOURCE_NAME="Manager.gui.l10n.HonModMan";
+    private static final String RESOURCE_NAME="gui.l10n.HonModMan";
     private static final String DEFAULT_LOCALE = "en";
     private static ResourceBundle resource;
     private static Preferences prefs;

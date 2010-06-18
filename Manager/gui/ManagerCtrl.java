@@ -1,18 +1,18 @@
 
-package Manager.gui;
+package gui;
 
-import Manager.manager.Manager;
+import manager.Manager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 import org.apache.log4j.Logger;
-import Manager.gui.l10n.L10n;
+import gui.l10n.L10n;
 import business.Mod;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import Manager.utility.FileDrop;
+import utility.FileDrop;
 import java.io.IOException;
 import java.util.prefs.Preferences;
 import javax.swing.JOptionPane;
