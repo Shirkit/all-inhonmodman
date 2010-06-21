@@ -834,6 +834,11 @@ public class Manager extends Observable {
         return result;
     }
 
+    /**
+     * This function should work now
+     * @param action
+     * @return
+     */
     private boolean isValidCondition(Action action) {
         String condition = null;
         if (action.getClass().equals(ActionEditFile.class)) {
@@ -886,23 +891,22 @@ public class Manager extends Observable {
      * @param st
      * @return
      */
-    private String findNextExpression(StringTokenizer st) {
+    private String findNextExpression(String previous, StringTokenizer st) {
     	while (st.hasMoreTokens()) {
     		String token = st.nextToken();
     		if (token.equalsIgnoreCase("\'")) {
-        		String mod = "";
+        		String mod = token;
         		do {
         			String next = st.nextToken();
-        			if (next.equalsIgnoreCase("\'"))
+        			if (next.equalsIgnoreCase("\'")) {
+        				mod += next;
         				break;
+        			}
         			mod += next;
         		} while(st.hasMoreTokens());
         		
         		return mod;
     		}
-        	else if (token.equalsIgnoreCase(" ")) {
-	    		continue;
-        	}
         	else if (token.equalsIgnoreCase("(")) {
         		String cond = "";
         		boolean done = false;
@@ -923,14 +927,48 @@ public class Manager extends Observable {
 
         		return cond;
         	}
-        	else if (token.equalsIgnoreCase("not")) {
-        		String ret = token;
-        		ret += findNextExpression(st);
+        	else if (token.equalsIgnoreCase(" ")) {
+        		continue;
+        	}
+        	else {
+        		String ret = "";
+        		do {
+        			ret += token;
+        			try {
+        				token = st.nextToken();
+        			} catch (Exception e) {
+        				break;
+        			}
+        		} while(st.hasMoreTokens());
         		return ret;
         	}
     	}
     	
     	return "";
+    }
+    
+    /**
+     * checkVersion checks to see if first argument <= second argument is true
+     * @param lower
+     * @param higher
+     * @return
+     */
+    public boolean checkVersion(String lower, String higher) {
+    	boolean ret = false;
+    	
+    	StringTokenizer lowst = new StringTokenizer(lower, ".", false);
+    	StringTokenizer highst = new StringTokenizer(higher, ".", false);
+    	
+    	while (lowst.hasMoreTokens() && highst.hasMoreTokens()) {
+    		int first = Integer.parseInt(lowst.nextToken());
+    		int second = Integer.parseInt(highst.nextToken());
+    		
+//    		System.out.println("first v: " + first + ", second v: " + second);
+    		
+    		ret = (first <= second);
+    	}
+    	
+    	return ret;
     }
     
     /**
@@ -940,25 +978,44 @@ public class Manager extends Observable {
      * @param version
      * @return
      */
-    public boolean validVersion(Mod m, String version) {
-    	return true;
+    public boolean validVersion(Mod m, String version) throws NumberFormatException {
+       	String target = m.getVersion().trim();
+       	
+//		System.out.println("target version: " + target);
+       	
+    	if (version.contains("-")) {
+        	String low, high;
+    		low = version.substring(1, version.indexOf("-")).trim();
+    		high = version.substring(version.indexOf("-")+1).trim();
+    		
+//    		System.out.println("low: " + low);
+//        	System.out.println("high: " + high);
+    		
+    		// checkVersion checks to see if first argument <= second argument is true
+    		return checkVersion(low, target) && checkVersion(target, high);
+    		
+    	}
+    	else {
+    		String compare = version.trim();
+    		
+//    		System.out.println("compare version: " + compare);
+    		
+    		return checkVersion(compare, target); 
+    	}
     }
 
     /**
      * isValidCondition evaluates the condition string and return the result of it
-     * Looks like it's working now, almost
+     * Looks like it's working now, should work ;)
      * @param condition
      * @return
      */
     public boolean isValidCondition(String condition) {
         boolean valid = true;
 
-//        System.out.println(condition);
-
         StringTokenizer st = new StringTokenizer(condition, "\' ()", true);
         while (st.hasMoreTokens()) {
         	String token = st.nextToken();
-//        	System.out.println("**" + token + "**");
         
         	if (token.equalsIgnoreCase("\'")) {
         		String mod = "";
@@ -975,10 +1032,17 @@ public class Manager extends Observable {
         				version = mod.substring(mod.indexOf('[')+1, mod.length()-1);
         				mod = mod.substring(0, mod.indexOf('['));
         			}
-        			System.out.println(version);
+        			
         			Mod m = getMod(mod);
-        			valid = (m.isEnabled() && validVersion(m, version));
+        			
+        			try {
+        				valid = (m.isEnabled() && validVersion(m, version));
+        			} catch (Exception e) {
+        				System.out.println("version is not valid: " + e.getMessage());
+        				valid = false;
+        			}
         		} catch (NoSuchElementException e) {
+        			System.out.println("mod not found exception: " + e.getMessage());
         			valid = false;
         		}
         	}
@@ -1009,15 +1073,21 @@ public class Manager extends Observable {
         		return false;
         	}
         	else {
-        		String next = findNextExpression(st);
+        		String next = findNextExpression(token, st);
+        		
         		if (token.equalsIgnoreCase("not")) {
         			valid = !isValidCondition(next);
         		}
         		else if (token.equalsIgnoreCase("and")) {
-        			valid = (valid && isValidCondition(next));
+        			boolean compare = isValidCondition(next);
+        			valid = (valid && compare);
         		}
         		else if (token.equalsIgnoreCase("or")) {
-        			valid = (valid || isValidCondition(next));
+        			boolean compare = isValidCondition(next);
+        			valid = (valid || compare);
+        		}
+        		else {
+            		String mod = token + " " + next;
         		}
         	}
         }
