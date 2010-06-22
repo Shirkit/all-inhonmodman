@@ -1,4 +1,3 @@
-
 package manager;
 
 import utility.WindowsRegistry;
@@ -22,17 +21,27 @@ import java.util.Stack;
 import java.util.StringTokenizer;
 
 import com.mallardsoft.tuple.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.security.InvalidParameterException;
 import java.util.Observable;
+import java.util.Random;
 import java.util.prefs.Preferences;
 import org.apache.log4j.Logger;
-import utility.ModEnabledException;
-import utility.ModNotEnabledException;
+import utility.exception.ModEnabledException;
+import utility.exception.ModNotEnabledException;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import utility.exception.InvalidModActionParameterException;
+import utility.exception.ModActionConditionNotValidException;
+import utility.exception.NothingSelectedModActionException;
+import utility.exception.StringNotFoundModActionException;
+import utility.exception.UnknowModActionException;
 
 /**
  * Implementation of the core functionality of HoN modification manager. This class is
@@ -82,7 +91,7 @@ public class Manager extends Observable {
         // Find HoN folder
         String folder = findHonFolder();
         if (folder != null) {
-            logger.info("Setting HoN folder to: "+folder);
+            logger.info("Setting HoN folder to: " + folder);
             Preferences prefs = Preferences.userNodeForPackage(Manager.class);
             prefs.put(Manager.PREFS_HONFOLDER, folder);
         }
@@ -106,11 +115,9 @@ public class Manager extends Observable {
         }
         // Try to find HoN folder in case we are on Linux
         if (isLinux()) {
-
         }
         // Try to find HoN folder in case we are on Mac
         if (isMac()) {
-
         }
         return null;
     }
@@ -310,20 +317,24 @@ public class Manager extends Observable {
         File modsFolder = new File(MODS_FOLDER);
         // Get mod files from the directory
         FileFilter fileFilter = new FileFilter() {
+
             public boolean accept(File file) {
                 String fileName = file.getName();
-                if ((!file.isDirectory()) &&        /* Filter out directories */
-                    (!fileName.startsWith(".")) &&  /* Filter out hidden files and current dir */
-                    (fileName.endsWith(".honmod"))) /* Filter only .honmod files */
+                if ((!file.isDirectory())
+                        && /* Filter out directories */ (!fileName.startsWith("."))
+                        && /* Filter out hidden files and current dir */ (fileName.endsWith(".honmod"))) /* Filter only .honmod files */ {
                     return true;
-                else
+                } else {
                     return false;
+                }
             }
         };
         File[] files = modsFolder.listFiles(fileFilter);
-        if (files == null || files.length == 0) return;
+        if (files == null || files.length == 0) {
+            return;
+        }
         // Go through all the mods and load them
-        for (int i=0;i<files.length;i++) {
+        for (int i = 0; i < files.length; i++) {
             addHonmod(files[i], false);
         }
     }
@@ -341,19 +352,19 @@ public class Manager extends Observable {
         Mod m = XML.xmlToMod(xml);
         Icon icon = new ImageIcon(ZIP.getFile(honmod, "icon.png"));
         m.setIcon(icon);
-        logger.info("Mod file opened. Mod name: "+m.getName());
+        logger.info("Mod file opened. Mod name: " + m.getName());
         m.setPath(honmod.getAbsolutePath());
         m.setId(0);
         if (copy) {
             // Copy the honmod file to mods directory
-            copyFile(honmod, new File(MODS_FOLDER+File.separator+honmod.getName()));
+            copyFile(honmod, new File(MODS_FOLDER + File.separator + honmod.getName()));
             logger.info("Mod file copied to mods older");
         }
         addMod(m);
     }
 
     private static void copyFile(File in, File out) throws IOException {
-        FileInputStream fis  = new FileInputStream(in);
+        FileInputStream fis = new FileInputStream(in);
         FileOutputStream fos = new FileOutputStream(out);
         try {
             byte[] buf = new byte[1024];
@@ -364,8 +375,12 @@ public class Manager extends Observable {
         } catch (IOException e) {
             throw e;
         } finally {
-            if (fis != null) fis.close();
-            if (fos != null) fos.close();
+            if (fis != null) {
+                fis.close();
+            }
+            if (fos != null) {
+                fos.close();
+            }
         }
     }
 
@@ -392,21 +407,21 @@ public class Manager extends Observable {
      * @return 0 on success, -1 in case the operation is not supported on this platform
      */
     public int openWebsite(String url) {
-        if(!java.awt.Desktop.isDesktopSupported()) {
+        if (!java.awt.Desktop.isDesktopSupported()) {
             logger.info("Opening websites is not supported");
             return -1;
         }
         java.awt.Desktop desktop = java.awt.Desktop.getDesktop();
-        if( !desktop.isSupported( java.awt.Desktop.Action.BROWSE ) ) {
+        if (!desktop.isSupported(java.awt.Desktop.Action.BROWSE)) {
             logger.info("Opening websites is not supported");
             return -1;
         }
 
         try {
             java.net.URI uri = new java.net.URI(url);
-            desktop.browse( uri );
+            desktop.browse(uri);
         } catch (Exception e) {
-            logger.error("Unable to open website: "+e.getMessage());
+            logger.error("Unable to open website: " + e.getMessage());
             e.printStackTrace();
             return -1;
         }
@@ -421,7 +436,7 @@ public class Manager extends Observable {
      * @return 0 on succuess, -1 in case the operation is not supported on this platform
      */
     public int openModFolder() {
-        if(!java.awt.Desktop.isDesktopSupported()) {
+        if (!java.awt.Desktop.isDesktopSupported()) {
             logger.info("Opening local folders is not supported");
             return -1;
         }
@@ -430,7 +445,7 @@ public class Manager extends Observable {
         try {
             desktop.open(new File(this.getModPath()));
         } catch (Exception e) {
-            logger.error("Unable to open local folder: "+e.getMessage());
+            logger.error("Unable to open local folder: " + e.getMessage());
             e.printStackTrace();
             return -1;
         }
@@ -454,7 +469,7 @@ public class Manager extends Observable {
      * @throws IndexOutOfBoundsException in case index does not exist in the list of mods
      */
     public Mod getMod(int index) throws IndexOutOfBoundsException {
-        return (Mod)mods.get(index);
+        return (Mod) mods.get(index);
     }
 
     /**
@@ -653,112 +668,180 @@ public class Manager extends Observable {
     }
 
     /**
-     * In developing.
-     * @throws FileNotFoundException
-     * @throws IOException
+     *
+     * @throws IOException if a random I/O error happened.
+     * @throws UnknowModActionException if a unkown Action was found. Actions that aren't know by the program can't be applied.
+     * @throws NothingSelectedModActionException if a action tried to do a action that involves a string, but no string was selected.
+     * @throws StringNotFoundModActionException if a search for a string was made, but that string wasn't found. Probally, imcompatibility or a error by the mod's author.
+     * @throws InvalidModActionParameterException if a action had a invalid parameter. Only the position of actions 'insert' and 'find' can throw this exception.
      */
-    public void applyMods() throws FileNotFoundException, IOException {
+    public void applyMods() throws IOException, UnknowModActionException, NothingSelectedModActionException, StringNotFoundModActionException, InvalidModActionParameterException, ModActionConditionNotValidException {
         Stack<Mod> applyOrder = sortMods();
+        File tempFolder = new File(System.getProperty("java.io.tmpdir") + File.separator + "HoN Mod Manager");
+        if (tempFolder.exists()) {
+            if (!tempFolder.delete()) {
+                Random r = new Random();
+                tempFolder = new File(System.getProperty("java.io.tmpdir") + File.separator + r.nextInt(99999999));
+                if (tempFolder.exists()) {
+                    if (!tempFolder.delete()) {
+                        throw new SecurityException();
+                    }
+                }
+            }
+        }
+        tempFolder.mkdirs();
         while (!applyOrder.isEmpty()) {
             Mod mod = applyOrder.pop();
             for (int j = 0; j < mod.getActions().size(); j++) {
                 Action action = mod.getActions().get(j);
                 if (action.getClass().equals(ActionCopyFile.class)) {
-                    // copy a file
-                	ActionCopyFile copyfile = (ActionCopyFile) action;
-                    if (isValidCondition(action)) {
-                    	String source, destination;
-                    	if (copyfile.getSource().isEmpty()) {
-                    		source = destination = copyfile.getName();
-                    		
-                    	}
+                    ActionCopyFile copyfile = (ActionCopyFile) action;
+                    if (!isValidCondition(action)) {
+                        // condition isn't valid, can't apply
+                        //throw new ModActionConditionNotValidException(mod.getName(), mod.getVersion(), (Action) copyfile);
+                    } else {
+                        // copy a file
+                        // needs implementation
                     }
+
                 } else if (action.getClass().equals(ActionEditFile.class)) {
                     ActionEditFile editfile = (ActionEditFile) action;
-                    if (isValidCondition(action)) {
-                    }
-                    int cursor = 0;
-                    int cursor2 = 0;
-                    boolean isSelected = false;
-                    String toEdit = new String(ZIP.getFile(new File(HON_FOLDER + File.separator + "game" + File.separator + "resources0.s2z"), editfile.getName()));
-                    String afterEdit = new String(toEdit);
-                    for (int k = 0; k < editfile.getActions().size(); k++) {
-                        ActionEditFileActions editFileAction = editfile.getActions().get(k);
-                        if (editFileAction.getClass().equals(ActionEditFileDelete.class)) {
-                            //ActionEditFileDelete delete = (ActionEditFileDelete) editFileAction;
-                            if (isSelected) {
-                                afterEdit = toEdit.substring(0, cursor) + toEdit.substring(cursor2);
-                                isSelected = false;
-                            } else {
-                            }
-                        } else if (editFileAction.getClass().equals(ActionEditFileFind.class)) {
-                            ActionEditFileFind find = (ActionEditFileFind) editFileAction;
-                            if (find.getPosition() != null) {
-                                if (find.isPositionAtStart()) {
-                                    cursor = 0;
-                                    cursor2 = 0;
-                                    isSelected = true;
-                                } else if (find.isPositionAtEnd()) {
-                                    cursor = toEdit.length();
-                                    cursor2 = cursor;
-                                    isSelected = true;
+                    if (!isValidCondition(action)) {
+                        // condition isn't valid, can't apply
+                        //throw new ModActionConditionNotValidException(mod.getName(), mod.getVersion(), (Action) editfile);
+                    } else {
+
+                        // the selection is here
+                        int cursor = 0;
+                        int cursor2 = 0;
+
+                        // check if something is selected
+                        boolean isSelected = false;
+                        File f = new File(tempFolder.getAbsolutePath() + File.separator + editfile.getName());
+                        String toEdit = "";
+                        if (f.exists()) {
+                            // Write String afterEdit to a file
+                            FileInputStream fin = new FileInputStream(f);
+                            OutputStream os = new ByteArrayOutputStream();
+                            ZIP.copyInputStream(fin, os);
+                            toEdit = os.toString();
+                        } else {
+                            toEdit = new String(ZIP.getFile(new File(HON_FOLDER + File.separator + "game" + File.separator + "resources0.s2z"), editfile.getName()));
+                        }
+                        String afterEdit = new String(toEdit);
+                        for (int k = 0; k < editfile.getActions().size(); k++) {
+                            ActionEditFileActions editFileAction = editfile.getActions().get(k);
+
+                            // Delete Action
+                            if (editFileAction.getClass().equals(ActionEditFileDelete.class)) {
+                                if (isSelected) {
+                                    afterEdit = toEdit.substring(0, cursor) + toEdit.substring(cursor2);
+                                    isSelected = false;
                                 } else {
-                                    try {
-                                        cursor = Integer.parseInt(find.getPosition());
-                                        if (cursor < 0) {
-                                            cursor = toEdit.length() - (cursor * (-1));
-                                        }
+                                    ActionEditFileDelete delete = (ActionEditFileDelete) editFileAction;
+                                    throw new NothingSelectedModActionException(mod.getName(), mod.getVersion(), (Action) delete);
+                                }
+
+                                // Find Action
+                            } else if (editFileAction.getClass().equals(ActionEditFileFind.class)) {
+                                ActionEditFileFind find = (ActionEditFileFind) editFileAction;
+                                if (find.getPosition() != null) {
+                                    if (find.isPositionAtStart()) {
+                                        cursor = 0;
+                                        cursor2 = 0;
+                                        isSelected = true;
+                                    } else if (find.isPositionAtEnd()) {
+                                        cursor = toEdit.length();
                                         cursor2 = cursor;
                                         isSelected = true;
-                                    } catch (NumberFormatException e) {
-                                        // it isn't a valid number or word, can't apply
+                                    } else {
+                                        try {
+                                            cursor = Integer.parseInt(find.getPosition());
+                                            if (cursor < 0) {
+                                                cursor = toEdit.length() - (cursor * (-1));
+                                            }
+                                            cursor2 = cursor;
+                                            isSelected = true;
+                                        } catch (NumberFormatException e) {
+                                            // it isn't a valid number or word, can't apply
+                                            throw new InvalidModActionParameterException(mod.getName(), mod.getVersion(), (Action) find);
+                                        }
                                     }
+                                } else {
+                                    cursor = toEdit.indexOf(find.getContent());
+                                    if (cursor == -1) {
+                                        // couldn't find the string, can't apply
+                                        throw new StringNotFoundModActionException(mod.getName(), mod.getVersion(), (Action) find, find.getContent());
+                                    }
+                                    cursor2 = cursor + find.getContent().length();
+                                    isSelected = true;
                                 }
-                            } else {
-                                cursor = toEdit.indexOf(find.getContent());
+
+                                // FindUp Action
+                            } else if (editFileAction.getClass().equals(ActionEditFileFindUp.class)) {
+                                ActionEditFileFindUp findup = (ActionEditFileFindUp) editFileAction;
+                                cursor = toEdit.lastIndexOf(findup.getContent());
                                 if (cursor == -1) {
                                     // couldn't find the string, can't apply
+                                    throw new StringNotFoundModActionException(mod.getName(), mod.getVersion(), (Action) findup, findup.getContent());
                                 }
-                                cursor2 = cursor + find.getContent().length();
+                                cursor2 = cursor + findup.getContent().length();
                                 isSelected = true;
-                            }
-                        } else if (editFileAction.getClass().equals(ActionEditFileFindUp.class)) {
-                            ActionEditFileFindUp findup = (ActionEditFileFindUp) editFileAction;
-                            cursor = toEdit.lastIndexOf(findup.getContent());
-                            if (cursor == -1) {
-                                // couldn't find the string, can't apply
-                            }
-                            cursor2 = cursor + findup.getContent().length();
-                            isSelected = true;
-                        } else if (editFileAction.getClass().equals(ActionEditFileInsert.class)) {
-                            ActionEditFileInsert insert = (ActionEditFileInsert) editFileAction;
-                            if (isSelected) {
-                                if (insert.isPositionAfter()) {
-                                    afterEdit = toEdit.substring(0, cursor2) + insert.getContent() + toEdit.substring(cursor2);
-                                } else if (insert.isPositionBefore()) {
-                                    afterEdit = toEdit.substring(0, cursor) + insert.getContent() + toEdit.substring(cursor);
+
+                                // Insert Action
+                            } else if (editFileAction.getClass().equals(ActionEditFileInsert.class)) {
+                                ActionEditFileInsert insert = (ActionEditFileInsert) editFileAction;
+                                if (isSelected) {
+                                    if (insert.isPositionAfter()) {
+                                        afterEdit = toEdit.substring(0, cursor2) + insert.getContent() + toEdit.substring(cursor2);
+                                    } else if (insert.isPositionBefore()) {
+                                        afterEdit = toEdit.substring(0, cursor) + insert.getContent() + toEdit.substring(cursor);
+                                    } else {
+                                        // position is invalid, can't apply
+                                        throw new InvalidModActionParameterException(mod.getName(), mod.getVersion(), (Action) insert);
+                                    }
                                 } else {
-                                    // position is invalid, can't apply
+                                    // the guy didn't select anything yet, can't apply
+                                    throw new NothingSelectedModActionException(mod.getName(), mod.getVersion(), (Action) insert);
                                 }
-                            }
-                        } else if (editFileAction.getClass().equals(ActionEditFileReplace.class)) {
-                            ActionEditFileReplace replace = (ActionEditFileReplace) editFileAction;
-                            if (isSelected) {
-                                afterEdit = toEdit.replace(toEdit.substring(cursor, cursor2), replace.getContent());
-                                isSelected = false;
+
+                                // Replace Action
+                            } else if (editFileAction.getClass().equals(ActionEditFileReplace.class)) {
+                                ActionEditFileReplace replace = (ActionEditFileReplace) editFileAction;
+                                if (isSelected) {
+                                    afterEdit = toEdit.replace(toEdit.substring(cursor, cursor2), replace.getContent());
+                                    isSelected = false;
+                                } else {
+                                    // the guy didn't select anything yet, can't apply
+                                }
+
+                                // Unknow Action
                             } else {
-                                // the guy didn't select anything yet, can't apply
+                                // Unknow action, can't apply
+                                throw new UnknowModActionException(editFileAction.getClass().getName(), mod.getName());
                             }
-                        } else {
-                            // unsupported action edit file
                         }
+                        File temp = new File(tempFolder.getAbsolutePath() + File.separator + editfile.getName());
+                        File folder = new File(temp.getAbsolutePath().replace(temp.getName(), ""));
+                        if (folder.isDirectory() && !folder.getAbsolutePath().equalsIgnoreCase(tempFolder.getAbsolutePath())) {
+                            if (!folder.mkdirs()) {
+                                throw new SecurityException();
+                            }
+                        }
+
+                        // Write String afterEdit to a file
+                        FileOutputStream fos = new FileOutputStream(temp);
+                        ByteArrayInputStream in = new ByteArrayInputStream(afterEdit.getBytes("UTF-8"));
+                        ZIP.copyInputStream(in, fos);
+
                     }
-
-
+                    // ApplyAfter, ApplyBefore, Incompatibility, Requirement Action
                 } else if (action.getClass().equals(ActionApplyAfter.class) || action.getClass().equals(ActionApplyBefore.class) || action.getClass().equals(ActionIncompatibility.class) || action.getClass().equals(ActionRequirement.class)) {
                     // nothing to do
+                    // Unknow Action
                 } else {
-                    // unsupported aciton
+                    // Unknow action, can't apply
+                    throw new UnknowModActionException(action.getClass().getName(), mod.getName());
                 }
             }
         }
@@ -859,71 +942,100 @@ public class Manager extends Observable {
         if (condition.isEmpty() || condition == null) {
             return true;
         }
-        
+//        int parentheses = 0;
+//        boolean quotes = false;
+//        int blocks = 0;
+//        for (int i = 0; i < condition.length(); i++) {
+//            switch (condition.charAt(i)) {
+//                case '\'':
+//                    quotes = !quotes;
+//                case '(':
+//                    if (!quotes) {
+//                        parentheses += 1;
+//                    }
+//                    break;
+//                case ')':
+//                    if (!quotes) {
+//                        parentheses -= 1;
+//                    }
+//                    break;
+//                case '[':
+//                    if (quotes) {
+//                        blocks += 1;
+//                    }
+//                    break;
+//                case ']':
+//                    if (quotes) {
+//                        blocks -= 1;
+//                    }
+//                    break;
+//            }
+//        }
+//        if (parentheses != 0 || quotes == false || blocks != 0) {
+//            // invalid condition, can't apply
+//        }
         return isValidCondition(condition);
     }
-    
+
     /**
      * findNextExpression returns the next expression from the given StringTokenizer
      * @param st
      * @return
      */
     private String findNextExpression(String previous, StringTokenizer st) {
-    	while (st.hasMoreTokens()) {
-    		String token = st.nextToken();
-    		if (token.equalsIgnoreCase("\'")) {
-        		String mod = token;
-        		do {
-        			String next = st.nextToken();
-        			if (next.equalsIgnoreCase("\'")) {
-        				mod += next;
-        				break;
-        			}
-        			mod += next;
-        		} while(st.hasMoreTokens());
-        		
-        		return mod;
-    		}
-        	else if (token.equalsIgnoreCase("(")) {
-        		String cond = "";
-        		boolean done = false;
-        		int level = 0;
-        		do {
-        			String next = st.nextToken();
-        			if (next.equalsIgnoreCase("("))
-        				level++;
-        			else if (next.equalsIgnoreCase(")")) {
-        				if (level == 0 && !done)
-        					break;
-        				else
-        					level--;
-        			}
-        			
-        			cond += next;
-        		} while(!done && st.hasMoreTokens());
+        while (st.hasMoreTokens()) {
+            String token = st.nextToken();
+            if (token.equalsIgnoreCase("\'")) {
+                String mod = token;
+                do {
+                    String next = st.nextToken();
+                    if (next.equalsIgnoreCase("\'")) {
+                        mod += next;
+                        break;
+                    }
+                    mod += next;
+                } while (st.hasMoreTokens());
 
-        		return cond;
-        	}
-        	else if (token.equalsIgnoreCase(" ")) {
-        		continue;
-        	}
-        	else {
-        		String ret = "";
-        		do {
-        			ret += token;
-        			try {
-        				token = st.nextToken();
-        			} catch (Exception e) {
-        				break;
-        			}
-        		} while(st.hasMoreTokens());
-        		return ret;
-        	}
-    	}
-    	
-    	return "";
+                return mod;
+            } else if (token.equalsIgnoreCase("(")) {
+                String cond = "";
+                boolean done = false;
+                int level = 0;
+                do {
+                    String next = st.nextToken();
+                    if (next.equalsIgnoreCase("(")) {
+                        level++;
+                    } else if (next.equalsIgnoreCase(")")) {
+                        if (level == 0 && !done) {
+                            break;
+                        } else {
+                            level--;
+                        }
+                    }
+
+                    cond += next;
+                } while (!done && st.hasMoreTokens());
+
+                return cond;
+            } else if (token.equalsIgnoreCase(" ")) {
+                continue;
+            } else {
+                String ret = "";
+                do {
+                    ret += token;
+                    try {
+                        token = st.nextToken();
+                    } catch (Exception e) {
+                        break;
+                    }
+                } while (st.hasMoreTokens());
+                return ret;
+            }
+        }
+
+        return "";
     }
-    
+
     /**
      * checkVersion checks to see if first argument <= second argument is true
      * @param lower
@@ -931,23 +1043,23 @@ public class Manager extends Observable {
      * @return
      */
     public boolean checkVersion(String lower, String higher) {
-    	boolean ret = false;
-    	
-    	StringTokenizer lowst = new StringTokenizer(lower, ".", false);
-    	StringTokenizer highst = new StringTokenizer(higher, ".", false);
-    	
-    	while (lowst.hasMoreTokens() && highst.hasMoreTokens()) {
-    		int first = Integer.parseInt(lowst.nextToken());
-    		int second = Integer.parseInt(highst.nextToken());
-    		
+        boolean ret = false;
+
+        StringTokenizer lowst = new StringTokenizer(lower, ".", false);
+        StringTokenizer highst = new StringTokenizer(higher, ".", false);
+
+        while (lowst.hasMoreTokens() && highst.hasMoreTokens()) {
+            int first = Integer.parseInt(lowst.nextToken());
+            int second = Integer.parseInt(highst.nextToken());
+
 //    		System.out.println("first v: " + first + ", second v: " + second);
-    		
-    		ret = (first <= second);
-    	}
-    	
-    	return ret;
+
+            ret = (first <= second);
+        }
+
+        return ret;
     }
-    
+
     /**
      * validVesion checks to see if the version for m is within the condition set by version on the other parameter
      * in development
@@ -956,29 +1068,28 @@ public class Manager extends Observable {
      * @return
      */
     public boolean validVersion(Mod m, String version) throws NumberFormatException {
-       	String target = m.getVersion().trim();
-       	
+        String target = m.getVersion().trim();
+
 //		System.out.println("target version: " + target);
-       	
-    	if (version.contains("-")) {
-        	String low, high;
-    		low = version.substring(1, version.indexOf("-")).trim();
-    		high = version.substring(version.indexOf("-")+1).trim();
-    		
+
+        if (version.contains("-")) {
+            String low, high;
+            low = version.substring(1, version.indexOf("-")).trim();
+            high = version.substring(version.indexOf("-") + 1).trim();
+
 //    		System.out.println("low: " + low);
 //        	System.out.println("high: " + high);
-    		
-    		// checkVersion checks to see if first argument <= second argument is true
-    		return checkVersion(low, target) && checkVersion(target, high);
-    		
-    	}
-    	else {
-    		String compare = version.trim();
-    		
+
+            // checkVersion checks to see if first argument <= second argument is true
+            return checkVersion(low, target) && checkVersion(target, high);
+
+        } else {
+            String compare = version.trim();
+
 //    		System.out.println("compare version: " + compare);
-    		
-    		return checkVersion(compare, target); 
-    	}
+
+            return checkVersion(compare, target);
+        }
     }
 
     /**
@@ -992,81 +1103,76 @@ public class Manager extends Observable {
 
         StringTokenizer st = new StringTokenizer(condition, "\' ()", true);
         while (st.hasMoreTokens()) {
-        	String token = st.nextToken();
-        
-        	if (token.equalsIgnoreCase("\'")) {
-        		String mod = "";
-        		do {
-        			String next = st.nextToken();
-        			if (next.equalsIgnoreCase("\'"))
-        				break;
-        			mod += next;
-        		} while(st.hasMoreTokens());
-        		
-        		try {
-        			String version = "";
-        			if(mod.endsWith("]")) {
-        				version = mod.substring(mod.indexOf('[')+1, mod.length()-1);
-        				mod = mod.substring(0, mod.indexOf('['));
-        			}
-        			
-        			Mod m = getMod(mod);
-        			
-        			try {
-        				valid = (m.isEnabled() && validVersion(m, version));
-        			} catch (Exception e) {
-        				System.out.println("version is not valid: " + e.getMessage());
-        				valid = false;
-        			}
-        		} catch (NoSuchElementException e) {
-        			System.out.println("mod not found exception: " + e.getMessage());
-        			valid = false;
-        		}
-        	}
-        	else if (token.equalsIgnoreCase(" ")) {
-	    		continue;
-        	}
-        	else if (token.equalsIgnoreCase("(")) {
-        		String cond = "";
-        		boolean done = false;
-        		int level = 0;
-        		do {
-        			String next = st.nextToken();
-        			if (next.equalsIgnoreCase("("))
-        				level++;
-        			else if (next.equalsIgnoreCase(")")) {
-        				if (level == 0 && !done)
-        					break;
-        				else
-        					level--;
-        			}
-        			
-        			cond += next;
-        		} while(!done && st.hasMoreTokens());
+            String token = st.nextToken();
 
-        		return isValidCondition(cond);
-        	}
-        	else if (token.equalsIgnoreCase(")")) {
-        		return false;
-        	}
-        	else {
-        		String next = findNextExpression(token, st);
-        		
-        		if (token.equalsIgnoreCase("not")) {
-        			valid = !isValidCondition(next);
-        		}
-        		else if (token.equalsIgnoreCase("and")) {
-        			boolean compare = isValidCondition(next);
-        			valid = (valid && compare);
-        		}
-        		else if (token.equalsIgnoreCase("or")) {
-        			boolean compare = isValidCondition(next);
-        			valid = (valid || compare);
-        		}
-        		else {
-            		String mod = token + " " + next;
-        		}
-        	}
+            if (token.equalsIgnoreCase("\'")) {
+                String mod = "";
+                do {
+                    String next = st.nextToken();
+                    if (next.equalsIgnoreCase("\'")) {
+                        break;
+                    }
+                    mod += next;
+                } while (st.hasMoreTokens());
+
+                try {
+                    String version = "";
+                    if (mod.endsWith("]")) {
+                        version = mod.substring(mod.indexOf('[') + 1, mod.length() - 1);
+                        mod = mod.substring(0, mod.indexOf('['));
+                    }
+
+                    Mod m = getMod(mod);
+
+                    try {
+                        valid = (m.isEnabled() && validVersion(m, version));
+                    } catch (Exception e) {
+                        System.out.println("version is not valid: " + e.getMessage());
+                        valid = false;
+                    }
+                } catch (NoSuchElementException e) {
+                    System.out.println("mod not found exception: " + e.getMessage());
+                    valid = false;
+                }
+            } else if (token.equalsIgnoreCase(" ")) {
+                continue;
+            } else if (token.equalsIgnoreCase("(")) {
+                String cond = "";
+                boolean done = false;
+                int level = 0;
+                do {
+                    String next = st.nextToken();
+                    if (next.equalsIgnoreCase("(")) {
+                        level++;
+                    } else if (next.equalsIgnoreCase(")")) {
+                        if (level == 0 && !done) {
+                            break;
+                        } else {
+                            level--;
+                        }
+                    }
+
+                    cond += next;
+                } while (!done && st.hasMoreTokens());
+
+                return isValidCondition(cond);
+            } else if (token.equalsIgnoreCase(")")) {
+                return false;
+            } else {
+                String next = findNextExpression(token, st);
+
+                if (token.equalsIgnoreCase("not")) {
+                    valid = !isValidCondition(next);
+                } else if (token.equalsIgnoreCase("and")) {
+                    boolean compare = isValidCondition(next);
+                    valid = (valid && compare);
+                } else if (token.equalsIgnoreCase("or")) {
+                    boolean compare = isValidCondition(next);
+                    valid = (valid || compare);
+                } else {
+                    String mod = token + " " + next;
+                }
+            }
         }
 
         return valid;

@@ -3,18 +3,18 @@
  * and open the template in the editor.
  */
 
-package utility;
+package utility.exception;
 
 /**
  *
  * @author Shirkit
  */
-public class ModEnabledException extends Exception {
+public class ModNotEnabledException extends Exception {
 
     private String name;
     private String version;
 
-    public ModEnabledException(String name, String version) {
+    public ModNotEnabledException(String name, String version) {
         super();
         this.name = name;
         this.version = version;

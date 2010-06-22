@@ -2,22 +2,25 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
+package utility.exception;
 
-package utility;
+import business.actions.Action;
 
 /**
  *
  * @author Shirkit
  */
-public class ModNotEnabledException extends Exception {
+public class InvalidModActionParameterException extends Exception {
 
     private String name;
     private String version;
+    private Action action;
 
-    public ModNotEnabledException(String name, String version) {
+    public InvalidModActionParameterException(String name, String version, Action action) {
         super();
         this.name = name;
         this.version = version;
+        this.action = action;
     }
 
     public String getVersion() {
@@ -28,4 +31,7 @@ public class ModNotEnabledException extends Exception {
         return name;
     }
 
+    public Action getAction() {
+        return action;
+    }
 }
