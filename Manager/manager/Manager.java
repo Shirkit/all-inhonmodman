@@ -858,7 +858,6 @@ public class Manager extends Observable {
 
         boolean result = false;
 
-
         if (expressionVersion == null) {
             expressionVersion = "*";
         }
@@ -942,38 +941,7 @@ public class Manager extends Observable {
         if (condition.isEmpty() || condition == null) {
             return true;
         }
-//        int parentheses = 0;
-//        boolean quotes = false;
-//        int blocks = 0;
-//        for (int i = 0; i < condition.length(); i++) {
-//            switch (condition.charAt(i)) {
-//                case '\'':
-//                    quotes = !quotes;
-//                case '(':
-//                    if (!quotes) {
-//                        parentheses += 1;
-//                    }
-//                    break;
-//                case ')':
-//                    if (!quotes) {
-//                        parentheses -= 1;
-//                    }
-//                    break;
-//                case '[':
-//                    if (quotes) {
-//                        blocks += 1;
-//                    }
-//                    break;
-//                case ']':
-//                    if (quotes) {
-//                        blocks -= 1;
-//                    }
-//                    break;
-//            }
-//        }
-//        if (parentheses != 0 || quotes == false || blocks != 0) {
-//            // invalid condition, can't apply
-//        }
+        
         return isValidCondition(condition);
     }
 
