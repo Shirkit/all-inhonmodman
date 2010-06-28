@@ -129,11 +129,8 @@ public class Manager extends Observable {
      * @return true if the platform is MS Windows, false otherwise
      */
     private boolean isWindows() {
-        if (System.getProperty("os.name").toLowerCase().contains("windows")) {
-            return true;
-        } else {
-            return false;
-        }
+
+        return System.getProperty("os.name").toLowerCase().contains("windows");
     }
 
     /**
@@ -143,11 +140,7 @@ public class Manager extends Observable {
      * @return true if the platform is Linux
      */
     private boolean isLinux() {
-        if (System.getProperty("os.name").toLowerCase().contains("linux")) {
-            return true;
-        } else {
-            return false;
-        }
+        return System.getProperty("os.name").toLowerCase().contains("linux");
     }
 
     /**
@@ -157,11 +150,7 @@ public class Manager extends Observable {
      * @return true if the platform is Apple Mac OS
      */
     private boolean isMac() {
-        if (System.getProperty("os.name").toLowerCase().contains("mac")) {
-            return true;
-        } else {
-            return false;
-        }
+        return System.getProperty("os.name").toLowerCase().contains("mac");
     }
 
     /**
@@ -309,7 +298,7 @@ public class Manager extends Observable {
     }
 
     /**
-     * Load all mods from the mods folder
+     * Load all mods from the mods folder and put them into the array.
      *
      * @throws IOException
      */
@@ -678,10 +667,11 @@ public class Manager extends Observable {
     public void applyMods() throws IOException, UnknowModActionException, NothingSelectedModActionException, StringNotFoundModActionException, InvalidModActionParameterException, ModActionConditionNotValidException {
         Stack<Mod> applyOrder = sortMods();
         File tempFolder = new File(System.getProperty("java.io.tmpdir") + File.separator + "HoN Mod Manager");
+        // This generates a temp folder. If it isn't possible, generates a random folder inside the OS's temp folder.
         if (tempFolder.exists()) {
             if (!tempFolder.delete()) {
                 Random r = new Random();
-                tempFolder = new File(System.getProperty("java.io.tmpdir") + File.separator + r.nextInt(99999999));
+                tempFolder = new File(System.getProperty("java.io.tmpdir") + File.separator + r.nextInt());
                 if (tempFolder.exists()) {
                     if (!tempFolder.delete()) {
                         throw new SecurityException();
@@ -698,7 +688,7 @@ public class Manager extends Observable {
                     ActionCopyFile copyfile = (ActionCopyFile) action;
                     if (!isValidCondition(action)) {
                         // condition isn't valid, can't apply
-                        //throw new ModActionConditionNotValidException(mod.getName(), mod.getVersion(), (Action) copyfile);
+                        // No need to throw execption, since if condition isn't valid, this action won't be applied
                     } else {
                         // copy a file
                         // needs implementation
@@ -708,24 +698,27 @@ public class Manager extends Observable {
                     ActionEditFile editfile = (ActionEditFile) action;
                     if (!isValidCondition(action)) {
                         // condition isn't valid, can't apply
-                        //throw new ModActionConditionNotValidException(mod.getName(), mod.getVersion(), (Action) editfile);
+                        // No need to throw execption, since if condition isn't valid, this action won't be applied
                     } else {
 
-                        // the selection is here
+                        // the selection is stored here
                         int cursor = 0;
                         int cursor2 = 0;
 
                         // check if something is selected
                         boolean isSelected = false;
+
+                        // Check for file
                         File f = new File(tempFolder.getAbsolutePath() + File.separator + editfile.getName());
                         String toEdit = "";
                         if (f.exists()) {
-                            // Write String afterEdit to a file
+                            // Load file from temp folder. If any other mod changes the file, it's actions won't be lost.
                             FileInputStream fin = new FileInputStream(f);
                             OutputStream os = new ByteArrayOutputStream();
                             ZIP.copyInputStream(fin, os);
                             toEdit = os.toString();
                         } else {
+                            // Load file from resources0.s2z if no other mod edited this file
                             toEdit = new String(ZIP.getFile(new File(HON_FOLDER + File.separator + "game" + File.separator + "resources0.s2z"), editfile.getName()));
                         }
                         String afterEdit = new String(toEdit);
@@ -812,10 +805,8 @@ public class Manager extends Observable {
                                     afterEdit = toEdit.replace(toEdit.substring(cursor, cursor2), replace.getContent());
                                     isSelected = false;
                                 } else {
-                                    // the guy didn't select anything yet, can't apply
+                                    throw new NothingSelectedModActionException(mod.getName(), mod.getVersion(), (Action) replace);
                                 }
-
-                                // Unknow Action
                             } else {
                                 // Unknow action, can't apply
                                 throw new UnknowModActionException(editFileAction.getClass().getName(), mod.getName());
@@ -838,7 +829,6 @@ public class Manager extends Observable {
                     // ApplyAfter, ApplyBefore, Incompatibility, Requirement Action
                 } else if (action.getClass().equals(ActionApplyAfter.class) || action.getClass().equals(ActionApplyBefore.class) || action.getClass().equals(ActionIncompatibility.class) || action.getClass().equals(ActionRequirement.class)) {
                     // nothing to do
-                    // Unknow Action
                 } else {
                     // Unknow action, can't apply
                     throw new UnknowModActionException(action.getClass().getName(), mod.getName());
@@ -941,7 +931,7 @@ public class Manager extends Observable {
         if (condition.isEmpty() || condition == null) {
             return true;
         }
-        
+
         return isValidCondition(condition);
     }
 
