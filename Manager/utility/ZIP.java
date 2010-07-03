@@ -43,11 +43,30 @@ public class ZIP {
         while (entries.hasMoreElements()) {
             ZipEntry entry = (ZipEntry) entries.nextElement();
 
-            if (entry.getName().equals(filename)) {
+            if (entry.getName().equalsIgnoreCase(filename)) {
                 copyInputStream(zipFile.getInputStream(entry), output = new ByteArrayOutputStream());
                 result = output.toByteArray();
                 output.close();
                 return result;
+            }
+        }
+
+        throw new FileNotFoundException(filename);
+    }
+
+    public static long getLastModified(File zip, String filename) throws FileNotFoundException, ZipException, IOException {
+        if (!zip.exists()) {
+            throw new FileNotFoundException(zip.getName());
+        }
+
+        ZipFile zipFile = new ZipFile(zip);
+        Enumeration entires = zipFile.entries();
+
+        while (entires.hasMoreElements()) {
+            ZipEntry entry = (ZipEntry) entires.nextElement();
+
+            if (entry.getName().equalsIgnoreCase(filename)) {
+                return entry.getTime();
             }
         }
 

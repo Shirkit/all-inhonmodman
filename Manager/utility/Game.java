@@ -23,20 +23,21 @@ public class Game {
     private Game() {
         this.path = null;
         this.version = null;
-        
     }
-     /**
-      * This method is used to get the only instance of this class that is running. Since the game is unique, there is no point of having more than one instance of this class.
-      * @return the instance.
-      */
+
+    /**
+     * This method is used to get the only instance of this class that is running.
+     * @return the instance.
+     */
     public static Game getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new Game();
         }
         return instance;
     }
 
     /**
+     * Before using this method, the setPath must be called, or it will throw an IllegalArgumentException. This returns a string with the game version. ('1.0.4.0' for example).
      * @return the version of HoN.
      * @throws FileNotFoundException if HoN folder doesn't exist. Possible values:
      * <br/>"Hon folder doesn't exist".
@@ -45,7 +46,7 @@ public class Game {
      * @throws IllegalArgumentException if the attribute Game.path is null.
      */
     public String getVersion() throws IllegalArgumentException, FileNotFoundException, IOException {
-        if(this.path == null) {
+        if (this.path == null) {
             throw new IllegalArgumentException("Attribute 'path' not set yet.");
         }
         if (this.version == null) {
@@ -67,17 +68,19 @@ public class Game {
         File honLinux = new File(folder.getAbsolutePath() + File.separator + "hon-x86");
         File honLinux64 = new File(folder.getAbsolutePath() + File.separator + "hon-x86_64");
         File honMac = new File(folder.getAbsolutePath() + File.separator + "HoN");
-        String gameVersion;
+        String gameVersion = "";
         if (!folder.exists()) {
             throw new FileNotFoundException("HoN folder doesn't exist");
         } else {
-            if (honWindows.exists()) {
+            if (OS.isWindows()) {
                 gameVersion = getGameVersionWindows(honWindows);
-            } else if (honLinux.exists()) {
-                gameVersion = getGameVersionLinux(honLinux);
-            } else if (honLinux64.exists()) {
-                gameVersion = getGameVersionLinux(honLinux64);
-            } else if (honMac.exists()) {
+            } else if (OS.isLinux()) {
+                if (honLinux.exists()) {
+                    gameVersion = getGameVersionLinux(honLinux);
+                } else if (honLinux64.exists()) {
+                    gameVersion = getGameVersionLinux(honLinux64);
+                }
+            } else if (OS.isMac()) {
                 gameVersion = getGameVersionLinux(honMac);
             } else {
                 throw new FileNotFoundException("HoN file wasn't found");
@@ -167,24 +170,11 @@ public class Game {
     }
 
     /**
-     * needs implementation?
-     * @return
-     */
-    public boolean isGameOpen() {
-        return false;
-    }
-
-    /**
      * This method is required to be used before using the other methods in this class.
      * @param path to the HoN folder.
-     * @throws FileNotFoundException if HoN folder doesn't exist. Possible values:
-     * <br/>"Hon folder doesn't exist".
-     * <br/>"Hon file wasn't found".
-     * @throws IOException if happened some I/O exception.
      */
-    public void setPath(File path) throws FileNotFoundException, IOException {
+    public void setPath(File path) {
         this.path = path.getAbsolutePath();
-        setVersion(getVersion(path.getAbsolutePath()));
     }
 
     /**

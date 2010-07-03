@@ -108,18 +108,18 @@ public class ActionCopyFile extends Action {
 
     /**
      *
-     * @return 2 if 'newer'
-     * <br/>1 if 'yes'
+     * @return 2 if 'yes'
+     * <br/>1 if 'newer'
      * <br/>0 if 'no'
      * <br/>-1 if illegal argument
      */
     public int overwrite() {
         if (condition.equalsIgnoreCase("yes")) {
-            return 1;
+            return 2;
         } else if (condition.equalsIgnoreCase("no")) {
             return 0;
         } else if (condition.equalsIgnoreCase("newer")) {
-            return 2;
+            return 1;
         } else {
             return -1;
         }

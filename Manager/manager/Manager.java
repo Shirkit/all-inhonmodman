@@ -1,15 +1,25 @@
 package manager;
 
-import utility.WindowsRegistry;
 import business.ManagerOptions;
 import business.Mod;
+import business.actions.*;
+
+import utility.OS;
 import utility.XML;
 import utility.ZIP;
-import business.actions.*;
+import utility.WindowsRegistry;
+import utility.exception.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -19,29 +29,18 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.Stack;
 import java.util.StringTokenizer;
-
-import com.mallardsoft.tuple.*;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.FileFilter;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.security.InvalidParameterException;
 import java.util.Observable;
 import java.util.Random;
 import java.util.prefs.Preferences;
+
+import com.mallardsoft.tuple.*;
+
+import java.security.InvalidParameterException;
+
 import org.apache.log4j.Logger;
-import utility.exception.ModEnabledException;
-import utility.exception.ModNotEnabledException;
+
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
-import utility.exception.InvalidModActionParameterException;
-import utility.exception.ModActionConditionNotValidException;
-import utility.exception.NothingSelectedModActionException;
-import utility.exception.StringNotFoundModActionException;
-import utility.exception.UnknowModActionException;
 
 /**
  * Implementation of the core functionality of HoN modification manager. This class is
@@ -66,8 +65,6 @@ public class Manager extends Observable {
     private static String OPTIONS_PATH = ""; // Stores the absolute path to the option file
     private static String HOMEPAGE = "http://sourceforge.net/projects/all-inhonmodman";
     private static String VERSION = "0.1 BETA";     // Version string shown in About dialog
-    private ArrayList<Mod> lastMods;
-    private int nextPriority; // This is not necessary
     private static Logger logger = Logger.getLogger(Manager.class.getPackage().getName());
     // Preferences constants - use these constants instead of strings to reduce typo errors
     public static final String PREFS_LOCALE = "locale";
@@ -104,7 +101,7 @@ public class Manager extends Observable {
      */
     private String findHonFolder() {
         // Try to find HoN folder in case we are on Windows
-        if (isWindows()) {
+        if (OS.isWindows()) {
             // Get the folder from uninstall info in windows registry saved by HoN
             String registryData = WindowsRegistry.getRecord("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\hon", "InstallLocation");
             if (!registryData.isEmpty()) {
@@ -114,43 +111,12 @@ public class Manager extends Observable {
             return null;
         }
         // Try to find HoN folder in case we are on Linux
-        if (isLinux()) {
+        if (OS.isLinux()) {
         }
         // Try to find HoN folder in case we are on Mac
-        if (isMac()) {
+        if (OS.isMac()) {
         }
         return null;
-    }
-
-    /**
-     * Check if we are on MS Windows OS
-     * TODO: this needs to be tested on different systems
-     *
-     * @return true if the platform is MS Windows, false otherwise
-     */
-    private boolean isWindows() {
-
-        return System.getProperty("os.name").toLowerCase().contains("windows");
-    }
-
-    /**
-     * Check if we are on Linux OS
-     * TODO: this needs to be tested on different systems
-     *
-     * @return true if the platform is Linux
-     */
-    private boolean isLinux() {
-        return System.getProperty("os.name").toLowerCase().contains("linux");
-    }
-
-    /**
-     * Check if we are on Apple Mac OS
-     * TODO: this needs to be tested on different systems
-     *
-     * @return true if the platform is Apple Mac OS
-     */
-    private boolean isMac() {
-        return System.getProperty("os.name").toLowerCase().contains("mac");
     }
 
     /**
@@ -690,10 +656,71 @@ public class Manager extends Observable {
                         // condition isn't valid, can't apply
                         // No need to throw execption, since if condition isn't valid, this action won't be applied
                     } else {
-                        // copy a file
-                        // needs implementation
-                    }
+                        // if path2 is not specified, path1 is copied
+                        String toCopy;
+                        if (copyfile.getSource().isEmpty() || copyfile.getSource().equals("") || copyfile.getSource() == null) {
+                            toCopy = copyfile.getName();
+                        } else {
+                            // path2 is copied and renamed to path1
+                            toCopy = copyfile.getSource();
+                        }
 
+                        if (copyfile.overwrite() == -1) {
+                            throw new InvalidModActionParameterException(mod.getName(), mod.getVersion(), (Action) copyfile);
+                        }
+
+                        File temp = new File(tempFolder.getAbsolutePath() + File.separator + copyfile.getName());
+                        if (temp.exists()) {
+                            if (copyfile.overwrite() == 0) {
+                                // Don't overwrite, do nothing
+                            } else if (copyfile.overwrite() == 1) {
+                                // Overwrite if newer
+                                if (ZIP.getLastModified(new File(mod.getPath()), toCopy) > temp.lastModified()) {
+                                    byte[] file = ZIP.getFile(new File(mod.getPath()), toCopy);
+                                    FileOutputStream fos = new FileOutputStream(temp);
+                                    if (temp.delete() && temp.createNewFile()) {
+                                        ByteArrayInputStream bais = new ByteArrayInputStream(file);
+                                        ZIP.copyInputStream(bais, fos);
+                                        bais.close();
+                                        fos.close();
+                                    } else {
+                                        throw new SecurityException();
+                                    }
+                                }
+                            } else if (copyfile.overwrite() == 2) {
+                                byte[] file = ZIP.getFile(new File(mod.getPath()), toCopy);
+                                FileOutputStream fos = new FileOutputStream(temp);
+                                if (temp.delete() && temp.createNewFile()) {
+                                    ByteArrayInputStream bais = new ByteArrayInputStream(file);
+                                    ZIP.copyInputStream(bais, fos);
+                                    bais.close();
+                                    fos.close();
+                                } else {
+                                    throw new SecurityException();
+                                }
+                            }
+                        } else {
+                            // if temporary file doesn't exists
+                            if (copyfile.overwrite() == 1) {
+                                if (ZIP.getLastModified(new File(mod.getPath()), toCopy) > temp.lastModified()) {
+                                    byte[] file = ZIP.getFile(new File(mod.getPath()), toCopy);
+                                    FileOutputStream fos = new FileOutputStream(temp);
+                                    ByteArrayInputStream bais = new ByteArrayInputStream(file);
+                                    ZIP.copyInputStream(bais, fos);
+                                    bais.close();
+                                    fos.close();
+                                }
+                            } else if (copyfile.overwrite() == 2) {
+                                byte[] file = ZIP.getFile(new File(mod.getPath()), toCopy);
+                                FileOutputStream fos = new FileOutputStream(temp);
+                                ByteArrayInputStream bais = new ByteArrayInputStream(file);
+                                ZIP.copyInputStream(bais, fos);
+                                bais.close();
+                                fos.close();
+                            }
+                        }
+                        temp.setLastModified(ZIP.getLastModified(new File(mod.getPath()), toCopy));
+                    }
                 } else if (action.getClass().equals(ActionEditFile.class)) {
                     ActionEditFile editfile = (ActionEditFile) action;
                     if (!isValidCondition(action)) {
@@ -824,6 +851,9 @@ public class Manager extends Observable {
                         FileOutputStream fos = new FileOutputStream(temp);
                         ByteArrayInputStream in = new ByteArrayInputStream(afterEdit.getBytes("UTF-8"));
                         ZIP.copyInputStream(in, fos);
+
+                        // Set the Last Modified field
+                        temp.setLastModified(ZIP.getLastModified(new File(mod.getPath()), editfile.getName()));
 
                     }
                     // ApplyAfter, ApplyBefore, Incompatibility, Requirement Action
