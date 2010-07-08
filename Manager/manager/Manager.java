@@ -41,6 +41,7 @@ import org.apache.log4j.Logger;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import utility.Game;
 
 /**
  * Implementation of the core functionality of HoN modification manager. This class is
@@ -533,13 +534,29 @@ public class Manager extends Observable {
     }
 
     /**
-     * This function trys to enable the mod with the name given. Throws exceptions if didn't no success while enabling the mod.
+     * This function trys to enable the mod with the name given. Throws exceptions if didn't no success while enabling the mod. ignoreVersion should be always false, unless the user especifically says so.
      * @param name of the mod
      * @throws ModEnabledException if a mod was enabled and caused an incompatibility with the Mod that is being tryied to apply.
      * @throws ModNotEnabledException if a mod that was required by this mod wasn't enabled.
+     * @throws NoSuchElementException if the mod doesn't exist
+     * @throws ModVersionMissmatchException if the mod's version is imcompatible with the game version.
+     * @throws NullPointerException if there is a problem with the game path (maybe the path was not set in the game class, or hon.exe wasn't found, or happened a random I/O error).
      */
-    public void enableMod(String name) throws ModEnabledException, ModNotEnabledException {
+    public void enableMod(String name, boolean ignoreVersion) throws ModEnabledException, ModNotEnabledException, NoSuchElementException, ModVersionMissmatchException, NullPointerException {
         Mod m = getMod(name);
+        if (!ignoreVersion) {
+            try {
+                if (compareModsVersions(Game.getInstance().getVersion(), m.getVersion())) {
+                    throw new ModVersionMissmatchException(name, name);
+                }
+            } catch (IllegalArgumentException ex) {
+                throw new NullPointerException();
+            } catch (FileNotFoundException ex) {
+                throw new NullPointerException();
+            } catch (IOException ex) {
+                throw new NullPointerException();
+            }
+        }
         if (!m.isEnabled() && checkdeps(m) && !checkcons(m)) {
             mods.get(mods.indexOf(m)).enable();
         }
@@ -550,7 +567,7 @@ public class Manager extends Observable {
      * @param name
      * @return Whether the function disable the mod successfully
      */
-    public boolean diableMod(String name) {
+    public boolean disableMod(String name) {
         Mod m = getMod(name);
         if (!m.isEnabled()) {
             System.out.println("Mod " + name + " already disabled");
@@ -1058,24 +1075,16 @@ public class Manager extends Observable {
     public boolean validVersion(Mod m, String version) throws NumberFormatException {
         String target = m.getVersion().trim();
 
-//		System.out.println("target version: " + target);
-
         if (version.contains("-")) {
             String low, high;
             low = version.substring(1, version.indexOf("-")).trim();
             high = version.substring(version.indexOf("-") + 1).trim();
-
-//    		System.out.println("low: " + low);
-//        	System.out.println("high: " + high);
 
             // checkVersion checks to see if first argument <= second argument is true
             return checkVersion(low, target) && checkVersion(target, high);
 
         } else {
             String compare = version.trim();
-
-//    		System.out.println("compare version: " + compare);
-
             return checkVersion(compare, target);
         }
     }
