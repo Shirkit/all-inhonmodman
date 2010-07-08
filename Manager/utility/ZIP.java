@@ -174,12 +174,13 @@ public class ZIP {
             String path = f.getPath();
             path = path.replace(dir2zip + File.separator, "");
             ZipEntry anEntry = new ZipEntry(path);
+            anEntry.setTime(f.lastModified());
             //place the zip entry in the ZipOutputStream object
-            zos.putNextEntry(anEntry);
             //now write the content of the file to the ZipOutputStream
             while ((bytesIn = fis.read(readBuffer)) != -1) {
                 zos.write(readBuffer, 0, bytesIn);
             }
+            anEntry.setTime(f.lastModified());
             //close the Stream
             fis.close();
 
