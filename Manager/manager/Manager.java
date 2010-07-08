@@ -646,8 +646,9 @@ public class Manager extends Observable {
      * @throws NothingSelectedModActionException if a action tried to do a action that involves a string, but no string was selected.
      * @throws StringNotFoundModActionException if a search for a string was made, but that string wasn't found. Probally, imcompatibility or a error by the mod's author.
      * @throws InvalidModActionParameterException if a action had a invalid parameter. Only the position of actions 'insert' and 'find' can throw this exception.
+     * @throws SecurityException if the Manager couldn't do a action because of security business.
      */
-    public void applyMods() throws IOException, UnknowModActionException, NothingSelectedModActionException, StringNotFoundModActionException, InvalidModActionParameterException, ModActionConditionNotValidException {
+    public void applyMods() throws IOException, UnknowModActionException, NothingSelectedModActionException, StringNotFoundModActionException, InvalidModActionParameterException, ModActionConditionNotValidException, SecurityException {
         Stack<Mod> applyOrder = sortMods();
         File tempFolder = new File(System.getProperty("java.io.tmpdir") + File.separator + "HoN Mod Manager");
         // This generates a temp folder. If it isn't possible, generates a random folder inside the OS's temp folder.
@@ -882,6 +883,13 @@ public class Manager extends Observable {
                 }
             }
         }
+        File targetZip = new File(HON_FOLDER + File.separator + "game" + File.separator + "resources999.s2z");
+        if (targetZip.exists()) {
+            if(!targetZip.delete()) {
+                throw new SecurityException();
+            }
+        }
+        ZIP.createZIP(tempFolder.getAbsolutePath(), targetZip.getAbsolutePath());
     }
 
     /**
