@@ -20,12 +20,12 @@ public class ActionEditFileFindUpConverter implements Converter {
 
     public void marshal(Object o, HierarchicalStreamWriter writer, MarshallingContext mc) {
         ActionEditFileFindUp value = (ActionEditFileFindUp) o;
-        writer.setValue(value.getContent());
+        writer.setValue("<![CDATA[" + value.getContent()  + "]]>");
     }
 
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext uc) {
         ActionEditFileFindUp value = new ActionEditFileFindUp();
-        value.setContent("<![CDATA[" + reader.getValue() + "]]>");
+        value.setContent(reader.getValue());
         return value;
     }
 

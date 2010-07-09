@@ -20,12 +20,12 @@ public class ActionEditFileDeleteConverter implements Converter {
 
     public void marshal(Object o, HierarchicalStreamWriter writer, MarshallingContext mc) {
         ActionEditFileDelete value = (ActionEditFileDelete) o;
-        writer.setValue(value.getContent());
+        //writer.setValue(value.getContent());
     }
 
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext uc) {
         ActionEditFileDelete value = new ActionEditFileDelete();
-        value.setContent("<![CDATA[" + reader.getValue() + "]]>");
+        //value.setContent("<![CDATA[" + reader.getValue() + "]]>");
         return value;
     }
 

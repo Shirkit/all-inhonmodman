@@ -22,12 +22,12 @@ public class ActionEditFileFindConverter implements Converter {
         if (value.getPosition() != null) {
             writer.addAttribute("position", value.getPosition());
         }
-        writer.setValue(value.getContent());
+        writer.setValue("<![CDATA[" + value.getContent()  + "]]>");
     }
 
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext uc) {
         ActionEditFileFind value = new ActionEditFileFind();
-        value.setContent("<![CDATA[" + reader.getValue() + "]]>");
+        value.setContent(reader.getValue());
         value.setPosition(reader.getAttribute("position"));
         return value;
     }

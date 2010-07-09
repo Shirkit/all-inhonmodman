@@ -136,7 +136,8 @@ public class ZIP {
     public static void createZIP(String source, String file) throws FileNotFoundException, IOException {
         // creates the buffer to generate the zip
         ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(file));
-        zipDir(source, zos);
+        zipDir(source, zos, source);
+        zos.flush();
         zos.close();
 
     }
@@ -148,7 +149,7 @@ public class ZIP {
      * @throws FileNotFoundException
      * @throws IOException
      */
-    private static void zipDir(String dir2zip, ZipOutputStream zos) throws FileNotFoundException, IOException {
+    private static void zipDir(String dir2zip, ZipOutputStream zos, String originalFolder) throws FileNotFoundException, IOException {
         File zipDir = new File(dir2zip);
 
         //get a listing of the directory content
@@ -163,7 +164,7 @@ public class ZIP {
                 //if the File object is a directory, call this
                 //function again to add its content recursively
                 String filePath = f.getPath();
-                zipDir(filePath, zos);
+                zipDir(filePath, zos, originalFolder);
                 //loop again
                 continue;
             }
@@ -172,11 +173,12 @@ public class ZIP {
             FileInputStream fis = new FileInputStream(f);
             //create a  new zipentry
             String path = f.getPath();
-            path = path.replace(dir2zip + File.separator, "");
+            path = path.replace(originalFolder + File.separator, "");
             ZipEntry anEntry = new ZipEntry(path);
             anEntry.setTime(f.lastModified());
             //place the zip entry in the ZipOutputStream object
             //now write the content of the file to the ZipOutputStream
+            zos.putNextEntry(anEntry);
             while ((bytesIn = fis.read(readBuffer)) != -1) {
                 zos.write(readBuffer, 0, bytesIn);
             }

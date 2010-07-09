@@ -60,10 +60,10 @@ public class Manager extends Observable {
     private ArrayList<ArrayList<Pair<String, String>>> cons;
     private Set<Mod> applied;
     private ManagerOptions options;
-    private static String MANAGER_FOLDER = "/Users/penn/Documents/Development/HoNMoDMan/Manager/manager";
-    private static String MODS_FOLDER = "/Users/penn/Library/Application Support/Heroes of Newerth/game/mods";
-    private static String HON_FOLDER = "/Applications/Heroes of Newerth"; // We need this
-    private static String OPTIONS_PATH = ""; // Stores the absolute path to the option file
+    private static String MANAGER_FOLDER = "";
+    private static String MODS_FOLDER = "";
+    private static String HON_FOLDER = "";
+    private static String OPTIONS_FILENAME = "managerOptions.xml"; // Stores the absolute path to the option file. We need this?
     private static String HOMEPAGE = "http://sourceforge.net/projects/all-inhonmodman";
     private static String VERSION = "0.1 BETA";     // Version string shown in About dialog
     private static Logger logger = Logger.getLogger(Manager.class.getPackage().getName());
@@ -79,20 +79,32 @@ public class Manager extends Observable {
         cons = new ArrayList<ArrayList<Pair<String, String>>>();
         options = new ManagerOptions();
         try {
+            MANAGER_FOLDER = System.getProperty("user.dir");
+            logger.info("Manager folder set to: " + MANAGER_FOLDER);
             // Load options
-            options.loadOptions(new File(OPTIONS_PATH));
+            logger.info("Loading options.");
+            options.loadOptions(new File(MANAGER_FOLDER + File.separator + OPTIONS_FILENAME));
             applied = options.getAppliedMods();
+            logger.info("Options loaded.");
         } catch (FileNotFoundException ex) {
             //Logger.getLogger(Manager.class.getName()).log(Level.SEVERE, null, ex);
             applied = new HashSet<Mod>();
+            logger.info("Unable to load Manager options.");
         }
-        // Find HoN folder
-        String folder = findHonFolder();
-        if (folder != null) {
-            logger.info("Setting HoN folder to: " + folder);
-            Preferences prefs = Preferences.userNodeForPackage(Manager.class);
-            prefs.put(Manager.PREFS_HONFOLDER, folder);
+        if (HON_FOLDER.equals("")) {
+            // Find HoN folder
+            String folder = findHonFolder();
+            if (folder != null) {
+                logger.info("Setting HoN folder to: " + folder);
+                HON_FOLDER = folder;
+                MODS_FOLDER = folder + File.separator + "game" + File.separator + "mods";
+                logger.info("Setting Mods folder to: " + MODS_FOLDER);
+
+                Preferences prefs = Preferences.userNodeForPackage(Manager.class);
+                prefs.put(Manager.PREFS_HONFOLDER, folder);
+            }
         }
+        Game.getInstance().setPath(new File(HON_FOLDER));
     }
 
     /**
@@ -147,8 +159,8 @@ public class Manager extends Observable {
         MANAGER_FOLDER = p;
     }
 
-    public void setOptionsPath(String p) {
-        OPTIONS_PATH = p;
+    public void setOptionsFileName(String p) {
+        OPTIONS_FILENAME = p;
     }
 
     public String getModPath() {
@@ -163,8 +175,8 @@ public class Manager extends Observable {
         return MANAGER_FOLDER;
     }
 
-    public String getOptionsPath() {
-        return OPTIONS_PATH;
+    public String getOptionsFileName() {
+        return OPTIONS_FILENAME;
     }
 
     public String getHomepage() {
@@ -189,7 +201,7 @@ public class Manager extends Observable {
     }
 
     public void saveOptions() throws IOException {
-        options.saveOptions(new File(OPTIONS_PATH));
+        options.saveOptions(new File(MANAGER_FOLDER + File.separator + OPTIONS_FILENAME));
     }
 
     /**
@@ -655,7 +667,7 @@ public class Manager extends Observable {
         if (tempFolder.exists()) {
             if (!tempFolder.delete()) {
                 Random r = new Random();
-                tempFolder = new File(System.getProperty("java.io.tmpdir") + File.separator + r.nextInt());
+                tempFolder = new File(System.getProperty("java.io.tmpdir") + File.separator + r.nextLong());
                 if (tempFolder.exists()) {
                     if (!tempFolder.delete()) {
                         throw new SecurityException();
@@ -664,6 +676,8 @@ public class Manager extends Observable {
             }
         }
         tempFolder.mkdirs();
+        File fff = new File(tempFolder.getAbsolutePath() + File.separator);
+        System.out.println(fff.delete());
         while (!applyOrder.isEmpty()) {
             Mod mod = applyOrder.pop();
             for (int j = 0; j < mod.getActions().size(); j++) {
@@ -700,6 +714,7 @@ public class Manager extends Observable {
                                         ByteArrayInputStream bais = new ByteArrayInputStream(file);
                                         ZIP.copyInputStream(bais, fos);
                                         bais.close();
+                                        fos.flush();
                                         fos.close();
                                     } else {
                                         throw new SecurityException();
@@ -712,6 +727,7 @@ public class Manager extends Observable {
                                     ByteArrayInputStream bais = new ByteArrayInputStream(file);
                                     ZIP.copyInputStream(bais, fos);
                                     bais.close();
+                                    fos.flush();
                                     fos.close();
                                 } else {
                                     throw new SecurityException();
@@ -725,6 +741,7 @@ public class Manager extends Observable {
                                     FileOutputStream fos = new FileOutputStream(temp);
                                     ByteArrayInputStream bais = new ByteArrayInputStream(file);
                                     ZIP.copyInputStream(bais, fos);
+                                    fos.flush();
                                     bais.close();
                                     fos.close();
                                 }
@@ -733,6 +750,7 @@ public class Manager extends Observable {
                                 FileOutputStream fos = new FileOutputStream(temp);
                                 ByteArrayInputStream bais = new ByteArrayInputStream(file);
                                 ZIP.copyInputStream(bais, fos);
+                                fos.flush();
                                 bais.close();
                                 fos.close();
                             }
@@ -762,6 +780,9 @@ public class Manager extends Observable {
                             OutputStream os = new ByteArrayOutputStream();
                             ZIP.copyInputStream(fin, os);
                             toEdit = os.toString();
+                            fin.close();
+                            os.flush();
+                            os.close();
                         } else {
                             // Load file from resources0.s2z if no other mod edited this file
                             toEdit = new String(ZIP.getFile(new File(HON_FOLDER + File.separator + "game" + File.separator + "resources0.s2z"), editfile.getName()));
@@ -806,6 +827,7 @@ public class Manager extends Observable {
                                         }
                                     }
                                 } else {
+                                    System.err.println(find.getContent());
                                     cursor = toEdit.indexOf(find.getContent());
                                     if (cursor == -1) {
                                         // couldn't find the string, can't apply
@@ -858,10 +880,12 @@ public class Manager extends Observable {
                             }
                         }
                         File temp = new File(tempFolder.getAbsolutePath() + File.separator + editfile.getName());
-                        File folder = new File(temp.getAbsolutePath().replace(temp.getName(), ""));
-                        if (folder.isDirectory() && !folder.getAbsolutePath().equalsIgnoreCase(tempFolder.getAbsolutePath())) {
-                            if (!folder.mkdirs()) {
-                                throw new SecurityException();
+                        File folder = new File(temp.getAbsolutePath().replace(temp.getName(), "") + File.separator);
+                        if (!folder.getAbsolutePath().equalsIgnoreCase(tempFolder.getAbsolutePath())) {
+                            if (!folder.exists()) {
+                                if (!folder.mkdirs()) {
+                                    throw new SecurityException();
+                                }
                             }
                         }
 
@@ -869,9 +893,9 @@ public class Manager extends Observable {
                         FileOutputStream fos = new FileOutputStream(temp);
                         ByteArrayInputStream in = new ByteArrayInputStream(afterEdit.getBytes("UTF-8"));
                         ZIP.copyInputStream(in, fos);
-
-                        // Set the Last Modified field
-                        temp.setLastModified(ZIP.getLastModified(new File(mod.getPath()), editfile.getName()));
+                        fos.flush();
+                        fos.close();
+                        in.close();
 
                     }
                     // ApplyAfter, ApplyBefore, Incompatibility, Requirement Action
@@ -885,7 +909,7 @@ public class Manager extends Observable {
         }
         File targetZip = new File(HON_FOLDER + File.separator + "game" + File.separator + "resources999.s2z");
         if (targetZip.exists()) {
-            if(!targetZip.delete()) {
+            if (!targetZip.delete()) {
                 throw new SecurityException();
             }
         }
@@ -983,7 +1007,7 @@ public class Manager extends Observable {
             ActionCopyFile copyfile = (ActionCopyFile) action;
             condition = copyfile.getCondition();
         }
-        if (condition.isEmpty() || condition == null) {
+        if (condition == null || condition.isEmpty()) {
             return true;
         }
 

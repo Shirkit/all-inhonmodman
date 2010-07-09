@@ -20,12 +20,12 @@ public class ActionEditFileReplaceConverter implements Converter {
 
     public void marshal(Object o, HierarchicalStreamWriter writer, MarshallingContext mc) {
         ActionEditFileReplace value = (ActionEditFileReplace) o;
-        writer.setValue(value.getContent());
+        writer.setValue("<![CDATA[" + value.getContent()  + "]]>");
     }
 
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext uc) {
         ActionEditFileReplace value = new ActionEditFileReplace();
-        value.setContent("<![CDATA[" + reader.getValue() + "]]>");
+        value.setContent(reader.getValue());
         return value;
     }
 
