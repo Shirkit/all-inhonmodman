@@ -676,8 +676,6 @@ public class Manager extends Observable {
             }
         }
         tempFolder.mkdirs();
-        File fff = new File(tempFolder.getAbsolutePath() + File.separator);
-        System.out.println(fff.delete());
         while (!applyOrder.isEmpty()) {
             Mod mod = applyOrder.pop();
             for (int j = 0; j < mod.getActions().size(); j++) {
@@ -690,7 +688,7 @@ public class Manager extends Observable {
                     } else {
                         // if path2 is not specified, path1 is copied
                         String toCopy;
-                        if (copyfile.getSource().isEmpty() || copyfile.getSource().equals("") || copyfile.getSource() == null) {
+                        if (copyfile.getSource() == null || copyfile.getSource().isEmpty() || copyfile.getSource().equals("")) {
                             toCopy = copyfile.getName();
                         } else {
                             // path2 is copied and renamed to path1
@@ -827,7 +825,6 @@ public class Manager extends Observable {
                                         }
                                     }
                                 } else {
-                                    System.err.println(find.getContent());
                                     cursor = toEdit.indexOf(find.getContent());
                                     if (cursor == -1) {
                                         // couldn't find the string, can't apply

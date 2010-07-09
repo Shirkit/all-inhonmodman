@@ -114,10 +114,10 @@ public class ActionCopyFile extends Action {
      * <br/>-1 if illegal argument
      */
     public int overwrite() {
-        if (condition.equalsIgnoreCase("yes")) {
-            return 2;
-        } else if (condition.equalsIgnoreCase("no")) {
+        if (condition == null || condition.equalsIgnoreCase("no")) {
             return 0;
+        } else if (condition.equalsIgnoreCase("yes")) {
+            return 2;
         } else if (condition.equalsIgnoreCase("newer")) {
             return 1;
         } else {
