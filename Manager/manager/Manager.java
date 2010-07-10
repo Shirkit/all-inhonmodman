@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
-import java.util.Set;
 import java.util.Stack;
 import java.util.StringTokenizer;
 import java.util.Observable;
@@ -48,16 +47,16 @@ import utility.Game;
  *
  * @author Shirkit
  */
-public class Manager extends Observable {
+public class Manager {
 
     private static Manager instance = null;
-    private ArrayList<Mod> mods;
+    //private ArrayList<Mod> mods;
     private ArrayList<ArrayList<Pair<String, String>>> deps;
     private ArrayList<ArrayList<Pair<String, String>>> cons;
-    private Set<Mod> applied;
+    //private Set<Mod> applied;
     private static Logger logger = Logger.getLogger(Manager.class.getPackage().getName());
     private Manager() {
-        mods = new ArrayList<Mod>();
+        //mods = new ArrayList<Mod>();
         deps = new ArrayList<ArrayList<Pair<String, String>>>();
         cons = new ArrayList<ArrayList<Pair<String, String>>>();
     }
@@ -79,7 +78,7 @@ public class Manager extends Observable {
      * @param name
      */
     public void setAppliedMod(String name) {
-        if (applied.add(getMod(name))) {
+        if (ManagerOptions.getInstance().getAppliedMods().add(getMod(name))) {
             System.out.println("Setting mod " + name + " to applied successfully");
         } else {
             System.out.println("Setting mod " + name + " to applied NOT successfully");
@@ -88,22 +87,12 @@ public class Manager extends Observable {
     }
 
     /**
-     * This functions above are just for testing
-     */
-    /**
-     * This will return the arraylist of applied mods
-     * @return
-     */
-    public Set<Mod> getAppliedMods() {
-        return applied;
-    }
-
-    /**
      * This should be called after adding all the honmod files to build and initialize the arrays
-     * @throws IOException 
+     * @throws IOException
      */
     public void buildGraphs() throws IOException {
         // First reset all new added mods from startup
+        ArrayList<Mod> mods = ManagerOptions.getInstance().getMods();
         for (int i = 0; i < mods.size(); i++) {
             mods.get(i).disable();
         }
@@ -144,19 +133,9 @@ public class Manager extends Observable {
      * @param Mod to be added.
      */
     private void addMod(Mod mod) {
-        mods.add(mod);
+        ManagerOptions.getInstance().getMods().add(mod);
         deps.add(null);
         cons.add(null);
-    }
-
-    /**
-     * Set status of the MVC model to changed and notify all registered observers.
-     * Call this method when the data model changed and UI has to be updated.
-     */
-    public void updateNotify() {
-        // Notify observers that model has been updated
-        setChanged();
-        notifyObservers();
     }
 
     /**
@@ -243,7 +222,7 @@ public class Manager extends Observable {
      * @throws IndexOutOfBoundsException in case index is not in the mod list
      */
     public int openModWebsite(int modIndex) throws IndexOutOfBoundsException {
-        Mod mod = mods.get(modIndex);
+        Mod mod = ManagerOptions.getInstance().getMods().get(modIndex);
         String url = mod.getWebLink();
 
         return openWebsite(url);
@@ -304,15 +283,6 @@ public class Manager extends Observable {
     }
 
     /**
-     * This function retrives ALL the mods, including the disabled ones in the local computer. Use the method isEnabled() to check if Mod is enabled.
-     * @return An ArrayList of Mods containing all mods in the local computer.
-     * @see Mod.isEnabled()
-     */
-    public ArrayList<Mod> getMods() {
-        return mods;
-    }
-
-    /**
      * Get mod at specified index
      *
      * @param index index of the mod in the list of mods
@@ -320,7 +290,7 @@ public class Manager extends Observable {
      * @throws IndexOutOfBoundsException in case index does not exist in the list of mods
      */
     public Mod getMod(int index) throws IndexOutOfBoundsException {
-        return (Mod) mods.get(index);
+        return (Mod) ManagerOptions.getInstance().getMods().get(index);
     }
 
     /**
@@ -331,7 +301,7 @@ public class Manager extends Observable {
      */
     public Mod getMod(String name) throws NoSuchElementException {
         // get the enumration object for ArrayList mods
-        Enumeration e = Collections.enumeration(mods);
+        Enumeration e = Collections.enumeration(ManagerOptions.getInstance().getMods());
 
         // enumerate through the ArrayList to find the mod
         while (e.hasMoreElements()) {
@@ -359,13 +329,13 @@ public class Manager extends Observable {
     }
 
     /**
-     * This function checks to see if all dependencies are all satisfied    
+     * This function checks to see if all dependencies are all satisfied
      * @param m
      * @return True if all dependencies are satisfied else false
      */
     private boolean checkdeps(Mod m) throws ModNotEnabledException {
         // get a list of dependencies
-        ArrayList<Pair<String, String>> list = deps.get(mods.indexOf(m));
+        ArrayList<Pair<String, String>> list = deps.get(ManagerOptions.getInstance().getMods().indexOf(m));
         if (list == null || list.isEmpty()) {
             return true;
         } else {
@@ -396,7 +366,7 @@ public class Manager extends Observable {
      */
     private boolean checkcons(Mod m) throws ModEnabledException {
         // get a list of conflicts
-        ArrayList<Pair<String, String>> list = cons.get(mods.indexOf(m));
+        ArrayList<Pair<String, String>> list = cons.get(ManagerOptions.getInstance().getMods().indexOf(m));
         if (list == null || list.isEmpty()) {
             return false;
         }
@@ -453,7 +423,7 @@ public class Manager extends Observable {
             }
         }
         if (!m.isEnabled() && checkdeps(m) && !checkcons(m)) {
-            mods.get(mods.indexOf(m)).enable();
+            ManagerOptions.getInstance().getMods().get(ManagerOptions.getInstance().getMods().indexOf(m)).enable();
         }
     }
 
@@ -470,7 +440,7 @@ public class Manager extends Observable {
         }
         if (!revcheckdeps(m)) {
             // disable it
-            mods.get(mods.indexOf(m)).disable();
+            ManagerOptions.getInstance().getMods().get(ManagerOptions.getInstance().getMods().indexOf(m)).disable();
             return true;
         }
         System.out.println("Can't disable mod " + name);
@@ -488,7 +458,7 @@ public class Manager extends Observable {
         LinkedList<Mod> queue = new LinkedList<Mod>();
         queue.offer(stack.peek());
 
-        while (stack.size() != mods.size()) {
+        while (stack.size() != ManagerOptions.getInstance().getMods().size()) {
             Mod m = null;
             try {
                 m = queue.remove();
@@ -520,14 +490,14 @@ public class Manager extends Observable {
     public Stack<Mod> sortMods() {
         Stack<Mod> stack = new Stack<Mod>();
 
-        Enumeration e = Collections.enumeration(mods);
+        Enumeration e = Collections.enumeration(ManagerOptions.getInstance().getMods());
         while (e.hasMoreElements()) {
             Mod m = (Mod) e.nextElement();
-            if (!applied.contains(m) && m.isEnabled()) {
+            if (!ManagerOptions.getInstance().getAppliedMods().contains(m) && m.isEnabled()) {
                 if (!stack.contains(m)) {
                     stack.add(m);
                 }
-                stack = BFS(stack, deps.get(mods.indexOf(m)));
+                stack = BFS(stack, deps.get(ManagerOptions.getInstance().getMods().indexOf(m)));
             }
         }
 
@@ -559,6 +529,8 @@ public class Manager extends Observable {
             }
         }
         tempFolder.mkdirs();
+        File fff = new File(tempFolder.getAbsolutePath() + File.separator);
+        System.out.println(fff.delete());
         while (!applyOrder.isEmpty()) {
             Mod mod = applyOrder.pop();
             for (int j = 0; j < mod.getActions().size(); j++) {
@@ -571,7 +543,7 @@ public class Manager extends Observable {
                     } else {
                         // if path2 is not specified, path1 is copied
                         String toCopy;
-                        if (copyfile.getSource() == null || copyfile.getSource().isEmpty() || copyfile.getSource().equals("")) {
+                        if (copyfile.getSource().isEmpty() || copyfile.getSource().equals("") || copyfile.getSource() == null) {
                             toCopy = copyfile.getName();
                         } else {
                             // path2 is copied and renamed to path1
@@ -708,6 +680,7 @@ public class Manager extends Observable {
                                         }
                                     }
                                 } else {
+                                    System.err.println(find.getContent());
                                     cursor = toEdit.indexOf(find.getContent());
                                     if (cursor == -1) {
                                         // couldn't find the string, can't apply

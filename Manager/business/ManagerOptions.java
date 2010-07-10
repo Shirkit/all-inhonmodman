@@ -13,9 +13,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Observable;
 import java.util.Set;
 
-import manager.Manager;
 import utility.XML;
 
 /**
@@ -23,7 +24,7 @@ import utility.XML;
  * @author Shirkit
  */
 @XStreamAlias("options")
-public class ManagerOptions {
+public class ManagerOptions extends Observable  {
 
     @XStreamAlias("manager_folder")
     @XStreamAsAttribute
@@ -38,7 +39,7 @@ public class ManagerOptions {
     @XStreamAlias("applied")
     private Set<Mod> applied;
     @XStreamOmitField
-    private Set<Mod> mods;
+    private ArrayList<Mod> mods;
     @XStreamOmitField
     private String OPTIONS_FILENAME = "managerOptions.xml";
     @XStreamOmitField
@@ -57,6 +58,16 @@ public class ManagerOptions {
             instance = new ManagerOptions();
         }
         return instance;
+    }
+
+    /**
+     * Set status of the MVC model to changed and notify all registered observers.
+     * Call this method when the data model changed and UI has to be updated.
+     */
+    public void updateNotify() {
+        // Notify observers that model has been updated
+        setChanged();
+        notifyObservers();
     }
 
     public boolean saveOptions(File path) throws IOException {
@@ -95,6 +106,7 @@ public class ManagerOptions {
      */
     public void setModPath(String p) {
         MODS_FOLDER = p;
+        updateNotify();
     }
 
     /**
@@ -103,6 +115,7 @@ public class ManagerOptions {
      */
     public void setGamePath(String p) {
         HON_FOLDER = p;
+        updateNotify();
     }
 
     /**
@@ -111,6 +124,7 @@ public class ManagerOptions {
      */
     public void setManagerPath(String p) {
         MANAGER_FOLDER = p;
+        updateNotify();
     }
 
     /**
@@ -143,6 +157,7 @@ public class ManagerOptions {
      */
     public void setAppliedMods(Set<Mod> list) {
     	applied = list;
+        updateNotify();
     }
 
     /**
@@ -157,7 +172,7 @@ public class ManagerOptions {
      *
      * @return
      */
-    public Set<Mod> getMods() {
+    public ArrayList<Mod> getMods() {
         return mods;
     }
 
@@ -165,7 +180,8 @@ public class ManagerOptions {
      * 
      * @param mods
      */
-    public void setMods(Set<Mod> mods) {
+    public void setMods(ArrayList<Mod> mods) {
         this.mods = mods;
+        updateNotify();
     }
 }
