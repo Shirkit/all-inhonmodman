@@ -4,10 +4,8 @@ import business.ManagerOptions;
 import business.Mod;
 import business.actions.*;
 
-import utility.OS;
 import utility.XML;
 import utility.ZIP;
-import utility.WindowsRegistry;
 import utility.exception.*;
 
 import java.io.File;
@@ -23,7 +21,6 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -31,7 +28,6 @@ import java.util.Stack;
 import java.util.StringTokenizer;
 import java.util.Observable;
 import java.util.Random;
-import java.util.prefs.Preferences;
 
 import com.mallardsoft.tuple.*;
 
@@ -59,77 +55,11 @@ public class Manager extends Observable {
     private ArrayList<ArrayList<Pair<String, String>>> deps;
     private ArrayList<ArrayList<Pair<String, String>>> cons;
     private Set<Mod> applied;
-    private ManagerOptions options;
-    private static String MANAGER_FOLDER = "";
-    private static String MODS_FOLDER = "";
-    private static String HON_FOLDER = "";
-    private static String OPTIONS_FILENAME = "managerOptions.xml"; // Stores the absolute path to the option file. We need this?
-    private static String HOMEPAGE = "http://sourceforge.net/projects/all-inhonmodman";
-    private static String VERSION = "0.1 BETA";     // Version string shown in About dialog
     private static Logger logger = Logger.getLogger(Manager.class.getPackage().getName());
-    // Preferences constants - use these constants instead of strings to reduce typo errors
-    public static final String PREFS_LOCALE = "locale";
-    public static final String PREFS_LAF = "laf";
-    public static final String PREFS_CLARGUMENTS = "clarguments";
-    public static final String PREFS_HONFOLDER = "honfolder";
-
     private Manager() {
         mods = new ArrayList<Mod>();
         deps = new ArrayList<ArrayList<Pair<String, String>>>();
         cons = new ArrayList<ArrayList<Pair<String, String>>>();
-        options = new ManagerOptions();
-        try {
-            MANAGER_FOLDER = System.getProperty("user.dir");
-            logger.info("Manager folder set to: " + MANAGER_FOLDER);
-            // Load options
-            logger.info("Loading options.");
-            options.loadOptions(new File(MANAGER_FOLDER + File.separator + OPTIONS_FILENAME));
-            applied = options.getAppliedMods();
-            logger.info("Options loaded.");
-        } catch (FileNotFoundException ex) {
-            //Logger.getLogger(Manager.class.getName()).log(Level.SEVERE, null, ex);
-            applied = new HashSet<Mod>();
-            logger.info("Unable to load Manager options.");
-        }
-        if (HON_FOLDER.equals("")) {
-            // Find HoN folder
-            String folder = findHonFolder();
-            if (folder != null) {
-                logger.info("Setting HoN folder to: " + folder);
-                HON_FOLDER = folder;
-                MODS_FOLDER = folder + File.separator + "game" + File.separator + "mods";
-                logger.info("Setting Mods folder to: " + MODS_FOLDER);
-
-                Preferences prefs = Preferences.userNodeForPackage(Manager.class);
-                prefs.put(Manager.PREFS_HONFOLDER, folder);
-            }
-        }
-        Game.getInstance().setPath(new File(HON_FOLDER));
-    }
-
-    /**
-     * Try to find HoN installation folder on different platforms.
-     *
-     * @return folder where HoN is installed or null if such folder cannot be found
-     */
-    private String findHonFolder() {
-        // Try to find HoN folder in case we are on Windows
-        if (OS.isWindows()) {
-            // Get the folder from uninstall info in windows registry saved by HoN
-            String registryData = WindowsRegistry.getRecord("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\hon", "InstallLocation");
-            if (!registryData.isEmpty()) {
-                return registryData;
-            }
-            // We didnt find HoN folder in the registry, try something else?
-            return null;
-        }
-        // Try to find HoN folder in case we are on Linux
-        if (OS.isLinux()) {
-        }
-        // Try to find HoN folder in case we are on Mac
-        if (OS.isMac()) {
-        }
-        return null;
     }
 
     /**
@@ -144,49 +74,6 @@ public class Manager extends Observable {
         return instance;
     }
 
-    /*
-     * Various getters and setters
-     */
-    public void setModPath(String p) {
-        MODS_FOLDER = p;
-    }
-
-    public void setGamePath(String p) {
-        HON_FOLDER = p;
-    }
-
-    public void setManagerPath(String p) {
-        MANAGER_FOLDER = p;
-    }
-
-    public void setOptionsFileName(String p) {
-        OPTIONS_FILENAME = p;
-    }
-
-    public String getModPath() {
-        return MODS_FOLDER;
-    }
-
-    public String getGamePath() {
-        return HON_FOLDER;
-    }
-
-    public String getManagerPath() {
-        return MANAGER_FOLDER;
-    }
-
-    public String getOptionsFileName() {
-        return OPTIONS_FILENAME;
-    }
-
-    public String getHomepage() {
-        return HOMEPAGE;
-    }
-
-    public String getVersion() {
-        return VERSION;
-    }
-
     /**
      * This function is just for testing purpose
      * @param name
@@ -198,10 +85,6 @@ public class Manager extends Observable {
             System.out.println("Setting mod " + name + " to applied NOT successfully");
         }
 
-    }
-
-    public void saveOptions() throws IOException {
-        options.saveOptions(new File(MANAGER_FOLDER + File.separator + OPTIONS_FILENAME));
     }
 
     /**
@@ -282,7 +165,7 @@ public class Manager extends Observable {
      * @throws IOException
      */
     public void loadMods() throws IOException {
-        File modsFolder = new File(MODS_FOLDER);
+        File modsFolder = new File(ManagerOptions.getInstance().getModPath());
         // Get mod files from the directory
         FileFilter fileFilter = new FileFilter() {
 
@@ -325,7 +208,7 @@ public class Manager extends Observable {
         m.setId(0);
         if (copy) {
             // Copy the honmod file to mods directory
-            copyFile(honmod, new File(MODS_FOLDER + File.separator + honmod.getName()));
+            copyFile(honmod, new File(ManagerOptions.getInstance().getModPath() + File.separator + honmod.getName()));
             logger.info("Mod file copied to mods older");
         }
         addMod(m);
@@ -411,7 +294,7 @@ public class Manager extends Observable {
         java.awt.Desktop desktop = java.awt.Desktop.getDesktop();
 
         try {
-            desktop.open(new File(this.getModPath()));
+            desktop.open(new File(ManagerOptions.getInstance().getModPath()));
         } catch (Exception e) {
             logger.error("Unable to open local folder: " + e.getMessage());
             e.printStackTrace();
@@ -783,7 +666,7 @@ public class Manager extends Observable {
                             os.close();
                         } else {
                             // Load file from resources0.s2z if no other mod edited this file
-                            toEdit = new String(ZIP.getFile(new File(HON_FOLDER + File.separator + "game" + File.separator + "resources0.s2z"), editfile.getName()));
+                            toEdit = new String(ZIP.getFile(new File(ManagerOptions.getInstance().getModPath() + File.separator + "game" + File.separator + "resources0.s2z"), editfile.getName()));
                         }
                         String afterEdit = new String(toEdit);
                         for (int k = 0; k < editfile.getActions().size(); k++) {
@@ -904,7 +787,7 @@ public class Manager extends Observable {
                 }
             }
         }
-        File targetZip = new File(HON_FOLDER + File.separator + "game" + File.separator + "resources999.s2z");
+        File targetZip = new File(ManagerOptions.getInstance().getModPath() + File.separator + "game" + File.separator + "resources999.s2z");
         if (targetZip.exists()) {
             if (!targetZip.delete()) {
                 throw new SecurityException();

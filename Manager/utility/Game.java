@@ -16,6 +16,31 @@ public class Game {
     private static Game instance = null;
 
     /**
+     * Try to find HoN installation folder on different platforms.
+     *
+     * @return folder where HoN is installed or null if such folder cannot be found
+     */
+    public String findHonFolder() {
+        // Try to find HoN folder in case we are on Windows
+        if (OS.isWindows()) {
+            // Get the folder from uninstall info in windows registry saved by HoN
+            String registryData = WindowsRegistry.getRecord("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\hon", "InstallLocation");
+            if (!registryData.isEmpty()) {
+                return registryData;
+            }
+            // We didnt find HoN folder in the registry, try something else?
+            return null;
+        }
+        // Try to find HoN folder in case we are on Linux
+        if (OS.isLinux()) {
+        }
+        // Try to find HoN folder in case we are on Mac
+        if (OS.isMac()) {
+        }
+        return null;
+    }
+
+    /**
      * @param path to the HoN folder.
      * @throws FileNotFoundException if HoN folder doesn't exist.
      * @throws IOException if happened some I/O exception.

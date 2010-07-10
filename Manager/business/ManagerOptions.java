@@ -7,6 +7,7 @@ package business;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -36,28 +37,30 @@ public class ManagerOptions {
     @XStreamAsAttribute
     @XStreamAlias("applied")
     private Set<Mod> applied;
+    @XStreamOmitField
+    private Set<Mod> mods;
+    @XStreamOmitField
+    private String OPTIONS_FILENAME = "managerOptions.xml";
+    @XStreamOmitField
+    private String HOMEPAGE = "http://sourceforge.net/projects/all-inhonmodman";
+    @XStreamOmitField
+    private String VERSION = "0.1 BETA";
+
+    private static ManagerOptions instance;
+    
+    private ManagerOptions() {
+
+    }
+
+    public static ManagerOptions getInstance() {
+        if (instance == null) {
+            instance = new ManagerOptions();
+        }
+        return instance;
+    }
 
     public boolean saveOptions(File path) throws IOException {
         boolean success = true;
-
-        Manager manager = Manager.getInstance();
-
-        this.setAppliedMods(manager.getAppliedMods());
-        this.setGamePath(manager.getModPath());
-        this.setManagerPath(getManagerPath());
-        this.setModPath(manager.getModPath());
-
-        /*
-        ArrayList<Mod> list3 = manager.getMods(); // manager.getAppliedMods() in future
-
-        // this is going to be shortened when manager.getAppliedMods() works
-        for (int i = 0; i < list3.size(); i++) {
-            if (list3.get(i).isEnabled()) {
-                Mod m = new Mod(list3.get(i).getName(), list3.get(i).getVersion(), list3.get(i).getAuthor());
-                this.applied.add(m);
-            }
-        }
-        */
 
         XStream xstream = new XStream(XML.getDriver());
         XML.updateAlias(xstream);
@@ -74,55 +77,95 @@ public class ManagerOptions {
         return success;
     }
 
-    public void loadOptions(File path) throws FileNotFoundException {
-    	if(!path.exists())
-    		throw new FileNotFoundException(path.getName());
-    	
+    public void loadOptions() throws FileNotFoundException {
+            
         XStream xstream = new XStream(XML.getDriver());
         xstream = XML.updateAlias(xstream);
 
-        ManagerOptions tmp = (ManagerOptions) xstream.fromXML(new FileInputStream(path));
+        ManagerOptions tmp = (ManagerOptions) xstream.fromXML(new FileInputStream(MANAGER_FOLDER + File.separator + OPTIONS_FILENAME));
         this.setGamePath(tmp.getGamePath());
         this.setManagerPath(tmp.getManagerPath());
         this.setModPath(tmp.getModPath());
         this.setAppliedMods(tmp.getAppliedMods());
-
-        Manager manager = Manager.getInstance();
-
-        manager.setGamePath(tmp.getGamePath());
-        manager.setManagerPath(tmp.getManagerPath());
-        manager.setModPath(tmp.getModPath());
     }
 
+    /**
+     *
+     * @param p
+     */
     public void setModPath(String p) {
         MODS_FOLDER = p;
     }
 
+    /**
+     *
+     * @param p
+     */
     public void setGamePath(String p) {
         HON_FOLDER = p;
     }
 
+    /**
+     *
+     * @param p
+     */
     public void setManagerPath(String p) {
         MANAGER_FOLDER = p;
     }
-    
-    public void setAppliedMods(Set<Mod> list) {
-    	applied = list;
-    }
 
+    /**
+     *
+     * @return
+     */
     public String getModPath() {
         return MODS_FOLDER;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getGamePath() {
         return HON_FOLDER;
     }
 
+    /**
+     * 
+     * @return
+     */
     public String getManagerPath() {
         return MANAGER_FOLDER;
     }
 
+    /**
+     *
+     * @param list
+     */
+    public void setAppliedMods(Set<Mod> list) {
+    	applied = list;
+    }
+
+    /**
+     *
+     * @return
+     */
     public Set<Mod> getAppliedMods() {
         return applied;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public Set<Mod> getMods() {
+        return mods;
+    }
+
+    /**
+     * 
+     * @param mods
+     */
+    public void setMods(Set<Mod> mods) {
+        this.mods = mods;
     }
 }
