@@ -9,6 +9,7 @@ import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 import org.apache.log4j.Logger;
 import gui.l10n.L10n;
+import business.ManagerOptions;
 import business.Mod;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -35,7 +36,8 @@ import javax.swing.table.TableModel;
  */
 public class ManagerCtrl {
     Logger logger = Logger.getLogger(this.getClass().getPackage().getName());
-    Manager model;
+    Manager controller;
+    ManagerOptions model;
     ManagerGUI view;
     ListSelectionListener lsl;
     private Preferences prefs;
@@ -46,8 +48,9 @@ public class ManagerCtrl {
      * @param model model of the MVC framework
      * @param view view of the MVC framework
      */
-    public ManagerCtrl(Manager model, ManagerGUI view) {
-        this.model = model;
+    public ManagerCtrl(Manager controller, ManagerGUI view) {
+    	this.model = ManagerOptions.getInstance();
+        this.controller = controller;
         this.view = view;
 
         // Add listeners to view components
@@ -72,7 +75,7 @@ public class ManagerCtrl {
         // Load mods from mods folder (if any)
         // TODO: shouldn't this be somewhere else?
         try {
-            model.loadMods();
+            controller.loadMods();
         } catch (IOException ex) {
             logger.error("Unable to load mods from mod folder. Message: "+ex.getMessage());
             view.showMessage("error.loadmodfiles", "error.loadmodfiles.title", JOptionPane.ERROR_MESSAGE);
@@ -150,7 +153,7 @@ public class ManagerCtrl {
                 for (int i=0; i<files.length; i++) {
                     logger.info("Opening mod file: " + files[i].getName());
                     try {
-                        model.addHonmod(files[i], true);
+                        controller.addHonmod(files[i], true);
                         // Save directory for future use
                         this.currentDir = files[i].getParentFile();
                     } catch (IOException ioe) {
@@ -182,10 +185,10 @@ public class ManagerCtrl {
             if (data instanceof Boolean) {
                 if ((Boolean)data){
                     logger.info("Mod at index "+row+" has been enabled");
-                    model.getMod(row).enable();
+                    controller.getMod(row).enable();
                 } else {
                     logger.info("Mod at index "+row+" has been disabled");
-                    model.getMod(row).disable();
+                    controller.getMod(row).disable();
                 }
                 // Again, save and restore ListSelectionListener
                 view.tableRemoveListSelectionListener(lsl);
@@ -212,7 +215,7 @@ public class ManagerCtrl {
                                  L10n.getString("error.nomodselected.title"),
                                  JOptionPane.WARNING_MESSAGE);
             }
-            if (model.openModWebsite(selectedMod) == -1) {
+            if (controller.openModWebsite(selectedMod) == -1) {
                 view.showMessage(L10n.getString("error.websitenotsupported"),
                                  L10n.getString("error.websitenotsupported.title"),
                                  JOptionPane.ERROR_MESSAGE);
@@ -225,7 +228,7 @@ public class ManagerCtrl {
      */
     class VisitForumThreadListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            model.openWebsite(model.getHomepage());
+            controller.openWebsite(model.getHomepage());
         }
     }
 
@@ -237,7 +240,7 @@ public class ManagerCtrl {
             logger.info("Applying mods...");
             // TODO: Test
             try {
-                model.applyMods();
+                controller.applyMods();
             } catch (Exception ex) {
                 logger.info("Exception: "+ex.getMessage());
                 ex.printStackTrace();
@@ -283,7 +286,7 @@ public class ManagerCtrl {
     class OpenModFolderListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             logger.info("Opening mod folder...");
-            if (model.openModFolder() == -1) {
+            if (controller.openModFolder() == -1) {
                 view.showMessage(L10n.getString("error.openfoldernotsupported"),
                                  L10n.getString("error.openfoldernotsupported.title"),
                                  JOptionPane.ERROR_MESSAGE);
@@ -297,7 +300,7 @@ public class ManagerCtrl {
      */
     class EnableModListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            Mod mod = model.getMod(e.getActionCommand());
+            Mod mod = controller.getMod(e.getActionCommand());
             if (mod.isEnabled()) {
                 logger.info("Mod '"+mod.getName()+"' is now DISABLED");
                 mod.disable();
@@ -323,7 +326,7 @@ public class ManagerCtrl {
                 File honmod = files[i];
                 if (honmod.getName().endsWith(".honmod")) {
                     try {
-                        model.addHonmod(honmod, true);
+                        controller.addHonmod(honmod, true);
                         updated = true;
                     } catch (IOException e) {
                         logger.info("Opening mod file failed. Message: "+e.getMessage());
@@ -374,25 +377,25 @@ public class ManagerCtrl {
             prefs = Preferences.userNodeForPackage(L10n.class);
             String lang = view.getSelectedLanguage();
             if (lang.equals(L10n.getDefaultLocale())) {
-                prefs.remove(Manager.PREFS_LOCALE);
+                prefs.remove(model.PREFS_LOCALE);
             } else {
-                prefs.put(Manager.PREFS_LOCALE, lang);
+                prefs.put(model.PREFS_LOCALE, lang);
             }
             // Save HoN folder
             // TODO: check that selected folder contains HoN
             prefs = Preferences.userNodeForPackage(Manager.class);
-            prefs.put(Manager.PREFS_HONFOLDER, view.getSelectedHonFolder());
+            prefs.put(model.PREFS_HONFOLDER, view.getSelectedHonFolder());
             // Save CL arguments
             if (view.getCLArguments().equals("")) {
-                prefs.remove(Manager.PREFS_CLARGUMENTS);
+                prefs.remove(model.PREFS_CLARGUMENTS);
             } else {
-                prefs.put(Manager.PREFS_CLARGUMENTS, view.getCLArguments());
+                prefs.put(model.PREFS_CLARGUMENTS, view.getCLArguments());
             }
             // Save selected LaF
             if (view.getSelectedLafClass().equals("default")) {
-                prefs.remove(Manager.PREFS_LAF);
+                prefs.remove(model.PREFS_LAF);
             } else {
-                prefs.put(Manager.PREFS_LAF, view.getSelectedLafClass());
+                prefs.put(model.PREFS_LAF, view.getSelectedLafClass());
             }
             // TODO: Check that LaF was applied
             // Hide dialog

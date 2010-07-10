@@ -17,6 +17,9 @@ import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Set;
 
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+
 import utility.XML;
 
 /**
@@ -46,6 +49,18 @@ public class ManagerOptions extends Observable  {
     private String HOMEPAGE = "http://sourceforge.net/projects/all-inhonmodman";
     @XStreamOmitField
     private String VERSION = "0.1 BETA";
+    
+    @XStreamOmitField
+    public static final String PREFS_LOCALE = "locale";
+    
+    @XStreamOmitField
+    public static final String PREFS_LAF = "laf";
+    
+    @XStreamOmitField
+    public static final String PREFS_CLARGUMENTS = "clarguments";
+    
+    @XStreamOmitField
+    public static final String PREFS_HONFOLDER = "honfolder";
 
     private static ManagerOptions instance;
     
@@ -126,12 +141,31 @@ public class ManagerOptions extends Observable  {
         MANAGER_FOLDER = p;
         updateNotify();
     }
-
+    
+    /**
+     * 
+     * @return
+     */
+    public String getVersion() {
+    	VERSION = check("Version");
+    	return VERSION;
+    }
+    
+    /**
+     * 
+     * @return
+     */
+    public String getHomepage() {
+    	HOMEPAGE = check("Homepage");
+    	return HOMEPAGE;
+    }
+    
     /**
      *
      * @return
      */
     public String getModPath() {
+    	MODS_FOLDER = check("Mod folder");
         return MODS_FOLDER;
     }
 
@@ -140,6 +174,7 @@ public class ManagerOptions extends Observable  {
      * @return
      */
     public String getGamePath() {
+    	HON_FOLDER = check("HoN folder");
         return HON_FOLDER;
     }
 
@@ -148,6 +183,7 @@ public class ManagerOptions extends Observable  {
      * @return
      */
     public String getManagerPath() {
+    	MANAGER_FOLDER = check("Manager folder");
         return MANAGER_FOLDER;
     }
 
@@ -183,5 +219,12 @@ public class ManagerOptions extends Observable  {
     public void setMods(ArrayList<Mod> mods) {
         this.mods = mods;
         updateNotify();
+    }
+    
+    public String check(String name) {
+		return (String)JOptionPane.showInputDialog(
+				new JFrame("First Time?"),
+				"Please enter the path to " + name
+				);
     }
 }

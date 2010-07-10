@@ -7,6 +7,8 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
 import org.apache.log4j.Logger;
+
+import business.ManagerOptions;
 import manager.Manager;
 
 /**
@@ -41,7 +43,7 @@ public class L10n
      */
     public static void load() throws IOException {
         prefs = Preferences.userNodeForPackage(L10n.class);
-        languageLocale = prefs.get(Manager.PREFS_LOCALE,"DUMMY_DEFAULT");
+        languageLocale = prefs.get(ManagerOptions.PREFS_LOCALE,"DUMMY_DEFAULT");
         load(languageLocale);
     }
     

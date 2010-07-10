@@ -4,6 +4,7 @@ package gui;
 import javax.swing.JOptionPane;
 import gui.l10n.L10n;
 import manager.Manager;
+import business.ManagerOptions;
 import business.Mod;
 import java.awt.Toolkit;
 import java.awt.event.ActionListener;
@@ -33,7 +34,8 @@ import javax.swing.DefaultListModel;
  */
 public class ManagerGUI extends javax.swing.JFrame implements Observer {
     // Model for this View (part of MVC pattern)
-    private Manager model;
+    private Manager controller;
+    private ManagerOptions model;
     private static Logger logger = Logger.getLogger(ManagerGUI.class.getPackage().getName());
     private Preferences prefs;
     // Column names of the mod list table
@@ -50,12 +52,13 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
      * Creates the main form
      * @param model model patr of the MVC framework
      */
-    public ManagerGUI(Manager model) {
-        this.model = model;
+    public ManagerGUI(Manager controller) {
+    	this.model = ManagerOptions.getInstance();
+        this.controller = controller;
         this.model.addObserver(this);
         // Set Look and feel (based on preferences)
         prefs = Preferences.userNodeForPackage(Manager.class);
-        String lafClass = prefs.get(Manager.PREFS_LAF, "DUMMY_DEFAULT");
+        String lafClass = prefs.get(model.PREFS_LAF, "DUMMY_DEFAULT");
         try {
             if (lafClass.equals("DUMMY_DEFAULT")) {
                 // No LaF set in preferences, set default
@@ -565,7 +568,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         // Set values in the options dialog
         prefs = Preferences.userNodeForPackage(L10n.class);
         // Get selected language
-        String lang = prefs.get(Manager.PREFS_LOCALE, "DUMMY_DEFAULT");
+        String lang = prefs.get(model.PREFS_LOCALE, "DUMMY_DEFAULT");
         if (lang.equals("DUMMY_DEFAULT")) {
             comboBoxChooseLanguage.setSelectedIndex(0);
         } else {
@@ -573,21 +576,21 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         }
         // Get selected Laf
         prefs = Preferences.userNodeForPackage(Manager.class);
-        String laf = prefs.get(Manager.PREFS_LAF, "DUMMY_DEFAULT");
+        String laf = prefs.get(model.PREFS_LAF, "DUMMY_DEFAULT");
         if (laf.equals("DUMMY_DEFAULT")) {
             comboBoxLafs.setSelectedIndex(0);
         } else {
             comboBoxLafs.setSelectedItem(new LaF("LaF", laf));
         }
         // Get CL arguments
-        String clArgs = prefs.get(Manager.PREFS_CLARGUMENTS, "DUMMY_DEFAULT");
-        if (clArgs.equals("DUMMY_DEFAULT")) {
+        String clArgs = prefs.get(model.PREFS_CLARGUMENTS, "DUMMY_DEFAULT");
             textFieldCLArguments.setText("");
+            if (clArgs.equals("DUMMY_DEFAULT")) {
         } else {
             textFieldCLArguments.setText(clArgs);
         }
         // Get HoN folder
-        String honFolder = prefs.get(Manager.PREFS_HONFOLDER, "DUMMY_DEFAULT");
+        String honFolder = prefs.get(model.PREFS_HONFOLDER, "DUMMY_DEFAULT");
         if (honFolder.equals("DUMMY_DEFAULT")) {
             textFieldHonFolder.setText("");
         } else {
@@ -693,7 +696,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         Mod mod = null;
         int selectedRow = tableModList.getSelectedRow();
         try {
-            mod = model.getMod(selectedRow);
+            mod = controller.getMod(selectedRow);
         } catch (IndexOutOfBoundsException e) {
             logger.error("Cannot display mod at index "+selectedRow);
             //e.printStackTrace();

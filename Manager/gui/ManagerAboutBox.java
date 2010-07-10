@@ -3,6 +3,8 @@ package gui;
 
 import java.awt.Frame;
 import org.jdesktop.application.Action;
+
+import business.ManagerOptions;
 import gui.l10n.L10n;
 import manager.Manager;
 
@@ -13,16 +15,19 @@ import manager.Manager;
  */
 public class ManagerAboutBox extends javax.swing.JDialog {
     Frame parent;
-    Manager model;
+    ManagerOptions model;
+    Manager controller;
     // Link to license
     private static final String licenseWeb = "http://www.gnu.org/licenses/gpl.html";
 
-    public ManagerAboutBox(Frame _parent, Manager _model) {
+    public ManagerAboutBox(Frame _parent, ManagerOptions _model) {
         super(_parent);
         this.parent = _parent;
         this.model = _model;
         initComponents();
         getRootPane().setDefaultButton(closeButton);
+        
+        controller = Manager.getInstance();
     }
 
     @Action public void closeAboutBox() {
@@ -184,7 +189,7 @@ public class ManagerAboutBox extends javax.swing.JDialog {
      * Open license text ina web browser
      */
     private void appLicenseMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_appLicenseMouseClicked
-        model.openWebsite(licenseWeb);
+        controller.openWebsite(licenseWeb);
     }//GEN-LAST:event_appLicenseMouseClicked
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
