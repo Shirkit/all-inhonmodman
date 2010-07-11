@@ -28,9 +28,14 @@ public class ManagerOptionsConverter implements Converter {
         ManagerOptions opt = ManagerOptions.getInstance();
         writer.addAttribute("honfolder", opt.getGamePath());
         writer.addAttribute("modsfolder", opt.getModPath());
-        Iterator<Mod> it = opt.getAppliedMods().iterator();
-        while (it.hasNext()) {
-            mc.convertAnother(it.next());
+        writer.addAttribute("lang", opt.getLanguage());
+        writer.addAttribute("laf", opt.getLaf());
+        writer.addAttribute("clargs", opt.getCLArgs());
+        if (!(opt.getAppliedMods() == null)) {
+	        Iterator<Mod> it = opt.getAppliedMods().iterator();
+	        while (it.hasNext()) {
+	            mc.convertAnother(it.next());
+	        }
         }
         //writer.setValue(value.getContent());
     }
@@ -40,6 +45,9 @@ public class ManagerOptionsConverter implements Converter {
         
         value.setModPath(reader.getAttribute("modsfolder"));
         value.setGamePath(reader.getAttribute("honfolder"));
+        value.setCLArgs(reader.getAttribute("clargs"));
+        value.setLanguage(reader.getAttribute("lang"));
+        value.setLaf(reader.getAttribute("laf"));
         
         return value;
     }

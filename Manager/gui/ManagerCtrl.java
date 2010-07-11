@@ -85,6 +85,7 @@ public class ManagerCtrl {
         try {
         	controller.loadOptions();
         	controller.loadMods();
+        	loadLaf();
         } catch (Exception ex) {
         	ex.printStackTrace();
             logger.error("Unable to load mods from mod folder. Message: "+ex.getMessage());
@@ -96,6 +97,28 @@ public class ManagerCtrl {
         view.tableRemoveListSelectionListener(lsl);
         model.updateNotify();
         view.tableAddListSelectionListener(lsl);
+    }
+    
+    public void loadLaf() {
+        // Get selected LaF and apply it
+        String lafClass = ManagerOptions.getInstance().getLaf();
+        try {
+            if (lafClass.equals("default") || lafClass.isEmpty()) {
+                logger.info("Changing LaF to Default");
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            } else {
+                logger.info("Changing LaF to "+lafClass);
+                UIManager.setLookAndFeel(lafClass);
+            }
+            // Update UI
+            SwingUtilities.updateComponentTreeUI(view);
+            SwingUtilities.updateComponentTreeUI(view.getPrefsDialog());
+            view.pack();
+            view.getPrefsDialog().pack();
+        } catch (Exception ex) {
+            logger.warn("Unable to change Look and feel: "+ex.getMessage());
+            //TODO: some error message?
+        }
     }
 
     /**
@@ -386,6 +409,12 @@ public class ManagerCtrl {
      */
     class PrefsOkListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
+        	logger.error("CTRL: " + view.getSelectedHonFolder());
+        	ManagerOptions.getInstance().setGamePath(view.getSelectedHonFolder());
+        	ManagerOptions.getInstance().setCLArgs(view.getCLArguments());
+        	ManagerOptions.getInstance().setLaf(view.getSelectedLafClass());
+        	ManagerOptions.getInstance().setLanguage(view.getSelectedLanguage());
+        	
         	try {
 				controller.saveOptions();
 			} catch (FileNotFoundException e1) {

@@ -45,7 +45,7 @@ public class ManagerOptions extends Observable {
     @XStreamAlias("honfolder")
     @XStreamAsAttribute
     private String HON_FOLDER;
-    @XStreamAlias("CLArgs")
+    @XStreamAlias("clargs")
     @XStreamAsAttribute
     private String CLARGS;
     @XStreamAlias("lang")
@@ -59,15 +59,15 @@ public class ManagerOptions extends Observable {
     
     // Hidden fields
     @XStreamOmitField
-    private String MANAGER_FOLDER;
-    @XStreamOmitField
     private ArrayList<Mod> mods;
     @XStreamOmitField
-    private String OPTIONS_FILENAME = "managerOptions.xml";
+    public static final String MANAGER_FOLDER = new File(".").getAbsolutePath();
     @XStreamOmitField
-    private String HOMEPAGE = "http://sourceforge.net/projects/all-inhonmodman";
+    public static final String OPTIONS_FILENAME = "managerOptions.xml";
     @XStreamOmitField
-    private String VERSION = "0.1 BETA";
+    public static final String HOMEPAGE = "http://sourceforge.net/projects/all-inhonmodman";
+    @XStreamOmitField
+    public static final String VERSION = "0.1 BETA";
     @XStreamOmitField
     public static final String PREFS_LOCALE = "locale";
     @XStreamOmitField
@@ -84,9 +84,11 @@ public class ManagerOptions extends Observable {
     Logger logger;
 
     private ManagerOptions() {
-        setManagerPath(new File(".").getAbsolutePath());
         MODS_FOLDER = "";
         HON_FOLDER = "";
+        CLARGS = "";
+        LANG = "";
+        LAF = "";
         applied = new HashSet<Mod>();
         mods = new ArrayList<Mod>();
         controller = Manager.getInstance();
@@ -114,15 +116,12 @@ public class ManagerOptions extends Observable {
         notifyObservers();
     }
 
-    public void saveOptions(File path) throws FileNotFoundException, UnsupportedEncodingException, IOException {
+    public void saveOptions(File path) throws UnsupportedEncodingException, IOException {
         XML.managerOptionsToXml(path);
     }
 
     public void loadOptions() throws FileNotFoundException, StreamException {
-    	File f = new File(getManagerPath() + File.separator + OPTIONS_FILENAME);
-    	
-    	if (f.exists())
-    		setInstance(XML.xmlToManagerOptions(new File(getManagerPath() + File.separator + OPTIONS_FILENAME)));
+    	setInstance(XML.xmlToManagerOptions(new File(getManagerPath() + File.separator + OPTIONS_FILENAME)));
         
         //logger.error("XML: " + XML.xmlToManagerOptions(new File(getManagerPath() + File.separator + OPTIONS_FILENAME)).getModPath());
         //logger.error("XML: " + XML.xmlToManagerOptions(new File(getManagerPath() + File.separator + OPTIONS_FILENAME)).getHomepage());
@@ -136,31 +135,12 @@ public class ManagerOptions extends Observable {
         instance.setModPath(o.getModPath());*/
     }
 
-    /**
-     *
-     * @param p
-     */
     public void setModPath(String p) {
         MODS_FOLDER = p;
-        updateNotify();
     }
 
-    /**
-     *
-     * @param p
-     */
     public void setGamePath(String p) {
         HON_FOLDER = p;
-        updateNotify();
-    }
-
-    /**
-     *
-     * @param p
-     */
-    public void setManagerPath(String p) {
-        MANAGER_FOLDER = p;
-        updateNotify();
     }
     
     public void setLanguage(String p) {

@@ -117,7 +117,7 @@ public class XML {
      * @throws UnsupportedEncodingException
      * @throws IOException random I/O exception.
      */
-    public static void managerOptionsToXml(File where) throws FileNotFoundException, UnsupportedEncodingException, IOException {
+    public static void managerOptionsToXml(File where) throws UnsupportedEncodingException, IOException {
 
         XStream xstream = new XStream(getDriver());
         updateAlias(xstream);
@@ -131,7 +131,7 @@ public class XML {
         temp = replaceInvalidHtmlChars(temp);
 
         temp = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + temp;
-
+        
         FileOutputStream fos = new FileOutputStream(where);
         fos.write(temp.getBytes("UTF-8"));
     }

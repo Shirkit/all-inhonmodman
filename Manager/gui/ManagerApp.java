@@ -21,7 +21,7 @@ import gui.l10n.L10n;
  */
 public class ManagerApp extends SingleFrameApplication {
     Logger logger;
-    Manager model;      // Model
+    Manager controller;      // Model
     ManagerGUI view;    // View
     ManagerCtrl ctrl;   // Controller
 
@@ -54,9 +54,9 @@ public class ManagerApp extends SingleFrameApplication {
         logger.info("HonMod manager is starting up...");
 
         // Create the MVC framework
-        model = Manager.getInstance();
-        view = new ManagerGUI(model);
-        ctrl = new ManagerCtrl(model, view);
+        controller = Manager.getInstance();
+        view = new ManagerGUI(controller);
+        ctrl = new ManagerCtrl(controller, view);
 
         view.setVisible(true);
         // show(new ManagerGUI());

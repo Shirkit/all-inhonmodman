@@ -40,6 +40,8 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 import utility.Game;
 
@@ -140,9 +142,15 @@ public class Manager {
      * @throws FileNotFoundException 
      * 
      */
-    public void saveOptions() throws FileNotFoundException, UnsupportedEncodingException, IOException {
-        ManagerOptions.getInstance().saveOptions(new File(ManagerOptions.getInstance().getManagerPath() + File.separator + ManagerOptions.getInstance().getOptionsName()));
+    public void saveOptions() throws UnsupportedEncodingException, IOException {
+    	String name = ManagerOptions.getInstance().getManagerPath() + File.separator + ManagerOptions.getInstance().getOptionsName();
+    	logger.error("MAN: " + name);
+    	File f = new File(name);
+    	if (f.exists())
+    		f.delete();
+        ManagerOptions.getInstance().saveOptions(new File(name));
     }
+
     
     public String check(String name) {
         String path = "";

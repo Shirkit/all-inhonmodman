@@ -58,9 +58,10 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         this.model.addObserver(this);
         // Set Look and feel (based on preferences)
         prefs = Preferences.userNodeForPackage(Manager.class);
-        String lafClass = prefs.get(model.PREFS_LAF, "DUMMY_DEFAULT");
+        //String lafClass = prefs.get(model.PREFS_LAF, "DUMMY_DEFAULT");
+        String lafClass = ManagerOptions.getInstance().getLaf();
         try {
-            if (lafClass.equals("DUMMY_DEFAULT")) {
+            if (lafClass.isEmpty()) {
                 // No LaF set in preferences, set default
                 logger.info("Setting default look and feel");
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -566,33 +567,36 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
      */
     private void itemOpenPreferencesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemOpenPreferencesActionPerformed
         // Set values in the options dialog
-        prefs = Preferences.userNodeForPackage(L10n.class);
+        //prefs = Preferences.userNodeForPackage(L10n.class);
         // Get selected language
-        String lang = prefs.get(model.PREFS_LOCALE, "DUMMY_DEFAULT");
-        if (lang.equals("DUMMY_DEFAULT")) {
+        //String lang = prefs.get(model.PREFS_LOCALE, "DUMMY_DEFAULT");
+        String lang = ManagerOptions.getInstance().getLanguage();
+        if (lang.isEmpty()) {
             comboBoxChooseLanguage.setSelectedIndex(0);
         } else {
             comboBoxChooseLanguage.setSelectedItem(new Language("Language", lang));
         }
         // Get selected Laf
-        prefs = Preferences.userNodeForPackage(Manager.class);
-        String laf = prefs.get(model.PREFS_LAF, "DUMMY_DEFAULT");
-        if (laf.equals("DUMMY_DEFAULT")) {
+        //prefs = Preferences.userNodeForPackage(Manager.class);
+        //String laf = prefs.get(model.PREFS_LAF, "DUMMY_DEFAULT");
+        String laf = ManagerOptions.getInstance().getLaf();
+        if (laf.isEmpty()) {
             comboBoxLafs.setSelectedIndex(0);
         } else {
             comboBoxLafs.setSelectedItem(new LaF("LaF", laf));
         }
         // Get CL arguments
-        String clArgs = prefs.get(model.PREFS_CLARGUMENTS, "DUMMY_DEFAULT");
+        //String clArgs = prefs.get(model.PREFS_CLARGUMENTS, "DUMMY_DEFAULT");
+        String clArgs = ManagerOptions.getInstance().getCLArgs();
             textFieldCLArguments.setText("");
-            if (clArgs.equals("DUMMY_DEFAULT")) {
+            if (clArgs.isEmpty()) {
         } else {
             textFieldCLArguments.setText(clArgs);
         }
         // Get HoN folder
         //String honFolder = prefs.get(model.PREFS_HONFOLDER, "DUMMY_DEFAULT");
         String honFolder = ManagerOptions.getInstance().getGamePath();
-        if (honFolder.equals("DUMMY_DEFAULT")) {
+        if (honFolder.isEmpty()) {
             textFieldHonFolder.setText("");
         } else {
             textFieldHonFolder.setText(honFolder);
