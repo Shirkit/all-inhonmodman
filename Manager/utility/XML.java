@@ -84,7 +84,7 @@ public class XML {
     }
     
     /**
-     * Loads the content of a XML String into a Mod.
+     * Loads the content of a XML String into a Mod. This method should be called to read only inside ZIPS.
      * @param fileString to be read.
      * @return the Mod with all fields already filled up.
      */
@@ -92,7 +92,7 @@ public class XML {
 
         XStream xstream = new XStream(getDriver());
         xstream = updateAlias(xstream);
-        return (Mod) xstream.fromXML(new FileInputStream(fileString));
+        return (Mod) xstream.fromXML(fileString);
 
     }
 
