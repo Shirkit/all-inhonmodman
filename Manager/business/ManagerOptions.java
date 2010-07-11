@@ -112,6 +112,13 @@ public class ManagerOptions extends Observable {
         MANAGER_FOLDER = p;
         updateNotify();
     }
+    
+    /**
+     * 
+     */
+    public String getOptionsName() {
+    	return OPTIONS_FILENAME;
+    }
 
     /**
      * 
@@ -152,7 +159,6 @@ public class ManagerOptions extends Observable {
      * @return
      */
     public String getManagerPath() {
-        MANAGER_FOLDER = check("Manager folder");
         return MANAGER_FOLDER;
     }
 
@@ -199,8 +205,6 @@ public class ManagerOptions extends Observable {
             path = Game.findHonFolder();
         } else if (name.equalsIgnoreCase("Mod folder")) {
             path = Game.findModFolder();
-        } else if (name.equalsIgnoreCase("Manager folder")) {
-            path = Game.findManagerFolder();
         }
         if (path == null || path.isEmpty()) {
             return (String) JOptionPane.showInputDialog(

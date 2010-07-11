@@ -5,6 +5,9 @@ import manager.Manager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
+
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 import org.apache.log4j.Logger;
@@ -15,6 +18,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import utility.FileDrop;
 import java.io.IOException;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.prefs.Preferences;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
@@ -34,7 +39,7 @@ import javax.swing.table.TableModel;
  *
  * @author Kovo
  */
-public class ManagerCtrl {
+public class ManagerCtrl implements Observer {
     Logger logger = Logger.getLogger(this.getClass().getPackage().getName());
     Manager controller;
     ManagerOptions model;
@@ -75,8 +80,10 @@ public class ManagerCtrl {
         // Load mods from mods folder (if any)
         // TODO: shouldn't this be somewhere else?
         try {
+        	controller.loadOptions();
             controller.loadMods();
         } catch (IOException ex) {
+        	ex.printStackTrace();
             logger.error("Unable to load mods from mod folder. Message: "+ex.getMessage());
             view.showMessage("error.loadmodfiles", "error.loadmodfiles.title", JOptionPane.ERROR_MESSAGE);
         }
@@ -440,4 +447,20 @@ public class ManagerCtrl {
             System.exit(0);
         }
     }
+
+	@Override
+	public void update(Observable o, Object arg) {
+		try {
+			controller.saveOptions();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }

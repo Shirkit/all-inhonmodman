@@ -17,6 +17,7 @@ import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -126,6 +127,29 @@ public class Manager {
                 }
             }
         }
+    }
+    
+    /**
+     * @throws IOException 
+     * @throws UnsupportedEncodingException 
+     * @throws FileNotFoundException 
+     * 
+     */
+    public void saveOptions() throws FileNotFoundException, UnsupportedEncodingException, IOException {
+    	ManagerOptions.getInstance().saveOptions(new File(ManagerOptions.getInstance().getManagerPath() + File.separator + ManagerOptions.getInstance().getOptionsName()));
+    }
+    
+    /**
+     * @throws FileNotFoundException 
+     * 
+     */
+    public void loadOptions() {
+    	try {
+			ManagerOptions.getInstance().loadOptions();
+		} catch (FileNotFoundException e) {
+			// Put a logger here
+			//e.printStackTrace();
+		}
     }
 
     /**
