@@ -20,6 +20,7 @@ import java.util.Set;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
+import utility.Game;
 import utility.XML;
 
 /**
@@ -147,7 +148,6 @@ public class ManagerOptions extends Observable  {
      * @return
      */
     public String getVersion() {
-    	VERSION = check("Version");
     	return VERSION;
     }
     
@@ -156,7 +156,6 @@ public class ManagerOptions extends Observable  {
      * @return
      */
     public String getHomepage() {
-    	HOMEPAGE = check("Homepage");
     	return HOMEPAGE;
     }
     
@@ -209,6 +208,8 @@ public class ManagerOptions extends Observable  {
      * @return
      */
     public ArrayList<Mod> getMods() {
+    	if (mods == null)
+    		mods = new ArrayList<Mod>();
         return mods;
     }
 
@@ -222,9 +223,21 @@ public class ManagerOptions extends Observable  {
     }
     
     public String check(String name) {
-		return (String)JOptionPane.showInputDialog(
-				new JFrame("First Time?"),
-				"Please enter the path to " + name
-				);
+    	String path;
+    	if (name.equalsIgnoreCase("HoN folder")) {
+    		return Game.findHonFolder();
+    	}
+    	else if (name.equalsIgnoreCase("Mod folder")) {
+    		return Game.findModFolder();
+    	}
+    	else if (name.equalsIgnoreCase("Manager folder")) {
+    		return Game.findManagerFolder();
+    	}
+    	else {
+    		return (String)JOptionPane.showInputDialog(
+    				new JFrame("First Time?"),
+    				"Please enter the path to " + name
+					);
+    	}
     }
 }

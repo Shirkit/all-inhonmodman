@@ -20,7 +20,7 @@ public class Game {
      *
      * @return folder where HoN is installed or null if such folder cannot be found
      */
-    public String findHonFolder() {
+    public static String findHonFolder() {
         // Try to find HoN folder in case we are on Windows
         if (OS.isWindows()) {
             // Get the folder from uninstall info in windows registry saved by HoN
@@ -39,7 +39,25 @@ public class Game {
         }
         return null;
     }
+    
+    /**
+     * Try to find Mod folder on different platforms
+     * 
+     * @return folder of the mods or null
+     */
+    public static String findModFolder() {
+    	return null;
+    }
 
+    /**
+     * Try to find Manager folder on different platforms
+     * 
+     * @return folder of the mods or null
+     */
+    public static String findManagerFolder() {
+    	return null;
+    }
+    
     /**
      * @param path to the HoN folder.
      * @throws FileNotFoundException if HoN folder doesn't exist.
