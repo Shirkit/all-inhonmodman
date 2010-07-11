@@ -18,6 +18,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import utility.FileDrop;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.prefs.Preferences;

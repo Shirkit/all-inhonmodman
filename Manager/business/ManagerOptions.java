@@ -37,6 +37,7 @@ import utility.XML;
  * @author Shirkit
  */
 @XStreamAlias("options")
+@XStreamConverter(ManagerOptionsConverter.class)
 public class ManagerOptions extends Observable {
 
     @XStreamAlias("modsfolder")
@@ -120,7 +121,26 @@ public class ManagerOptions extends Observable {
     }
 
     public void loadOptions() throws FileNotFoundException, StreamException {
-    	setInstance(XML.xmlToManagerOptions(new File(getManagerPath() + File.separator + OPTIONS_FILENAME)));
+    	ManagerOptions temp = XML.xmlToManagerOptions(new File(getManagerPath() + File.separator + OPTIONS_FILENAME));
+        instance = new ManagerOptions();
+        if (temp.getAppliedMods() != null) {
+            instance.setAppliedMods(temp.getAppliedMods());
+        }
+        if (temp.getCLArgs() != null) {
+            instance.setCLArgs(temp.getCLArgs());
+        }
+        if (temp.getGamePath() != null) {
+            instance.setGamePath(temp.getGamePath());
+        }
+        if (temp.getLaf() != null) {
+            instance.setLaf(temp.getLaf());
+        }
+        if (temp.getLanguage() != null) {
+            instance.setLanguage(temp.getLanguage());
+        }
+        if (temp.getModPath() != null) {
+            instance.setModPath(temp.getModPath());
+        }
     }
 
     public void setModPath(String p) {

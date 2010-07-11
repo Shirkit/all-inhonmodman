@@ -3,6 +3,7 @@ package manager;
 import business.ManagerOptions;
 import business.Mod;
 import business.actions.*;
+import java.util.Set;
 
 import utility.XML;
 import utility.ZIP;
@@ -33,6 +34,8 @@ import com.mallardsoft.tuple.*;
 import com.thoughtworks.xstream.io.StreamException;
 
 import java.security.InvalidParameterException;
+import java.util.HashSet;
+import java.util.Iterator;
 
 import org.apache.log4j.Logger;
 
@@ -79,19 +82,6 @@ public class Manager {
             instance = new Manager();
         }
         return instance;
-    }
-
-    /**
-     * This function is just for testing purpose
-     * @param name
-     */
-    public void setAppliedMod(String name) {
-        if (ManagerOptions.getInstance().getAppliedMods().add(getMod(name))) {
-            System.out.println("Setting mod " + name + " to applied successfully");
-        } else {
-            System.out.println("Setting mod " + name + " to applied NOT successfully");
-        }
-
     }
 
     /**
@@ -593,10 +583,9 @@ public class Manager {
             }
         }
         tempFolder.mkdirs();
-        File fff = new File(tempFolder.getAbsolutePath() + File.separator);
-        System.out.println(fff.delete());
-        while (!applyOrder.isEmpty()) {
-            Mod mod = applyOrder.pop();
+        Iterator<Mod> list = applyOrder.iterator();
+        while (list.hasNext()) {
+            Mod mod = list.next();
             for (int j = 0; j < mod.getActions().size(); j++) {
                 Action action = mod.getActions().get(j);
                 if (action.getClass().equals(ActionCopyFile.class)) {
@@ -607,7 +596,7 @@ public class Manager {
                     } else {
                         // if path2 is not specified, path1 is copied
                         String toCopy;
-                        if (copyfile.getSource().isEmpty() || copyfile.getSource().equals("") || copyfile.getSource() == null) {
+                        if (copyfile.getSource() == null || copyfile.getSource().isEmpty() || copyfile.getSource().equals("")) {
                             toCopy = copyfile.getName();
                         } else {
                             // path2 is copied and renamed to path1
@@ -702,7 +691,7 @@ public class Manager {
                             os.close();
                         } else {
                             // Load file from resources0.s2z if no other mod edited this file
-                            toEdit = new String(ZIP.getFile(new File(ManagerOptions.getInstance().getModPath() + File.separator + "game" + File.separator + "resources0.s2z"), editfile.getName()));
+                            toEdit = new String(ZIP.getFile(new File(ManagerOptions.getInstance().getGamePath() + File.separator + "game" + File.separator + "resources0.s2z"), editfile.getName()));
                         }
                         String afterEdit = new String(toEdit);
                         for (int k = 0; k < editfile.getActions().size(); k++) {
@@ -744,7 +733,6 @@ public class Manager {
                                         }
                                     }
                                 } else {
-                                    System.err.println(find.getContent());
                                     cursor = toEdit.indexOf(find.getContent());
                                     if (cursor == -1) {
                                         // couldn't find the string, can't apply
@@ -824,13 +812,15 @@ public class Manager {
                 }
             }
         }
-        File targetZip = new File(ManagerOptions.getInstance().getModPath() + File.separator + "game" + File.separator + "resources999.s2z");
+        File targetZip = new File(ManagerOptions.getInstance().getGamePath() + File.separator + "game" + File.separator + "resources999.s2z");
         if (targetZip.exists()) {
             if (!targetZip.delete()) {
                 throw new SecurityException();
             }
         }
         ZIP.createZIP(tempFolder.getAbsolutePath(), targetZip.getAbsolutePath());
+        ManagerOptions.getInstance().setAppliedMods(new HashSet<Mod>(applyOrder));
+        saveOptions();
     }
 
     /**

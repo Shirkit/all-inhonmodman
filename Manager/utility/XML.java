@@ -14,10 +14,15 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.util.HashSet;
 import java.util.Observable;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -84,7 +89,7 @@ public class XML {
         }
 
     }
-    
+
     /**
      * Loads the content of a XML String into a Mod. This method should be called to read Strings that contains a file already read in it.
      * @param fileString to be read.
@@ -107,7 +112,24 @@ public class XML {
     public static ManagerOptions xmlToManagerOptions(File path) throws FileNotFoundException {
         XStream xstream = new XStream(getDriver());
         xstream = updateAlias(xstream);
-        return (ManagerOptions) xstream.fromXML(new FileInputStream(path));
+        Set<Mod> applied = new HashSet<Mod>();
+        try {
+            ObjectInputStream in = xstream.createObjectInputStream(new FileInputStream(path));
+            while (true) {
+                Object o = in.readObject();
+                if (o.getClass().equals(Mod.class)) {
+                    applied.add((Mod) o);
+                }
+            }
+
+        } catch (IOException ex) {
+//            Logger.getLogger(XML.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+//            Logger.getLogger(XML.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        ManagerOptions temp = (ManagerOptions) xstream.fromXML(new FileInputStream(path));
+        temp.setAppliedMods(applied);
+        return temp;
     }
 
     /**
@@ -121,7 +143,6 @@ public class XML {
 
         XStream xstream = new XStream(getDriver());
         updateAlias(xstream);
-        xstream.registerConverter(new ManagerOptionsConverter());
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Writer writer = new OutputStreamWriter(outputStream, "UTF-8");
@@ -131,7 +152,7 @@ public class XML {
         temp = replaceInvalidHtmlChars(temp);
 
         temp = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + temp;
-        
+
         FileOutputStream fos = new FileOutputStream(where);
         fos.write(temp.getBytes("UTF-8"));
     }
