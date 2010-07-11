@@ -36,6 +36,8 @@ public class Game {
         }
         // Try to find HoN folder in case we are on Mac
         if (OS.isMac()) {
+        	File a = new File("Applications/Heroes of Newerth/");
+        	return a.exists() ? a.getPath() : null;
         }
         return null;
     }

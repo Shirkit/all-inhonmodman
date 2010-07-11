@@ -158,10 +158,6 @@ public class XML {
         xstream.processAnnotations(ActionRequirement.class);
         xstream.processAnnotations(ManagerOptions.class);
 
-        // This is to remove the attributes from the parent class Observable from the ManagerOptions (fastest way ever, headache wins)
-        //xstream.omitField(Observable.class, "obs");
-        //xstream.omitField(Observable.class, "changed");
-
         xstream.aliasField("find", ActionEditFileFind.class, "seek");
         xstream.aliasField("find", ActionEditFileFind.class, "search");
         xstream.aliasField("findup", ActionEditFileFind.class, "seekup");

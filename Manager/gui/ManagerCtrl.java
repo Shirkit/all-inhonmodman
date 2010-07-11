@@ -80,19 +80,17 @@ public class ManagerCtrl {
         // Add file drop functionality
         new FileDrop(view, new DropListener());
 
-        // Load mods from mods folder (if any)
-        // TODO: shouldn't this be somewhere else?
+        // Load Options and Mods and then Look and feel
         try {
         	controller.loadOptions();
         	controller.loadMods();
         	loadLaf();
+        	controller.saveOptions();
         } catch (Exception ex) {
         	ex.printStackTrace();
             logger.error("Unable to load mods from mod folder. Message: "+ex.getMessage());
             view.showMessage("error.loadmodfiles", "error.loadmodfiles.title", JOptionPane.ERROR_MESSAGE);
         }
-        
-        logger.error("Mods: " + model.getMods());
         
         view.tableRemoveListSelectionListener(lsl);
         model.updateNotify();

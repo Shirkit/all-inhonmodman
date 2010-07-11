@@ -111,7 +111,6 @@ public class ManagerOptions extends Observable {
      * Call this method when the data model changed and UI has to be updated.
      */
     public void updateNotify() {
-        // Notify observers that model has been updated
         setChanged();
         notifyObservers();
     }
@@ -122,17 +121,6 @@ public class ManagerOptions extends Observable {
 
     public void loadOptions() throws FileNotFoundException, StreamException {
     	setInstance(XML.xmlToManagerOptions(new File(getManagerPath() + File.separator + OPTIONS_FILENAME)));
-        
-        //logger.error("XML: " + XML.xmlToManagerOptions(new File(getManagerPath() + File.separator + OPTIONS_FILENAME)).getModPath());
-        //logger.error("XML: " + XML.xmlToManagerOptions(new File(getManagerPath() + File.separator + OPTIONS_FILENAME)).getHomepage());
-        
-        //logger.error("TEST: Mod folder is at " + getModPath());
-        //logger.error("TEST: game folder is at " + getGamePath());
-        
-        /*instance = new ManagerOptions();
-        instance.setAppliedMods(o.getAppliedMods());
-        instance.setGamePath(o.getGamePath());
-        instance.setModPath(o.getModPath());*/
     }
 
     public void setModPath(String p) {
@@ -191,19 +179,11 @@ public class ManagerOptions extends Observable {
         return MANAGER_FOLDER;
     }
 
-    /**
-     *
-     * @param list
-     */
     public void setAppliedMods(Set<Mod> list) {
         applied = list;
         updateNotify();
     }
 
-    /**
-     *
-     * @return
-     */
     public Set<Mod> getAppliedMods() {
         return applied;
     }
@@ -216,10 +196,6 @@ public class ManagerOptions extends Observable {
     	this.mods.add(mod);
     }
 
-    /**
-     *
-     * @return
-     */
     public ArrayList<Mod> getMods() {
         if (mods == null) {
             mods = new ArrayList<Mod>();
@@ -227,10 +203,6 @@ public class ManagerOptions extends Observable {
         return mods;
     }
 
-    /**
-     * 
-     * @param mods
-     */
     public void setMods(ArrayList<Mod> mods) {
         this.mods = mods;
         updateNotify();

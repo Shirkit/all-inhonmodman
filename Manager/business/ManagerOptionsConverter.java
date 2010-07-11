@@ -31,13 +31,14 @@ public class ManagerOptionsConverter implements Converter {
         writer.addAttribute("lang", opt.getLanguage());
         writer.addAttribute("laf", opt.getLaf());
         writer.addAttribute("clargs", opt.getCLArgs());
+        
+        // TODO: This is not tested
         if (!(opt.getAppliedMods() == null)) {
 	        Iterator<Mod> it = opt.getAppliedMods().iterator();
 	        while (it.hasNext()) {
 	            mc.convertAnother(it.next());
 	        }
         }
-        //writer.setValue(value.getContent());
     }
 
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext uc) {
@@ -48,6 +49,8 @@ public class ManagerOptionsConverter implements Converter {
         value.setCLArgs(reader.getAttribute("clargs"));
         value.setLanguage(reader.getAttribute("lang"));
         value.setLaf(reader.getAttribute("laf"));
+        
+        // TODO: Need to load appliedMods too
         
         return value;
     }

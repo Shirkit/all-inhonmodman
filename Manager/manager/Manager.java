@@ -144,7 +144,6 @@ public class Manager {
      */
     public void saveOptions() throws UnsupportedEncodingException, IOException {
     	String name = ManagerOptions.getInstance().getManagerPath() + File.separator + ManagerOptions.getInstance().getOptionsName();
-    	logger.error("MAN: " + name);
     	File f = new File(name);
     	if (f.exists())
     		f.delete();
@@ -163,10 +162,8 @@ public class Manager {
         if (path == null || path.isEmpty()) {
             path = (String) JOptionPane.showInputDialog(
                     new JFrame("First Time?"),
-                    "Please enter the path to " + name);
+                    "Is this your first time running this Mod Manager?\nPlease enter the path for " + name.toUpperCase() + ":");
         }
-        
-        System.out.println("path: " + path);
 
         return path;
     }
