@@ -673,6 +673,8 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         logger.error("UPDATE: " + mods.size());
         for (int i=0;i<mods.size();i++) {
             this.tableData[i] = new Object[5];
+            if (ManagerOptions.getInstance().getAppliedMods().contains(mods.get(i)))
+            	mods.get(i).enable();
             this.tableData[i][0] = (Boolean)mods.get(i).isEnabled();
             this.tableData[i][1] = (String)mods.get(i).getName();
             this.tableData[i][2] = (String)mods.get(i).getAuthor();

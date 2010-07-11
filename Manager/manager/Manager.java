@@ -5,6 +5,7 @@ import business.Mod;
 import business.actions.*;
 import java.util.Set;
 
+import utility.OS;
 import utility.XML;
 import utility.ZIP;
 import utility.exception.*;
@@ -175,6 +176,8 @@ public class Manager {
             // Mod options is invalid, must be deleted
             e.printStackTrace();
         }
+        
+        logger.error("MAN: " + ManagerOptions.getInstance().getAppliedMods());
     }
 
     /**
@@ -586,7 +589,7 @@ public class Manager {
         Enumeration<Mod> list = applyOrder.elements();
         while (list.hasMoreElements()) {
             Mod mod = list.nextElement();
-            System.out.println("HERE");
+            //System.out.println("HERE");
             for (int j = 0; j < mod.getActions().size(); j++) {
                 Action action = mod.getActions().get(j);
                 if (action.getClass().equals(ActionCopyFile.class)) {
@@ -813,12 +816,21 @@ public class Manager {
                 }
             }
         }
-        File targetZip = new File(ManagerOptions.getInstance().getGamePath() + File.separator + "game" + File.separator + "resources999.s2z");
+        
+        String dest = "";
+        
+        if (OS.isWindows())
+        	dest = ManagerOptions.getInstance().getGamePath() + File.separator + "game" + File.separator + "resources999.s2z";
+        else if (OS.isMac())
+        	dest = System.getProperty("user.home") + File.separator + "Library/Application Support/Heroes of Newerth/game/resources999.s2z";
+        
+        File targetZip = new File(dest);
         if (targetZip.exists()) {
             if (!targetZip.delete()) {
                 throw new SecurityException();
             }
         }
+        
         if (!applyOrder.isEmpty()) {
             ZIP.createZIP(tempFolder.getAbsolutePath(), targetZip.getAbsolutePath());
         } else {

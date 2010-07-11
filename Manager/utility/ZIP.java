@@ -14,11 +14,15 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.log4j.Logger;
+
 /**
  * Operations with the .hondmod files.
  * @author Shirkit
  */
 public class ZIP {
+	
+	static Logger logger = Logger.getLogger(ZIP.class.getPackage().getName());
 
     /**
      * Retrives only one file given by it's relative path and name and retrives a byte array of it.
@@ -82,7 +86,7 @@ public class ZIP {
      * @throws FileNotFoundException if a file is missing. Use the Exception.getMessage(). Possible values:
      * <br/><b>honmod</b>
      */
-    public static File openZIP(File honmod, String folder) throws FileNotFoundException, IOException {
+    public static File openZIP(File honmod, String folder) throws FileNotFoundException, IOException, ZipException {
 
         if (!honmod.exists()) {
             throw new FileNotFoundException("honmod");
@@ -133,7 +137,7 @@ public class ZIP {
      * @throws FileNotFoundException if coudln't create/open a extracted file.
      * @throws IOException if an I/O error has occurred
      */
-    public static void createZIP(String source, String file) throws FileNotFoundException, IOException {
+    public static void createZIP(String source, String file) throws FileNotFoundException, IOException, ZipException {
         // creates the buffer to generate the zip
         ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(file));
         zipDir(source, zos, source);
@@ -149,7 +153,7 @@ public class ZIP {
      * @throws FileNotFoundException
      * @throws IOException
      */
-    private static void zipDir(String dir2zip, ZipOutputStream zos, String originalFolder) throws FileNotFoundException, IOException {
+    private static void zipDir(String dir2zip, ZipOutputStream zos, String originalFolder) throws FileNotFoundException, IOException, ZipException {
         File zipDir = new File(dir2zip);
 
         //get a listing of the directory content
@@ -174,6 +178,7 @@ public class ZIP {
             //create a  new zipentry
             String path = f.getPath();
             path = path.replace(originalFolder + File.separator, "");
+            logger.error("ZIP: " + path);
             ZipEntry anEntry = new ZipEntry(path);
             anEntry.setTime(f.lastModified());
             //place the zip entry in the ZipOutputStream object
