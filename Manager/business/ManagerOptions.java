@@ -223,21 +223,23 @@ public class ManagerOptions extends Observable  {
     }
     
     public String check(String name) {
-    	String path;
+    	String path = "";
     	if (name.equalsIgnoreCase("HoN folder")) {
-    		return Game.findHonFolder();
+    		path = Game.findHonFolder();
     	}
     	else if (name.equalsIgnoreCase("Mod folder")) {
-    		return Game.findModFolder();
+    		path = Game.findModFolder();
     	}
     	else if (name.equalsIgnoreCase("Manager folder")) {
-    		return Game.findManagerFolder();
+    		path = Game.findManagerFolder();
     	}
-    	else {
+    	if (path == null || path.isEmpty()) {
     		return (String)JOptionPane.showInputDialog(
     				new JFrame("First Time?"),
     				"Please enter the path to " + name
 					);
     	}
+    	
+    	return path;
     }
 }
