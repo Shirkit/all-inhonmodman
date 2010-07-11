@@ -29,8 +29,7 @@ import utility.XML;
 @XStreamAlias("options")
 public class ManagerOptions extends Observable {
 
-    @XStreamAlias("manager_folder")
-    @XStreamAsAttribute
+    @XStreamOmitField
     private String MANAGER_FOLDER;
     @XStreamAlias("mods_folder")
     @XStreamAsAttribute
