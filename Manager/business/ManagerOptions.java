@@ -4,15 +4,12 @@
  */
 package business;
 
-import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -62,7 +59,7 @@ public class ManagerOptions extends Observable {
     private static ManagerOptions instance;
 
     private ManagerOptions() {
-        
+        setManagerPath(new File(".").getAbsolutePath());
     }
 
     public static ManagerOptions getInstance() {
@@ -86,8 +83,8 @@ public class ManagerOptions extends Observable {
         XML.managerOptionsToXml(path);
     }
 
-    public void loadOptions(String path) throws FileNotFoundException {
-        instance = XML.xmlToManagerOptions(path);
+    public void loadOptions() throws FileNotFoundException {
+        instance = XML.xmlToManagerOptions(getManagerPath() + File.separator + OPTIONS_FILENAME);
     }
 
     /**
