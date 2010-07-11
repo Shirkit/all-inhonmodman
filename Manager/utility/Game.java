@@ -5,6 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import javax.imageio.stream.FileImageInputStream;
 
+import org.apache.log4j.Logger;
+
 /**
  * Attributes and Methods related to the HoN
  * @author Usuário
@@ -14,6 +16,7 @@ public class Game {
     private String path;
     private String version;
     private static Game instance = null;
+    private static Logger logger = Logger.getLogger(Game.class.getPackage().getName());
 
     /**
      * Try to find HoN installation folder on different platforms.
@@ -36,7 +39,8 @@ public class Game {
         }
         // Try to find HoN folder in case we are on Mac
         if (OS.isMac()) {
-        	File a = new File("Applications/Heroes of Newerth/");
+        	File a = new File("/Applications/Heroes of Newerth.app");
+        	logger.error("GAME: " + a.getPath());
         	return a.exists() ? a.getPath() : null;
         }
         return null;
@@ -48,15 +52,19 @@ public class Game {
      * @return folder of the mods or null
      */
     public static String findModFolder() {
-    	return null;
-    }
-
-    /**
-     * Try to find Manager folder on different platforms
-     * 
-     * @return folder of the mods or null
-     */
-    public static String findManagerFolder() {
+        // Try to find HoN folder in case we are on Windows
+        if (OS.isWindows()) {
+            return null;
+        }
+        // Try to find HoN folder in case we are on Linux
+        if (OS.isLinux()) {
+        }
+        // Try to find HoN folder in case we are on Mac
+        if (OS.isMac()) {
+        	File a = new File(System.getProperty("user.home") + File.separator + "Library/Application Support/Heroes of Newerth/game/mods");
+        	logger.error("GAME: " + a.getPath());
+        	return a.exists() ? a.getPath() : null;
+        }
     	return null;
     }
     
