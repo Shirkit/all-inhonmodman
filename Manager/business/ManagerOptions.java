@@ -25,6 +25,10 @@ import java.util.Vector;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
+import org.apache.log4j.Logger;
+
+import manager.Manager;
+
 import utility.Game;
 import utility.XML;
 
@@ -35,14 +39,24 @@ import utility.XML;
 @XStreamAlias("options")
 public class ManagerOptions extends Observable {
 
-    @XStreamAlias("mods_folder")
+    @XStreamAlias("modsfolder")
     @XStreamAsAttribute
     private String MODS_FOLDER;
-    @XStreamAlias("hon_folder")
+    @XStreamAlias("honfolder")
     @XStreamAsAttribute
     private String HON_FOLDER;
+    @XStreamAlias("CLArgs")
+    @XStreamAsAttribute
+    private String CLARGS;
+    @XStreamAlias("lang")
+    @XStreamAsAttribute
+    private String LANG;
+    @XStreamAlias("laf")
+    @XStreamAsAttribute
+    private String LAF;
     @XStreamImplicit
     private Set<Mod> applied;
+    
     // Hidden fields
     @XStreamOmitField
     private String MANAGER_FOLDER;
@@ -64,11 +78,19 @@ public class ManagerOptions extends Observable {
     public static final String PREFS_HONFOLDER = "honfolder";
     @XStreamOmitField
     private static ManagerOptions instance;
+    @XStreamOmitField
+    private static Manager controller;
+    @XStreamOmitField
+    Logger logger;
 
     private ManagerOptions() {
         setManagerPath(new File(".").getAbsolutePath());
+        MODS_FOLDER = "";
+        HON_FOLDER = "";
         applied = new HashSet<Mod>();
         mods = new ArrayList<Mod>();
+        controller = Manager.getInstance();
+        logger = Logger.getLogger(this.getClass().getPackage().getName());
     }
 
     public static ManagerOptions getInstance() {
@@ -76,6 +98,10 @@ public class ManagerOptions extends Observable {
             instance = new ManagerOptions();
         }
         return instance;
+    }
+    
+    public static void setInstance(Object o) {
+    	instance = (ManagerOptions) o;
     }
 
     /**
@@ -92,13 +118,22 @@ public class ManagerOptions extends Observable {
         XML.managerOptionsToXml(path);
     }
 
-    public void loadOptions() throws FileNotFoundException,StreamException {
-        ManagerOptions o = XML.xmlToManagerOptions(new File(getManagerPath() + File.separator + OPTIONS_FILENAME));
-        instance = new ManagerOptions();
+    public void loadOptions() throws FileNotFoundException, StreamException {
+    	File f = new File(getManagerPath() + File.separator + OPTIONS_FILENAME);
+    	
+    	if (f.exists())
+    		setInstance(XML.xmlToManagerOptions(new File(getManagerPath() + File.separator + OPTIONS_FILENAME)));
+        
+        //logger.error("XML: " + XML.xmlToManagerOptions(new File(getManagerPath() + File.separator + OPTIONS_FILENAME)).getModPath());
+        //logger.error("XML: " + XML.xmlToManagerOptions(new File(getManagerPath() + File.separator + OPTIONS_FILENAME)).getHomepage());
+        
+        //logger.error("TEST: Mod folder is at " + getModPath());
+        //logger.error("TEST: game folder is at " + getGamePath());
+        
+        /*instance = new ManagerOptions();
         instance.setAppliedMods(o.getAppliedMods());
         instance.setGamePath(o.getGamePath());
-        instance.setModPath(o.getModPath());
-        updateNotify();
+        instance.setModPath(o.getModPath());*/
     }
 
     /**
@@ -128,51 +163,50 @@ public class ManagerOptions extends Observable {
         updateNotify();
     }
     
-    /**
-     * 
-     */
+    public void setLanguage(String p) {
+    	LANG = p;
+    }
+    
+    public void setLaf(String p) {
+    	LAF = p;
+    }
+    
+    public void setCLArgs(String p) {
+    	CLARGS = p;
+    }
+    
     public String getOptionsName() {
     	return OPTIONS_FILENAME;
     }
 
-    /**
-     * 
-     * @return
-     */
     public String getVersion() {
         return VERSION;
     }
 
-    /**
-     * 
-     * @return
-     */
     public String getHomepage() {
         return HOMEPAGE;
     }
+    
+    public String getLanguage() {
+    	return LANG;
+    }
+    
+    public String getLaf() {
+    	return LAF;
+    }
+    
+    public String getCLArgs() {
+    	return CLARGS;
+    }
 
-    /**
-     *
-     * @return
-     */
     public String getModPath() {
-        MODS_FOLDER = check("Mod folder");
         return MODS_FOLDER;
     }
 
-    /**
-     *
-     * @return
-     */
     public String getGamePath() {
-        HON_FOLDER = check("HoN folder");
         return HON_FOLDER;
     }
 
-    /**
-     * 
-     * @return
-     */
     public String getManagerPath() {
         return MANAGER_FOLDER;
     }
@@ -192,6 +226,14 @@ public class ManagerOptions extends Observable {
      */
     public Set<Mod> getAppliedMods() {
         return applied;
+    }
+    
+    public void addMod(Mod mod) {
+    	if (this.mods == null) {
+    		this.mods = new ArrayList<Mod>();
+    	}
+    	
+    	this.mods.add(mod);
     }
 
     /**
@@ -214,19 +256,5 @@ public class ManagerOptions extends Observable {
         updateNotify();
     }
 
-    public String check(String name) {
-        String path = "";
-        if (name.equalsIgnoreCase("HoN folder")) {
-            path = Game.findHonFolder();
-        } else if (name.equalsIgnoreCase("Mod folder")) {
-            path = Game.findModFolder();
-        }
-        if (path == null || path.isEmpty()) {
-            return (String) JOptionPane.showInputDialog(
-                    new JFrame("First Time?"),
-                    "Please enter the path to " + name);
-        }
 
-        return path;
-    }
 }

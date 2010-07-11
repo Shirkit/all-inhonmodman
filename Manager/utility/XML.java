@@ -1,6 +1,7 @@
 package utility;
 
 import business.ManagerOptions;
+import business.ManagerOptionsConverter;
 import business.Mod;
 import business.actions.*;
 import com.thoughtworks.xstream.XStream;
@@ -120,7 +121,7 @@ public class XML {
 
         XStream xstream = new XStream(getDriver());
         updateAlias(xstream);
-
+        xstream.registerConverter(new ManagerOptionsConverter());
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Writer writer = new OutputStreamWriter(outputStream, "UTF-8");

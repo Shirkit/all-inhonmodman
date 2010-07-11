@@ -58,6 +58,8 @@ public class ManagerCtrl {
         this.controller = controller;
         this.view = view;
 
+
+        
         // Add listeners to view components
         view.buttonAddModAddActionListener(new AddModListener());
         view.buttonEnableModAddActionListener(new EnableModListener());
@@ -77,16 +79,20 @@ public class ManagerCtrl {
         view.buttonHonFolderAddActionListener(new ChooseFolderHonListener());
         // Add file drop functionality
         new FileDrop(view, new DropListener());
+
         // Load mods from mods folder (if any)
         // TODO: shouldn't this be somewhere else?
         try {
         	controller.loadOptions();
-            controller.loadMods();
-        } catch (IOException ex) {
+        	controller.loadMods();
+        } catch (Exception ex) {
         	ex.printStackTrace();
             logger.error("Unable to load mods from mod folder. Message: "+ex.getMessage());
             view.showMessage("error.loadmodfiles", "error.loadmodfiles.title", JOptionPane.ERROR_MESSAGE);
         }
+        
+        logger.error("Mods: " + model.getMods());
+        
         view.tableRemoveListSelectionListener(lsl);
         model.updateNotify();
         view.tableAddListSelectionListener(lsl);
@@ -393,7 +399,7 @@ public class ManagerCtrl {
 				e1.printStackTrace();
 			}
         	
-            // Save language choice
+            /*// Save language choice
             prefs = Preferences.userNodeForPackage(L10n.class);
             String lang = view.getSelectedLanguage();
             if (lang.equals(L10n.getDefaultLocale())) {
@@ -417,6 +423,7 @@ public class ManagerCtrl {
             } else {
                 prefs.put(model.PREFS_LAF, view.getSelectedLafClass());
             }
+            */
             // TODO: Check that LaF was applied
             // Hide dialog
             view.getPrefsDialog().setVisible(false);

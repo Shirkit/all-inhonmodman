@@ -38,6 +38,9 @@ import org.apache.log4j.Logger;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+
 import utility.Game;
 
 /**
@@ -140,6 +143,25 @@ public class Manager {
     public void saveOptions() throws FileNotFoundException, UnsupportedEncodingException, IOException {
         ManagerOptions.getInstance().saveOptions(new File(ManagerOptions.getInstance().getManagerPath() + File.separator + ManagerOptions.getInstance().getOptionsName()));
     }
+    
+    public String check(String name) {
+        String path = "";
+        if (name.equalsIgnoreCase("HoN folder")) {
+        		path = Game.findHonFolder();
+        } else if (name.equalsIgnoreCase("Mod folder")) {
+        		path = Game.findModFolder();
+        }
+        
+        if (path == null || path.isEmpty()) {
+            path = (String) JOptionPane.showInputDialog(
+                    new JFrame("First Time?"),
+                    "Please enter the path to " + name);
+        }
+        
+        System.out.println("path: " + path);
+
+        return path;
+    }
 
     /**
      * @throws FileNotFoundException 
@@ -150,10 +172,13 @@ public class Manager {
             ManagerOptions.getInstance().loadOptions();
         } catch (FileNotFoundException e) {
             // Put a logger here
-            //e.printStackTrace();
+            e.printStackTrace();
+            ManagerOptions.getInstance().setGamePath(check("HoN folder"));
+            ManagerOptions.getInstance().setModPath(check("Mod folder"));
         } catch (StreamException e) {
             // Put a logger here
             // Mod options is invalid, must be deleted
+        	e.printStackTrace();
         }
     }
 
@@ -162,7 +187,7 @@ public class Manager {
      * @param Mod to be added.
      */
     private void addMod(Mod mod) {
-        ManagerOptions.getInstance().getMods().add(mod);
+        ManagerOptions.getInstance().addMod(mod);
         deps.add(null);
         cons.add(null);
     }

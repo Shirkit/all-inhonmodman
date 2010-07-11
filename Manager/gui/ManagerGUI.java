@@ -590,7 +590,8 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
             textFieldCLArguments.setText(clArgs);
         }
         // Get HoN folder
-        String honFolder = prefs.get(model.PREFS_HONFOLDER, "DUMMY_DEFAULT");
+        //String honFolder = prefs.get(model.PREFS_HONFOLDER, "DUMMY_DEFAULT");
+        String honFolder = ManagerOptions.getInstance().getGamePath();
         if (honFolder.equals("DUMMY_DEFAULT")) {
             textFieldHonFolder.setText("");
         } else {
@@ -605,7 +606,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
      * Open About dialog
      */
     private void itemAboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemAboutActionPerformed
-        ManagerAboutBox about = new ManagerAboutBox(this, model);
+        ManagerAboutBox about = new ManagerAboutBox(this, ManagerOptions.getInstance());
         about.setLocation(this.getX() + 20, this.getY() + 20);
         about.setVisible(true);
     }//GEN-LAST:event_itemAboutActionPerformed
@@ -665,6 +666,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         if (selectedRow == -1) selectedRow = 0;
         this.tableData = new Object[mods.size()][];
         // Display all mods
+        logger.error("UPDATE: " + mods.size());
         for (int i=0;i<mods.size();i++) {
             this.tableData[i] = new Object[5];
             this.tableData[i][0] = (Boolean)mods.get(i).isEnabled();
@@ -696,7 +698,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         Mod mod = null;
         int selectedRow = tableModList.getSelectedRow();
         try {
-            mod = controller.getMod(selectedRow);
+            mod = Manager.getInstance().getMod(selectedRow);
         } catch (IndexOutOfBoundsException e) {
             logger.error("Cannot display mod at index "+selectedRow);
             e.printStackTrace();
@@ -738,7 +740,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
      */
     public void update(Observable obs, Object obj) {
         logger.info("List of mods has changed, updating...");
-        updateModTable(model.getMods());
+        updateModTable(ManagerOptions.getInstance().getMods());
     }
 
     /**

@@ -26,8 +26,8 @@ public class ManagerOptionsConverter implements Converter {
 
     public void marshal(Object o, HierarchicalStreamWriter writer, MarshallingContext mc) {
         ManagerOptions opt = ManagerOptions.getInstance();
-        writer.addAttribute("hon_folder", opt.getGamePath());
-        writer.addAttribute("mods_folder", opt.getModPath());
+        writer.addAttribute("honfolder", opt.getGamePath());
+        writer.addAttribute("modsfolder", opt.getModPath());
         Iterator<Mod> it = opt.getAppliedMods().iterator();
         while (it.hasNext()) {
             mc.convertAnother(it.next());
@@ -37,6 +37,10 @@ public class ManagerOptionsConverter implements Converter {
 
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext uc) {
         ManagerOptions value = ManagerOptions.getInstance();
+        
+        value.setModPath(reader.getAttribute("modsfolder"));
+        value.setGamePath(reader.getAttribute("honfolder"));
+        
         return value;
     }
 
