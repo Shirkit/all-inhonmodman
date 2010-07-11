@@ -5,6 +5,8 @@ import business.Mod;
 import business.actions.*;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
+import com.thoughtworks.xstream.io.xml.JDomDriver;
+import com.thoughtworks.xstream.io.xml.XomDriver;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -86,20 +88,33 @@ public class XML {
      * @param fileString to be read.
      * @return the Mod with all fields already filled up.
      */
-    public static Mod xmlToMod(String fileString) {
+    public static Mod xmlToMod(String fileString) throws FileNotFoundException {
 
         XStream xstream = new XStream(getDriver());
         xstream = updateAlias(xstream);
-        return (Mod) xstream.fromXML(fileString);
+        return (Mod) xstream.fromXML(new FileInputStream(fileString));
 
     }
 
-    public static ManagerOptions xmlToManagerOptions(String fileString) {
+    /**
+     * Loads the content of a XML file into the ManagerOptions.
+     * @param file to be read.
+     * @return the Mod with all fields already filled up.
+     * @throws FileNotFoundException
+     */
+    public static ManagerOptions xmlToManagerOptions(String fileString) throws FileNotFoundException {
         XStream xstream = new XStream(getDriver());
         xstream = updateAlias(xstream);
-        return (ManagerOptions) xstream.fromXML(fileString);
+        return (ManagerOptions) xstream.fromXML(new FileInputStream(fileString));
     }
 
+    /**
+     * Save the XML in the passed parameter of the ManagerOptions.
+     * @param where path to the File that the ManagerOptions's content will be saved.
+     * @throws FileNotFoundException if the passed param 'where' was not found.
+     * @throws UnsupportedEncodingException
+     * @throws IOException random I/O exception.
+     */
     public static void managerOptionsToXml(File where) throws FileNotFoundException, UnsupportedEncodingException, IOException {
 
         XStream xstream = new XStream(getDriver());
