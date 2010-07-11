@@ -699,7 +699,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
             mod = controller.getMod(selectedRow);
         } catch (IndexOutOfBoundsException e) {
             logger.error("Cannot display mod at index "+selectedRow);
-            //e.printStackTrace();
+            e.printStackTrace();
             return;
         }
         labelModName.setText(mod.getName());

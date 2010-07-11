@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.util.Observable;
 
 /**
  *
@@ -102,10 +103,10 @@ public class XML {
      * @return the Mod with all fields already filled up.
      * @throws FileNotFoundException
      */
-    public static ManagerOptions xmlToManagerOptions(String fileString) throws FileNotFoundException {
+    public static ManagerOptions xmlToManagerOptions(File path) throws FileNotFoundException {
         XStream xstream = new XStream(getDriver());
         xstream = updateAlias(xstream);
-        return (ManagerOptions) xstream.fromXML(new FileInputStream(fileString));
+        return (ManagerOptions) xstream.fromXML(new FileInputStream(path));
     }
 
     /**
@@ -155,6 +156,10 @@ public class XML {
         xstream.processAnnotations(ActionIncompatibility.class);
         xstream.processAnnotations(ActionRequirement.class);
         xstream.processAnnotations(ManagerOptions.class);
+
+        // This is to remove the attributes from the parent class Observable from the ManagerOptions (fastest way ever, headache wins)
+        xstream.omitField(Observable.class, "obs");
+        xstream.omitField(Observable.class, "changed");
 
         xstream.aliasField("find", ActionEditFileFind.class, "seek");
         xstream.aliasField("find", ActionEditFileFind.class, "search");
