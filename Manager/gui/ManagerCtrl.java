@@ -39,7 +39,7 @@ import javax.swing.table.TableModel;
  *
  * @author Kovo
  */
-public class ManagerCtrl implements Observer {
+public class ManagerCtrl {
     Logger logger = Logger.getLogger(this.getClass().getPackage().getName());
     Manager controller;
     ManagerOptions model;
@@ -380,6 +380,19 @@ public class ManagerCtrl implements Observer {
      */
     class PrefsOkListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
+        	try {
+				controller.saveOptions();
+			} catch (FileNotFoundException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (UnsupportedEncodingException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+        	
             // Save language choice
             prefs = Preferences.userNodeForPackage(L10n.class);
             String lang = view.getSelectedLanguage();
@@ -447,20 +460,4 @@ public class ManagerCtrl implements Observer {
             System.exit(0);
         }
     }
-
-	@Override
-	public void update(Observable o, Object arg) {
-		try {
-			controller.saveOptions();
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
 }
