@@ -158,8 +158,9 @@ public class XML {
 
         xstream.aliasField("find", ActionEditFileFind.class, "seek");
         xstream.aliasField("find", ActionEditFileFind.class, "search");
+        xstream.aliasField("findup", ActionEditFileFind.class, "seekup");
         xstream.aliasField("findup", ActionEditFileFind.class, "searchup");
-        xstream.aliasField("findup", ActionEditFileFind.class, "searchup");
+        xstream.aliasField("insert", ActionEditFileFind.class, "add");
 
         return xstream;
 

@@ -1,4 +1,4 @@
-/*
+    /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
@@ -6,15 +6,21 @@ package business;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+import com.thoughtworks.xstream.annotations.XStreamConverter;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
+import com.thoughtworks.xstream.annotations.XStreamInclude;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
+import com.thoughtworks.xstream.io.StreamException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.AbstractSet;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Observable;
 import java.util.Set;
+import java.util.Vector;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -27,10 +33,9 @@ import utility.XML;
  * @author Shirkit
  */
 @XStreamAlias("options")
+//@XStreamConverter(ManagerOptionsConverter.class)
 public class ManagerOptions extends Observable {
 
-    @XStreamOmitField
-    private String MANAGER_FOLDER;
     @XStreamAlias("mods_folder")
     @XStreamAsAttribute
     private String MODS_FOLDER;
@@ -39,6 +44,9 @@ public class ManagerOptions extends Observable {
     private String HON_FOLDER;
     @XStreamImplicit
     private Set<Mod> applied;
+    // Hidden fields
+    @XStreamOmitField
+    private String MANAGER_FOLDER;
     @XStreamOmitField
     private ArrayList<Mod> mods;
     @XStreamOmitField
@@ -55,10 +63,13 @@ public class ManagerOptions extends Observable {
     public static final String PREFS_CLARGUMENTS = "clarguments";
     @XStreamOmitField
     public static final String PREFS_HONFOLDER = "honfolder";
+    @XStreamOmitField
     private static ManagerOptions instance;
 
     private ManagerOptions() {
         setManagerPath(new File(".").getAbsolutePath());
+        applied = new HashSet<Mod>();
+        mods = new ArrayList<Mod>();
     }
 
     public static ManagerOptions getInstance() {
@@ -82,7 +93,7 @@ public class ManagerOptions extends Observable {
         XML.managerOptionsToXml(path);
     }
 
-    public void loadOptions() throws FileNotFoundException {
+    public void loadOptions() throws FileNotFoundException,StreamException {
         instance = XML.xmlToManagerOptions(getManagerPath() + File.separator + OPTIONS_FILENAME);
     }
 

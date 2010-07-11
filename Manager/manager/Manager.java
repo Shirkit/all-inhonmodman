@@ -30,6 +30,7 @@ import java.util.Observable;
 import java.util.Random;
 
 import com.mallardsoft.tuple.*;
+import com.thoughtworks.xstream.io.StreamException;
 
 import java.security.InvalidParameterException;
 
@@ -56,6 +57,7 @@ public class Manager {
     private ArrayList<ArrayList<Pair<String, String>>> cons;
     //private Set<Mod> applied;
     private static Logger logger = Logger.getLogger(Manager.class.getPackage().getName());
+
     private Manager() {
         //mods = new ArrayList<Mod>();
         deps = new ArrayList<ArrayList<Pair<String, String>>>();
@@ -128,7 +130,7 @@ public class Manager {
             }
         }
     }
-    
+
     /**
      * @throws IOException 
      * @throws UnsupportedEncodingException 
@@ -136,20 +138,23 @@ public class Manager {
      * 
      */
     public void saveOptions() throws FileNotFoundException, UnsupportedEncodingException, IOException {
-    	ManagerOptions.getInstance().saveOptions(new File(ManagerOptions.getInstance().getManagerPath() + File.separator + ManagerOptions.getInstance().getOptionsName()));
+        ManagerOptions.getInstance().saveOptions(new File(ManagerOptions.getInstance().getManagerPath() + File.separator + ManagerOptions.getInstance().getOptionsName()));
     }
-    
+
     /**
      * @throws FileNotFoundException 
      * 
      */
     public void loadOptions() {
-    	try {
-			ManagerOptions.getInstance().loadOptions();
-		} catch (FileNotFoundException e) {
-			// Put a logger here
-			//e.printStackTrace();
-		}
+        try {
+            ManagerOptions.getInstance().loadOptions();
+        } catch (FileNotFoundException e) {
+            // Put a logger here
+            //e.printStackTrace();
+        } catch (StreamException e) {
+            // Put a logger here
+            // Mod options is invalid, must be deleted
+        }
     }
 
     /**
@@ -204,7 +209,12 @@ public class Manager {
         }
         String xml = new String(ZIP.getFile(honmod, "mod.xml"));
         Mod m = XML.xmlToMod(xml);
-        Icon icon = new ImageIcon(ZIP.getFile(honmod, "icon.png"));
+        Icon icon;
+        try {
+            icon = new ImageIcon(ZIP.getFile(honmod, "icon.png"));
+        } catch (FileNotFoundException e) {
+            icon = null;
+        }
         m.setIcon(icon);
         logger.info("Mod file opened. Mod name: " + m.getName());
         m.setPath(honmod.getAbsolutePath());
