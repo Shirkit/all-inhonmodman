@@ -94,6 +94,31 @@ public class XML {
 
     }
 
+    public static ManagerOptions xmlToManagerOptions(String fileString) {
+        XStream xstream = new XStream(getDriver());
+        xstream = updateAlias(xstream);
+        return (ManagerOptions) xstream.fromXML(fileString);
+    }
+
+    public static void managerOptionsToXml(File where) throws FileNotFoundException, UnsupportedEncodingException, IOException {
+
+        XStream xstream = new XStream(getDriver());
+        updateAlias(xstream);
+
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        Writer writer = new OutputStreamWriter(outputStream, "UTF-8");
+        xstream.toXML(ManagerOptions.getInstance(), writer);
+        String temp = outputStream.toString("UTF-8");
+
+        temp = replaceInvalidHtmlChars(temp);
+
+        temp = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + temp;
+
+        FileOutputStream fos = new FileOutputStream(where);
+        fos.write(temp.getBytes("UTF-8"));
+    }
+
     /**
      *  This method is to help the XStream to find all the alias in the Classes and to input the synoms of the operations.
      * @param xstream

@@ -7,6 +7,7 @@ package business;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+import com.thoughtworks.xstream.annotations.XStreamImplicit;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,7 +29,7 @@ import utility.XML;
  * @author Shirkit
  */
 @XStreamAlias("options")
-public class ManagerOptions extends Observable  {
+public class ManagerOptions extends Observable {
 
     @XStreamAlias("manager_folder")
     @XStreamAsAttribute
@@ -39,8 +40,7 @@ public class ManagerOptions extends Observable  {
     @XStreamAlias("hon_folder")
     @XStreamAsAttribute
     private String HON_FOLDER;
-    @XStreamAsAttribute
-    @XStreamAlias("applied")
+    @XStreamImplicit
     private Set<Mod> applied;
     @XStreamOmitField
     private ArrayList<Mod> mods;
@@ -50,23 +50,18 @@ public class ManagerOptions extends Observable  {
     private String HOMEPAGE = "http://sourceforge.net/projects/all-inhonmodman";
     @XStreamOmitField
     private String VERSION = "0.1 BETA";
-    
     @XStreamOmitField
     public static final String PREFS_LOCALE = "locale";
-    
     @XStreamOmitField
     public static final String PREFS_LAF = "laf";
-    
     @XStreamOmitField
     public static final String PREFS_CLARGUMENTS = "clarguments";
-    
     @XStreamOmitField
     public static final String PREFS_HONFOLDER = "honfolder";
-
     private static ManagerOptions instance;
-    
-    private ManagerOptions() {
 
+    private ManagerOptions() {
+        
     }
 
     public static ManagerOptions getInstance() {
@@ -105,7 +100,7 @@ public class ManagerOptions extends Observable  {
     }
 
     public void loadOptions() throws FileNotFoundException {
-            
+
         XStream xstream = new XStream(XML.getDriver());
         xstream = XML.updateAlias(xstream);
 
@@ -142,29 +137,29 @@ public class ManagerOptions extends Observable  {
         MANAGER_FOLDER = p;
         updateNotify();
     }
-    
+
     /**
      * 
      * @return
      */
     public String getVersion() {
-    	return VERSION;
+        return VERSION;
     }
-    
+
     /**
      * 
      * @return
      */
     public String getHomepage() {
-    	return HOMEPAGE;
+        return HOMEPAGE;
     }
-    
+
     /**
      *
      * @return
      */
     public String getModPath() {
-    	MODS_FOLDER = check("Mod folder");
+        MODS_FOLDER = check("Mod folder");
         return MODS_FOLDER;
     }
 
@@ -173,7 +168,7 @@ public class ManagerOptions extends Observable  {
      * @return
      */
     public String getGamePath() {
-    	HON_FOLDER = check("HoN folder");
+        HON_FOLDER = check("HoN folder");
         return HON_FOLDER;
     }
 
@@ -182,7 +177,7 @@ public class ManagerOptions extends Observable  {
      * @return
      */
     public String getManagerPath() {
-    	MANAGER_FOLDER = check("Manager folder");
+        MANAGER_FOLDER = check("Manager folder");
         return MANAGER_FOLDER;
     }
 
@@ -191,7 +186,7 @@ public class ManagerOptions extends Observable  {
      * @param list
      */
     public void setAppliedMods(Set<Mod> list) {
-    	applied = list;
+        applied = list;
         updateNotify();
     }
 
@@ -208,8 +203,9 @@ public class ManagerOptions extends Observable  {
      * @return
      */
     public ArrayList<Mod> getMods() {
-    	if (mods == null)
-    		mods = new ArrayList<Mod>();
+        if (mods == null) {
+            mods = new ArrayList<Mod>();
+        }
         return mods;
     }
 
@@ -221,25 +217,22 @@ public class ManagerOptions extends Observable  {
         this.mods = mods;
         updateNotify();
     }
-    
+
     public String check(String name) {
-    	String path = "";
-    	if (name.equalsIgnoreCase("HoN folder")) {
-    		path = Game.findHonFolder();
-    	}
-    	else if (name.equalsIgnoreCase("Mod folder")) {
-    		path = Game.findModFolder();
-    	}
-    	else if (name.equalsIgnoreCase("Manager folder")) {
-    		path = Game.findManagerFolder();
-    	}
-    	if (path == null || path.isEmpty()) {
-    		return (String)JOptionPane.showInputDialog(
-    				new JFrame("First Time?"),
-    				"Please enter the path to " + name
-					);
-    	}
-    	
-    	return path;
+        String path = "";
+        if (name.equalsIgnoreCase("HoN folder")) {
+            path = Game.findHonFolder();
+        } else if (name.equalsIgnoreCase("Mod folder")) {
+            path = Game.findModFolder();
+        } else if (name.equalsIgnoreCase("Manager folder")) {
+            path = Game.findManagerFolder();
+        }
+        if (path == null || path.isEmpty()) {
+            return (String) JOptionPane.showInputDialog(
+                    new JFrame("First Time?"),
+                    "Please enter the path to " + name);
+        }
+
+        return path;
     }
 }
