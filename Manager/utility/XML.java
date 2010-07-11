@@ -84,7 +84,7 @@ public class XML {
     }
     
     /**
-     * Loads the content of a XML String into a Mod. This method should be called to read only inside ZIPS.
+     * Loads the content of a XML String into a Mod. This method should be called to read Strings that contains a file already read in it.
      * @param fileString to be read.
      * @return the Mod with all fields already filled up.
      */
