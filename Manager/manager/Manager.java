@@ -133,22 +133,22 @@ public class Manager {
      * 
      */
     public void saveOptions() throws UnsupportedEncodingException, IOException {
-    	String name = ManagerOptions.getInstance().getManagerPath() + File.separator + ManagerOptions.getInstance().getOptionsName();
-    	File f = new File(name);
-    	if (f.exists())
-    		f.delete();
+        String name = ManagerOptions.getInstance().getManagerPath() + File.separator + ManagerOptions.getInstance().getOptionsName();
+        File f = new File(name);
+        if (f.exists()) {
+            f.delete();
+        }
         ManagerOptions.getInstance().saveOptions(new File(name));
     }
 
-    
     public String check(String name) {
         String path = "";
         if (name.equalsIgnoreCase("HoN folder")) {
-        		path = Game.findHonFolder();
+            path = Game.findHonFolder();
         } else if (name.equalsIgnoreCase("Mod folder")) {
-        		path = Game.findModFolder();
+            path = Game.findModFolder();
         }
-        
+
         if (path == null || path.isEmpty()) {
             path = (String) JOptionPane.showInputDialog(
                     new JFrame("First Time?"),
@@ -173,7 +173,7 @@ public class Manager {
         } catch (StreamException e) {
             // Put a logger here
             // Mod options is invalid, must be deleted
-        	e.printStackTrace();
+            e.printStackTrace();
         }
     }
 
@@ -547,7 +547,7 @@ public class Manager {
         Enumeration e = Collections.enumeration(ManagerOptions.getInstance().getMods());
         while (e.hasMoreElements()) {
             Mod m = (Mod) e.nextElement();
-            if (!ManagerOptions.getInstance().getAppliedMods().contains(m) && m.isEnabled()) {
+            if (m.isEnabled()) {
                 if (!stack.contains(m)) {
                     stack.add(m);
                 }
@@ -583,9 +583,10 @@ public class Manager {
             }
         }
         tempFolder.mkdirs();
-        Iterator<Mod> list = applyOrder.iterator();
-        while (list.hasNext()) {
-            Mod mod = list.next();
+        Enumeration<Mod> list = applyOrder.elements();
+        while (list.hasMoreElements()) {
+            Mod mod = list.nextElement();
+            System.out.println("HERE");
             for (int j = 0; j < mod.getActions().size(); j++) {
                 Action action = mod.getActions().get(j);
                 if (action.getClass().equals(ActionCopyFile.class)) {
@@ -818,7 +819,11 @@ public class Manager {
                 throw new SecurityException();
             }
         }
-        ZIP.createZIP(tempFolder.getAbsolutePath(), targetZip.getAbsolutePath());
+        if (!applyOrder.isEmpty()) {
+            ZIP.createZIP(tempFolder.getAbsolutePath(), targetZip.getAbsolutePath());
+        } else {
+            targetZip.createNewFile();
+        }
         ManagerOptions.getInstance().setAppliedMods(new HashSet<Mod>(applyOrder));
         saveOptions();
     }
