@@ -14,6 +14,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Set;
@@ -81,34 +82,12 @@ public class ManagerOptions extends Observable {
         notifyObservers();
     }
 
-    public boolean saveOptions(File path) throws IOException {
-        boolean success = true;
-
-        XStream xstream = new XStream(XML.getDriver());
-        XML.updateAlias(xstream);
-
-        if (path.exists()) {
-            if (!path.delete()) {
-                success = false;
-            }
-        }
-
-        FileOutputStream fos = new FileOutputStream(path);
-        fos.write((XML.replaceInvalidHtmlChars(xstream.toXML(this))).getBytes("UTF-8"));
-
-        return success;
+    public void saveOptions(File path) throws FileNotFoundException, UnsupportedEncodingException, IOException {
+        XML.managerOptionsToXml(path);
     }
 
-    public void loadOptions() throws FileNotFoundException {
-
-        XStream xstream = new XStream(XML.getDriver());
-        xstream = XML.updateAlias(xstream);
-
-        ManagerOptions tmp = (ManagerOptions) xstream.fromXML(new FileInputStream(MANAGER_FOLDER + File.separator + OPTIONS_FILENAME));
-        this.setGamePath(tmp.getGamePath());
-        this.setManagerPath(tmp.getManagerPath());
-        this.setModPath(tmp.getModPath());
-        this.setAppliedMods(tmp.getAppliedMods());
+    public void loadOptions(String path) throws FileNotFoundException {
+        instance = XML.xmlToManagerOptions(path);
     }
 
     /**
