@@ -838,7 +838,6 @@ public class Manager {
 
                         // Check for file
                         File f = new File(tempFolder.getAbsolutePath() + File.separator + editfile.getName());
-                        System.out.println(f.getAbsolutePath());
                         String afterEdit = "";
                         if (f.exists()) {
                             // Load file from temp folder. If any other mod changes the file, it's actions won't be lost.
@@ -851,7 +850,6 @@ public class Manager {
                             os.close();
                         } else {
                             // Load file from resources0.s2z if no other mod edited this file
-                            System.out.println("loading new file");
                             afterEdit = new String(ZIP.getFile(new File(ManagerOptions.getInstance().getGamePath() + File.separator + "game" + File.separator + "resources0.s2z"), editfile.getName()));
                         }
                         for (int k = 0; k < editfile.getActions().size(); k++) {
@@ -893,26 +891,29 @@ public class Manager {
                                         }
                                     }
                                 } else {
-                                    cursor = afterEdit.toLowerCase().trim().indexOf(find.getContent().toLowerCase().trim());
+                                    cursor = afterEdit.toLowerCase().trim().indexOf(find.getContent().toLowerCase().trim(), cursor);
                                     if (cursor == -1) {
                                         // couldn't find the string, can't apply
                                     	logger.error("MAN: mod edit find: " + find.getContent());
                                         System.err.println(afterEdit);
                                         throw new StringNotFoundModActionException(mod.getName(), mod.getVersion(), (Action) find, find.getContent());
                                     }
-                                    cursor2 = cursor + find.getContent().length();
+                                    cursor2 = cursor + find.getContent().trim().length();
                                     isSelected = true;
+                                if (mod.getName().toLowerCase().contains("stash")) {
+                                System.out.println(afterEdit.substring(cursor, cursor2));
+                                }
                                 }
 
                                 // FindUp Action
                             } else if (editFileAction.getClass().equals(ActionEditFileFindUp.class)) {
                                 ActionEditFileFindUp findup = (ActionEditFileFindUp) editFileAction;
-                                cursor = afterEdit.trim().toLowerCase().lastIndexOf(findup.getContent().trim().toLowerCase());
+                                cursor = afterEdit.trim().toLowerCase().lastIndexOf(findup.getContent().trim().toLowerCase(), cursor);
                                 if (cursor == -1) {
                                     // couldn't find the string, can't apply
                                     throw new StringNotFoundModActionException(mod.getName(), mod.getVersion(), (Action) findup, findup.getContent());
                                 }
-                                cursor2 = cursor + findup.getContent().length();
+                                cursor2 = cursor + findup.getContent().trim().length();
                                 isSelected = true;
 
                                 // Insert Action
