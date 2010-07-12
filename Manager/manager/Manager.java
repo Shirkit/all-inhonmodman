@@ -176,7 +176,7 @@ public class Manager {
             // Mod options is invalid, must be deleted
             e.printStackTrace();
         }
-        
+
         logger.error("MAN: " + ManagerOptions.getInstance().getAppliedMods());
     }
 
@@ -376,12 +376,13 @@ public class Manager {
      * @param name
      * @return Mod
      */
-    public Mod getEnabledMod(String name) {
+    public Mod getEnabledMod(String name) throws NoSuchElementException {
         Mod m = getMod(name);
-        if (m != null && m.isEnabled()) {
+        if (m.isEnabled()) {
             return m;
         }
 
+        // Unreacheable
         return null;
     }
 
@@ -393,11 +394,12 @@ public class Manager {
     private boolean checkdeps(Mod m) throws ModNotEnabledException {
         // get a list of dependencies
         ArrayList<Pair<String, String>> list = deps.get(ManagerOptions.getInstance().getMods().indexOf(m));
-        
+
         System.out.println("CheckDeps of mod " + m.getName());
-        if (!(list == null || list.isEmpty()))
-        	System.out.println("Deps of mod " + m.getName() + ": " + list.toString());
-        
+        if (!(list == null || list.isEmpty())) {
+            System.out.println("Deps of mod " + m.getName() + ": " + list.toString());
+        }
+
         if (list == null || list.isEmpty()) {
             return true;
         } else {
@@ -405,7 +407,11 @@ public class Manager {
 
             while (e.hasMoreElements()) {
                 Pair<String, String> dep = (Pair<String, String>) e.nextElement();
-                Mod d = getEnabledMod(Tuple.get1(dep));
+                Mod d = null;
+                try {
+                    d = getEnabledMod(Tuple.get1(dep));
+                } catch (NoSuchElementException noSuchElementException) {
+                }
                 if (d == null) {
                     throw new ModNotEnabledException(Tuple.get1(dep), Tuple.get2(dep));
                 }
@@ -435,8 +441,11 @@ public class Manager {
         Enumeration e = Collections.enumeration(list);
         while (e.hasMoreElements()) {
             Pair<String, String> check = (Pair<String, String>) e.nextElement();
-            if (getEnabledMod(Tuple.get1(check)) != null) {
-                throw new ModEnabledException(Tuple.get1(check), Tuple.get2(check));
+            try {
+                if (getEnabledMod(Tuple.get1(check)) != null) {
+                    throw new ModEnabledException(Tuple.get1(check), Tuple.get2(check));
+                }
+            } catch (NoSuchElementException noSuchElementException) {
             }
         }
         return false;
@@ -447,11 +456,12 @@ public class Manager {
         ArrayList list = new ArrayList();
         for (int i = 0; i < deps.size(); i++) {
             ArrayList<Pair<String, String>> temp = (ArrayList<Pair<String, String>>) deps.get(i);
-            if (temp == null || temp.isEmpty())
-            	continue;
+            if (temp == null || temp.isEmpty()) {
+                continue;
+            }
             Enumeration te = Collections.enumeration(temp);
             while (te.hasMoreElements()) {
-            	Pair<String, String> pair = (Pair<String, String>) te.nextElement();
+                Pair<String, String> pair = (Pair<String, String>) te.nextElement();
                 if (Tuple.get1(pair).equals(m.getName()) && getMod(i).isEnabled()) {
                     return true;
                 }
@@ -477,25 +487,25 @@ public class Manager {
     public void enableMod(String name, boolean ignoreVersion) throws ModEnabledException, ModNotEnabledException, NoSuchElementException, ModVersionMissmatchException, NullPointerException, IllegalArgumentException, FileNotFoundException, IOException {
         Mod m = getMod(name);
         logger.error("MAN: game version: " + Game.getInstance().getVersion()); // this has problems
-    	logger.error("MAN: mod version: " + m.getVersion());
-        
+        logger.error("MAN: mod version: " + m.getVersion());
+
         if (!ignoreVersion) {
             try {
                 if (compareModsVersions(Game.getInstance().getVersion(), m.getVersion())) {
                     throw new ModVersionMissmatchException(name, name);
                 }
             } catch (IllegalArgumentException ex) {
-            	//view.showMessage("error.loadmodfiles", "error.loadmodfiles.title", JOptionPane.ERROR_MESSAGE);
+                //view.showMessage("error.loadmodfiles", "error.loadmodfiles.title", JOptionPane.ERROR_MESSAGE);
                 //throw new NullPointerException();
-            	ex.printStackTrace();
+                ex.printStackTrace();
             } catch (FileNotFoundException ex) {
-            	//view.showMessage("error.loadmodfiles", "error.loadmodfiles.title", JOptionPane.ERROR_MESSAGE);
+                //view.showMessage("error.loadmodfiles", "error.loadmodfiles.title", JOptionPane.ERROR_MESSAGE);
                 //throw new NullPointerException();
-            	ex.printStackTrace();
+                ex.printStackTrace();
             } catch (IOException ex) {
-            	//view.showMessage("error.loadmodfiles", "error.loadmodfiles.title", JOptionPane.ERROR_MESSAGE);
+                //view.showMessage("error.loadmodfiles", "error.loadmodfiles.title", JOptionPane.ERROR_MESSAGE);
                 //throw new NullPointerException();
-            	ex.printStackTrace();
+                ex.printStackTrace();
             }
         }
         if (!m.isEnabled() && checkdeps(m) && !checkcons(m)) {
@@ -516,7 +526,7 @@ public class Manager {
         }
         if (!revcheckdeps(m)) {
             // disable it
-        	ManagerOptions.getInstance().getAppliedMods().remove(ManagerOptions.getInstance().getMod(name));
+            ManagerOptions.getInstance().getAppliedMods().remove(ManagerOptions.getInstance().getMod(name));
             ManagerOptions.getInstance().getMod(name).disable();
             return true;
         }
@@ -565,7 +575,7 @@ public class Manager {
     }
 
     public Stack<Mod> sortMods() throws IOException {
-    	Stack<Mod> stack = new Stack<Mod>();
+        Stack<Mod> stack = new Stack<Mod>();
 
         Enumeration e = Collections.enumeration(ManagerOptions.getInstance().getMods());
         while (e.hasMoreElements()) {
@@ -610,9 +620,9 @@ public class Manager {
         while (list.hasMoreElements()) {
             Mod mod = list.nextElement();
             //System.out.println("HERE");
-            
+
             logger.error("MAN: mod actions: " + mod.getActions("find").toString());
-            
+
             for (int j = 0; j < mod.getActions().size(); j++) {
                 Action action = mod.getActions().get(j);
                 if (action.getClass().equals(ActionCopyFile.class)) {
@@ -668,25 +678,15 @@ public class Manager {
                             }
                         } else {
                             // if temporary file doesn't exists
-                            if (copyfile.overwrite() == 1) {
-                                if (ZIP.getLastModified(new File(mod.getPath()), toCopy) > temp.lastModified()) {
-                                    byte[] file = ZIP.getFile(new File(mod.getPath()), toCopy);
-                                    FileOutputStream fos = new FileOutputStream(temp);
-                                    ByteArrayInputStream bais = new ByteArrayInputStream(file);
-                                    ZIP.copyInputStream(bais, fos);
-                                    fos.flush();
-                                    bais.close();
-                                    fos.close();
-                                }
-                            } else if (copyfile.overwrite() == 2) {
-                                byte[] file = ZIP.getFile(new File(mod.getPath()), toCopy);
-                                FileOutputStream fos = new FileOutputStream(temp);
-                                ByteArrayInputStream bais = new ByteArrayInputStream(file);
-                                ZIP.copyInputStream(bais, fos);
-                                fos.flush();
-                                bais.close();
-                                fos.close();
+                            if (!temp.getParentFile().exists() && !temp.getParentFile().mkdirs()) {
+                                throw new SecurityException();
                             }
+                            byte[] file = ZIP.getFile(new File(mod.getPath()), toCopy);
+                            FileOutputStream fos = new FileOutputStream(temp);
+                            ByteArrayInputStream bais = new ByteArrayInputStream(file);
+                            ZIP.copyInputStream(bais, fos);
+                            fos.flush();
+                            bais.close();
                         }
                         temp.setLastModified(ZIP.getLastModified(new File(mod.getPath()), toCopy));
                     }
@@ -839,21 +839,22 @@ public class Manager {
                 }
             }
         }
-        
+
         String dest = "";
-        
-        if (OS.isWindows())
-        	dest = ManagerOptions.getInstance().getGamePath() + File.separator + "game" + File.separator + "resources999.s2z";
-        else if (OS.isMac())
-        	dest = System.getProperty("user.home") + File.separator + "Library/Application Support/Heroes of Newerth/game/resources999.s2z";
-        
+
+        if (OS.isWindows()) {
+            dest = ManagerOptions.getInstance().getGamePath() + File.separator + "game" + File.separator + "resources999.s2z";
+        } else if (OS.isMac()) {
+            dest = System.getProperty("user.home") + File.separator + "Library/Application Support/Heroes of Newerth/game/resources999.s2z";
+        }
+
         File targetZip = new File(dest);
         if (targetZip.exists()) {
             if (!targetZip.delete()) {
                 throw new SecurityException();
             }
         }
-        
+
         if (!applyOrder.isEmpty()) {
             ZIP.createZIP(tempFolder.getAbsolutePath(), targetZip.getAbsolutePath());
         } else {
