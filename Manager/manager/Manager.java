@@ -130,11 +130,10 @@ public class Manager {
 
     /**
      * @throws IOException 
-     * @throws UnsupportedEncodingException 
      * @throws FileNotFoundException 
      * 
      */
-    public void saveOptions() throws UnsupportedEncodingException, IOException {
+    public void saveOptions() throws IOException {
         String name = ManagerOptions.getInstance().getManagerPath() + File.separator + ManagerOptions.getInstance().getOptionsName();
         File f = new File(name);
         if (f.exists()) {
@@ -865,7 +864,7 @@ public class Manager {
         saveOptions();
     }
 
-    public void unapplyMods() {
+    public void unapplyMods() throws SecurityException,IOException {
         ManagerOptions.getInstance().getAppliedMods().clear();
         Iterator<Mod> i = ManagerOptions.getInstance().getMods().iterator();
         while (i.hasNext()) {
@@ -874,23 +873,20 @@ public class Manager {
         try {
             applyMods();
         } catch (IOException ex) {
-            java.util.logging.Logger.getLogger(Manager.class.getName()).log(Level.SEVERE, null, ex);
+            throw ex;
         } catch (UnknowModActionException ex) {
         } catch (NothingSelectedModActionException ex) {
         } catch (StringNotFoundModActionException ex) {
         } catch (InvalidModActionParameterException ex) {
         } catch (ModActionConditionNotValidException ex) {
         } catch (SecurityException ex) {
-            java.util.logging.Logger.getLogger(Manager.class.getName()).log(Level.SEVERE, null, ex);
+            throw ex;
         }
         try {
             saveOptions();
-        } catch (UnsupportedEncodingException ex) {
-            java.util.logging.Logger.getLogger(Manager.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            java.util.logging.Logger.getLogger(Manager.class.getName()).log(Level.SEVERE, null, ex);
+            throw ex;
         }
-        ManagerOptions.getInstance().updateNotify();
     }
 
     /**

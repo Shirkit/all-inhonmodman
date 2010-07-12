@@ -136,10 +136,9 @@ public class XML {
      * Save the XML in the passed parameter of the ManagerOptions.
      * @param where path to the File that the ManagerOptions's content will be saved.
      * @throws FileNotFoundException if the passed param 'where' was not found.
-     * @throws UnsupportedEncodingException
      * @throws IOException random I/O exception.
      */
-    public static void managerOptionsToXml(File where) throws UnsupportedEncodingException, IOException {
+    public static void managerOptionsToXml(File where) throws IOException {
 
         XStream xstream = new XStream(getDriver());
         updateAlias(xstream);

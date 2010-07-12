@@ -370,6 +370,7 @@ public class ManagerCtrl {
             logger.info("Unapplying all mods...");
             // TODO: Test & implement
             controller.unapplyMods();
+            model.updateNotify();
             view.showMessage(L10n.getString("message.modsunapplied"),
                              L10n.getString("message.modsunapplied.title"),
                              JOptionPane.INFORMATION_MESSAGE);

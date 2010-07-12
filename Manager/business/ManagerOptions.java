@@ -116,7 +116,7 @@ public class ManagerOptions extends Observable {
         notifyObservers();
     }
 
-    public void saveOptions(File path) throws UnsupportedEncodingException, IOException {
+    public void saveOptions(File path) throws IOException {
         XML.managerOptionsToXml(path);
     }
 
