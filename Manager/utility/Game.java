@@ -99,6 +99,7 @@ public class Game {
      * @throws IllegalArgumentException if the attribute Game.path is null.
      */
     public String getVersion() throws IllegalArgumentException, FileNotFoundException, IOException {
+    	this.path = findHonFolder();
         if (this.path == null) {
             throw new IllegalArgumentException("Attribute 'path' not set yet.");
         }

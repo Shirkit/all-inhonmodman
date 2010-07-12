@@ -18,9 +18,13 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import utility.FileDrop;
 import utility.OS;
+import utility.exception.ModEnabledException;
+import utility.exception.ModNotEnabledException;
+import utility.exception.ModVersionMissmatchException;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.prefs.Preferences;
@@ -87,6 +91,7 @@ public class ManagerCtrl {
         try {
         	controller.loadOptions();
         	controller.loadMods();
+        	controller.buildGraphs();
         	loadLaf();
         	controller.saveOptions();
         } catch (Exception ex) {
@@ -247,10 +252,39 @@ public class ManagerCtrl {
             if (data instanceof Boolean) {
                 if ((Boolean)data){
                     logger.info("Mod at index "+row+" has been enabled");
-                    controller.getMod(row).enable();
+                    try {
+						controller.enableMod(controller.getMod(row).getName(), true);
+					} catch (NoSuchElementException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (NullPointerException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (IndexOutOfBoundsException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (ModEnabledException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (ModNotEnabledException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (ModVersionMissmatchException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (IllegalArgumentException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (FileNotFoundException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
                 } else {
                     logger.info("Mod at index "+row+" has been disabled");
-                    controller.getMod(row).disable();
+                    controller.disableMod(controller.getMod(row).getName());
                 }
                 // Again, save and restore ListSelectionListener
                 view.tableRemoveListSelectionListener(lsl);
@@ -364,11 +398,37 @@ public class ManagerCtrl {
         public void actionPerformed(ActionEvent e) {
             Mod mod = controller.getMod(e.getActionCommand());
             if (mod.isEnabled()) {
-                logger.info("Mod '"+mod.getName()+"' is now DISABLED");
-                mod.disable();
+                logger.error("Mod '"+mod.getName()+"' is now DISABLED");
+                controller.disableMod(mod.getName());
             } else {
-                logger.info("Mod '"+mod.getName()+"' is now ENABLED");
-                mod.enable();
+                logger.error("Mod '"+mod.getName()+"' is now ENABLED");
+                try {
+					controller.enableMod(mod.getName(), true);
+				} catch (NoSuchElementException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (NullPointerException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (ModEnabledException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (ModNotEnabledException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (ModVersionMissmatchException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (IllegalArgumentException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (FileNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
             }
             // Update GUI
             view.tableRemoveListSelectionListener(lsl);

@@ -393,6 +393,11 @@ public class Manager {
     private boolean checkdeps(Mod m) throws ModNotEnabledException {
         // get a list of dependencies
         ArrayList<Pair<String, String>> list = deps.get(ManagerOptions.getInstance().getMods().indexOf(m));
+        
+        System.out.println("CheckDeps of mod " + m.getName());
+        if (!(list == null || list.isEmpty()))
+        	System.out.println("Deps of mod " + m.getName() + ": " + list.toString());
+        
         if (list == null || list.isEmpty()) {
             return true;
         } else {
@@ -463,20 +468,32 @@ public class Manager {
      * @throws NoSuchElementException if the mod doesn't exist
      * @throws ModVersionMissmatchException if the mod's version is imcompatible with the game version.
      * @throws NullPointerException if there is a problem with the game path (maybe the path was not set in the game class, or hon.exe wasn't found, or happened a random I/O error).
+     * @throws IOException 
+     * @throws FileNotFoundException 
+     * @throws IllegalArgumentException 
      */
-    public void enableMod(String name, boolean ignoreVersion) throws ModEnabledException, ModNotEnabledException, NoSuchElementException, ModVersionMissmatchException, NullPointerException {
+    public void enableMod(String name, boolean ignoreVersion) throws ModEnabledException, ModNotEnabledException, NoSuchElementException, ModVersionMissmatchException, NullPointerException, IllegalArgumentException, FileNotFoundException, IOException {
         Mod m = getMod(name);
+        logger.error("MAN: game version: " + Game.getInstance().getVersion()); // this has problems
+    	logger.error("MAN: mod version: " + m.getVersion());
+        
         if (!ignoreVersion) {
             try {
                 if (compareModsVersions(Game.getInstance().getVersion(), m.getVersion())) {
                     throw new ModVersionMissmatchException(name, name);
                 }
             } catch (IllegalArgumentException ex) {
-                throw new NullPointerException();
+            	//view.showMessage("error.loadmodfiles", "error.loadmodfiles.title", JOptionPane.ERROR_MESSAGE);
+                //throw new NullPointerException();
+            	ex.printStackTrace();
             } catch (FileNotFoundException ex) {
-                throw new NullPointerException();
+            	//view.showMessage("error.loadmodfiles", "error.loadmodfiles.title", JOptionPane.ERROR_MESSAGE);
+                //throw new NullPointerException();
+            	ex.printStackTrace();
             } catch (IOException ex) {
-                throw new NullPointerException();
+            	//view.showMessage("error.loadmodfiles", "error.loadmodfiles.title", JOptionPane.ERROR_MESSAGE);
+                //throw new NullPointerException();
+            	ex.printStackTrace();
             }
         }
         if (!m.isEnabled() && checkdeps(m) && !checkcons(m)) {
@@ -544,8 +561,8 @@ public class Manager {
         return stack;
     }
 
-    public Stack<Mod> sortMods() {
-        Stack<Mod> stack = new Stack<Mod>();
+    public Stack<Mod> sortMods() throws IOException {
+    	Stack<Mod> stack = new Stack<Mod>();
 
         Enumeration e = Collections.enumeration(ManagerOptions.getInstance().getMods());
         while (e.hasMoreElements()) {
@@ -590,6 +607,9 @@ public class Manager {
         while (list.hasMoreElements()) {
             Mod mod = list.nextElement();
             //System.out.println("HERE");
+            
+            logger.error("MAN: mod actions: " + mod.getActions("find").toString());
+            
             for (int j = 0; j < mod.getActions().size(); j++) {
                 Action action = mod.getActions().get(j);
                 if (action.getClass().equals(ActionCopyFile.class)) {
@@ -737,7 +757,7 @@ public class Manager {
                                         }
                                     }
                                 } else {
-                                    cursor = toEdit.indexOf(find.getContent());
+                                    cursor = toEdit.toLowerCase().trim().indexOf(find.getContent().toLowerCase().trim());
                                     if (cursor == -1) {
                                         // couldn't find the string, can't apply
                                         throw new StringNotFoundModActionException(mod.getName(), mod.getVersion(), (Action) find, find.getContent());
