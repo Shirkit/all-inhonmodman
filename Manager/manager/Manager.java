@@ -445,14 +445,14 @@ public class Manager {
     private boolean revcheckdeps(Mod m) {
         // get a list of dependencies on m
         ArrayList list = new ArrayList();
-        Enumeration e = Collections.enumeration(deps);
-        while (e.hasMoreElements()) {
-            ArrayList<Pair<String, String>> temp = (ArrayList<Pair<String, String>>) e.nextElement();
+        for (int i = 0; i < deps.size(); i++) {
+            ArrayList<Pair<String, String>> temp = (ArrayList<Pair<String, String>>) deps.get(i);
             if (temp == null || temp.isEmpty())
-            	return true;
+            	continue;
             Enumeration te = Collections.enumeration(temp);
             while (te.hasMoreElements()) {
-                if (Tuple.get1((Pair<String, String>) te.nextElement()).equals(m.getName())) {
+            	Pair<String, String> pair = (Pair<String, String>) te.nextElement();
+                if (Tuple.get1(pair).equals(m.getName()) && getMod(i).isEnabled()) {
                     return true;
                 }
 //	    			list.add(deps.indexOf(temp));
@@ -516,7 +516,8 @@ public class Manager {
         }
         if (!revcheckdeps(m)) {
             // disable it
-            ManagerOptions.getInstance().getMods().get(ManagerOptions.getInstance().getMods().indexOf(m)).disable();
+        	ManagerOptions.getInstance().getAppliedMods().remove(ManagerOptions.getInstance().getMod(name));
+            ManagerOptions.getInstance().getMod(name).disable();
             return true;
         }
         System.out.println("Can't disable mod " + name);

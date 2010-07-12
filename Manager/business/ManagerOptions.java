@@ -215,6 +215,15 @@ public class ManagerOptions extends Observable {
     	
     	this.mods.add(mod);
     }
+    
+    public Mod getMod(String name) {
+    	for (int i = 0; i < mods.size(); i++) {
+    		if (mods.get(i).getName().equalsIgnoreCase(name)) 
+    			return mods.get(i);
+    	}
+    
+    	return null;
+    }
 
     public ArrayList<Mod> getMods() {
         if (mods == null) {
