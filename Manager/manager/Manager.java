@@ -601,8 +601,8 @@ public class Manager {
     	return deps.get(ManagerOptions.getInstance().getMods().indexOf(m));
     }
 
-    public Queue<Mod> sortMods() throws IOException {
-        Queue<Mod> queue = new LinkedList<Mod>();
+    public ArrayList<Mod> sortMods() throws IOException {
+        ArrayList<Mod> queue = new ArrayList<Mod>();
         ArrayList<Mod> left = new ArrayList<Mod>();
         for (int i = 0; i < ManagerOptions.getInstance().getMods().size(); i++) {
         	if(ManagerOptions.getInstance().getMods().get(i).isEnabled()) {
@@ -700,6 +700,26 @@ public class Manager {
                 */
             }
         }
+        
+        for (int i = 0; i < before.size(); i++) {
+        	ArrayList<Pair<String, String> > list = (ArrayList<Pair<String, String> >) before.get(i);
+        	
+        	if (list != null && !list.isEmpty()) {
+	        	r = Collections.enumeration(list);
+	        	int lowest = ManagerOptions.getInstance().getMods().size();
+	        	while (r.hasMoreElements()) {
+	        		Pair<String, String> pair = (Pair<String, String>) r.nextElement();
+	        		if (lowest > queue.indexOf(getMod(Tuple.get1(pair))) && queue.indexOf(getMod(Tuple.get1(pair))) >= 0)
+	        			lowest = queue.indexOf(getMod(Tuple.get1(pair)));
+	        	}
+	        	int ind = queue.indexOf(ManagerOptions.getInstance().getMods().get(i));
+	        	
+	        	if (ind > lowest) {
+	        		queue.add(lowest, queue.get(ind));
+	        		queue.remove(ind+1);
+	        	}
+        	}
+        }
 
         return queue;
     }
@@ -714,7 +734,7 @@ public class Manager {
      * @throws SecurityException if the Manager couldn't do a action because of security business.
      */
     public void applyMods() throws IOException, UnknowModActionException, NothingSelectedModActionException, StringNotFoundModActionException, InvalidModActionParameterException, ModActionConditionNotValidException, SecurityException {
-        Queue<Mod> applyOrder = sortMods();
+        ArrayList<Mod> applyOrder = sortMods();
         File tempFolder = new File(System.getProperty("java.io.tmpdir") + File.separator + "HoN Mod Manager");
         // This generates a temp folder. If it isn't possible, generates a random folder inside the OS's temp folder.
         if (tempFolder.exists()) {
