@@ -448,6 +448,8 @@ public class Manager {
         Enumeration e = Collections.enumeration(deps);
         while (e.hasMoreElements()) {
             ArrayList<Pair<String, String>> temp = (ArrayList<Pair<String, String>>) e.nextElement();
+            if (temp.isEmpty() || temp == null)
+            	return false;
             Enumeration te = Collections.enumeration(temp);
             while (te.hasMoreElements()) {
                 if (Tuple.get1((Pair<String, String>) te.nextElement()).equals(m.getName())) {
