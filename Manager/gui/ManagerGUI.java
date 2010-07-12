@@ -694,6 +694,16 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         // Display details of selected mod
         displayModDetail();
     }
+    
+    /**
+     * Highlight the mods that is required to enable before or disable before the current select mod do
+     * TODO: next release, right now don't bother
+     */
+    public void highlightMods() {
+    	int selectedRow = tableModList.getSelectedRow();
+        if (selectedRow == -1) return;
+        
+    }
 
     /**
      * Display details of the selected mod in the right panel
@@ -746,6 +756,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     public void update(Observable obs, Object obj) {
         logger.info("List of mods has changed, updating...");
         updateModTable(ManagerOptions.getInstance().getMods());
+        highlightMods();
     }
 
     /**

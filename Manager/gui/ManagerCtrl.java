@@ -369,7 +369,15 @@ public class ManagerCtrl {
         public void actionPerformed(ActionEvent e) {
             logger.info("Unapplying all mods...");
             // TODO: Test & implement
-            controller.unapplyMods();
+            try {
+				controller.unapplyMods();
+			} catch (SecurityException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
             model.updateNotify();
             view.showMessage(L10n.getString("message.modsunapplied"),
                              L10n.getString("message.modsunapplied.title"),
