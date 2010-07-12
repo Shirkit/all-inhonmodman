@@ -4,6 +4,7 @@ import business.ManagerOptions;
 import business.Mod;
 import business.actions.*;
 import java.util.Set;
+import java.util.logging.Level;
 
 import utility.OS;
 import utility.XML;
@@ -862,6 +863,34 @@ public class Manager {
         }
         ManagerOptions.getInstance().setAppliedMods(new HashSet<Mod>(applyOrder));
         saveOptions();
+    }
+
+    public void unapplyMods() {
+        ManagerOptions.getInstance().getAppliedMods().clear();
+        Iterator<Mod> i = ManagerOptions.getInstance().getMods().iterator();
+        while (i.hasNext()) {
+            i.next().disable();
+        }
+        try {
+            applyMods();
+        } catch (IOException ex) {
+            java.util.logging.Logger.getLogger(Manager.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (UnknowModActionException ex) {
+        } catch (NothingSelectedModActionException ex) {
+        } catch (StringNotFoundModActionException ex) {
+        } catch (InvalidModActionParameterException ex) {
+        } catch (ModActionConditionNotValidException ex) {
+        } catch (SecurityException ex) {
+            java.util.logging.Logger.getLogger(Manager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        try {
+            saveOptions();
+        } catch (UnsupportedEncodingException ex) {
+            java.util.logging.Logger.getLogger(Manager.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            java.util.logging.Logger.getLogger(Manager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        ManagerOptions.getInstance().updateNotify();
     }
 
     /**

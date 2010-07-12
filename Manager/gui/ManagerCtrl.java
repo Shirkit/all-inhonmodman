@@ -369,7 +369,7 @@ public class ManagerCtrl {
         public void actionPerformed(ActionEvent e) {
             logger.info("Unapplying all mods...");
             // TODO: Test & implement
-            // model.unapplyMods();
+            controller.unapplyMods();
             view.showMessage(L10n.getString("message.modsunapplied"),
                              L10n.getString("message.modsunapplied.title"),
                              JOptionPane.INFORMATION_MESSAGE);
