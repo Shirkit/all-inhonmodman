@@ -178,6 +178,9 @@ public class ZIP {
             //create a  new zipentry
             String path = f.getPath();
             path = path.replace(originalFolder + File.separator, "");
+            while (path.contains("\\")) {
+                path = path.replace("\\", "/");
+            }
             logger.error("ZIP: " + path);
             ZipEntry anEntry = new ZipEntry(path);
             anEntry.setTime(f.lastModified());

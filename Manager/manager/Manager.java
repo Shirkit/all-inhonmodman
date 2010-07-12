@@ -755,8 +755,6 @@ public class Manager {
             Mod mod = list.nextElement();
             logger.error("MAN: mod: " + mod.getName());
 
-            logger.error("MAN: mod actions: " + mod.getActions("find").toString());
-
             for (int j = 0; j < mod.getActions().size(); j++) {
                 Action action = mod.getActions().get(j);
                 if (action.getClass().equals(ActionCopyFile.class)) {
@@ -840,28 +838,29 @@ public class Manager {
 
                         // Check for file
                         File f = new File(tempFolder.getAbsolutePath() + File.separator + editfile.getName());
-                        String toEdit = "";
+                        System.out.println(f.getAbsolutePath());
+                        String afterEdit = "";
                         if (f.exists()) {
                             // Load file from temp folder. If any other mod changes the file, it's actions won't be lost.
                             FileInputStream fin = new FileInputStream(f);
                             OutputStream os = new ByteArrayOutputStream();
                             ZIP.copyInputStream(fin, os);
-                            toEdit = os.toString();
+                            afterEdit = os.toString();
                             fin.close();
                             os.flush();
                             os.close();
                         } else {
                             // Load file from resources0.s2z if no other mod edited this file
-                            toEdit = new String(ZIP.getFile(new File(ManagerOptions.getInstance().getGamePath() + File.separator + "game" + File.separator + "resources0.s2z"), editfile.getName()));
+                            System.out.println("loading new file");
+                            afterEdit = new String(ZIP.getFile(new File(ManagerOptions.getInstance().getGamePath() + File.separator + "game" + File.separator + "resources0.s2z"), editfile.getName()));
                         }
-                        String afterEdit = new String(toEdit);
                         for (int k = 0; k < editfile.getActions().size(); k++) {
                             ActionEditFileActions editFileAction = editfile.getActions().get(k);
 
                             // Delete Action
                             if (editFileAction.getClass().equals(ActionEditFileDelete.class)) {
                                 if (isSelected) {
-                                    afterEdit = toEdit.substring(0, cursor) + toEdit.substring(cursor2);
+                                    afterEdit = afterEdit.substring(0, cursor) + afterEdit.substring(cursor2);
                                     isSelected = false;
                                 } else {
                                     ActionEditFileDelete delete = (ActionEditFileDelete) editFileAction;
@@ -877,14 +876,14 @@ public class Manager {
                                         cursor2 = 0;
                                         isSelected = true;
                                     } else if (find.isPositionAtEnd()) {
-                                        cursor = toEdit.length();
+                                        cursor = afterEdit.length();
                                         cursor2 = cursor;
                                         isSelected = true;
                                     } else {
                                         try {
                                             cursor = Integer.parseInt(find.getPosition());
                                             if (cursor < 0) {
-                                                cursor = toEdit.length() - (cursor * (-1));
+                                                cursor = afterEdit.length() - (cursor * (-1));
                                             }
                                             cursor2 = cursor;
                                             isSelected = true;
@@ -894,10 +893,11 @@ public class Manager {
                                         }
                                     }
                                 } else {
-                                    cursor = toEdit.toLowerCase().trim().indexOf(find.getContent().toLowerCase().trim());
+                                    cursor = afterEdit.toLowerCase().trim().indexOf(find.getContent().toLowerCase().trim());
                                     if (cursor == -1) {
                                         // couldn't find the string, can't apply
                                     	logger.error("MAN: mod edit find: " + find.getContent());
+                                        System.err.println(afterEdit);
                                         throw new StringNotFoundModActionException(mod.getName(), mod.getVersion(), (Action) find, find.getContent());
                                     }
                                     cursor2 = cursor + find.getContent().length();
@@ -907,7 +907,7 @@ public class Manager {
                                 // FindUp Action
                             } else if (editFileAction.getClass().equals(ActionEditFileFindUp.class)) {
                                 ActionEditFileFindUp findup = (ActionEditFileFindUp) editFileAction;
-                                cursor = toEdit.lastIndexOf(findup.getContent());
+                                cursor = afterEdit.trim().toLowerCase().lastIndexOf(findup.getContent().trim().toLowerCase());
                                 if (cursor == -1) {
                                     // couldn't find the string, can't apply
                                     throw new StringNotFoundModActionException(mod.getName(), mod.getVersion(), (Action) findup, findup.getContent());
@@ -920,9 +920,9 @@ public class Manager {
                                 ActionEditFileInsert insert = (ActionEditFileInsert) editFileAction;
                                 if (isSelected) {
                                     if (insert.isPositionAfter()) {
-                                        afterEdit = toEdit.substring(0, cursor2) + insert.getContent() + toEdit.substring(cursor2);
+                                        afterEdit = afterEdit.substring(0, cursor2) + insert.getContent() + afterEdit.substring(cursor2);
                                     } else if (insert.isPositionBefore()) {
-                                        afterEdit = toEdit.substring(0, cursor) + insert.getContent() + toEdit.substring(cursor);
+                                        afterEdit = afterEdit.substring(0, cursor) + insert.getContent() + afterEdit.substring(cursor);
                                     } else {
                                         // position is invalid, can't apply
                                         throw new InvalidModActionParameterException(mod.getName(), mod.getVersion(), (Action) insert);
@@ -936,7 +936,8 @@ public class Manager {
                             } else if (editFileAction.getClass().equals(ActionEditFileReplace.class)) {
                                 ActionEditFileReplace replace = (ActionEditFileReplace) editFileAction;
                                 if (isSelected) {
-                                    afterEdit = toEdit.replace(toEdit.substring(cursor, cursor2), replace.getContent());
+                                    //afterEdit = afterEdit.replace(afterEdit.substring(cursor, cursor2), replace.getContent());
+                                    afterEdit = afterEdit.substring(0, cursor) + replace.getContent() + afterEdit.substring(cursor2);
                                     isSelected = false;
                                 } else {
                                     throw new NothingSelectedModActionException(mod.getName(), mod.getVersion(), (Action) replace);
@@ -959,6 +960,7 @@ public class Manager {
                         // Write String afterEdit to a file
                         FileOutputStream fos = new FileOutputStream(temp);
                         ByteArrayInputStream in = new ByteArrayInputStream(afterEdit.getBytes("UTF-8"));
+                        //fos.write(afterEdit.getBytes("UTF-8"));
                         ZIP.copyInputStream(in, fos);
                         fos.flush();
                         fos.close();
