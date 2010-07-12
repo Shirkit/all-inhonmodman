@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
+import java.util.Queue;
 import java.util.Stack;
 import java.util.StringTokenizer;
 import java.util.Observable;
@@ -65,6 +66,8 @@ public class Manager {
     //private ArrayList<Mod> mods;
     private ArrayList<ArrayList<Pair<String, String>>> deps;
     private ArrayList<ArrayList<Pair<String, String>>> cons;
+    private ArrayList<ArrayList<Pair<String, String>>> after;
+    private ArrayList<ArrayList<Pair<String, String>>> before;
     //private Set<Mod> applied;
     private static Logger logger = Logger.getLogger(Manager.class.getPackage().getName());
 
@@ -72,6 +75,8 @@ public class Manager {
         //mods = new ArrayList<Mod>();
         deps = new ArrayList<ArrayList<Pair<String, String>>>();
         cons = new ArrayList<ArrayList<Pair<String, String>>>();
+        after = new ArrayList<ArrayList<Pair<String, String>>>();
+        before = new ArrayList<ArrayList<Pair<String, String>>>();
     }
 
     /**
@@ -101,10 +106,24 @@ public class Manager {
         for (int i = 0; i < mods.size(); i++) {
             int length = mods.get(i).getActions().size();
             for (int j = 0; j < length; j++) {
-                if (mods.get(i).getActions().get(j).getClass() == ActionApplyAfter.class) {
-                    // do something
-                } else if (mods.get(i).getActions().get(j).getClass() == ActionApplyBefore.class) {
-                    // do something
+            	if (mods.get(i).getActions().get(j).getClass() == ActionApplyAfter.class) {
+                    Pair<String, String> mod = Tuple.from(((ActionApplyAfter) mods.get(i).getActions().get(j)).getName(), ((ActionApplyAfter) mods.get(i).getActions().get(j)).getVersion());
+                    if (after.get(i) == null) {
+                        ArrayList<Pair<String, String>> temp = new ArrayList<Pair<String, String>>();
+                        temp.add(mod);
+                        after.add(i, temp);
+                    } else {
+                        after.get(i).add(mod);
+                    }
+            	} else if (mods.get(i).getActions().get(j).getClass() == ActionApplyBefore.class) {
+                    Pair<String, String> mod = Tuple.from(((ActionApplyBefore) mods.get(i).getActions().get(j)).getName(), ((ActionApplyBefore) mods.get(i).getActions().get(j)).getVersion());
+                    if (before.get(i) == null) {
+                        ArrayList<Pair<String, String>> temp = new ArrayList<Pair<String, String>>();
+                        temp.add(mod);
+                        before.add(i, temp);
+                    } else {
+                        before.get(i).add(mod);
+                    }
                 } else if (mods.get(i).getActions().get(j).getClass() == ActionIncompatibility.class) {
                     Pair<String, String> mod = Tuple.from(((ActionIncompatibility) mods.get(i).getActions().get(j)).getName(), ((ActionIncompatibility) mods.get(i).getActions().get(j)).getVersion());
                     if (cons.get(i) == null) {
@@ -186,8 +205,11 @@ public class Manager {
      */
     private void addMod(Mod mod) {
         ManagerOptions.getInstance().addMod(mod);
+        ManagerOptions.getInstance().getMod(mod.getName()).disable();
         deps.add(null);
         cons.add(null);
+        after.add(null);
+        before.add(null);
     }
 
     /**
@@ -367,8 +389,8 @@ public class Manager {
                 return m;
             }
         }
-
-        throw new NoSuchElementException(name);
+        
+        return null;
     }
 
     /**
@@ -518,20 +540,21 @@ public class Manager {
      * @param name
      * @return Whether the function disable the mod successfully
      */
-    public boolean disableMod(String name) {
+    public void disableMod(String name) {
         Mod m = getMod(name);
         if (!m.isEnabled()) {
             System.out.println("Mod " + name + " already disabled");
-            return true;
+            return;
         }
         if (!revcheckdeps(m)) {
             // disable it
             ManagerOptions.getInstance().getAppliedMods().remove(ManagerOptions.getInstance().getMod(name));
             ManagerOptions.getInstance().getMod(name).disable();
-            return true;
+            return;
         }
         System.out.println("Can't disable mod " + name);
-        return false;
+        
+        
     }
 
     private Stack<Mod> BFS(Stack<Mod> stack, ArrayList<Pair<String, String>> dep) {
@@ -573,22 +596,112 @@ public class Manager {
 
         return stack;
     }
+    
+    public ArrayList<Pair<String, String> > getDepsList(Mod m) {
+    	return deps.get(ManagerOptions.getInstance().getMods().indexOf(m));
+    }
 
-    public Stack<Mod> sortMods() throws IOException {
-        Stack<Mod> stack = new Stack<Mod>();
+    public Queue<Mod> sortMods() throws IOException {
+        Queue<Mod> queue = new LinkedList<Mod>();
+        ArrayList<Mod> left = new ArrayList<Mod>();
+        for (int i = 0; i < ManagerOptions.getInstance().getMods().size(); i++) {
+        	if(ManagerOptions.getInstance().getMods().get(i).isEnabled()) {
+        		logger.error("MAN: sortmods: mod added to left: " + ManagerOptions.getInstance().getMods().get(i).getName());
+        		left.add(ManagerOptions.getInstance().getMods().get(i));
+        	}
+        }
+           	
+        
+        for (int i = 0; i < left.size(); i++) {
+        	int ind = ManagerOptions.getInstance().getMods().indexOf(getMod(left.get(i).getName()));
+        	ArrayList<Pair<String, String> > list = deps.get(ind);
+        	
+        	logger.error("MAN: sortmods: checking: " + left.get(i).getName());
+        	
+        	if(list == null || list.isEmpty()) {
+        		list = after.get(ind);
+        		Mod m = getMod(ind);
+        		if (list == null || list.isEmpty()) {
+	        		
+	        		
+	        		logger.error("MAN: sortmods: first: " + m.getName());
+	    			queue.add(m);
+        		}
+        		else {
+        			boolean yes = false;
+        			for (int h = 0; h < list.size(); h++) {
+        				System.out.println("BREATH: " + Tuple.get1(list.get(h)));
+        				try {
+        					Mod mm = getMod(Tuple.get1(list.get(h)));
+        					if (mm != null && mm.isEnabled() && !queue.contains(mm))
+            					yes = true;
+        				} catch (NoSuchElementException ex) {
+        					//ex.printStackTrace();
+        				}
+        				
+        			}
+        			
+        			if (!yes)
+        				queue.add(m);
+        		}
+        	}
+        	else {
+        		Mod m = getMod(ind);
+        		if (m.getName().equalsIgnoreCase("Movable Frames"))
+        			logger.error("MAN: sortmods: pp: " + list.toString());
+        	}
+        }
+        
+        Enumeration r = Collections.enumeration(left);
+        while (r.hasMoreElements()) {
+        	Mod m = (Mod) r.nextElement();
+        	if (queue.contains(m)) {
+        		left.remove(m);
+        		r = Collections.enumeration(left);
+        	}
+        }
+        
+        
 
-        Enumeration e = Collections.enumeration(ManagerOptions.getInstance().getMods());
+        Enumeration e = Collections.enumeration(left);
         while (e.hasMoreElements()) {
             Mod m = (Mod) e.nextElement();
+            
             if (m.isEnabled()) {
+            	logger.error("MAN: sortmods: second: " + m.getName());
+            	ArrayList<Pair<String, String> > depslist = getDepsList(m);
+            	
+            	if (depslist == null || depslist.isEmpty()) {
+            		queue.add(m);
+            		left.remove(m);
+            		e = Collections.enumeration(left);
+            	} else {
+            		boolean yes = false;
+	            	for (int i = 0; i < depslist.size(); i++) {
+	            		if (!queue.contains(getMod(Tuple.get1(depslist.get(i))))) {
+	            			left.remove(m);
+	                		left.add(m);
+	                		e = Collections.enumeration(left);
+	                		yes = true;
+	            		}
+	            	}
+	            	if (!yes) {
+	            		queue.add(m);
+	            		left.remove(m);
+	            		e = Collections.enumeration(left);
+	            	}
+            	}
+            	
+            	/*
                 if (!stack.contains(m)) {
                     stack.add(m);
                 }
                 stack = BFS(stack, deps.get(ManagerOptions.getInstance().getMods().indexOf(m)));
+                */
             }
         }
 
-        return stack;
+        return queue;
     }
 
     /**
@@ -601,7 +714,7 @@ public class Manager {
      * @throws SecurityException if the Manager couldn't do a action because of security business.
      */
     public void applyMods() throws IOException, UnknowModActionException, NothingSelectedModActionException, StringNotFoundModActionException, InvalidModActionParameterException, ModActionConditionNotValidException, SecurityException {
-        Stack<Mod> applyOrder = sortMods();
+        Queue<Mod> applyOrder = sortMods();
         File tempFolder = new File(System.getProperty("java.io.tmpdir") + File.separator + "HoN Mod Manager");
         // This generates a temp folder. If it isn't possible, generates a random folder inside the OS's temp folder.
         if (tempFolder.exists()) {
@@ -615,11 +728,12 @@ public class Manager {
                 }
             }
         }
+        logger.error("MAN: temp: " + tempFolder.getAbsolutePath());
         tempFolder.mkdirs();
-        Enumeration<Mod> list = applyOrder.elements();
+        Enumeration<Mod> list = Collections.enumeration(applyOrder);
         while (list.hasMoreElements()) {
             Mod mod = list.nextElement();
-            //System.out.println("HERE");
+            logger.error("MAN: mod: " + mod.getName());
 
             logger.error("MAN: mod actions: " + mod.getActions("find").toString());
 
@@ -763,6 +877,7 @@ public class Manager {
                                     cursor = toEdit.toLowerCase().trim().indexOf(find.getContent().toLowerCase().trim());
                                     if (cursor == -1) {
                                         // couldn't find the string, can't apply
+                                    	logger.error("MAN: mod edit find: " + find.getContent());
                                         throw new StringNotFoundModActionException(mod.getName(), mod.getVersion(), (Action) find, find.getContent());
                                     }
                                     cursor2 = cursor + find.getContent().length();
@@ -1087,7 +1202,9 @@ public class Manager {
 
             // checkVersion checks to see if first argument <= second argument is true
             return checkVersion(low, target) && checkVersion(target, high);
-
+            
+        } else if (version.isEmpty()) {
+        	return true;
         } else {
             String compare = version.trim();
             return checkVersion(compare, target);
@@ -1102,6 +1219,8 @@ public class Manager {
      */
     public boolean isValidCondition(String condition) {
         boolean valid = true;
+        
+        System.out.println("isValidCondition: " + condition);
 
         StringTokenizer st = new StringTokenizer(condition, "\' ()", true);
         while (st.hasMoreTokens()) {
@@ -1128,6 +1247,7 @@ public class Manager {
 
                     try {
                         valid = (m.isEnabled() && validVersion(m, version));
+                        System.out.println("condition mod: " + valid);
                     } catch (Exception e) {
                         System.out.println("version is not valid: " + e.getMessage());
                         valid = false;
