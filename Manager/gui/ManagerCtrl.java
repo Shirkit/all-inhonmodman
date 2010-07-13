@@ -253,7 +253,7 @@ public class ManagerCtrl {
                 if ((Boolean)data){
                     logger.info("Mod at index "+row+" has been enabled");
                     try {
-						controller.enableMod(controller.getMod(row).getName(), true);
+						controller.enableMod(controller.getMod(row).getName(), false);
 					} catch (NoSuchElementException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
@@ -412,7 +412,7 @@ public class ManagerCtrl {
             } else {
                 logger.error("Mod '"+mod.getName()+"' is now ENABLED");
                 try {
-					controller.enableMod(mod.getName(), true);
+					controller.enableMod(mod.getName(), false);
 				} catch (NoSuchElementException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();

@@ -509,11 +509,12 @@ public class Manager {
     public void enableMod(String name, boolean ignoreVersion) throws ModEnabledException, ModNotEnabledException, NoSuchElementException, ModVersionMissmatchException, NullPointerException, IllegalArgumentException, FileNotFoundException, IOException {
         Mod m = getMod(name);
         logger.error("MAN: game version: " + Game.getInstance().getVersion()); // this has problems
-        logger.error("MAN: mod version: " + m.getVersion());
+        logger.error("MAN: mod version: " + m.getAppVersion());
+        
 
         if (!ignoreVersion) {
             try {
-                if (compareModsVersions(Game.getInstance().getVersion(), m.getVersion())) {
+                if (!compareModsVersions(Game.getInstance().getVersion(), m.getAppVersion())) {
                     throw new ModVersionMissmatchException(name, name);
                 }
             } catch (IllegalArgumentException ex) {
@@ -1048,8 +1049,16 @@ public class Manager {
 
             int check = 0;
             String vEx1 = expressionVersion.substring(0, expressionVersion.indexOf("-"));
+            if (vEx1.isEmpty() || vEx1 == null) {
+            	vEx1 = "*";
+            }
             String vEx2 = expressionVersion.substring(expressionVersion.indexOf("-") + 1, expressionVersion.length());
-
+            if (vEx2.isEmpty() || vEx2 == null) {
+            	vEx2 = "*";
+            }
+            
+            return checkVersion(vEx1, singleVersion) && checkVersion(singleVersion, vEx2);
+            /*
             // singleVersion's expressionVersion but filled with '0' at the end, what causes a problem
             ArrayList<Integer> versionBase = new ArrayList<Integer>();
             String[] v1 = singleVersion.split("\\.");
@@ -1097,9 +1106,10 @@ public class Manager {
             if (check >= 2) {
                 result = true;
             }
-
+			*/
         } else {
-            throw new InvalidParameterException();
+        	return checkVersion(expressionVersion, singleVersion);
+            //throw new InvalidParameterException();
         }
         return result;
     }
@@ -1191,18 +1201,25 @@ public class Manager {
      * @return
      */
     public boolean checkVersion(String lower, String higher) {
-        boolean ret = false;
+        boolean ret = true;
 
         StringTokenizer lowst = new StringTokenizer(lower, ".", false);
         StringTokenizer highst = new StringTokenizer(higher, ".", false);
 
         while (lowst.hasMoreTokens() && highst.hasMoreTokens()) {
-            int first = Integer.parseInt(lowst.nextToken());
-            int second = Integer.parseInt(highst.nextToken());
+        	String firsttk = lowst.nextToken();
+        	String secondtk = highst.nextToken();
+        	
+        	if (firsttk.contains("*") || secondtk.contains("*"))
+        		return ret;
+        	
+            int first = Integer.parseInt(firsttk);
+            int second = Integer.parseInt(secondtk);
 
-//    		System.out.println("first v: " + first + ", second v: " + second);
-
-            ret = (first <= second);
+            if (ret)
+            	ret = (first <= second);
+            else if (!ret)
+            	return ret;
         }
 
         return ret;

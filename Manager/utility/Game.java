@@ -4,8 +4,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import javax.imageio.stream.FileImageInputStream;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.log4j.Logger;
+import org.w3c.dom.*;
+import org.xml.sax.SAXException;
 
 /**
  * Attributes and Methods related to the HoN
@@ -121,8 +126,9 @@ public class Game {
         File honWindows = new File(folder.getAbsolutePath() + File.separator + "hon.exe");
         File honLinux = new File(folder.getAbsolutePath() + File.separator + "hon-x86");
         File honLinux64 = new File(folder.getAbsolutePath() + File.separator + "hon-x86_64");
-        File honMac = new File(folder.getAbsolutePath() + File.separator + "HoN");
+        File honMac = new File(folder.getAbsolutePath() + File.separator + "manifest.xml");
         String gameVersion = "";
+        
         if (!folder.exists()) {
             throw new FileNotFoundException("HoN folder doesn't exist");
         } else {
@@ -135,7 +141,7 @@ public class Game {
                     gameVersion = getGameVersionLinux(honLinux64);
                 }
             } else if (OS.isMac()) {
-                gameVersion = getGameVersionLinux(honMac);
+                gameVersion = getGameVersionMac(honMac);
             } else {
                 throw new FileNotFoundException("HoN file wasn't found");
             }
@@ -198,6 +204,45 @@ public class Game {
             } while ((j != 0) && (gameVersion.length() < 10));
         }
         return gameVersion;
+    }
+    
+    private String getGameVersionMac(File manifest) throws FileNotFoundException, IOException {
+    	DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+    	Document dom = null;
+    	
+    	try {
+    		
+    		DocumentBuilder db = dbf.newDocumentBuilder();
+    		dom = db.parse(manifest);
+
+    		
+    	}catch(ParserConfigurationException pce) {
+			pce.printStackTrace();
+		}catch(SAXException se) {
+			se.printStackTrace();
+		}catch(IOException ioe) {
+			ioe.printStackTrace();
+		}
+
+		
+		Element docEle = dom.getDocumentElement();
+		NodeList nl = docEle.getElementsByTagName("file");
+
+		if(nl != null && nl.getLength() > 0) {
+			for(int i = 0 ; i < nl.getLength();i++) {
+				Element el = (Element)nl.item(i);
+				
+				if (el.getAttribute("path").equalsIgnoreCase("HoN")) {
+					
+					String version = el.getAttribute("version");
+					logger.error("GAME: gameversion: " + version);
+					
+					return version;
+				}
+			}
+		}
+		
+		return "*";		
     }
 
     /**
