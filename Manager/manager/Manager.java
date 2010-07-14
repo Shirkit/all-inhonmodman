@@ -4,6 +4,7 @@ import business.ManagerOptions;
 import business.Mod;
 import business.actions.*;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 
 import utility.OS;
@@ -39,6 +40,9 @@ import com.thoughtworks.xstream.io.StreamException;
 import java.security.InvalidParameterException;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
 
@@ -50,6 +54,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import utility.Game;
+import utility.update.UpdateReturn;
+import utility.update.UpdateThread;
 
 /**
  * Implementation of the core functionality of HoN modification manager. This class is
@@ -106,7 +112,7 @@ public class Manager {
         for (int i = 0; i < mods.size(); i++) {
             int length = mods.get(i).getActions().size();
             for (int j = 0; j < length; j++) {
-            	if (mods.get(i).getActions().get(j).getClass() == ActionApplyAfter.class) {
+                if (mods.get(i).getActions().get(j).getClass() == ActionApplyAfter.class) {
                     Pair<String, String> mod = Tuple.from(((ActionApplyAfter) mods.get(i).getActions().get(j)).getName(), ((ActionApplyAfter) mods.get(i).getActions().get(j)).getVersion());
                     if (after.get(i) == null) {
                         ArrayList<Pair<String, String>> temp = new ArrayList<Pair<String, String>>();
@@ -115,7 +121,7 @@ public class Manager {
                     } else {
                         after.get(i).add(mod);
                     }
-            	} else if (mods.get(i).getActions().get(j).getClass() == ActionApplyBefore.class) {
+                } else if (mods.get(i).getActions().get(j).getClass() == ActionApplyBefore.class) {
                     Pair<String, String> mod = Tuple.from(((ActionApplyBefore) mods.get(i).getActions().get(j)).getName(), ((ActionApplyBefore) mods.get(i).getActions().get(j)).getVersion());
                     if (before.get(i) == null) {
                         ArrayList<Pair<String, String>> temp = new ArrayList<Pair<String, String>>();
@@ -385,12 +391,12 @@ public class Manager {
         // enumerate through the ArrayList to find the mod
         while (e.hasMoreElements()) {
             Mod m = (Mod) e.nextElement();
-            if (m.getName().equals(name)) {
+            if (m.getName().equalsIgnoreCase(name)) {
                 return m;
             }
         }
-        
-        return null;
+
+        throw new NoSuchElementException(name);
     }
 
     /**
@@ -406,6 +412,80 @@ public class Manager {
 
         // Unreacheable
         return null;
+    }
+
+    public UpdateReturn updateMod(ArrayList<Mod> mods) {
+        ExecutorService pool = Executors.newCachedThreadPool();
+        Iterator<Mod> it = mods.iterator();
+        ArrayList<Future<File>> temp = new ArrayList<Future<File>>();
+        while (it.hasNext()) {
+            temp.add(pool.submit(new UpdateThread(it.next())));
+        }
+        ArrayList<Future<File>> result = new ArrayList<Future<File>>();
+        while (!temp.isEmpty()) {
+            Iterator<Future<File>> ite = temp.iterator();
+            while (ite.hasNext()) {
+                Future<File> ff = ite.next();
+                if (ff.isDone()) {
+                    temp.remove(ff);
+                    result.add(ff);
+                }
+            }
+        }
+        Iterator<Future<File>> ite = result.iterator();
+        UpdateReturn returnValue = new UpdateReturn();
+        while (ite.hasNext()) {
+            Future<File> ff = ite.next();
+            UpdateThread mod = (UpdateThread) ff;
+            try {
+                File file = ff.get();
+                if (file != null) {
+                    FileInputStream fis = new FileInputStream(file);
+                    FileOutputStream fos = new FileOutputStream(mod.getMod().getPath());
+                    ZIP.copyInputStream(fis, fos);
+                    fis.close();
+                    fos.flush();
+                    fos.close();
+                    Mod newMod = XML.xmlToMod(mod.getMod().getPath());
+                    newMod.setPath(mod.getMod().getPath());
+                    Mod oldMod = getMod(mod.getMod().getName());
+                    boolean wasEnabled = oldMod.isEnabled();
+                    if (!disableMod(oldMod.getName())) {
+                        // Couldn't disable, we need who didn't let disable him
+                    }
+                    oldMod.copy(newMod);
+                    if (wasEnabled) {
+                        try {
+                            enableMod(null, false);
+                        } catch (ModEnabledException ex) {
+                            java.util.logging.Logger.getLogger(Manager.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (ModNotEnabledException ex) {
+                            java.util.logging.Logger.getLogger(Manager.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (NoSuchElementException ex) {
+                            java.util.logging.Logger.getLogger(Manager.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (ModVersionMissmatchException ex) {
+                            java.util.logging.Logger.getLogger(Manager.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (NullPointerException ex) {
+                            java.util.logging.Logger.getLogger(Manager.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (IllegalArgumentException ex) {
+                            java.util.logging.Logger.getLogger(Manager.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                    returnValue.getUpdated().add(mod.getMod());
+                } else {
+                    returnValue.getUpToDate().add(mod.getMod());
+                }
+            } catch (InterruptedException ex) {
+                // Nothing can get here
+            } catch (ExecutionException ex) {
+                returnValue.getFailed().add(mod.getMod());
+            } catch (FileNotFoundException ex) {
+                // Can't get here
+            } catch (IOException ex) {
+                // Random IO Exception
+            }
+        }
+        return returnValue;
     }
 
     /**
@@ -510,7 +590,7 @@ public class Manager {
         Mod m = getMod(name);
         logger.error("MAN: game version: " + Game.getInstance().getVersion()); // this has problems
         logger.error("MAN: mod version: " + m.getAppVersion());
-        
+
 
         if (!ignoreVersion) {
             try {
@@ -539,23 +619,21 @@ public class Manager {
     /**
      * This function is similar to enableMod in which it disable the mod instead
      * @param name
-     * @return Whether the function disable the mod successfully
+     * @return true if the mod was disabled ou disabling it was successefull. False if fails.
      */
-    public void disableMod(String name) {
+    public boolean disableMod(String name) {
         Mod m = getMod(name);
         if (!m.isEnabled()) {
-            System.out.println("Mod " + name + " already disabled");
-            return;
+            return true;
+        } else {
+            if (!revcheckdeps(m)) {
+                // disable it
+                ManagerOptions.getInstance().getAppliedMods().remove(ManagerOptions.getInstance().getMod(name));
+                ManagerOptions.getInstance().getMod(name).disable();
+                return true;
+            }
+            return false;
         }
-        if (!revcheckdeps(m)) {
-            // disable it
-            ManagerOptions.getInstance().getAppliedMods().remove(ManagerOptions.getInstance().getMod(name));
-            ManagerOptions.getInstance().getMod(name).disable();
-            return;
-        }
-        System.out.println("Can't disable mod " + name);
-        
-        
     }
 
     private Stack<Mod> BFS(Stack<Mod> stack, ArrayList<Pair<String, String>> dep) {
@@ -597,129 +675,131 @@ public class Manager {
 
         return stack;
     }
-    
-    public ArrayList<Pair<String, String> > getDepsList(Mod m) {
-    	return deps.get(ManagerOptions.getInstance().getMods().indexOf(m));
+
+    public ArrayList<Pair<String, String>> getDepsList(Mod m) {
+        return deps.get(ManagerOptions.getInstance().getMods().indexOf(m));
     }
 
     public ArrayList<Mod> sortMods() throws IOException {
         ArrayList<Mod> queue = new ArrayList<Mod>();
         ArrayList<Mod> left = new ArrayList<Mod>();
         for (int i = 0; i < ManagerOptions.getInstance().getMods().size(); i++) {
-        	if(ManagerOptions.getInstance().getMods().get(i).isEnabled()) {
-        		logger.error("MAN: sortmods: mod added to left: " + ManagerOptions.getInstance().getMods().get(i).getName());
-        		left.add(ManagerOptions.getInstance().getMods().get(i));
-        	}
+            if (ManagerOptions.getInstance().getMods().get(i).isEnabled()) {
+                logger.error("MAN: sortmods: mod added to left: " + ManagerOptions.getInstance().getMods().get(i).getName());
+                left.add(ManagerOptions.getInstance().getMods().get(i));
+            }
         }
-           	
-        
+
+
         for (int i = 0; i < left.size(); i++) {
-        	int ind = ManagerOptions.getInstance().getMods().indexOf(getMod(left.get(i).getName()));
-        	ArrayList<Pair<String, String> > list = deps.get(ind);
-        	
-        	logger.error("MAN: sortmods: checking: " + left.get(i).getName());
-        	
-        	if(list == null || list.isEmpty()) {
-        		list = after.get(ind);
-        		Mod m = getMod(ind);
-        		if (list == null || list.isEmpty()) {
-	        		
-	        		
-	        		logger.error("MAN: sortmods: first: " + m.getName());
-	    			queue.add(m);
-        		}
-        		else {
-        			boolean yes = false;
-        			for (int h = 0; h < list.size(); h++) {
-        				System.out.println("BREATH: " + Tuple.get1(list.get(h)));
-        				try {
-        					Mod mm = getMod(Tuple.get1(list.get(h)));
-        					if (mm != null && mm.isEnabled() && !queue.contains(mm))
-            					yes = true;
-        				} catch (NoSuchElementException ex) {
-        					//ex.printStackTrace();
-        				}
-        				
-        			}
-        			
-        			if (!yes)
-        				queue.add(m);
-        		}
-        	}
-        	else {
-        		Mod m = getMod(ind);
-        		if (m.getName().equalsIgnoreCase("Movable Frames"))
-        			logger.error("MAN: sortmods: pp: " + list.toString());
-        	}
+            int ind = ManagerOptions.getInstance().getMods().indexOf(getMod(left.get(i).getName()));
+            ArrayList<Pair<String, String>> list = deps.get(ind);
+
+            logger.error("MAN: sortmods: checking: " + left.get(i).getName());
+
+            if (list == null || list.isEmpty()) {
+                list = after.get(ind);
+                Mod m = getMod(ind);
+                if (list == null || list.isEmpty()) {
+
+
+                    logger.error("MAN: sortmods: first: " + m.getName());
+                    queue.add(m);
+                } else {
+                    boolean yes = false;
+                    for (int h = 0; h < list.size(); h++) {
+                        System.out.println("BREATH: " + Tuple.get1(list.get(h)));
+                        try {
+                            Mod mm = getMod(Tuple.get1(list.get(h)));
+                            if (mm != null && mm.isEnabled() && !queue.contains(mm)) {
+                                yes = true;
+                            }
+                        } catch (NoSuchElementException ex) {
+                            //ex.printStackTrace();
+                        }
+
+                    }
+
+                    if (!yes) {
+                        queue.add(m);
+                    }
+                }
+            } else {
+                Mod m = getMod(ind);
+                if (m.getName().equalsIgnoreCase("Movable Frames")) {
+                    logger.error("MAN: sortmods: pp: " + list.toString());
+                }
+            }
         }
-        
+
         Enumeration r = Collections.enumeration(left);
         while (r.hasMoreElements()) {
-        	Mod m = (Mod) r.nextElement();
-        	if (queue.contains(m)) {
-        		left.remove(m);
-        		r = Collections.enumeration(left);
-        	}
+            Mod m = (Mod) r.nextElement();
+            if (queue.contains(m)) {
+                left.remove(m);
+                r = Collections.enumeration(left);
+            }
         }
-        
-        
+
+
 
         Enumeration e = Collections.enumeration(left);
         while (e.hasMoreElements()) {
             Mod m = (Mod) e.nextElement();
-            
+
             if (m.isEnabled()) {
-            	logger.error("MAN: sortmods: second: " + m.getName());
-            	ArrayList<Pair<String, String> > depslist = getDepsList(m);
-            	
-            	if (depslist == null || depslist.isEmpty()) {
-            		queue.add(m);
-            		left.remove(m);
-            		e = Collections.enumeration(left);
-            	} else {
-            		boolean yes = false;
-	            	for (int i = 0; i < depslist.size(); i++) {
-	            		if (!queue.contains(getMod(Tuple.get1(depslist.get(i))))) {
-	            			left.remove(m);
-	                		left.add(m);
-	                		e = Collections.enumeration(left);
-	                		yes = true;
-	            		}
-	            	}
-	            	if (!yes) {
-	            		queue.add(m);
-	            		left.remove(m);
-	            		e = Collections.enumeration(left);
-	            	}
-            	}
-            	
-            	/*
+                logger.error("MAN: sortmods: second: " + m.getName());
+                ArrayList<Pair<String, String>> depslist = getDepsList(m);
+
+                if (depslist == null || depslist.isEmpty()) {
+                    queue.add(m);
+                    left.remove(m);
+                    e = Collections.enumeration(left);
+                } else {
+                    boolean yes = false;
+                    for (int i = 0; i < depslist.size(); i++) {
+                        if (!queue.contains(getMod(Tuple.get1(depslist.get(i))))) {
+                            left.remove(m);
+                            left.add(m);
+                            e = Collections.enumeration(left);
+                            yes = true;
+                        }
+                    }
+                    if (!yes) {
+                        queue.add(m);
+                        left.remove(m);
+                        e = Collections.enumeration(left);
+                    }
+                }
+
+                /*
                 if (!stack.contains(m)) {
-                    stack.add(m);
+                stack.add(m);
                 }
                 stack = BFS(stack, deps.get(ManagerOptions.getInstance().getMods().indexOf(m)));
-                */
+                 */
             }
         }
-        
+
         for (int i = 0; i < before.size(); i++) {
-        	ArrayList<Pair<String, String> > list = (ArrayList<Pair<String, String> >) before.get(i);
-        	
-        	if (list != null && !list.isEmpty()) {
-	        	r = Collections.enumeration(list);
-	        	int lowest = ManagerOptions.getInstance().getMods().size();
-	        	while (r.hasMoreElements()) {
-	        		Pair<String, String> pair = (Pair<String, String>) r.nextElement();
-	        		if (lowest > queue.indexOf(getMod(Tuple.get1(pair))) && queue.indexOf(getMod(Tuple.get1(pair))) >= 0)
-	        			lowest = queue.indexOf(getMod(Tuple.get1(pair)));
-	        	}
-	        	int ind = queue.indexOf(ManagerOptions.getInstance().getMods().get(i));
-	        	
-	        	if (ind > lowest) {
-	        		queue.add(lowest, queue.get(ind));
-	        		queue.remove(ind+1);
-	        	}
-        	}
+            ArrayList<Pair<String, String>> list = (ArrayList<Pair<String, String>>) before.get(i);
+
+            if (list != null && !list.isEmpty()) {
+                r = Collections.enumeration(list);
+                int lowest = ManagerOptions.getInstance().getMods().size();
+                while (r.hasMoreElements()) {
+                    Pair<String, String> pair = (Pair<String, String>) r.nextElement();
+                    if (lowest > queue.indexOf(getMod(Tuple.get1(pair))) && queue.indexOf(getMod(Tuple.get1(pair))) >= 0) {
+                        lowest = queue.indexOf(getMod(Tuple.get1(pair)));
+                    }
+                }
+                int ind = queue.indexOf(ManagerOptions.getInstance().getMods().get(i));
+
+                if (ind > lowest) {
+                    queue.add(lowest, queue.get(ind));
+                    queue.remove(ind + 1);
+                }
+            }
         }
 
         return queue;
@@ -895,15 +975,15 @@ public class Manager {
                                     cursor = afterEdit.toLowerCase().trim().indexOf(find.getContent().toLowerCase().trim(), cursor);
                                     if (cursor == -1) {
                                         // couldn't find the string, can't apply
-                                    	logger.error("MAN: mod edit find: " + find.getContent());
+                                        logger.error("MAN: mod edit find: " + find.getContent());
                                         System.err.println(afterEdit);
                                         throw new StringNotFoundModActionException(mod.getName(), mod.getVersion(), (Action) find, find.getContent());
                                     }
                                     cursor2 = cursor + find.getContent().trim().length();
                                     isSelected = true;
-                                if (mod.getName().toLowerCase().contains("stash")) {
-                                System.out.println(afterEdit.substring(cursor, cursor2));
-                                }
+                                    if (mod.getName().toLowerCase().contains("stash")) {
+                                        System.out.println(afterEdit.substring(cursor, cursor2));
+                                    }
                                 }
 
                                 // FindUp Action
@@ -1003,7 +1083,7 @@ public class Manager {
         saveOptions();
     }
 
-    public void unapplyMods() throws SecurityException,IOException {
+    public void unapplyMods() throws SecurityException, IOException {
         ManagerOptions.getInstance().getAppliedMods().clear();
         Iterator<Mod> i = ManagerOptions.getInstance().getMods().iterator();
         while (i.hasNext()) {
@@ -1050,65 +1130,65 @@ public class Manager {
             int check = 0;
             String vEx1 = expressionVersion.substring(0, expressionVersion.indexOf("-"));
             if (vEx1.isEmpty() || vEx1 == null) {
-            	vEx1 = "*";
+                vEx1 = "*";
             }
             String vEx2 = expressionVersion.substring(expressionVersion.indexOf("-") + 1, expressionVersion.length());
             if (vEx2.isEmpty() || vEx2 == null) {
-            	vEx2 = "*";
+                vEx2 = "*";
             }
-            
+
             return checkVersion(vEx1, singleVersion) && checkVersion(singleVersion, vEx2);
             /*
             // singleVersion's expressionVersion but filled with '0' at the end, what causes a problem
             ArrayList<Integer> versionBase = new ArrayList<Integer>();
             String[] v1 = singleVersion.split("\\.");
             for (int i = 0; i < v1.length; i++) {
-                if (!v1[i].equals("")) {
-                    versionBase.add(new Integer(v1[i]));
-                }
+            if (!v1[i].equals("")) {
+            versionBase.add(new Integer(v1[i]));
+            }
             }
             if (!vEx1.equals("*")) {
-                ArrayList<Integer> versionExpression = new ArrayList<Integer>();
-                String[] vExp = vEx1.split("\\.");
-                for (int i = 0; i < vExp.length; i++) {
-                    if (!vExp[i].equals("")) {
-                        versionExpression.add(new Integer(vExp[i]));
-                    }
-                }
-                for (int i = 0; i < versionExpression.size() && i < versionBase.size(); i++) {
-                    if (versionExpression.get(i).compareTo(versionBase.get(i)) < 0) {
-                        check++;
-                        break;
-                    }
-                }
+            ArrayList<Integer> versionExpression = new ArrayList<Integer>();
+            String[] vExp = vEx1.split("\\.");
+            for (int i = 0; i < vExp.length; i++) {
+            if (!vExp[i].equals("")) {
+            versionExpression.add(new Integer(vExp[i]));
+            }
+            }
+            for (int i = 0; i < versionExpression.size() && i < versionBase.size(); i++) {
+            if (versionExpression.get(i).compareTo(versionBase.get(i)) < 0) {
+            check++;
+            break;
+            }
+            }
             } else {
-                check++;
+            check++;
             }
 
             if (!vEx2.equals("*")) {
-                ArrayList<Integer> versionExpression = new ArrayList<Integer>();
-                String[] vExp = vEx2.split("\\.");
-                for (int i = 0; i < vExp.length; i++) {
-                    if (!vExp[i].equals("")) {
-                        versionExpression.add(new Integer(vExp[i]));
-                    }
-                }
-                for (int i = 0; i < versionExpression.size() && i < versionBase.size(); i++) {
-                    if (versionExpression.get(i).compareTo(versionBase.get(i)) > 0) {
-                        check++;
-                        break;
-                    }
-                }
+            ArrayList<Integer> versionExpression = new ArrayList<Integer>();
+            String[] vExp = vEx2.split("\\.");
+            for (int i = 0; i < vExp.length; i++) {
+            if (!vExp[i].equals("")) {
+            versionExpression.add(new Integer(vExp[i]));
+            }
+            }
+            for (int i = 0; i < versionExpression.size() && i < versionBase.size(); i++) {
+            if (versionExpression.get(i).compareTo(versionBase.get(i)) > 0) {
+            check++;
+            break;
+            }
+            }
             } else {
-                check++;
+            check++;
             }
 
             if (check >= 2) {
-                result = true;
+            result = true;
             }
-			*/
+             */
         } else {
-        	return checkVersion(expressionVersion, singleVersion);
+            return checkVersion(expressionVersion, singleVersion);
             //throw new InvalidParameterException();
         }
         return result;
@@ -1207,19 +1287,21 @@ public class Manager {
         StringTokenizer highst = new StringTokenizer(higher, ".", false);
 
         while (lowst.hasMoreTokens() && highst.hasMoreTokens()) {
-        	String firsttk = lowst.nextToken();
-        	String secondtk = highst.nextToken();
-        	
-        	if (firsttk.contains("*") || secondtk.contains("*"))
-        		return ret;
-        	
+            String firsttk = lowst.nextToken();
+            String secondtk = highst.nextToken();
+
+            if (firsttk.contains("*") || secondtk.contains("*")) {
+                return ret;
+            }
+
             int first = Integer.parseInt(firsttk);
             int second = Integer.parseInt(secondtk);
 
-            if (ret)
-            	ret = (first <= second);
-            else if (!ret)
-            	return ret;
+            if (ret) {
+                ret = (first <= second);
+            } else if (!ret) {
+                return ret;
+            }
         }
 
         return ret;
@@ -1242,9 +1324,9 @@ public class Manager {
 
             // checkVersion checks to see if first argument <= second argument is true
             return checkVersion(low, target) && checkVersion(target, high);
-            
+
         } else if (version.isEmpty()) {
-        	return true;
+            return true;
         } else {
             String compare = version.trim();
             return checkVersion(compare, target);
@@ -1259,7 +1341,7 @@ public class Manager {
      */
     public boolean isValidCondition(String condition) {
         boolean valid = true;
-        
+
         System.out.println("isValidCondition: " + condition);
 
         StringTokenizer st = new StringTokenizer(condition, "\' ()", true);

@@ -83,9 +83,8 @@ public class Mod {
     /**
      * Copies the passed mod by param to this mod.
      * @param mod
-     * @deprecated no sense on this method.
      */
-    private void copy(Mod mod) {
+    public void copy(Mod mod) {
         this.actions = mod.actions;
         this.application = mod.getApplication();
         this.appversion = mod.getAppVersion();
@@ -97,6 +96,7 @@ public class Mod {
         this.updatecheckurl = mod.getUpdateCheckUrl();
         this.version = mod.getVersion();
         this.weblink = mod.getWebLink();
+        this.path = mod.getPath();
     }
 
     /**
