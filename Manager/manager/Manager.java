@@ -450,24 +450,30 @@ public class Manager {
                     newMod.setPath(mod.getMod().getPath());
                     Mod oldMod = getMod(mod.getMod().getName());
                     boolean wasEnabled = oldMod.isEnabled();
-                    if (!disableMod(oldMod.getName())) {
-                        // Couldn't disable, we need who didn't let disable him
+                    ArrayList<Mod> gotDisable = new ArrayList<Mod>();
+                    gotDisable.add(oldMod);
+                    while (!gotDisable.isEmpty()) {
+                        Iterator<Mod> iter = gotDisable.iterator();
+                        while (iter.hasNext()) {
+                            try {
+                                Mod next = iter.next();
+                                disableMod(next.getName());
+                                // If he got under this, so disabling was successfull.
+                                gotDisable.remove(next);
+                            } catch (ModEnabledException ex) {
+                                // Couldn't disable, we need who didn't let disable him
+                                if (!gotDisable.contains(getMod(ex.getName()))) {
+                                    gotDisable.add(getMod(ex.getName()));
+                                }
+                            }
+                        }
                     }
                     oldMod.copy(newMod);
                     if (wasEnabled) {
                         try {
-                            enableMod(null, false);
-                        } catch (ModEnabledException ex) {
-                            java.util.logging.Logger.getLogger(Manager.class.getName()).log(Level.SEVERE, null, ex);
-                        } catch (ModNotEnabledException ex) {
-                            java.util.logging.Logger.getLogger(Manager.class.getName()).log(Level.SEVERE, null, ex);
-                        } catch (NoSuchElementException ex) {
-                            java.util.logging.Logger.getLogger(Manager.class.getName()).log(Level.SEVERE, null, ex);
-                        } catch (ModVersionMissmatchException ex) {
-                            java.util.logging.Logger.getLogger(Manager.class.getName()).log(Level.SEVERE, null, ex);
-                        } catch (NullPointerException ex) {
-                            java.util.logging.Logger.getLogger(Manager.class.getName()).log(Level.SEVERE, null, ex);
-                        } catch (IllegalArgumentException ex) {
+                            enableMod(newMod.getName(), false);
+                        } catch (Exception ex) {
+                            // Couldn't enable mod, just log it
                             java.util.logging.Logger.getLogger(Manager.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     }
@@ -553,7 +559,7 @@ public class Manager {
         return false;
     }
 
-    private boolean revcheckdeps(Mod m) {
+    private boolean revcheckdeps(Mod m) throws ModEnabledException {
         // get a list of dependencies on m
         ArrayList list = new ArrayList();
         for (int i = 0; i < deps.size(); i++) {
@@ -565,7 +571,7 @@ public class Manager {
             while (te.hasMoreElements()) {
                 Pair<String, String> pair = (Pair<String, String>) te.nextElement();
                 if (Tuple.get1(pair).equals(m.getName()) && getMod(i).isEnabled()) {
-                    return true;
+                    throw new ModEnabledException(getMod(i).getName(), getMod(i).getVersion());
                 }
 //	    			list.add(deps.indexOf(temp));
             }
@@ -619,9 +625,9 @@ public class Manager {
     /**
      * This function is similar to enableMod in which it disable the mod instead
      * @param name
-     * @return true if the mod was disabled ou disabling it was successefull. False if fails.
+     * @return true if the mod was disabled ou disabling it was successefull. Throws exception if it couldn't disable.
      */
-    public boolean disableMod(String name) {
+    public boolean disableMod(String name) throws ModEnabledException {
         Mod m = getMod(name);
         if (!m.isEnabled()) {
             return true;
