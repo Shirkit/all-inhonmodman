@@ -7,7 +7,7 @@ package utility.exception;
 import business.actions.Action;
 
 /**
- *
+ * @deprecated 
  * @author Shirkit
  */
 public class ModActionConditionNotValidException extends Exception {

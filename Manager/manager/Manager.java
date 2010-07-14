@@ -77,6 +77,9 @@ public class Manager {
     //private Set<Mod> applied;
     private static Logger logger = Logger.getLogger(Manager.class.getPackage().getName());
 
+    /**
+     * It's private since only one isntance of the controller is allowed to exist.
+     */
     private Manager() {
         //mods = new ArrayList<Mod>();
         deps = new ArrayList<ArrayList<Pair<String, String>>>();
@@ -154,8 +157,9 @@ public class Manager {
     }
 
     /**
-     * @throws IOException 
-     * @throws FileNotFoundException 
+     * This method saves the ManagerOptions attributes in a file. The file is located in the same folder of the Manager.
+     * The filename can be get in the ManagerOptions.
+     * @throws IOException if a random I/O exception happened.
      * 
      */
     public void saveOptions() throws IOException {
@@ -167,6 +171,9 @@ public class Manager {
         ManagerOptions.getInstance().saveOptions(new File(name));
     }
 
+    /**
+     * What does it do?
+     */
     public String check(String name) {
         String path = "";
         if (name.equalsIgnoreCase("HoN folder")) {
@@ -185,8 +192,7 @@ public class Manager {
     }
 
     /**
-     * @throws FileNotFoundException 
-     * 
+     * This method runs the ManagerOptions.loadOptions method to load the options located in a file.
      */
     public void loadOptions() {
         try {
@@ -206,7 +212,7 @@ public class Manager {
     }
 
     /**
-     * Adds a Mod to the list of mods. This list is the real thing that the Manager uses.
+     * Adds a Mod to the list of mods. This adds the mod to the Model list of mods.
      * @param Mod to be added.
      */
     private void addMod(Mod mod) {
@@ -219,8 +225,7 @@ public class Manager {
     }
 
     /**
-     * Load all mods from the mods folder and put them into the array.
-     *
+     * Load all mods from the mods folder (set in Model) and put them into the Model array of mods.
      * @throws IOException
      */
     public void loadMods() throws IOException {
@@ -253,6 +258,8 @@ public class Manager {
      * This function is used internally from the GUI itself automatically when launch to initiate existing mods.
      * @param honmod is the file (.honmod) to be add.
      * @param copy flag to indicate whether to copy the file to mods folder
+     * @throws FileNotFoundException if the file wasn't found.
+     * @throws IOException if a random I/O exception has happened.
      */
     public void addHonmod(File honmod, boolean copy) throws FileNotFoundException, IOException {
         if (!honmod.exists()) {
@@ -272,15 +279,24 @@ public class Manager {
         m.setId(0);
         if (copy) {
             // Copy the honmod file to mods directory
-            copyFile(honmod, new File(ManagerOptions.getInstance().getModPath() + File.separator + honmod.getName()));
+            copyFile(honmod, new File(ManagerOptions.getInstance().getModPath() + File.separator + honmod.getName()), false);
             logger.info("Mod file copied to mods older");
         }
         addMod(m);
     }
 
-    private static void copyFile(File in, File out) throws IOException {
-        FileInputStream fis = new FileInputStream(in);
-        FileOutputStream fos = new FileOutputStream(out);
+    /**
+     * Copies a file (source) into another file (target), appending the file or not.
+     * @param source the file to be copied.
+     * @param target the file where the source is going to be written.
+     * @param append if wants to append the file. If true, the file source will be copied to the end of the target, if target exists.
+     * If false, the file target will be ignore (if exists or not, only the source content will exist).
+     * @throws FileNotFoundException if one the files doesn't exist. If the directory tree doesn't exist, the file target can't be written.
+     * @throws IOException if a random I/O exception happened.
+     */
+    private static void copyFile(File source, File target, boolean append) throws FileNotFoundException, IOException {
+        FileInputStream fis = new FileInputStream(source);
+        FileOutputStream fos = new FileOutputStream(target, append);
         try {
             byte[] buf = new byte[1024];
             int i = 0;
@@ -294,6 +310,7 @@ public class Manager {
                 fis.close();
             }
             if (fos != null) {
+                fos.flush();
                 fos.close();
             }
         }
@@ -379,9 +396,9 @@ public class Manager {
     }
 
     /**
-     * This function returns the mod from the arraylist mods
-     * @param name
-     * @return Mod
+     * This function returns the mod from the arraylist mods given it's name.
+     * @param name of the mod.
+     * @return the found Mod.
      * @throws NoSuchElementException if the mod wasn't found
      */
     public Mod getMod(String name) throws NoSuchElementException {
@@ -400,9 +417,10 @@ public class Manager {
     }
 
     /**
-     * This function returns the mod from the arraylist mods
-     * @param name
-     * @return Mod
+     * This function returns the mod from the arraylist mods, but only if it's enabled.
+     * @param name of the mod.
+     * @return the found Mod.
+     * @throws NoSuchElementException if the mod wasn't found.
      */
     public Mod getEnabledMod(String name) throws NoSuchElementException {
         Mod m = getMod(name);
@@ -414,6 +432,11 @@ public class Manager {
         return null;
     }
 
+    /**
+     * This method updates the given mods. It handles all exceptions that can exist, and take the needed actions to complete the task, without needing any external influence.
+     * @param mods to be updated.
+     * @return a instance of a UpdateReturn containing the result of the method. Updated, failed and already up-to-date mods can be easily found there.
+     */
     public UpdateReturn updateMod(ArrayList<Mod> mods) {
         ExecutorService pool = Executors.newCachedThreadPool();
         Iterator<Mod> it = mods.iterator();
@@ -495,22 +518,15 @@ public class Manager {
     }
 
     /**
-     * This function checks to see if all dependencies are all satisfied
-     * @param m
-     * @return True if all dependencies are satisfied else false
+     * This function checks to see if all dependencies of a given mod are satisfied. If a dependency isn't satisfied, throws exceptions.
+     * @param mod to be checked.
+     * @throws ModNotEnabledException if the mod given by parameter requires another mod to be enabled.
      */
-    private boolean checkdeps(Mod m) throws ModNotEnabledException {
+    private void checkdeps(Mod mod) throws ModNotEnabledException {
         // get a list of dependencies
-        ArrayList<Pair<String, String>> list = deps.get(ManagerOptions.getInstance().getMods().indexOf(m));
+        ArrayList<Pair<String, String>> list = deps.get(ManagerOptions.getInstance().getMods().indexOf(mod));
 
-        System.out.println("CheckDeps of mod " + m.getName());
         if (!(list == null || list.isEmpty())) {
-            System.out.println("Deps of mod " + m.getName() + ": " + list.toString());
-        }
-
-        if (list == null || list.isEmpty()) {
-            return true;
-        } else {
             Enumeration e = Collections.enumeration(list);
 
             while (e.hasMoreElements()) {
@@ -519,47 +535,47 @@ public class Manager {
                 try {
                     d = getEnabledMod(Tuple.get1(dep));
                 } catch (NoSuchElementException noSuchElementException) {
-                }
-                if (d == null) {
                     throw new ModNotEnabledException(Tuple.get1(dep), Tuple.get2(dep));
                 }
 
-                // compareModsVersion might not be working properly, ask him to fix it or something
                 if (!compareModsVersions(d.getVersion(), Tuple.get2(dep))) {
                     throw new ModNotEnabledException(Tuple.get1(dep), Tuple.get2(dep));
                 }
 
             }
-
-            return true;
         }
     }
 
     /**
-     * This function checks to see if there is any conflict
-     * @param m
-     * @return False if there isn't any conflict.
+     * This function checks to see if there is any conflict by the given mod with other enabled mods.
+     * @param mod to be checked.
+     * @throws ModEnabledException if another mod that is already enabled has a conflict with the mod given by parameter.
      */
-    private boolean checkcons(Mod m) throws ModEnabledException {
+    private void checkcons(Mod mod) throws ModEnabledException {
         // get a list of conflicts
-        ArrayList<Pair<String, String>> list = cons.get(ManagerOptions.getInstance().getMods().indexOf(m));
-        if (list == null || list.isEmpty()) {
-            return false;
-        }
-        Enumeration e = Collections.enumeration(list);
-        while (e.hasMoreElements()) {
-            Pair<String, String> check = (Pair<String, String>) e.nextElement();
-            try {
-                if (getEnabledMod(Tuple.get1(check)) != null) {
-                    throw new ModEnabledException(Tuple.get1(check), Tuple.get2(check));
+        ArrayList<Pair<String, String>> list = cons.get(ManagerOptions.getInstance().getMods().indexOf(mod));
+        if (!(list == null || list.isEmpty())) {
+
+            Enumeration e = Collections.enumeration(list);
+            while (e.hasMoreElements()) {
+                Pair<String, String> check = (Pair<String, String>) e.nextElement();
+                try {
+                    if (getEnabledMod(Tuple.get1(check)) != null) {
+                        throw new ModEnabledException(Tuple.get1(check), Tuple.get2(check));
+                    }
+                } catch (NoSuchElementException noSuchElementException) {
                 }
-            } catch (NoSuchElementException noSuchElementException) {
             }
         }
-        return false;
     }
 
-    private boolean revcheckdeps(Mod m) throws ModEnabledException {
+    /**
+     * ???
+     * @param m
+     * @return
+     * @throws ModEnabledException
+     */
+    private void revcheckdeps(Mod m) throws ModEnabledException {
         // get a list of dependencies on m
         ArrayList list = new ArrayList();
         for (int i = 0; i < deps.size(); i++) {
@@ -573,11 +589,8 @@ public class Manager {
                 if (Tuple.get1(pair).equals(m.getName()) && getMod(i).isEnabled()) {
                     throw new ModEnabledException(getMod(i).getName(), getMod(i).getVersion());
                 }
-//	    			list.add(deps.indexOf(temp));
             }
         }
-
-        return false;
     }
 
     /**
@@ -588,9 +601,9 @@ public class Manager {
      * @throws NoSuchElementException if the mod doesn't exist
      * @throws ModVersionMissmatchException if the mod's version is imcompatible with the game version.
      * @throws NullPointerException if there is a problem with the game path (maybe the path was not set in the game class, or hon.exe wasn't found, or happened a random I/O error).
-     * @throws IOException 
-     * @throws FileNotFoundException 
+     * @throws FileNotFoundException if the Hon.exe file wasn't found
      * @throws IllegalArgumentException 
+     * @throws IOException if a random I/O Exception happened.
      */
     public void enableMod(String name, boolean ignoreVersion) throws ModEnabledException, ModNotEnabledException, NoSuchElementException, ModVersionMissmatchException, NullPointerException, IllegalArgumentException, FileNotFoundException, IOException {
         Mod m = getMod(name);
@@ -601,47 +614,42 @@ public class Manager {
         if (!ignoreVersion) {
             try {
                 if (!compareModsVersions(Game.getInstance().getVersion(), m.getAppVersion())) {
-                    throw new ModVersionMissmatchException(name, name);
+                    throw new ModVersionMissmatchException(name, m.getVersion(), m.getAppVersion());
                 }
-            } catch (IllegalArgumentException ex) {
-                //view.showMessage("error.loadmodfiles", "error.loadmodfiles.title", JOptionPane.ERROR_MESSAGE);
-                //throw new NullPointerException();
-                ex.printStackTrace();
-            } catch (FileNotFoundException ex) {
-                //view.showMessage("error.loadmodfiles", "error.loadmodfiles.title", JOptionPane.ERROR_MESSAGE);
-                //throw new NullPointerException();
-                ex.printStackTrace();
-            } catch (IOException ex) {
+            } catch (InvalidParameterException ex) {
                 //view.showMessage("error.loadmodfiles", "error.loadmodfiles.title", JOptionPane.ERROR_MESSAGE);
                 //throw new NullPointerException();
                 ex.printStackTrace();
             }
         }
-        if (!m.isEnabled() && checkdeps(m) && !checkcons(m)) {
+        if (!m.isEnabled()) {
+            checkcons(m);
+            checkdeps(m);
             ManagerOptions.getInstance().getMods().get(ManagerOptions.getInstance().getMods().indexOf(m)).enable();
         }
     }
 
     /**
-     * This function is similar to enableMod in which it disable the mod instead
-     * @param name
-     * @return true if the mod was disabled ou disabling it was successefull. Throws exception if it couldn't disable.
+     * Tries to disable a mod given by it's name. Throws exception if an error occoured.
+     * @param name of the mod.
+     * @throws ModEnabledException if another mod is enabled and requires the given by parameter mod to continue enabled.
      */
-    public boolean disableMod(String name) throws ModEnabledException {
+    public void disableMod(String name) throws ModEnabledException {
         Mod m = getMod(name);
         if (!m.isEnabled()) {
-            return true;
-        } else {
-            if (!revcheckdeps(m)) {
+            revcheckdeps(m);
                 // disable it
                 ManagerOptions.getInstance().getAppliedMods().remove(ManagerOptions.getInstance().getMod(name));
                 ManagerOptions.getInstance().getMod(name).disable();
-                return true;
-            }
-            return false;
         }
     }
 
+    /**
+     * ???
+     * @param stack
+     * @param dep
+     * @return
+     */
     private Stack<Mod> BFS(Stack<Mod> stack, ArrayList<Pair<String, String>> dep) {
         if (dep == null) {
             return stack;
@@ -682,10 +690,20 @@ public class Manager {
         return stack;
     }
 
+    /**
+     * ???
+     * @param m
+     * @return
+     */
     public ArrayList<Pair<String, String>> getDepsList(Mod m) {
         return deps.get(ManagerOptions.getInstance().getMods().indexOf(m));
     }
 
+    /**
+     *
+     * @return
+     * @throws IOException
+     */
     public ArrayList<Mod> sortMods() throws IOException {
         ArrayList<Mod> queue = new ArrayList<Mod>();
         ArrayList<Mod> left = new ArrayList<Mod>();
@@ -812,7 +830,7 @@ public class Manager {
     }
 
     /**
-     *
+     * Tries to apply the currently enabled mods. They can be found in the Model class.
      * @throws IOException if a random I/O error happened.
      * @throws UnknowModActionException if a unkown Action was found. Actions that aren't know by the program can't be applied.
      * @throws NothingSelectedModActionException if a action tried to do a action that involves a string, but no string was selected.
@@ -820,7 +838,7 @@ public class Manager {
      * @throws InvalidModActionParameterException if a action had a invalid parameter. Only the position of actions 'insert' and 'find' can throw this exception.
      * @throws SecurityException if the Manager couldn't do a action because of security business.
      */
-    public void applyMods() throws IOException, UnknowModActionException, NothingSelectedModActionException, StringNotFoundModActionException, InvalidModActionParameterException, ModActionConditionNotValidException, SecurityException {
+    public void applyMods() throws IOException, UnknowModActionException, NothingSelectedModActionException, StringNotFoundModActionException, InvalidModActionParameterException, SecurityException {
         ArrayList<Mod> applyOrder = sortMods();
         File tempFolder = new File(System.getProperty("java.io.tmpdir") + File.separator + "HoN Mod Manager");
         // This generates a temp folder. If it isn't possible, generates a random folder inside the OS's temp folder.
@@ -1089,6 +1107,11 @@ public class Manager {
         saveOptions();
     }
 
+    /**
+     * Unapplies all currently enabled mods. After that, the method calls the saveOptions().
+     * @throws SecurityException if a security issue happened, and the action couldn't be completed.
+     * @throws IOException if a random I/O exception happened.
+     */
     public void unapplyMods() throws SecurityException, IOException {
         ManagerOptions.getInstance().getAppliedMods().clear();
         Iterator<Mod> i = ManagerOptions.getInstance().getMods().iterator();
@@ -1103,7 +1126,6 @@ public class Manager {
         } catch (NothingSelectedModActionException ex) {
         } catch (StringNotFoundModActionException ex) {
         } catch (InvalidModActionParameterException ex) {
-        } catch (ModActionConditionNotValidException ex) {
         } catch (SecurityException ex) {
             throw ex;
         }
@@ -1144,55 +1166,6 @@ public class Manager {
             }
 
             return checkVersion(vEx1, singleVersion) && checkVersion(singleVersion, vEx2);
-            /*
-            // singleVersion's expressionVersion but filled with '0' at the end, what causes a problem
-            ArrayList<Integer> versionBase = new ArrayList<Integer>();
-            String[] v1 = singleVersion.split("\\.");
-            for (int i = 0; i < v1.length; i++) {
-            if (!v1[i].equals("")) {
-            versionBase.add(new Integer(v1[i]));
-            }
-            }
-            if (!vEx1.equals("*")) {
-            ArrayList<Integer> versionExpression = new ArrayList<Integer>();
-            String[] vExp = vEx1.split("\\.");
-            for (int i = 0; i < vExp.length; i++) {
-            if (!vExp[i].equals("")) {
-            versionExpression.add(new Integer(vExp[i]));
-            }
-            }
-            for (int i = 0; i < versionExpression.size() && i < versionBase.size(); i++) {
-            if (versionExpression.get(i).compareTo(versionBase.get(i)) < 0) {
-            check++;
-            break;
-            }
-            }
-            } else {
-            check++;
-            }
-
-            if (!vEx2.equals("*")) {
-            ArrayList<Integer> versionExpression = new ArrayList<Integer>();
-            String[] vExp = vEx2.split("\\.");
-            for (int i = 0; i < vExp.length; i++) {
-            if (!vExp[i].equals("")) {
-            versionExpression.add(new Integer(vExp[i]));
-            }
-            }
-            for (int i = 0; i < versionExpression.size() && i < versionBase.size(); i++) {
-            if (versionExpression.get(i).compareTo(versionBase.get(i)) > 0) {
-            check++;
-            break;
-            }
-            }
-            } else {
-            check++;
-            }
-
-            if (check >= 2) {
-            result = true;
-            }
-             */
         } else {
             return checkVersion(expressionVersion, singleVersion);
             //throw new InvalidParameterException();
@@ -1200,8 +1173,9 @@ public class Manager {
         return result;
     }
 
+
     /**
-     * This function should work now
+     * ??
      * @param action
      * @return
      */

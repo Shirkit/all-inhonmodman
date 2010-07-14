@@ -81,8 +81,8 @@ public class Mod {
     }
 
     /**
-     * Copies the passed mod by param to this mod.
-     * @param mod
+     * Copies the passed mod by param to this mod. Only it's content are copied, the instances continues to exist.
+     * @param mod to be copied.
      */
     public void copy(Mod mod) {
         this.actions = mod.actions;

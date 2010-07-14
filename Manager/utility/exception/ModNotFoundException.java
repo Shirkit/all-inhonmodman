@@ -6,7 +6,7 @@
 package utility.exception;
 
 /**
- *
+ *@deprecated 
  * @author Shirkit
  */
 public class ModNotFoundException extends Exception {
