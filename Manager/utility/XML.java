@@ -1,13 +1,10 @@
 package utility;
 
 import business.ManagerOptions;
-import business.ManagerOptionsConverter;
 import business.Mod;
 import business.actions.*;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
-import com.thoughtworks.xstream.io.xml.JDomDriver;
-import com.thoughtworks.xstream.io.xml.XomDriver;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -19,10 +16,7 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.util.HashSet;
-import java.util.Observable;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *

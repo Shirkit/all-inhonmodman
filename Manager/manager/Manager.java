@@ -3,7 +3,6 @@ package manager;
 import business.ManagerOptions;
 import business.Mod;
 import business.actions.*;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 
@@ -21,17 +20,14 @@ import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
-import java.util.Queue;
 import java.util.Stack;
 import java.util.StringTokenizer;
-import java.util.Observable;
 import java.util.Random;
 
 import com.mallardsoft.tuple.*;
@@ -50,8 +46,6 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
 
 import utility.Game;
 import utility.update.UpdateReturn;

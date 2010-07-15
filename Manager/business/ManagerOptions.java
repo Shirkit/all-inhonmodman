@@ -8,28 +8,21 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
-import com.thoughtworks.xstream.annotations.XStreamInclude;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import com.thoughtworks.xstream.io.StreamException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.AbstractSet;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Observable;
 import java.util.Set;
-import java.util.Vector;
 
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 
 import org.apache.log4j.Logger;
 
 import manager.Manager;
 
-import utility.Game;
 import utility.XML;
 
 /**

@@ -3,7 +3,6 @@ package business.actions;
 import business.actions.converters.ActionEditFileDeleteConverter;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**
  * Deletes the string pointed to by the "cursor". Does not require a source string.
