@@ -84,7 +84,7 @@ public class ManagerAboutBox extends javax.swing.JDialog {
         appHomepage.setText(this.model.getHomepage());
         appHomepage.setName("appHomepage"); // NOI18N
 
-        labelModIcon.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Manager/gui/resources/icon.png"))); // NOI18N
+        labelModIcon.setIcon(new javax.swing.ImageIcon(getClass().getResource("/gui/resources/icon.png"))); // NOI18N
         labelModIcon.setName("labelModIcon"); // NOI18N
 
         appLicenseLabel.setFont(appLicenseLabel.getFont().deriveFont(appLicenseLabel.getFont().getStyle() | java.awt.Font.BOLD));

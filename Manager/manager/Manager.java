@@ -3,6 +3,7 @@ package manager;
 import business.ManagerOptions;
 import business.Mod;
 import business.actions.*;
+import java.net.MalformedURLException;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 
@@ -32,6 +33,9 @@ import java.util.Random;
 
 import com.mallardsoft.tuple.*;
 import com.thoughtworks.xstream.io.StreamException;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
 
 import java.security.InvalidParameterException;
 import java.util.HashSet;
@@ -424,6 +428,16 @@ public class Manager {
 
         // Unreacheable
         return null;
+    }
+
+    public void updateManager() {
+        try {
+            BufferedReader in = new BufferedReader(new InputStreamReader(new URL(new Mod().getUpdateCheckUrl().trim()).openStream()));
+        } catch (MalformedURLException ex) {
+            
+        } catch (IOException ex) {
+
+        }
     }
 
     /**

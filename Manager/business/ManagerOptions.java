@@ -59,6 +59,8 @@ public class ManagerOptions extends Observable {
     @XStreamOmitField
     public static final String OPTIONS_FILENAME = "managerOptions.xml";
     @XStreamOmitField
+    public static final String MANAGER_CHECK_UPDATE = "http://";
+    @XStreamOmitField
     public static final String HOMEPAGE = "http://sourceforge.net/projects/all-inhonmodman";
     @XStreamOmitField
     public static final String VERSION = "0.1 BETA";
