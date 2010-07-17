@@ -22,13 +22,15 @@ import utility.ZIP;
  *
  * @author Shirkit
  */
-public class UpdateThread  implements Callable<File> {
+public class UpdateThread implements Callable<UpdateThread> {
 
     Mod mod;
+    File file;
 
     public UpdateThread(Mod mod) {
         this.mod = mod;
-    }    
+        this.file = null;
+    }
 
     public void updateMod() throws MalformedURLException, IOException {
         BufferedReader in = new BufferedReader(new InputStreamReader(new URL(mod.getUpdateCheckUrl()).openStream()));
@@ -40,27 +42,27 @@ public class UpdateThread  implements Callable<File> {
         in.close();
     }
 
-    public File call() throws MalformedURLException, FileNotFoundException, IOException {
+    public UpdateThread call() throws MalformedURLException, FileNotFoundException, IOException {
         BufferedReader in = new BufferedReader(new InputStreamReader(new URL(mod.getUpdateCheckUrl().trim()).openStream()));
         String str = in.readLine();
         in.close();
         if (!Manager.getInstance().compareModsVersions(mod.getVersion(), str)) {
             InputStream is = new URL(mod.getUpdateDownloadUrl().trim()).openStream();
-            File f = new File(System.getProperty("java.io.tmpdir") + new File(mod.getPath()).getName());
-            FileOutputStream fos = new FileOutputStream(f, false);
+            file = new File(System.getProperty("java.io.tmpdir") + new File(mod.getPath()).getName());
+            FileOutputStream fos = new FileOutputStream(file, false);
             ZIP.copyInputStream(is, fos);
             is.close();
             fos.flush();
             fos.close();
-            return f;
-        } else {
-            return null;
         }
+        return this;
     }
 
     public Mod getMod() {
         return mod;
     }
 
-
+    public File getFile() {
+        return file;
+    }
 }

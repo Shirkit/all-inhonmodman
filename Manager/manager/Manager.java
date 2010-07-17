@@ -434,40 +434,45 @@ public class Manager {
     public UpdateReturn updateMod(ArrayList<Mod> mods) {
         ExecutorService pool = Executors.newCachedThreadPool();
         Iterator<Mod> it = mods.iterator();
-        ArrayList<Future<File>> temp = new ArrayList<Future<File>>();
+        HashSet<Future<UpdateThread>> temp = new HashSet<Future<UpdateThread>>();
         while (it.hasNext()) {
             temp.add(pool.submit(new UpdateThread(it.next())));
         }
-        ArrayList<Future<File>> result = new ArrayList<Future<File>>();
+        HashSet<Future<UpdateThread>> result = new HashSet<Future<UpdateThread>>();
         while (!temp.isEmpty()) {
-            Iterator<Future<File>> ite = temp.iterator();
+            Iterator<Future<UpdateThread>> ite = temp.iterator();
             while (ite.hasNext()) {
-                Future<File> ff = ite.next();
+                Future<UpdateThread> ff = ite.next();
                 if (ff.isDone()) {
                     temp.remove(ff);
                     result.add(ff);
                 }
             }
         }
-        Iterator<Future<File>> ite = result.iterator();
+        Iterator<Future<UpdateThread>> ite = result.iterator();
         UpdateReturn returnValue = new UpdateReturn();
         while (ite.hasNext()) {
-            Future<File> ff = ite.next();
-            UpdateThread mod = (UpdateThread) ff;
+            Future<UpdateThread> ff = ite.next();
             try {
-                File file = ff.get();
+                UpdateThread mod = (UpdateThread) ff.get();
+                File file = mod.getFile();
                 if (file != null) {
+                    System.out.println(file.getAbsolutePath());
                     FileInputStream fis = new FileInputStream(file);
                     FileOutputStream fos = new FileOutputStream(mod.getMod().getPath());
                     ZIP.copyInputStream(fis, fos);
                     fis.close();
                     fos.flush();
                     fos.close();
-                    Mod newMod = XML.xmlToMod(mod.getMod().getPath());
+                    Mod newMod = null;
+                    try {
+                        newMod = XML.xmlToMod(new String(ZIP.getFile(file, Mod.MOD_FILENAME)));
+                    } catch (StreamException e) {
+                    }
                     newMod.setPath(mod.getMod().getPath());
                     Mod oldMod = getMod(mod.getMod().getName());
                     boolean wasEnabled = oldMod.isEnabled();
-                    ArrayList<Mod> gotDisable = new ArrayList<Mod>();
+                    HashSet<Mod> gotDisable = new HashSet<Mod>();
                     gotDisable.add(oldMod);
                     while (!gotDisable.isEmpty()) {
                         Iterator<Mod> iter = gotDisable.iterator();
@@ -501,7 +506,13 @@ public class Manager {
             } catch (InterruptedException ex) {
                 // Nothing can get here
             } catch (ExecutionException ex) {
-                returnValue.getFailed().add(mod.getMod());
+                try {
+                    returnValue.getFailed().add(ff.get().getMod());
+                } catch (InterruptedException ex1) {
+                    java.util.logging.Logger.getLogger(Manager.class.getName()).log(Level.SEVERE, null, ex1);
+                } catch (ExecutionException ex1) {
+                    java.util.logging.Logger.getLogger(Manager.class.getName()).log(Level.SEVERE, null, ex1);
+                }
             } catch (FileNotFoundException ex) {
                 // Can't get here
             } catch (IOException ex) {
@@ -555,7 +566,18 @@ public class Manager {
                 Pair<String, String> check = (Pair<String, String>) e.nextElement();
                 try {
                     if (getEnabledMod(Tuple.get1(check)) != null) {
-                        throw new ModEnabledException(Tuple.get1(check), Tuple.get2(check));
+                        Iterator i = mod.getActions().iterator();
+                        while (i.hasNext()) {
+                            Action a = (Action) i.next();
+                            if (a.getClass().equals(ActionIncompatibility.class)) {
+                                ActionIncompatibility inc = (ActionIncompatibility) a;
+                                if (inc.getName().equalsIgnoreCase(Tuple.get1(check))) {
+                                    if (!compareModsVersions(inc.getVersion(), Tuple.get2(check))) {
+                                        throw new ModEnabledException(Tuple.get1(check), Tuple.get2(check));
+                                    }
+                                }
+                            }
+                        }
                     }
                 } catch (NoSuchElementException noSuchElementException) {
                 }
@@ -630,11 +652,11 @@ public class Manager {
      */
     public void disableMod(String name) throws ModEnabledException {
         Mod m = getMod(name);
-        if (!m.isEnabled()) {
+        if (m.isEnabled()) {
             revcheckdeps(m);
-                // disable it
-                ManagerOptions.getInstance().getAppliedMods().remove(ManagerOptions.getInstance().getMod(name));
-                ManagerOptions.getInstance().getMod(name).disable();
+            // disable it
+            ManagerOptions.getInstance().getAppliedMods().remove(ManagerOptions.getInstance().getMod(name));
+            ManagerOptions.getInstance().getMod(name).disable();
         }
     }
 
@@ -1166,7 +1188,6 @@ public class Manager {
         }
         return result;
     }
-
 
     /**
      * ??

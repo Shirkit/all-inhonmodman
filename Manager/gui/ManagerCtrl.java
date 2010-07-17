@@ -1,6 +1,7 @@
 
 package gui;
 
+import java.util.logging.Level;
 import manager.Manager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -23,6 +24,7 @@ import utility.exception.ModNotEnabledException;
 import utility.exception.ModVersionMissmatchException;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Observable;
@@ -84,6 +86,7 @@ public class ManagerCtrl {
         view.buttonOkAddActionListener(new PrefsOkListener());
         view.buttonCancelAddActionListener(new PrefsCancelListener());
         view.buttonHonFolderAddActionListener(new ChooseFolderHonListener());
+        view.buttonUpdateModActionListener(new UpdateModListener());
         // Add file drop functionality
         new FileDrop(view, new DropListener());
 
@@ -266,6 +269,7 @@ public class ManagerCtrl {
 					} catch (ModEnabledException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
+                                                System.out.println(e1.getName());
 					} catch (ModNotEnabledException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
@@ -284,7 +288,11 @@ public class ManagerCtrl {
 					}
                 } else {
                     logger.info("Mod at index "+row+" has been disabled");
-                    controller.disableMod(controller.getMod(row).getName());
+                    try {
+                        controller.disableMod(controller.getMod(row).getName());
+                    } catch (ModEnabledException ex) {
+                        java.util.logging.Logger.getLogger(ManagerCtrl.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
                 // Again, save and restore ListSelectionListener
                 view.tableRemoveListSelectionListener(lsl);
@@ -400,6 +408,18 @@ public class ManagerCtrl {
         }
     }
 
+    class UpdateModListener implements ActionListener {
+
+        public void actionPerformed(ActionEvent e) {
+            Mod mod = controller.getMod(e.getActionCommand());
+            ArrayList<Mod> toUpdate = new ArrayList<Mod>();
+            toUpdate.add(mod);
+            controller.updateMod(toUpdate);
+            model.updateNotify();
+        }
+
+    }
+
     /**
      * Listener for 'Enable/disable mod' button on mod details panel
      */
@@ -408,7 +428,11 @@ public class ManagerCtrl {
             Mod mod = controller.getMod(e.getActionCommand());
             if (mod.isEnabled()) {
                 logger.error("Mod '"+mod.getName()+"' is now DISABLED");
-                controller.disableMod(mod.getName());
+                try {
+                    controller.disableMod(mod.getName());
+                } catch (ModEnabledException ex) {
+                    java.util.logging.Logger.getLogger(ManagerCtrl.class.getName()).log(Level.SEVERE, null, ex);
+                }
             } else {
                 logger.error("Mod '"+mod.getName()+"' is now ENABLED");
                 try {

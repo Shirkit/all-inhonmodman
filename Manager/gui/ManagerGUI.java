@@ -724,6 +724,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         areaModDesc.setText(mod.getDescription());
         labelVisitWebsite.setToolTipText(mod.getWebLink());
         labelModIcon.setIcon(mod.getIcon());
+        buttonUpdateMod.setActionCommand(mod.getName());
         buttonEnableMod.setActionCommand(mod.getName());
         if (mod.isEnabled()) {
             buttonEnableMod.setText(L10n.getString("button.disablemod"));
@@ -816,6 +817,10 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
 
     public void itemUnapplyAllModsAddActionListener(ActionListener al) {
         itemUnapplyAllMods.addActionListener(al);
+    }
+
+    public void buttonUpdateModActionListener(ActionListener al) {
+        buttonUpdateMod.addActionListener(al);
     }
 
     public void itemOpenModFolderAddActionListener(ActionListener al) {
