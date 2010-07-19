@@ -637,9 +637,6 @@ public class Manager {
      */
     public void enableMod(String name, boolean ignoreVersion) throws ModEnabledException, ModNotEnabledException, NoSuchElementException, ModVersionMissmatchException, NullPointerException, IllegalArgumentException, FileNotFoundException, IOException {
         Mod m = getMod(name);
-        logger.error("MAN: game version: " + Game.getInstance().getVersion()); // this has problems
-        logger.error("MAN: mod version: " + m.getAppVersion());
-
 
         if (!ignoreVersion) {
             try {
@@ -1181,7 +1178,7 @@ public class Manager {
             expressionVersion = "*";
         }
 
-        if ((expressionVersion.equals("*")) || (expressionVersion.equals(singleVersion)) || (expressionVersion.equals("*-*")) || (expressionVersion.equals(""))) {
+        if ((!expressionVersion.contains("-") && (expressionVersion.equals("*") || expressionVersion.equals(singleVersion) || expressionVersion.equals(""))) || expressionVersion.equals("*-*")) {
             result = true;
         } else if (expressionVersion.contains("-")) {
 
@@ -1197,8 +1194,7 @@ public class Manager {
 
             return checkVersion(vEx1, singleVersion) && checkVersion(singleVersion, vEx2);
         } else {
-            return checkVersion(expressionVersion, singleVersion);
-            //throw new InvalidParameterException();
+            throw new InvalidParameterException();
         }
         return result;
     }
@@ -1338,7 +1334,7 @@ public class Manager {
             return true;
         } else {
             String compare = version.trim();
-            return checkVersion(compare, target);
+            return compare.equalsIgnoreCase(target);
         }
     }
 
