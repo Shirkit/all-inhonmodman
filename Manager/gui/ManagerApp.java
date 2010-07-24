@@ -3,6 +3,7 @@
  */
 package gui;
 
+import java.util.concurrent.ExecutionException;
 import manager.Manager;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -14,6 +15,10 @@ import org.jdesktop.application.SingleFrameApplication;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import gui.l10n.L10n;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import utility.update.UpdateManager;
 
 /**
  * @author Shirkit
@@ -57,9 +62,30 @@ public class ManagerApp extends SingleFrameApplication {
         controller = Manager.getInstance();
         view = new ManagerGUI(controller);
         ctrl = new ManagerCtrl(controller, view);
+        String title = view.getTitle();
+        view.setTitle("HOLD A SECOND");
 
         view.setVisible(true);
+
         // show(new ManagerGUI());
+
+        ExecutorService pool = Executors.newCachedThreadPool();
+        Future<Boolean> hasUpdate = pool.submit(new UpdateManager());
+        while (!hasUpdate.isDone()) {
+
+        }
+        view.setTitle(title);
+        try {
+            if (hasUpdate.get().booleanValue()) {
+                view.showMessage(L10n.getString("message.updateavaliabe"),L10n.getString("message.updateavaliabe.title"), JOptionPane.INFORMATION_MESSAGE);
+            } else {
+            }
+        } catch (InterruptedException ex) {
+            // Job is never stopped
+        } catch (ExecutionException ex) {
+            // Exceptions are never thrown
+        }
+        pool.shutdown();
     }
 
     /**

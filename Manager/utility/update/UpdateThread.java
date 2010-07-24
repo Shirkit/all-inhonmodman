@@ -32,16 +32,6 @@ public class UpdateThread implements Callable<UpdateThread> {
         this.file = null;
     }
 
-    public void updateMod() throws MalformedURLException, IOException {
-        BufferedReader in = new BufferedReader(new InputStreamReader(new URL(mod.getUpdateCheckUrl()).openStream()));
-        String str;
-        while ((str = in.readLine()) != null) {
-            System.out.println(str);
-        }
-
-        in.close();
-    }
-
     public UpdateThread call() throws MalformedURLException, FileNotFoundException, IOException {
         BufferedReader in = new BufferedReader(new InputStreamReader(new URL(mod.getUpdateCheckUrl().trim()).openStream()));
         String str = in.readLine();

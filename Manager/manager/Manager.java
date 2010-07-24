@@ -434,9 +434,7 @@ public class Manager {
         try {
             BufferedReader in = new BufferedReader(new InputStreamReader(new URL(new Mod().getUpdateCheckUrl().trim()).openStream()));
         } catch (MalformedURLException ex) {
-            
         } catch (IOException ex) {
-
         }
     }
 
@@ -632,21 +630,15 @@ public class Manager {
      * @throws ModVersionMissmatchException if the mod's version is imcompatible with the game version.
      * @throws NullPointerException if there is a problem with the game path (maybe the path was not set in the game class, or hon.exe wasn't found, or happened a random I/O error).
      * @throws FileNotFoundException if the Hon.exe file wasn't found
-     * @throws IllegalArgumentException 
      * @throws IOException if a random I/O Exception happened.
+     * @throws IllegalArgumentException if a mod used a invalid parameter to compare the mods version.
      */
-    public void enableMod(String name, boolean ignoreVersion) throws ModEnabledException, ModNotEnabledException, NoSuchElementException, ModVersionMissmatchException, NullPointerException, IllegalArgumentException, FileNotFoundException, IOException {
+    public void enableMod(String name, boolean ignoreVersion) throws ModEnabledException, ModNotEnabledException, NoSuchElementException, ModVersionMissmatchException, NullPointerException, FileNotFoundException, IllegalArgumentException, IOException {
         Mod m = getMod(name);
 
         if (!ignoreVersion) {
-            try {
-                if (!compareModsVersions(Game.getInstance().getVersion(), m.getAppVersion())) {
-                    throw new ModVersionMissmatchException(name, m.getVersion(), m.getAppVersion());
-                }
-            } catch (InvalidParameterException ex) {
-                //view.showMessage("error.loadmodfiles", "error.loadmodfiles.title", JOptionPane.ERROR_MESSAGE);
-                //throw new NullPointerException();
-                ex.printStackTrace();
+            if (!compareModsVersions(Game.getInstance().getVersion(), m.getAppVersion())) {
+                throw new ModVersionMissmatchException(name, m.getVersion(), m.getAppVersion());
             }
         }
         if (!m.isEnabled()) {
@@ -1176,6 +1168,11 @@ public class Manager {
 
         if (expressionVersion == null) {
             expressionVersion = "*";
+        }
+
+        for (int i = 0; i < expressionVersion.length(); i++) {
+            if (Character.isLetter(expressionVersion.charAt(i))) {
+            }
         }
 
         if ((!expressionVersion.contains("-") && (expressionVersion.equals("*") || expressionVersion.equals(singleVersion) || expressionVersion.equals(""))) || expressionVersion.equals("*-*")) {
