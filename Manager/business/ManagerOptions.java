@@ -202,6 +202,10 @@ public class ManagerOptions extends Observable {
     public Set<Mod> getAppliedMods() {
         return applied;
     }
+
+    public String getUpdateCheckUrl() {
+        return MANAGER_CHECK_UPDATE;
+    }
     
     public void addMod(Mod mod) {
     	if (this.mods == null) {
