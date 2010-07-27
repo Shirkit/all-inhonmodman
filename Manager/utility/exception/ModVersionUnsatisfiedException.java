@@ -14,27 +14,27 @@ import business.ManagerOptions;
 import com.mallardsoft.tuple.*;
 
 /**
- * If a mod tried to be disabled but those mods depend on it are not cleared (a.k.a. not disabled), this exception is thrown.
- * @author Shirkit
+ * If a mod tried to be enabled but some enabled dependency versions are not satisfied, this exception is thrown.
+ * @author Penn
  */
-public class ModEnabledException extends Exception {
+public class ModVersionUnsatisfiedException extends Exception {
 
-	private ArrayList<Pair<String, String>> _deps;
+	private ArrayList<Pair<String, String>> _vers;
 
     /**
      * @param name of the mod that was enabled.
      * @param version of the mod that was enabled.
      */
-    public ModEnabledException(ArrayList<Pair<String, String>> deps) {
+    public ModVersionUnsatisfiedException(ArrayList<Pair<String, String>> vers) {
         super();
-        _deps = deps;
+        _vers = vers;
     }
 
     /**
      * @return the list of mods that depends on the mod that are not disabled
      */
-    public ArrayList<Pair<String, String>> getDeps() {
-        return _deps;
+    public ArrayList<Pair<String, String>> getVers() {
+        return _vers;
     }
     
     /**
@@ -42,7 +42,7 @@ public class ModEnabledException extends Exception {
      */
     public String toString() {
     	String ret = "";
-    	Enumeration e = Collections.enumeration(_deps);
+    	Enumeration e = Collections.enumeration(_vers);
     	while (e.hasMoreElements()) {
     		ret += Tuple.get1((Pair<String, String>)e.nextElement());
     		ret += ", ";

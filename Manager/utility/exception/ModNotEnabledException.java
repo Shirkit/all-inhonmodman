@@ -5,37 +5,48 @@
 
 package utility.exception;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+
+import com.mallardsoft.tuple.*;
+
 /**
- * If a mod tried to be enabled, but it required another mod to be enabled, and this other mod wasn't enabled, this exception is thrown.
+ * If a mod tried to be enabled but the dependencies are not satisfied (a.k.a. not enabled), this exception is thrown.
  * @author Shirkit
  */
 public class ModNotEnabledException extends Exception {
 
-    private String name;
-    private String version;
+	private ArrayList<Pair<String, String>> _deps;
 
     /**
      * @param name of the mod that wasn't enabled.
      * @param version of the mod that wasn't enabled.
      */
-    public ModNotEnabledException(String name, String version) {
+    public ModNotEnabledException(ArrayList<Pair<String, String>> deps) {
         super();
-        this.name = name;
-        this.version = version;
+        _deps = deps;
     }
 
     /**
-     * @return the version of the mod that was required to be enabled (can be a version expression 1.3-1.7.2)
+     * @return the list of dependencies that are not enabled for the problematic mod
      */
-    public String getVersion() {
-        return version;
+    public ArrayList<Pair<String, String>> getDeps() {
+        return _deps;
     }
-
+    
     /**
-     * @return the name of the mod that was required to be enabled.
+     * @return a string of mod names separated by comma in array _deps
      */
-    public String getName() {
-        return name;
+    public String toString() {
+    	String ret = "";
+    	Enumeration e = Collections.enumeration(_deps);
+    	while (e.hasMoreElements()) {
+    		ret += Tuple.get1((Pair<String, String>)e.nextElement());
+    		ret += ", ";
+    	}
+    	
+    	return ret.substring(0, ret.length()-2);
     }
 
 }

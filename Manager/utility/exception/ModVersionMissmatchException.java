@@ -6,7 +6,7 @@
 package utility.exception;
 
 /**
- * If a mod was tried to be enabled, but it's version doesn't matches tha HoN's version, this exception is thrown.
+ * If a mod was tried to be enabled, but it's version doesn't matches that HoN's version, this exception is thrown.
  * @author Shirkit
  */
 public class ModVersionMissmatchException extends Exception {

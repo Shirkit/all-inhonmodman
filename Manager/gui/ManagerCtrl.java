@@ -18,9 +18,11 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import utility.FileDrop;
 import utility.OS;
+import utility.exception.ModConflictException;
 import utility.exception.ModEnabledException;
 import utility.exception.ModNotEnabledException;
 import utility.exception.ModVersionMissmatchException;
+import utility.exception.ModVersionUnsatisfiedException;
 
 import java.io.IOException;
 import java.security.InvalidParameterException;
@@ -282,21 +284,37 @@ public class ManagerCtrl {
                                     JOptionPane.WARNING_MESSAGE);
                             logger.warn("Error enabling mod: " + m.getName() + " NullPointerException", e1);
                         } catch (ModEnabledException e1) {
-                            view.showMessage(L10n.getString("error.modenabled").replace("#mod#", m.getName()).replace("#mod2#", e1.getName()),
+                        	// TODO: fix this message as it is not replacing the mod names but logger message works (but the button version works, weird :S)
+                        	view.showMessage(L10n.getString("error.modenabled").replace("#mod#", m.getName()).replace("#mod2#", e1.toString()),
                                     L10n.getString("error.modenabled.title"),
                                     JOptionPane.WARNING_MESSAGE);
-                            logger.warn("Error enabling mod: " + m.getName() + " because: " + e1.getName() + " - " + e1.getVersion() + " is enabled (incompatibility) ModEnabledException", e1);
+                            logger.warn("Error disabling mod: " + m.getName() + " because: " + e1.toString() + " is/are enabled.", e1);
                         } catch (ModNotEnabledException e1) {
-                            view.showMessage(L10n.getString("error.modnotenabled").replace("#mod#", m.getName()).replace("#mod2#", e1.getName()),
+                            view.showMessage(L10n.getString("error.modnotenabled").replace("#mod#", m.getName()).replace("#mod2#", e1.toString()),
                                     L10n.getString("error.modnotenabled.title"),
                                     JOptionPane.WARNING_MESSAGE);
-                            logger.warn("Error enabling mod: " + m.getName() + " because: " + e1.getName() + " - " + e1.getVersion() + " is enabled (requirement) ModNotEnabledException", e1);
+                            logger.warn("Error enabling mod: " + m.getName() + " because: " + e1.toString() + " is/are not enabled.", e1);
                         } catch (ModVersionMissmatchException e1) {
                             view.showMessage(L10n.getString("error.modversionmissmatch").replace("#mod#", m.getName()),
                                     L10n.getString("error.modversionmissmatch.title"),
                                     JOptionPane.WARNING_MESSAGE);
                             logger.warn("Error enabling mod: " + m.getName() + " because: Game version = " + gameVersion + " - Mod version = " + e1.getAppVersion() + " ModVersionMissmatchException", e1);
-                        }
+                        } catch (ModConflictException e1) {
+                        	// TODO: haven't tested this yet
+							view.showMessage(L10n.getString("error.modconflict").replace("#mod#", m.getName()).replace("#mod2#", e1.toString()),
+                                    L10n.getString("error.modconflict.title"),
+                                    JOptionPane.WARNING_MESSAGE);
+                            logger.warn("Error enabling mod: " + m.getName() + " because there are conflict mods (" + e1.toString() + ") enabled", e1);
+						} catch (ModVersionUnsatisfiedException e1) {
+							// TODO: haven't tested this yet
+							view.showMessage(L10n.getString("error.modversionunsatisfied").replace("#mod#", m.getName()).replace("#mod2#", e1.toString()),
+                                    L10n.getString("error.modversionunsatisfied.title"),
+                                    JOptionPane.WARNING_MESSAGE);
+                            logger.warn("Error enabling mod: " + m.getName() + " because some mods (" + e1.toString() + ") version(s) is/are not satisfied", e1);
+						} catch (IllegalArgumentException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
                     } catch (IndexOutOfBoundsException e1) {
                         view.showMessage(L10n.getString("error.modnotfound"),
                                 L10n.getString("error.modnotfound.title"),
@@ -310,7 +328,6 @@ public class ManagerCtrl {
                     } catch (IOException e1) {
                     }
                 } else {
-                    logger.info("Mod at index " + row + " has been disabled");
                     try {
                         controller.disableMod(controller.getMod(row).getName());
                     } catch (IndexOutOfBoundsException e1) {
@@ -319,11 +336,12 @@ public class ManagerCtrl {
                                 JOptionPane.WARNING_MESSAGE);
                         logger.warn("Error enabling mod at index " + row + " IndexOutOfBoundsException", e1);
                     } catch (ModEnabledException e1) {
-                        view.showMessage(L10n.getString("error.disablingmodisrequired"),
-                                L10n.getString("error.disablingmodisrequired.title"),
+                        view.showMessage(L10n.getString("error.modenabled"),
+                                L10n.getString("error.modenabled.title"),
                                 JOptionPane.WARNING_MESSAGE);
-                        logger.warn("Error disabling mod: " + controller.getMod(row).getName() + " because: " + e1.getName() + " - " + e1.getVersion() + " is enabled (incompatibility) ModEnabledException", e1);
+                        logger.warn("Error disabling mod: " + controller.getMod(row).getName() + " because: " + e1.toString() + " is/are enabled.", e1);
                     }
+                    logger.info("Mod at index " + row + " is now disabled");
                 }
                 // Again, save and restore ListSelectionListener
                 view.tableRemoveListSelectionListener(lsl);
@@ -472,12 +490,15 @@ public class ManagerCtrl {
         public void actionPerformed(ActionEvent e) {
             Mod mod = controller.getMod(e.getActionCommand());
             if (mod.isEnabled()) {
-                logger.error("Mod '" + mod.getName() + "' is now DISABLED");
                 try {
                     controller.disableMod(mod.getName());
                 } catch (ModEnabledException ex) {
-                    java.util.logging.Logger.getLogger(ManagerCtrl.class.getName()).log(Level.SEVERE, null, ex);
+                	view.showMessage(L10n.getString("error.modenabled").replace("#mod#", mod.getName()).replace("#mod2#", ex.toString()),
+                            L10n.getString("error.modenabled.title"),
+                            JOptionPane.WARNING_MESSAGE);
+                    logger.warn("Error disabling mod: " + mod.getName() + " because: " + ex.toString() + " is/are enabled.", ex);
                 }
+                logger.error("Mod '" + mod.getName() + "' is now DISABLED");
             } else {
                 try {
                     Mod m = controller.getMod(mod.getName());
@@ -496,21 +517,36 @@ public class ManagerCtrl {
                                 JOptionPane.WARNING_MESSAGE);
                         logger.warn("Error enabling mod: " + m.getName() + " NullPointerException", e1);
                     } catch (ModEnabledException e1) {
-                        view.showMessage(L10n.getString("error.modenabled").replace("#mod#", m.getName()).replace("#mod2#", e1.getName()),
+                    	view.showMessage(L10n.getString("error.modenabled").replace("#mod#", m.getName()).replace("#mod2#", e1.toString()),
                                 L10n.getString("error.modenabled.title"),
                                 JOptionPane.WARNING_MESSAGE);
-                        logger.warn("Error enabling mod: " + m.getName() + " because: " + e1.getName() + " - " + e1.getVersion() + " is enabled (incompatibility) ModEnabledException", e1);
+                        logger.warn("Error disabling mod: " + m.getName() + " because: " + e1.toString() + " is/are enabled.", e1);
                     } catch (ModNotEnabledException e1) {
-                        view.showMessage(L10n.getString("error.modnotenabled").replace("#mod#", m.getName()).replace("#mod2#", e1.getName()),
+                    	view.showMessage(L10n.getString("error.modnotenabled").replace("#mod#", m.getName()).replace("#mod2#", e1.toString()),
                                 L10n.getString("error.modnotenabled.title"),
                                 JOptionPane.WARNING_MESSAGE);
-                        logger.warn("Error enabling mod: " + m.getName() + " because: " + e1.getName() + " - " + e1.getVersion() + " is enabled (requirement) ModNotEnabledException", e1);
+                        logger.warn("Error enabling mod: " + m.getName() + " because: " + e1.toString() + " is/are not enabled.", e1);
                     } catch (ModVersionMissmatchException e1) {
                         view.showMessage(L10n.getString("error.modversionmissmatch").replace("#mod#", m.getName()),
                                 L10n.getString("error.modversionmissmatch.title"),
                                 JOptionPane.WARNING_MESSAGE);
                         logger.warn("Error enabling mod: " + m.getName() + " because: Game version = " + gameVersion + " - Mod app version = " + e1.getAppVersion() + " ModVersionMissmatchException", e1);
-                    }
+                    } catch (ModConflictException e1) {
+                    	// TODO: haven't tested this yet
+						view.showMessage(L10n.getString("error.modconflict").replace("#mod#", m.getName()).replace("#mod2#", e1.toString()),
+                                L10n.getString("error.modconflict.title"),
+                                JOptionPane.WARNING_MESSAGE);
+                        logger.warn("Error enabling mod: " + m.getName() + " because there are conflict mods (" + e1.toString() + ") enabled", e1);
+					} catch (ModVersionUnsatisfiedException e1) {
+                    	// TODO: haven't tested this yet
+						view.showMessage(L10n.getString("error.modversionunsatisfied").replace("#mod#", m.getName()).replace("#mod2#", e1.toString()),
+                                L10n.getString("error.modversionunsatisfied.title"),
+                                JOptionPane.WARNING_MESSAGE);
+                        logger.warn("Error enabling mod: " + m.getName() + " because some mods (" + e1.toString() + ") version(s) is/are not satisfied", e1);
+					} catch (IllegalArgumentException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
                 } catch (FileNotFoundException e1) {
                     view.showMessage(L10n.getString("error.incorrectpath"),
                             L10n.getString("error.incorrectpath.title"),
