@@ -68,11 +68,12 @@ public class Manager {
 
     private static Manager instance = null;
     //private ArrayList<Mod> mods;
+    //private Set<Mod> applied;
     private ArrayList<ArrayList<Pair<String, String>>> deps;
     private ArrayList<ArrayList<Pair<String, String>>> cons;
     private ArrayList<ArrayList<Pair<String, String>>> after;
     private ArrayList<ArrayList<Pair<String, String>>> before;
-    //private Set<Mod> applied;
+
     private static Logger logger = Logger.getLogger(Manager.class.getPackage().getName());
 
     /**
@@ -114,7 +115,8 @@ public class Manager {
             int length = mods.get(i).getActions().size();
             for (int j = 0; j < length; j++) {
                 if (mods.get(i).getActions().get(j).getClass() == ActionApplyAfter.class) {
-                    Pair<String, String> mod = Tuple.from(((ActionApplyAfter) mods.get(i).getActions().get(j)).getName(), ((ActionApplyAfter) mods.get(i).getActions().get(j)).getVersion());
+                    Pair<String, String> mod = Tuple.from(((ActionApplyAfter) mods.get(i).getActions().get(j)).getName(),
+                    									  ((ActionApplyAfter) mods.get(i).getActions().get(j)).getVersion());
                     if (after.get(i) == null) {
                         ArrayList<Pair<String, String>> temp = new ArrayList<Pair<String, String>>();
                         temp.add(mod);
@@ -123,7 +125,8 @@ public class Manager {
                         after.get(i).add(mod);
                     }
                 } else if (mods.get(i).getActions().get(j).getClass() == ActionApplyBefore.class) {
-                    Pair<String, String> mod = Tuple.from(((ActionApplyBefore) mods.get(i).getActions().get(j)).getName(), ((ActionApplyBefore) mods.get(i).getActions().get(j)).getVersion());
+                    Pair<String, String> mod = Tuple.from(((ActionApplyBefore) mods.get(i).getActions().get(j)).getName(),
+                    									  ((ActionApplyBefore) mods.get(i).getActions().get(j)).getVersion());
                     if (before.get(i) == null) {
                         ArrayList<Pair<String, String>> temp = new ArrayList<Pair<String, String>>();
                         temp.add(mod);
@@ -132,7 +135,8 @@ public class Manager {
                         before.get(i).add(mod);
                     }
                 } else if (mods.get(i).getActions().get(j).getClass() == ActionIncompatibility.class) {
-                    Pair<String, String> mod = Tuple.from(((ActionIncompatibility) mods.get(i).getActions().get(j)).getName(), ((ActionIncompatibility) mods.get(i).getActions().get(j)).getVersion());
+                    Pair<String, String> mod = Tuple.from(((ActionIncompatibility) mods.get(i).getActions().get(j)).getName(),
+                    									  ((ActionIncompatibility) mods.get(i).getActions().get(j)).getVersion());
                     if (cons.get(i) == null) {
                         ArrayList<Pair<String, String>> temp = new ArrayList<Pair<String, String>>();
                         temp.add(mod);
@@ -141,7 +145,8 @@ public class Manager {
                         cons.get(i).add(mod);
                     }
                 } else if (mods.get(i).getActions().get(j).getClass() == ActionRequirement.class) {
-                    Pair<String, String> mod = Tuple.from(((ActionRequirement) mods.get(i).getActions().get(j)).getName(), ((ActionRequirement) mods.get(i).getActions().get(j)).getVersion());
+                    Pair<String, String> mod = Tuple.from(((ActionRequirement) mods.get(i).getActions().get(j)).getName(),
+                    									  ((ActionRequirement) mods.get(i).getActions().get(j)).getVersion());
                     if (deps.get(i) == null) {
                         ArrayList<Pair<String, String>> temp = new ArrayList<Pair<String, String>>();
                         temp.add(mod);
@@ -461,7 +466,8 @@ public class Manager {
     }
 
     /**
-     * This method updates the given mods. It handles all exceptions that can exist, and take the needed actions to complete the task, without needing any external influence.
+     * This method updates the given mods. It handles all exceptions that can exist, and take the needed actions to complete the task,
+     * without needing any external influence.
      * @param mods to be updated.
      * @return a instance of a UpdateReturn containing the result of the method. Updated, failed and already up-to-date mods can be easily found there.
      */
@@ -711,18 +717,29 @@ public class Manager {
     }
 
     /**
-     * This function trys to enable the mod with the name given. Throws exceptions if didn't no success while enabling the mod. ignoreVersion should be always false, unless the user especifically says so.
+     * This function trys to enable the mod with the name given. Throws exceptions if didn't no success while enabling the mod.
+     * ignoreVersion should be always false, unless the user especifically says so.
      * @param name of the mod
      * @throws ModEnabledException if a mod was enabled and caused an incompatibility with the Mod that is being tryied to apply.
      * @throws ModNotEnabledException if a mod that was required by this mod wasn't enabled.
      * @throws NoSuchElementException if the mod doesn't exist
      * @throws ModVersionMissmatchException if the mod's version is imcompatible with the game version.
-     * @throws NullPointerException if there is a problem with the game path (maybe the path was not set in the game class, or hon.exe wasn't found, or happened a random I/O error).
+     * @throws NullPointerException if there is a problem with the game path (maybe the path was not set in the game class,
+     * or hon.exe wasn't found, or happened a random I/O error).
      * @throws FileNotFoundException if the Hon.exe file wasn't found
      * @throws IOException if a random I/O Exception happened.
      * @throws IllegalArgumentException if a mod used a invalid parameter to compare the mods version.
      */
-    public void enableMod(String name, boolean ignoreVersion) throws ModConflictException, ModVersionUnsatisfiedException, ModEnabledException, ModNotEnabledException, NoSuchElementException, ModVersionMissmatchException, NullPointerException, FileNotFoundException, IllegalArgumentException, IOException {
+    public void enableMod(String name, boolean ignoreVersion) throws ModConflictException,
+    																 ModVersionUnsatisfiedException,
+    																 ModEnabledException,
+    																 ModNotEnabledException,
+    																 NoSuchElementException,
+    																 ModVersionMissmatchException,
+    																 NullPointerException,
+    																 FileNotFoundException,
+    																 IllegalArgumentException,
+    																 IOException {
         Mod m = getMod(name);
 
         if (!ignoreVersion) {
@@ -886,11 +903,17 @@ public class Manager {
      * @throws IOException if a random I/O error happened.
      * @throws UnknowModActionException if a unkown Action was found. Actions that aren't know by the program can't be applied.
      * @throws NothingSelectedModActionException if a action tried to do a action that involves a string, but no string was selected.
-     * @throws StringNotFoundModActionException if a search for a string was made, but that string wasn't found. Probally, imcompatibility or a error by the mod's author.
+     * @throws StringNotFoundModActionException if a search for a string was made, but that string wasn't found. Probally,
+     * imcompatibility or a error by the mod's author.
      * @throws InvalidModActionParameterException if a action had a invalid parameter. Only the position of actions 'insert' and 'find' can throw this exception.
      * @throws SecurityException if the Manager couldn't do a action because of security business.
      */
-    public void applyMods() throws IOException, UnknowModActionException, NothingSelectedModActionException, StringNotFoundModActionException, InvalidModActionParameterException, SecurityException {
+    public void applyMods() throws IOException,
+    							   UnknowModActionException,
+    							   NothingSelectedModActionException,
+    							   StringNotFoundModActionException,
+    							   InvalidModActionParameterException,
+    							   SecurityException {
         ArrayList<Mod> applyOrder = sortMods();
         File tempFolder = new File(System.getProperty("java.io.tmpdir") + File.separator + "HoN Mod Manager");
         // This generates a temp folder. If it isn't possible, generates a random folder inside the OS's temp folder.
@@ -1007,7 +1030,8 @@ public class Manager {
                             os.close();
                         } else {
                             // Load file from resources0.s2z if no other mod edited this file
-                            afterEdit = new String(ZIP.getFile(new File(ManagerOptions.getInstance().getGamePath() + File.separator + "game" + File.separator + "resources0.s2z"), editfile.getName()));
+                        	String path = ManagerOptions.getInstance().getGamePath() + File.separator + "game" + File.separator + "resources0.s2z";
+                            afterEdit = new String(ZIP.getFile(new File(path), editfile.getName()));
                         }
                         for (int k = 0; k < editfile.getActions().size(); k++) {
                             ActionEditFileActions editFileAction = editfile.getActions().get(k);
@@ -1126,7 +1150,8 @@ public class Manager {
 
                     }
                     // ApplyAfter, ApplyBefore, Incompatibility, Requirement Action
-                } else if (action.getClass().equals(ActionApplyAfter.class) || action.getClass().equals(ActionApplyBefore.class) || action.getClass().equals(ActionIncompatibility.class) || action.getClass().equals(ActionRequirement.class)) {
+                } else if (action.getClass().equals(ActionApplyAfter.class) || action.getClass().equals(ActionApplyBefore.class) || 
+                		action.getClass().equals(ActionIncompatibility.class) || action.getClass().equals(ActionRequirement.class)) {
                     // nothing to do
                 } else {
                     // Unknow action, can't apply
@@ -1208,23 +1233,26 @@ public class Manager {
             }
         }
 
-        if ((!expressionVersion.contains("-") && (expressionVersion.equals("*") || expressionVersion.equals(singleVersion) || expressionVersion.equals(""))) || expressionVersion.equals("*-*")) {
+        if ((!expressionVersion.contains("-") && (expressionVersion.equals("*") || expressionVersion.equals(singleVersion) || expressionVersion.equals(""))) || 
+        		expressionVersion.equals("*-*")) {
             result = true;
         } else if (expressionVersion.contains("-")) {
 
             int check = 0;
             String vEx1 = expressionVersion.substring(0, expressionVersion.indexOf("-"));
+            logger.warn("MAN: vEx1: " + vEx1);
             if (vEx1.isEmpty() || vEx1 == null) {
                 vEx1 = "*";
             }
             String vEx2 = expressionVersion.substring(expressionVersion.indexOf("-") + 1, expressionVersion.length());
+            logger.warn("MAN: vEx2: " + vEx2);
             if (vEx2.isEmpty() || vEx2 == null) {
                 vEx2 = "*";
             }
 
             return checkVersion(vEx1, singleVersion) && checkVersion(singleVersion, vEx2);
         } else {
-            throw new InvalidParameterException();
+            throw new InvalidParameterException(); 
         }
         return result;
     }
@@ -1316,7 +1344,10 @@ public class Manager {
      * @return
      */
     public boolean checkVersion(String lower, String higher) {
-        boolean ret = true;
+        // boolean ret = true;
+        
+        if (lower.equalsIgnoreCase("*") || higher.equalsIgnoreCase("*"))
+        	return true;
 
         StringTokenizer lowst = new StringTokenizer(lower, ".", false);
         StringTokenizer highst = new StringTokenizer(higher, ".", false);
@@ -1324,22 +1355,33 @@ public class Manager {
         while (lowst.hasMoreTokens() && highst.hasMoreTokens()) {
             String firsttk = lowst.nextToken();
             String secondtk = highst.nextToken();
+            logger.warn("firsttk: " + firsttk);
+            logger.warn("secondtk: " + secondtk);
 
             if (firsttk.contains("*") || secondtk.contains("*")) {
-                return ret;
+                return true;
             }
 
             int first = Integer.parseInt(firsttk);
             int second = Integer.parseInt(secondtk);
+            
+            if (first < second)
+            	return true;
+            else if (first > second)
+            	return false;
+            else if (first == second)
+            	continue;
 
+            /*
             if (ret) {
                 ret = (first <= second);
             } else if (!ret) {
                 return ret;
             }
+            */
         }
 
-        return ret;
+        return true;
     }
 
     /**
