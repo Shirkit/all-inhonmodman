@@ -33,7 +33,7 @@ public class Game {
         if (OS.isWindows()) {
             // Get the folder from uninstall info in windows registry saved by HoN
             String registryData = WindowsRegistry.getRecord("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\hon", "InstallLocation");
-            if (!registryData.isEmpty()) {
+            if (registryData != null && !registryData.isEmpty()) {
                 return registryData;
             }
             // We didnt find HoN folder in the registry, try something else?

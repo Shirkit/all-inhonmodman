@@ -100,7 +100,7 @@ public class ManagerCtrl {
             controller.saveOptions();
         } catch (Exception ex) {
             ex.printStackTrace();
-            logger.error("Unable to load mods from mod folder. Message: " + ex.getMessage());
+            logger.error("Unable to load mods from mod folder. Message: " + ex.getMessage(), ex);
             view.showMessage("error.loadmodfiles", "error.loadmodfiles.title", JOptionPane.ERROR_MESSAGE);
         }
 

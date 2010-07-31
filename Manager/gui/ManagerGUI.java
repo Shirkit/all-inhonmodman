@@ -101,21 +101,6 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         comboBoxLafs.addItem(new LaF("Tonic", "com.digitprop.tonic.TonicLookAndFeel"));
         comboBoxLafs.addItem(new LaF("Synthetica Standard", "de.javasoft.plaf.synthetica.SyntheticaStandardLookAndFeel"));
         comboBoxLafs.addItem(new LaF("Synthetica Blue Steel", "de.javasoft.plaf.synthetica.SyntheticaBlueSteelLookAndFeel"));
-        URL urls[] = {};
-        JarFileLoader newLafs = new JarFileLoader(urls);
-        try {
-            newLafs.addFile("C:/Users/Shirkit/Documents/NetBeansProjects/Manager/laf/syntheticaBlackEye.jar");
-            try {
-                if (new File("C:\\Users\\Shirkit\\Documents\\NetBeansProjects\\Manager\\laf\\syntheticaBlackEye.jar").exists()) {
-                    Class.forName("de.javasoft.plaf.synthetica.SyntheticaBlackEyeLookAndFeel");
-                }
-            } catch (ClassNotFoundException ex) {
-                System.err.println("fail");
-            }
-        } catch (MalformedURLException ex) {
-            java.util.logging.Logger.getLogger(ManagerGUI.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        comboBoxLafs.addItem(new LaF("Synthetica Black Eye", "de.javasoft.plaf.synthetica.SyntheticaBlackEyeLookAndFeel"));
         // Components on the Mod details panel are not visible by default
         setDetailsVisible(false);
         // This thing here is working along with formComponentShown to solve the fucking bug of not showing the correct size when running the app
