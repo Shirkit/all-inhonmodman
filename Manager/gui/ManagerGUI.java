@@ -1,6 +1,7 @@
-
 package gui;
 
+import java.net.MalformedURLException;
+import java.util.logging.Level;
 import javax.swing.JOptionPane;
 import gui.l10n.L10n;
 import manager.Manager;
@@ -24,8 +25,10 @@ import org.apache.log4j.Logger;
 import javax.swing.UIManager;
 import business.actions.Action;
 import business.actions.ActionRequirement;
+import java.io.File;
 import java.util.Iterator;
 import javax.swing.DefaultListModel;
+import utility.JarFileLoader;
 
 /**
  * Main form of the ModManager. This class is the 'view' part of the MVC framework
@@ -34,12 +37,13 @@ import javax.swing.DefaultListModel;
  */
 public class ManagerGUI extends javax.swing.JFrame implements Observer {
     // Model for this View (part of MVC pattern)
+
     private Manager controller;
     private ManagerOptions model;
     private static Logger logger = Logger.getLogger(ManagerGUI.class.getPackage().getName());
     private Preferences prefs;
     // Column names of the mod list table
-    private String[] columnNames = new String [] {
+    private String[] columnNames = new String[]{
         "",
         L10n.getString("table.modname"),
         L10n.getString("table.modauthor"),
@@ -53,7 +57,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
      * @param model model patr of the MVC framework
      */
     public ManagerGUI(Manager controller) {
-    	this.model = ManagerOptions.getInstance();
+        this.model = ManagerOptions.getInstance();
         this.controller = controller;
         this.model.addObserver(this);
         // Set Look and feel (based on preferences)
@@ -66,12 +70,18 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                 logger.info("Setting default look and feel");
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             } else {
-                logger.info("Setting look and feel to: "+lafClass);
+                logger.info("Setting look and feel to: " + lafClass);
                 UIManager.setLookAndFeel(lafClass);
             }
         } catch (Exception e) {
-            logger.warn("Cannot change L&F: "+e.getMessage());
+            logger.warn("Cannot change L&F: " + e.getMessage());
         }
+
+        // Registration for Synthetica Look and Feel
+        String[] li = {"Licensee=Pedro Torres", "LicenseRegistrationNumber=NCPT200729", "Product=Synthetica", "LicenseType=Non Commercial", "ExpireDate=--.--.----", "MaxVersion=2.999.999"};
+        UIManager.put("Synthetica.license.info", li);
+        UIManager.put("Synthetica.license.key", "644E94EB-97019D70-E7B56201-11EE0820-82B6C8DC");
+
         initComponents();
         // Set application icon
         try {
@@ -91,6 +101,21 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         comboBoxLafs.addItem(new LaF("Tonic", "com.digitprop.tonic.TonicLookAndFeel"));
         comboBoxLafs.addItem(new LaF("Synthetica Standard", "de.javasoft.plaf.synthetica.SyntheticaStandardLookAndFeel"));
         comboBoxLafs.addItem(new LaF("Synthetica Blue Steel", "de.javasoft.plaf.synthetica.SyntheticaBlueSteelLookAndFeel"));
+        URL urls[] = {};
+        JarFileLoader newLafs = new JarFileLoader(urls);
+        try {
+            newLafs.addFile("C:/Users/Shirkit/Documents/NetBeansProjects/Manager/laf/syntheticaBlackEye.jar");
+            try {
+                if (new File("C:\\Users\\Shirkit\\Documents\\NetBeansProjects\\Manager\\laf\\syntheticaBlackEye.jar").exists()) {
+                    Class.forName("de.javasoft.plaf.synthetica.SyntheticaBlackEyeLookAndFeel");
+                }
+            } catch (ClassNotFoundException ex) {
+                System.err.println("fail");
+            }
+        } catch (MalformedURLException ex) {
+            java.util.logging.Logger.getLogger(ManagerGUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        comboBoxLafs.addItem(new LaF("Synthetica Black Eye", "de.javasoft.plaf.synthetica.SyntheticaBlackEyeLookAndFeel"));
         // Components on the Mod details panel are not visible by default
         setDetailsVisible(false);
         // This thing here is working along with formComponentShown to solve the fucking bug of not showing the correct size when running the app
@@ -588,8 +613,8 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         // Get CL arguments
         //String clArgs = prefs.get(model.PREFS_CLARGUMENTS, "DUMMY_DEFAULT");
         String clArgs = ManagerOptions.getInstance().getCLArgs();
-            textFieldCLArguments.setText("");
-            if (clArgs.isEmpty()) {
+        textFieldCLArguments.setText("");
+        if (clArgs.isEmpty()) {
         } else {
             textFieldCLArguments.setText(clArgs);
         }
@@ -603,7 +628,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         }
         dialogOptions.setSize(500, 300);
         dialogOptions.setLocationRelativeTo(this);
-        dialogOptions.setVisible(true);       
+        dialogOptions.setVisible(true);
     }//GEN-LAST:event_itemOpenPreferencesActionPerformed
 
     /**
@@ -633,12 +658,12 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
      * Custom table model of the mod list table
      */
     private class ModTableModel extends DefaultTableModel {
-        Class[] types = new Class [] {
+
+        Class[] types = new Class[]{
             java.lang.Boolean.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
         };
-
-        boolean[] canEdit = new boolean [] {
-                true, false, false, false, false
+        boolean[] canEdit = new boolean[]{
+            true, false, false, false, false
         };
 
         public ModTableModel(Object[][] data, Object[] columnNames) {
@@ -655,7 +680,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
 
         @Override
         public boolean isCellEditable(int rowIndex, int columnIndex) {
-            return canEdit [columnIndex];
+            return canEdit[columnIndex];
         }
     }
 
@@ -667,26 +692,29 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     private void updateModTable(ArrayList<Mod> mods) {
         // Save current selected row
         int selectedRow = tableModList.getSelectedRow();
-        if (selectedRow == -1) selectedRow = 0;
+        if (selectedRow == -1) {
+            selectedRow = 0;
+        }
         this.tableData = new Object[mods.size()][];
         // Display all mods
         logger.error("UPDATE: " + mods.size());
-        for (int i=0;i<mods.size();i++) {
+        for (int i = 0; i < mods.size(); i++) {
             this.tableData[i] = new Object[5];
-            if (ManagerOptions.getInstance().getAppliedMods().contains(mods.get(i)))
-            	mods.get(i).enable();
-            this.tableData[i][0] = (Boolean)mods.get(i).isEnabled();
-            this.tableData[i][1] = (String)mods.get(i).getName();
-            this.tableData[i][2] = (String)mods.get(i).getAuthor();
-            this.tableData[i][3] = (String)mods.get(i).getVersion();
+            if (ManagerOptions.getInstance().getAppliedMods().contains(mods.get(i))) {
+                mods.get(i).enable();
+            }
+            this.tableData[i][0] = (Boolean) mods.get(i).isEnabled();
+            this.tableData[i][1] = (String) mods.get(i).getName();
+            this.tableData[i][2] = (String) mods.get(i).getAuthor();
+            this.tableData[i][3] = (String) mods.get(i).getVersion();
             if (mods.get(i).isEnabled()) {
-                this.tableData[i][4] = (String)L10n.getString("table.modstatus.enabled");
+                this.tableData[i][4] = (String) L10n.getString("table.modstatus.enabled");
             } else {
-                this.tableData[i][4] = (String)L10n.getString("table.modstatus.disabled");
+                this.tableData[i][4] = (String) L10n.getString("table.modstatus.disabled");
             }
         }
         // Update table model
-        DefaultTableModel dtm = (DefaultTableModel)tableModList.getModel();
+        DefaultTableModel dtm = (DefaultTableModel) tableModList.getModel();
         dtm.setDataVector(this.tableData, this.columnNames);
         // Restore selected row
         tableModList.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -694,15 +722,17 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         // Display details of selected mod
         displayModDetail();
     }
-    
+
     /**
      * Highlight the mods that is required to enable before or disable before the current select mod do
      * TODO: next release, right now don't bother
      */
     public void highlightMods() {
-    	int selectedRow = tableModList.getSelectedRow();
-        if (selectedRow == -1) return;
-        
+        int selectedRow = tableModList.getSelectedRow();
+        if (selectedRow == -1) {
+            return;
+        }
+
     }
 
     /**
@@ -716,7 +746,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         try {
             mod = Manager.getInstance().getMod(selectedRow);
         } catch (IndexOutOfBoundsException e) {
-            logger.error("Cannot display mod at index "+selectedRow);
+            logger.error("Cannot display mod at index " + selectedRow);
             return;
         }
         labelModName.setText(mod.getName());
@@ -738,12 +768,13 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         reqs.addAll(mod.getActions(Action.REQUIREMENT));
         DefaultListModel dlm = new DefaultListModel();
         String elem;
-        for (Iterator actIter = reqs.iterator(); actIter.hasNext(); ) {
-            Action act = (Action)actIter.next();
+        for (Iterator actIter = reqs.iterator(); actIter.hasNext();) {
+            Action act = (Action) actIter.next();
             if (act.getClass() == ActionRequirement.class) {
-                elem = ((ActionRequirement)act).getName();
-                if (((ActionRequirement)act).getVersion() != null)
-                    elem += " (ver. "+((ActionRequirement)act).getVersion()+")";
+                elem = ((ActionRequirement) act).getName();
+                if (((ActionRequirement) act).getVersion() != null) {
+                    elem += " (ver. " + ((ActionRequirement) act).getVersion() + ")";
+                }
                 dlm.addElement(elem);
             }
         }
@@ -863,11 +894,11 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     }
 
     public String getSelectedLafClass() {
-        return ((LaF)comboBoxLafs.getSelectedItem()).getLafClass();
+        return ((LaF) comboBoxLafs.getSelectedItem()).getLafClass();
     }
 
     public String getSelectedLanguage() {
-         return ((Language)comboBoxChooseLanguage.getSelectedItem()).getCode();
+        return ((Language) comboBoxChooseLanguage.getSelectedItem()).getCode();
     }
 
     public JDialog getPrefsDialog() {
@@ -894,18 +925,29 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
      * Class of items in the Select LaF combo box on preferences dialog
      */
     private class LaF {
+
         private String name;
         private String lafClass;
+
         public LaF(String _name, String _lafClass) {
             name = _name;
             lafClass = _lafClass;
         }
+
         @Override
-        public String toString() { return name; }
-        public String getLafClass() { return lafClass; }
+        public String toString() {
+            return name;
+        }
+
+        public String getLafClass() {
+            return lafClass;
+        }
+
         @Override
         public boolean equals(Object laf) {
-            if (lafClass.equals(((LaF)laf).lafClass)) return true;
+            if (lafClass.equals(((LaF) laf).lafClass)) {
+                return true;
+            }
             return false;
         }
     }
@@ -914,22 +956,32 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
      * Class of items in the Select language combo box on preferences dialog
      */
     private class Language {
+
         private String name;
         private String code;
+
         public Language(String _name, String _code) {
             name = _name;
             code = _code;
         }
+
         @Override
-        public String toString() { return name; }
-        public String getCode() { return code; }
+        public String toString() {
+            return name;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
         @Override
         public boolean equals(Object lang) {
-            if (code.equals(((Language)lang).code)) return true;
+            if (code.equals(((Language) lang).code)) {
+                return true;
+            }
             return false;
         }
     }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextArea areaModDesc;
     private javax.swing.JButton buttonAddMod;

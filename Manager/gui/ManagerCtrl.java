@@ -127,6 +127,7 @@ public class ManagerCtrl {
             view.getPrefsDialog().pack();
         } catch (Exception ex) {
             logger.warn("Unable to change Look and feel: " + ex.getMessage());
+            ex.printStackTrace();
             //TODO: some error message?
         }
     }
