@@ -73,7 +73,6 @@ public class Manager {
     private ArrayList<ArrayList<Pair<String, String>>> cons;
     private ArrayList<ArrayList<Pair<String, String>>> after;
     private ArrayList<ArrayList<Pair<String, String>>> before;
-
     private static Logger logger = Logger.getLogger(Manager.class.getPackage().getName());
 
     /**
@@ -116,7 +115,7 @@ public class Manager {
             for (int j = 0; j < length; j++) {
                 if (mods.get(i).getActions().get(j).getClass() == ActionApplyAfter.class) {
                     Pair<String, String> mod = Tuple.from(((ActionApplyAfter) mods.get(i).getActions().get(j)).getName(),
-                    									  ((ActionApplyAfter) mods.get(i).getActions().get(j)).getVersion());
+                            ((ActionApplyAfter) mods.get(i).getActions().get(j)).getVersion());
                     if (after.get(i) == null) {
                         ArrayList<Pair<String, String>> temp = new ArrayList<Pair<String, String>>();
                         temp.add(mod);
@@ -126,7 +125,7 @@ public class Manager {
                     }
                 } else if (mods.get(i).getActions().get(j).getClass() == ActionApplyBefore.class) {
                     Pair<String, String> mod = Tuple.from(((ActionApplyBefore) mods.get(i).getActions().get(j)).getName(),
-                    									  ((ActionApplyBefore) mods.get(i).getActions().get(j)).getVersion());
+                            ((ActionApplyBefore) mods.get(i).getActions().get(j)).getVersion());
                     if (before.get(i) == null) {
                         ArrayList<Pair<String, String>> temp = new ArrayList<Pair<String, String>>();
                         temp.add(mod);
@@ -136,7 +135,7 @@ public class Manager {
                     }
                 } else if (mods.get(i).getActions().get(j).getClass() == ActionIncompatibility.class) {
                     Pair<String, String> mod = Tuple.from(((ActionIncompatibility) mods.get(i).getActions().get(j)).getName(),
-                    									  ((ActionIncompatibility) mods.get(i).getActions().get(j)).getVersion());
+                            ((ActionIncompatibility) mods.get(i).getActions().get(j)).getVersion());
                     if (cons.get(i) == null) {
                         ArrayList<Pair<String, String>> temp = new ArrayList<Pair<String, String>>();
                         temp.add(mod);
@@ -146,7 +145,7 @@ public class Manager {
                     }
                 } else if (mods.get(i).getActions().get(j).getClass() == ActionRequirement.class) {
                     Pair<String, String> mod = Tuple.from(((ActionRequirement) mods.get(i).getActions().get(j)).getName(),
-                    									  ((ActionRequirement) mods.get(i).getActions().get(j)).getVersion());
+                            ((ActionRequirement) mods.get(i).getActions().get(j)).getVersion());
                     if (deps.get(i) == null) {
                         ArrayList<Pair<String, String>> temp = new ArrayList<Pair<String, String>>();
                         temp.add(mod);
@@ -220,10 +219,10 @@ public class Manager {
      * @param Mod to be added.
      */
     private void addMod(Mod mod) {
-    	// Disable the mod to make sure it is consistent
+        // Disable the mod to make sure it is consistent
         ManagerOptions.getInstance().addMod(mod);
         ManagerOptions.getInstance().getMod(mod.getName()).disable();
-        
+
         // Filling the array for later sorting purpose
         deps.add(null);
         cons.add(null);
@@ -252,7 +251,7 @@ public class Manager {
             }
         };
         File[] files = modsFolder.listFiles(fileFilter);
-        
+
         // Exit if no file is found
         if (files == null || files.length == 0) {
             return;
@@ -524,12 +523,12 @@ public class Manager {
                                 gotDisable.remove(next);
                             } catch (ModEnabledException ex) {
                                 // Couldn't disable, we need who didn't let disable him
-                            	// TODO: Changed the behavior of the exception, need to be fixed
+                                // TODO: Changed the behavior of the exception, need to be fixed
                             	/*
                                 if (!gotDisable.contains(getMod(ex.getName()))) {
-                                    gotDisable.add(getMod(ex.getName()));
+                                gotDisable.add(getMod(ex.getName()));
                                 }
-                                */
+                                 */
                             }
                         }
                     }
@@ -579,55 +578,58 @@ public class Manager {
             ArrayList<Pair<String, String>> deps = new ArrayList<Pair<String, String>>();
 
             if (mod.isEnabled()) { // from disableMod (actually not possible but whatever just leave it here)
-	            while (e.hasMoreElements()) {
-	                Pair<String, String> dep = (Pair<String, String>) e.nextElement();
-	                Mod d = null;
-	                try {
-	                    d = getEnabledMod(Tuple.get1(dep));
-	                } catch (NoSuchElementException noSuchElementException) {
-	                	continue;
-	                }
-	                
-	                Pair<String, String> tmp = Tuple.from(d.getName(), d.getVersion());
-	                deps.add(tmp);
-	            }
-	            
-	            if (!deps.isEmpty())
-	            	throw new ModEnabledException(deps);
+                while (e.hasMoreElements()) {
+                    Pair<String, String> dep = (Pair<String, String>) e.nextElement();
+                    Mod d = null;
+                    try {
+                        d = getEnabledMod(Tuple.get1(dep));
+                    } catch (NoSuchElementException noSuchElementException) {
+                        continue;
+                    }
+
+                    Pair<String, String> tmp = Tuple.from(d.getName(), d.getVersion());
+                    deps.add(tmp);
+                }
+
+                if (!deps.isEmpty()) {
+                    throw new ModEnabledException(deps);
+                }
             } else { // from enableMod
-            	ArrayList<Pair<String, String>> clist = new ArrayList<Pair<String, String>>();
-            	while (e.hasMoreElements()) {
-            		Pair<String, String> dep = (Pair<String, String>) e.nextElement();
-            		Mod c = null;
-            		try {
-            			c = getEnabledMod(Tuple.get1(dep));
-            			if (!compareModsVersions(c.getVersion(), Tuple.get2(dep))) {
-            				clist.add(dep);
-            				continue;
-            			}
-	                } catch (NoSuchElementException noSuchElementException) {
-	                	if (getMod(Tuple.get1(dep)) == null) {
-	                		clist.add(dep);
-	                		continue;
-	                	}
-	                }
-	                
-	                Mod d = null;
-	                try {
-	                    d = getDisabledMod(Tuple.get1(dep));
-	                } catch (NoSuchElementException noSuchElementException) {
-	                	continue;
-	                }
-	                
-	                Pair<String, String> tmp = Tuple.from(d.getName(), d.getVersion());
-	                deps.add(tmp);
-	            }
-            	
-            	if (!clist.isEmpty())
-            		throw new ModVersionUnsatisfiedException(clist);
-            	
-	            if (!deps.isEmpty())
-	            	throw new ModNotEnabledException(deps);
+                ArrayList<Pair<String, String>> clist = new ArrayList<Pair<String, String>>();
+                while (e.hasMoreElements()) {
+                    Pair<String, String> dep = (Pair<String, String>) e.nextElement();
+                    Mod c = null;
+                    try {
+                        c = getEnabledMod(Tuple.get1(dep));
+                        if (!compareModsVersions(c.getVersion(), Tuple.get2(dep))) {
+                            clist.add(dep);
+                            continue;
+                        }
+                    } catch (NoSuchElementException noSuchElementException) {
+                        if (getMod(Tuple.get1(dep)) == null) {
+                            clist.add(dep);
+                            continue;
+                        }
+                    }
+
+                    Mod d = null;
+                    try {
+                        d = getDisabledMod(Tuple.get1(dep));
+                    } catch (NoSuchElementException noSuchElementException) {
+                        continue;
+                    }
+
+                    Pair<String, String> tmp = Tuple.from(d.getName(), d.getVersion());
+                    deps.add(tmp);
+                }
+
+                if (!clist.isEmpty()) {
+                    throw new ModVersionUnsatisfiedException(clist);
+                }
+
+                if (!deps.isEmpty()) {
+                    throw new ModNotEnabledException(deps);
+                }
             }
         }
     }
@@ -642,44 +644,45 @@ public class Manager {
         ArrayList<Pair<String, String>> list = cons.get(ManagerOptions.getInstance().getMods().indexOf(mod));
         if (!(list == null || list.isEmpty())) {
 
-        	ArrayList<Pair<String, String>> conlist = new ArrayList<Pair<String, String>>();
+            ArrayList<Pair<String, String>> conlist = new ArrayList<Pair<String, String>>();
             Enumeration e = Collections.enumeration(list);
             while (e.hasMoreElements()) {
                 Pair<String, String> check = (Pair<String, String>) e.nextElement();
                 Mod m;
                 try {
-                	m = getEnabledMod(Tuple.get1(check));
+                    m = getEnabledMod(Tuple.get1(check));
                 } catch (NoSuchElementException e1) {
-                	continue;
+                    continue;
                 }
                 if (compareModsVersions(m.getVersion(), Tuple.get2(check))) {
-                	Pair<String, String> tmp = Tuple.from(m.getName(), m.getVersion());
-                	conlist.add(tmp);
+                    Pair<String, String> tmp = Tuple.from(m.getName(), m.getVersion());
+                    conlist.add(tmp);
                 }
-                
+
                 /*
                 try {
-                    if (getEnabledMod(Tuple.get1(check)) != null) {
-                        Iterator i = mod.getActions().iterator();
-                        while (i.hasNext()) {
-                            Action a = (Action) i.next();
-                            if (a.getClass().equals(ActionIncompatibility.class)) {
-                                ActionIncompatibility inc = (ActionIncompatibility) a;
-                                if (inc.getName().equalsIgnoreCase(Tuple.get1(check))) {
-                                    if (!compareModsVersions(inc.getVersion(), Tuple.get2(check))) {
-                                        throw new ModEnabledException(Tuple.get1(check), Tuple.get2(check));
-                                    }
-                                }
-                            }
-                        }
-                    }
+                if (getEnabledMod(Tuple.get1(check)) != null) {
+                Iterator i = mod.getActions().iterator();
+                while (i.hasNext()) {
+                Action a = (Action) i.next();
+                if (a.getClass().equals(ActionIncompatibility.class)) {
+                ActionIncompatibility inc = (ActionIncompatibility) a;
+                if (inc.getName().equalsIgnoreCase(Tuple.get1(check))) {
+                if (!compareModsVersions(inc.getVersion(), Tuple.get2(check))) {
+                throw new ModEnabledException(Tuple.get1(check), Tuple.get2(check));
+                }
+                }
+                }
+                }
+                }
                 } catch (NoSuchElementException noSuchElementException) {
                 }
-                */
+                 */
             }
-            
-            if (!conlist.isEmpty())
-            	throw new ModConflictException(conlist);
+
+            if (!conlist.isEmpty()) {
+                throw new ModConflictException(conlist);
+            }
         }
     }
 
@@ -693,26 +696,26 @@ public class Manager {
         // get a list of dependencies on m
         ArrayList list = new ArrayList();
         ArrayList<Pair<String, String>> revdeps = new ArrayList<Pair<String, String>>();
-        
+
         for (int i = 0; i < deps.size(); i++) {
             ArrayList<Pair<String, String>> temp = (ArrayList<Pair<String, String>>) deps.get(i);
             if (temp == null || temp.isEmpty()) {
                 continue;
             }
-            
+
             Enumeration te = Collections.enumeration(temp);
             while (te.hasMoreElements()) {
                 Pair<String, String> pair = (Pair<String, String>) te.nextElement();
                 if (Tuple.get1(pair).trim().equalsIgnoreCase(m.getName().trim()) && getMod(i).isEnabled()) {
-                	Pair<String, String> gotcha = Tuple.from(getMod(i).getName(), getMod(i).getVersion());
-                	revdeps.add(gotcha);
-                	logger.warn("Revdeps: mod " + getMod(i).getName() + " added");
+                    Pair<String, String> gotcha = Tuple.from(getMod(i).getName(), getMod(i).getVersion());
+                    revdeps.add(gotcha);
+                    logger.warn("Revdeps: mod " + getMod(i).getName() + " added");
                 }
             }
         }
-        
+
         if (!revdeps.isEmpty()) {
-        	throw new ModEnabledException(revdeps);
+            throw new ModEnabledException(revdeps);
         }
     }
 
@@ -730,16 +733,7 @@ public class Manager {
      * @throws IOException if a random I/O Exception happened.
      * @throws IllegalArgumentException if a mod used a invalid parameter to compare the mods version.
      */
-    public void enableMod(String name, boolean ignoreVersion) throws ModConflictException,
-    																 ModVersionUnsatisfiedException,
-    																 ModEnabledException,
-    																 ModNotEnabledException,
-    																 NoSuchElementException,
-    																 ModVersionMissmatchException,
-    																 NullPointerException,
-    																 FileNotFoundException,
-    																 IllegalArgumentException,
-    																 IOException {
+    public void enableMod(String name, boolean ignoreVersion) throws ModConflictException,ModVersionUnsatisfiedException,ModEnabledException,ModNotEnabledException,NoSuchElementException,ModVersionMissmatchException,NullPointerException,FileNotFoundException,IllegalArgumentException,IOException {
         Mod m = getMod(name);
 
         if (!ignoreVersion) {
@@ -828,7 +822,7 @@ public class Manager {
                     }
                 }
             } else {
-            	// do nothing here for now
+                // do nothing here for now
             }
         }
 
@@ -909,11 +903,11 @@ public class Manager {
      * @throws SecurityException if the Manager couldn't do a action because of security business.
      */
     public void applyMods() throws IOException,
-    							   UnknowModActionException,
-    							   NothingSelectedModActionException,
-    							   StringNotFoundModActionException,
-    							   InvalidModActionParameterException,
-    							   SecurityException {
+            UnknowModActionException,
+            NothingSelectedModActionException,
+            StringNotFoundModActionException,
+            InvalidModActionParameterException,
+            SecurityException {
         ArrayList<Mod> applyOrder = sortMods();
         File tempFolder = new File(System.getProperty("java.io.tmpdir") + File.separator + "HoN Mod Manager");
         // This generates a temp folder. If it isn't possible, generates a random folder inside the OS's temp folder.
@@ -1030,7 +1024,7 @@ public class Manager {
                             os.close();
                         } else {
                             // Load file from resources0.s2z if no other mod edited this file
-                        	String path = ManagerOptions.getInstance().getGamePath() + File.separator + "game" + File.separator + "resources0.s2z";
+                            String path = ManagerOptions.getInstance().getGamePath() + File.separator + "game" + File.separator + "resources0.s2z";
                             afterEdit = new String(ZIP.getFile(new File(path), editfile.getName()));
                         }
                         for (int k = 0; k < editfile.getActions().size(); k++) {
@@ -1150,8 +1144,8 @@ public class Manager {
 
                     }
                     // ApplyAfter, ApplyBefore, Incompatibility, Requirement Action
-                } else if (action.getClass().equals(ActionApplyAfter.class) || action.getClass().equals(ActionApplyBefore.class) || 
-                		action.getClass().equals(ActionIncompatibility.class) || action.getClass().equals(ActionRequirement.class)) {
+                } else if (action.getClass().equals(ActionApplyAfter.class) || action.getClass().equals(ActionApplyBefore.class)
+                        || action.getClass().equals(ActionIncompatibility.class) || action.getClass().equals(ActionRequirement.class)) {
                     // nothing to do
                 } else {
                     // Unknow action, can't apply
@@ -1233,8 +1227,8 @@ public class Manager {
             }
         }
 
-        if ((!expressionVersion.contains("-") && (expressionVersion.equals("*") || expressionVersion.equals(singleVersion) || expressionVersion.equals(""))) || 
-        		expressionVersion.equals("*-*")) {
+        if ((!expressionVersion.contains("-") && (expressionVersion.equals("*") || expressionVersion.equals(singleVersion) || expressionVersion.equals("")))
+                || expressionVersion.equals("*-*")) {
             result = true;
         } else if (expressionVersion.contains("-")) {
 
@@ -1252,7 +1246,7 @@ public class Manager {
 
             return checkVersion(vEx1, singleVersion) && checkVersion(singleVersion, vEx2);
         } else {
-            throw new InvalidParameterException(); 
+            throw new InvalidParameterException();
         }
         return result;
     }
@@ -1345,9 +1339,10 @@ public class Manager {
      */
     public boolean checkVersion(String lower, String higher) {
         // boolean ret = true;
-        
-        if (lower.equalsIgnoreCase("*") || higher.equalsIgnoreCase("*"))
-        	return true;
+
+        if (lower.equalsIgnoreCase("*") || higher.equalsIgnoreCase("*")) {
+            return true;
+        }
 
         StringTokenizer lowst = new StringTokenizer(lower, ".", false);
         StringTokenizer highst = new StringTokenizer(higher, ".", false);
@@ -1364,21 +1359,22 @@ public class Manager {
 
             int first = Integer.parseInt(firsttk);
             int second = Integer.parseInt(secondtk);
-            
-            if (first < second)
-            	return true;
-            else if (first > second)
-            	return false;
-            else if (first == second)
-            	continue;
+
+            if (first < second) {
+                return true;
+            } else if (first > second) {
+                return false;
+            } else if (first == second) {
+                continue;
+            }
 
             /*
             if (ret) {
-                ret = (first <= second);
+            ret = (first <= second);
             } else if (!ret) {
-                return ret;
+            return ret;
             }
-            */
+             */
         }
 
         return true;

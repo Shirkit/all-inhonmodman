@@ -63,7 +63,7 @@ public class ManagerOptions extends Observable {
     @XStreamOmitField
     public static final String HOMEPAGE = "http://sourceforge.net/projects/all-inhonmodman";
     @XStreamOmitField
-    public static final String VERSION = "0.1 BETA";
+    public static final String VERSION = "0.2";
     @XStreamOmitField
     public static final String PREFS_LOCALE = "locale";
     @XStreamOmitField
