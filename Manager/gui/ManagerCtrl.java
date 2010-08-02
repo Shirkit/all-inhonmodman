@@ -11,6 +11,9 @@ import java.io.UnsupportedEncodingException;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 import org.apache.log4j.Logger;
+
+import com.thoughtworks.xstream.io.StreamException;
+
 import gui.l10n.L10n;
 import business.ManagerOptions;
 import business.Mod;
@@ -93,15 +96,31 @@ public class ManagerCtrl {
 
         // Load Options and Mods and then Look and feel
         try {
-            controller.loadOptions();
+        	controller.loadOptions();
+        } catch (StreamException e) {
+        	e.printStackTrace();
+        	logger.error("StreamException from loadOptions()", e);
+            // Mod options is invalid, must be deleted
+        }
+        try {
             controller.loadMods();
+        } catch (IOException ex) {
+        	ex.printStackTrace();
+        	logger.error("IOException from loadMods()", ex);
+        	view.showMessage("error.loadmodfiles", "error.loadmodfiles.title", JOptionPane.ERROR_MESSAGE);
+        }
+        try {
             controller.buildGraphs();
-            loadLaf();
+        } catch (IOException ex) {
+        	ex.printStackTrace();
+        	logger.error("IOException from buildGraphs()", ex);
+        }
+        loadLaf();
+        try {
             controller.saveOptions();
         } catch (Exception ex) {
             ex.printStackTrace();
-            logger.error("Unable to load mods from mod folder. Message: " + ex.getMessage(), ex);
-            view.showMessage("error.loadmodfiles", "error.loadmodfiles.title", JOptionPane.ERROR_MESSAGE);
+            logger.error("Unable to saveOptions()", ex);   
         }
 
         view.tableRemoveListSelectionListener(lsl);
@@ -668,7 +687,6 @@ public class ManagerCtrl {
             prefs.put(model.PREFS_LAF, view.getSelectedLafClass());
             }
              */
-            // TODO: Check that LaF was applied
             // Hide dialog
             view.getPrefsDialog().setVisible(false);
         }

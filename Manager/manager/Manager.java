@@ -197,21 +197,18 @@ public class Manager {
     /**
      * This method runs the ManagerOptions.loadOptions method to load the options located in a file.
      */
-    public void loadOptions() {
+    public void loadOptions() throws StreamException{
         try {
             ManagerOptions.getInstance().loadOptions();
         } catch (FileNotFoundException e) {
             // Put a logger here
+        	logger.error("MAN: options file not found, now falling back", e);
             e.printStackTrace();
             ManagerOptions.getInstance().setGamePath(check("HoN folder"));
             ManagerOptions.getInstance().setModPath(check("Mod folder"));
-        } catch (StreamException e) {
-            // Put a logger here
-            // Mod options is invalid, must be deleted
-            e.printStackTrace();
         }
 
-        logger.error("MAN: " + ManagerOptions.getInstance().getAppliedMods());
+        logger.error("MAN: finished loading options: " + ManagerOptions.getInstance().getAppliedMods());
     }
 
     /**
