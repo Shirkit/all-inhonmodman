@@ -12,6 +12,8 @@ import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 import org.apache.log4j.Logger;
 
+import com.mallardsoft.tuple.Pair;
+import com.mallardsoft.tuple.Tuple;
 import com.thoughtworks.xstream.io.StreamException;
 
 import gui.l10n.L10n;
@@ -107,22 +109,41 @@ public class ManagerCtrl {
             // Mod options is invalid, must be deleted
         }
         try {
-        	ArrayList<Exception> exs = controller.loadMods();
+        	ArrayList<ArrayList<Pair<String, String>>> exs = controller.loadMods();
         	if (!exs.isEmpty()) {
         		Enumeration en = Collections.enumeration(exs);
         		
         		while (en.hasMoreElements()) {
-        			Exception e = (Exception)en.nextElement();
-        			if (e.getClass().equals(ModStreamException.class)) {
-        				logger.error("ModStreamException: mods:" + ((ModStreamException)e).toString(), e);
+        			ArrayList<Pair<String, String>> e = (ArrayList<Pair<String, String>>)en.nextElement();
+        			Enumeration ex = Collections.enumeration(e);
+        			String stream = "";
+        			String notfound = "";
+        			while (ex.hasMoreElements()) {
+        				Pair<String, String> item = (Pair<String, String>) ex.nextElement();
+        				if (Tuple.get2(item).equalsIgnoreCase("stream")) {
+            				logger.error("ModStreamException: mod:" + Tuple.get1(item));
+            				stream += Tuple.get1(item);
+            	    		stream += ", ";
+            			}
+        				if (Tuple.get2(item).equalsIgnoreCase("notfound")) {
+            				logger.error("ModNotFoundException: mods:" + Tuple.get1(item));
+            				notfound += Tuple.get1(item);
+            	    		notfound += ", ";
+            			}
+        				
+        			}
+        	    	
+        			if (!stream.isEmpty()) {
+        				stream = stream.substring(0, stream.length()-2);
+        				view.showMessage(L10n.getString("error.modstream").replace("#mod#", stream), L10n.getString("error.modstream.title"), JOptionPane.ERROR_MESSAGE);
         			}
         			
-        			if (e.getClass().equals(ModNotFoundException.class)) {
-        				logger.error("ModNotFoundException: mods:" + ((ModNotFoundException)e).toString(), e);
+        			if (!notfound.isEmpty()) {
+        				notfound = notfound.substring(0, notfound.length()-2);
+        				view.showMessage(L10n.getString("error.modsnotfound").replace("#mod#", notfound), L10n.getString("error.modsnotfound.title"), JOptionPane.ERROR_MESSAGE);
         			}
+        			
         		}
-        		
-        		view.showMessage(L10n.getString("error.loadmodfiles"), L10n.getString("error.loadmodfiles.title"), JOptionPane.ERROR_MESSAGE);
         	}
         	
         } catch (IOException ex) {

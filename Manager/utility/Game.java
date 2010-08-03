@@ -29,6 +29,7 @@ public class Game {
      * @return folder where HoN is installed or null if such folder cannot be found
      */
     public static String findHonFolder() {
+    	//TODO: finish this function for windows and linux
         // Try to find HoN folder in case we are on Windows
         if (OS.isWindows()) {
             // Get the folder from uninstall info in windows registry saved by HoN
@@ -57,6 +58,7 @@ public class Game {
      * @return folder of the mods or null
      */
     public static String findModFolder() {
+    	//TODO: finish this function for windows and linux
         // Try to find HoN folder in case we are on Windows
         if (OS.isWindows()) {
             return null;

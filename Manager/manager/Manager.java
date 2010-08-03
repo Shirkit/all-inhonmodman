@@ -235,7 +235,7 @@ public class Manager {
      * Load all mods from the mods folder (set in Model) and put them into the Model array of mods.
      * @throws Exception 
      */
-    public ArrayList<Exception> loadMods() throws IOException {
+    public ArrayList<ArrayList<Pair<String, String>>> loadMods() throws IOException {
         File modsFolder = new File(ManagerOptions.getInstance().getModPath());
         // Get mod files from the directory
         FileFilter fileFilter = new FileFilter() {
@@ -255,10 +255,12 @@ public class Manager {
 
         // Exit if no file is found
         if (files == null || files.length == 0) {
-            return new ArrayList<Exception>();
+            return new ArrayList<ArrayList<Pair<String, String>>>();
         }
         // Go through all the mods and load them
-        ArrayList<Exception> problems = new ArrayList<Exception>();
+        ArrayList<Pair<String, String>> stream = new ArrayList<Pair<String, String>>();
+        ArrayList<Pair<String, String>> notfound = new ArrayList<Pair<String, String>>();
+        ArrayList<ArrayList<Pair<String, String>>> problems = new ArrayList<ArrayList<Pair<String, String>>>();
         for (int i = 0; i < files.length; i++) {
         	try {
         		logger.error("Adding file - " + files[i].getName() + " from loadMods().");
@@ -268,15 +270,17 @@ public class Manager {
             	e.printStackTrace();
             	logger.error("StreamException from loadMods(): file - " + files[i].getName() + " - is corrupted.", e);
             	
-            	problems.add(e);
+            	stream.addAll(e.getMods());
             	//ManagerCtrl.getGUI().showMessage(L10n.getString("error.loadmodfile").replace("#mod#", files[i].getName()), "error.loadmodfile.title", JOptionPane.ERROR_MESSAGE);
             } catch (ModNotFoundException e) {
             	e.printStackTrace();
             	logger.error("FileNotFoundException from loadMods(): file - " + files[i].getName() + " - is corrupted.", e);
-            	problems.add(e);
+            	notfound.addAll(e.getMods());
             	//ManagerCtrl.getGUI().showMessage(L10n.getString("error.loadmodfile").replace("#mod#", files[i].getName()), "error.loadmodfile.title", JOptionPane.ERROR_MESSAGE);
             }
         }
+        problems.add(stream);
+        problems.add(notfound);
         
         return problems;
     }
