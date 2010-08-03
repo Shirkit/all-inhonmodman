@@ -4,6 +4,7 @@ import business.ManagerOptions;
 import business.Mod;
 import business.actions.*;
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.StreamException;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -72,7 +73,7 @@ public class XML {
      * @return the Mod with all fields already filled up.
      * @throws FileNotFoundException
      */
-    public static Mod xmlToMod(File file) throws FileNotFoundException {
+    public static Mod xmlToMod(File file) throws FileNotFoundException, StreamException {
 
         if (file.exists()) {
             XStream xstream = new XStream(getDriver());

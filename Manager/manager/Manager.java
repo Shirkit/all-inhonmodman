@@ -233,9 +233,9 @@ public class Manager {
 
     /**
      * Load all mods from the mods folder (set in Model) and put them into the Model array of mods.
-     * @throws IOException
+     * @throws Exception 
      */
-    public void loadMods() throws IOException {
+    public ArrayList<Exception> loadMods() throws IOException {
         File modsFolder = new File(ManagerOptions.getInstance().getModPath());
         // Get mod files from the directory
         FileFilter fileFilter = new FileFilter() {
@@ -255,24 +255,30 @@ public class Manager {
 
         // Exit if no file is found
         if (files == null || files.length == 0) {
-            return;
+            return new ArrayList<Exception>();
         }
         // Go through all the mods and load them
+        ArrayList<Exception> problems = new ArrayList<Exception>();
         for (int i = 0; i < files.length; i++) {
         	try {
         		logger.error("Adding file - " + files[i].getName() + " from loadMods().");
         		//ManagerCtrl.getGUI().showMessage(L10n.getString("error.loadmodfile").replace("#mod#", files[i].getName()), "TESTING", JOptionPane.ERROR_MESSAGE);
         		addHonmod(files[i], false);
-        	} catch (StreamException e) {
+        	} catch (ModStreamException e) {
             	e.printStackTrace();
             	logger.error("StreamException from loadMods(): file - " + files[i].getName() + " - is corrupted.", e);
-            	ManagerCtrl.getGUI().showMessage(L10n.getString("error.loadmodfile").replace("#mod#", files[i].getName()), "error.loadmodfile.title", JOptionPane.ERROR_MESSAGE);
-            } catch (FileNotFoundException e) {
+            	
+            	problems.add(e);
+            	//ManagerCtrl.getGUI().showMessage(L10n.getString("error.loadmodfile").replace("#mod#", files[i].getName()), "error.loadmodfile.title", JOptionPane.ERROR_MESSAGE);
+            } catch (ModNotFoundException e) {
             	e.printStackTrace();
             	logger.error("FileNotFoundException from loadMods(): file - " + files[i].getName() + " - is corrupted.", e);
-            	ManagerCtrl.getGUI().showMessage(L10n.getString("error.loadmodfile").replace("#mod#", files[i].getName()), "error.loadmodfile.title", JOptionPane.ERROR_MESSAGE);
+            	problems.add(e);
+            	//ManagerCtrl.getGUI().showMessage(L10n.getString("error.loadmodfile").replace("#mod#", files[i].getName()), "error.loadmodfile.title", JOptionPane.ERROR_MESSAGE);
             }
         }
+        
+        return problems;
     }
 
     /**
@@ -282,12 +288,20 @@ public class Manager {
      * @throws FileNotFoundException if the file wasn't found.
      * @throws IOException if a random I/O exception has happened.
      */
-    public void addHonmod(File honmod, boolean copy) throws FileNotFoundException, IOException, StreamException {
+    public void addHonmod(File honmod, boolean copy) throws ModNotFoundException, IOException, ModStreamException {
+    	ArrayList<Pair<String, String>> list = new ArrayList<Pair<String, String>>();
         if (!honmod.exists()) {
-            throw new FileNotFoundException();
+        	list.add(Tuple.from(honmod.getName(), "notfound"));
+            throw new ModNotFoundException(list);
         }
         String xml = new String(ZIP.getFile(honmod, "mod.xml"));
-        Mod m = XML.xmlToMod(xml);
+        Mod m = null;
+        try {
+        	m = XML.xmlToMod(xml);
+        } catch (StreamException ex) {
+        	list.add(Tuple.from(honmod.getName(), "stream"));
+        	throw new ModStreamException(list);
+        }
         Icon icon;
         try {
             icon = new ImageIcon(ZIP.getFile(honmod, "icon.png"));

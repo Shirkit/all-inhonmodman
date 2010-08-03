@@ -24,12 +24,16 @@ import utility.OS;
 import utility.exception.ModConflictException;
 import utility.exception.ModEnabledException;
 import utility.exception.ModNotEnabledException;
+import utility.exception.ModNotFoundException;
+import utility.exception.ModStreamException;
 import utility.exception.ModVersionMissmatchException;
 import utility.exception.ModVersionUnsatisfiedException;
 
 import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.NoSuchElementException;
 import java.util.prefs.Preferences;
 import javax.swing.JOptionPane;
@@ -103,7 +107,24 @@ public class ManagerCtrl {
             // Mod options is invalid, must be deleted
         }
         try {
-            controller.loadMods();
+        	ArrayList<Exception> exs = controller.loadMods();
+        	if (!exs.isEmpty()) {
+        		Enumeration en = Collections.enumeration(exs);
+        		
+        		while (en.hasMoreElements()) {
+        			Exception e = (Exception)en.nextElement();
+        			if (e.getClass().equals(ModStreamException.class)) {
+        				logger.error("ModStreamException: mods:" + ((ModStreamException)e).toString(), e);
+        			}
+        			
+        			if (e.getClass().equals(ModNotFoundException.class)) {
+        				logger.error("ModNotFoundException: mods:" + ((ModNotFoundException)e).toString(), e);
+        			}
+        		}
+        		
+        		view.showMessage(L10n.getString("error.loadmodfiles"), L10n.getString("error.loadmodfiles.title"), JOptionPane.ERROR_MESSAGE);
+        	}
+        	
         } catch (IOException ex) {
         	ex.printStackTrace();
         	logger.error("IOException from loadMods()", ex);
@@ -268,7 +289,13 @@ public class ManagerCtrl {
                     } catch (IOException ioe) {
                         logger.error("Cannot open honmod file: " + ioe.getMessage());
                         ioe.printStackTrace();
-                    }
+                    } catch (ModNotFoundException e1) {
+                    	logger.error("Honmod file not found: " + e1.toString());
+						e1.printStackTrace();
+					} catch (ModStreamException e1) {
+						logger.error("Honmod file corrupted: " + e1.toString());
+						e1.printStackTrace();
+					}
                 }
                 // We need to save and restore ListSelectionListener since
                 // updateNotify() updates the model of the table
@@ -607,7 +634,13 @@ public class ManagerCtrl {
                         updated = true;
                     } catch (IOException e) {
                         logger.info("Opening mod file failed. Message: " + e.getMessage());
-                    }
+                    } catch (ModNotFoundException e) {
+                    	logger.info("Mod file not found. Message: " + e.toString());
+						e.printStackTrace();
+					} catch (ModStreamException e) {
+						logger.info("Mod file failed (XML). Message: " + e.toString());
+						e.printStackTrace();
+					}
                 }
             }
             if (updated) {

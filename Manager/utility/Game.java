@@ -45,7 +45,7 @@ public class Game {
         // Try to find HoN folder in case we are on Mac
         if (OS.isMac()) {
             File a = new File("/Applications/Heroes of Newerth.app");
-            logger.error("GAME: " + a.getPath());
+            logger.error("GAME: Mac: " + a.getPath() + " exists");
             return a.exists() ? a.getPath() : null;
         }
         return null;

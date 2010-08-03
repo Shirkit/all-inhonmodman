@@ -17,7 +17,7 @@ import com.mallardsoft.tuple.*;
  * If a mod tried to be disabled but those mods depend on it are not cleared (a.k.a. not disabled), this exception is thrown.
  * @author Penn
  */
-public class ModNotFoundException extends Exception {
+public class ModStreamException extends Exception {
 
 	private ArrayList<Pair<String, String>> _mods;
 
@@ -25,7 +25,7 @@ public class ModNotFoundException extends Exception {
      * @param name of the mod that was enabled.
      * @param version of the mod that was enabled.
      */
-    public ModNotFoundException(ArrayList<Pair<String, String>> mods) {
+    public ModStreamException(ArrayList<Pair<String, String>> mods) {
         super();
         _mods = mods;
     }
