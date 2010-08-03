@@ -106,6 +106,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         // This thing here is working along with formComponentShown to solve the fucking bug of not showing the correct size when running the app
         this.setResizable(false);
     }
+   
 
     /** This method is called from within the constructor to
      * initialize the form.

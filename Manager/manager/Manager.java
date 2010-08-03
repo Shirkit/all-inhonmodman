@@ -3,6 +3,10 @@ package manager;
 import business.ManagerOptions;
 import business.Mod;
 import business.actions.*;
+import gui.ManagerCtrl;
+import gui.ManagerGUI;
+import gui.l10n.L10n;
+
 import java.net.MalformedURLException;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
@@ -231,7 +235,7 @@ public class Manager {
      * Load all mods from the mods folder (set in Model) and put them into the Model array of mods.
      * @throws IOException
      */
-    public void loadMods() throws IOException, StreamException {
+    public void loadMods() throws IOException {
         File modsFolder = new File(ManagerOptions.getInstance().getModPath());
         // Get mod files from the directory
         FileFilter fileFilter = new FileFilter() {
@@ -255,7 +259,19 @@ public class Manager {
         }
         // Go through all the mods and load them
         for (int i = 0; i < files.length; i++) {
-            addHonmod(files[i], false);
+        	try {
+        		logger.error("Adding file - " + files[i].getName() + " from loadMods().");
+        		//ManagerCtrl.getGUI().showMessage(L10n.getString("error.loadmodfile").replace("#mod#", files[i].getName()), "TESTING", JOptionPane.ERROR_MESSAGE);
+        		addHonmod(files[i], false);
+        	} catch (StreamException e) {
+            	e.printStackTrace();
+            	logger.error("StreamException from loadMods(): file - " + files[i].getName() + " - is corrupted.", e);
+            	ManagerCtrl.getGUI().showMessage(L10n.getString("error.loadmodfile").replace("#mod#", files[i].getName()), "error.loadmodfile.title", JOptionPane.ERROR_MESSAGE);
+            } catch (FileNotFoundException e) {
+            	e.printStackTrace();
+            	logger.error("FileNotFoundException from loadMods(): file - " + files[i].getName() + " - is corrupted.", e);
+            	ManagerCtrl.getGUI().showMessage(L10n.getString("error.loadmodfile").replace("#mod#", files[i].getName()), "error.loadmodfile.title", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
 

@@ -56,7 +56,7 @@ public class ManagerCtrl {
     Logger logger = Logger.getLogger(this.getClass().getPackage().getName());
     Manager controller;
     ManagerOptions model;
-    ManagerGUI view;
+    static ManagerGUI view;
     ListSelectionListener lsl;
     private Preferences prefs;
 
@@ -107,11 +107,7 @@ public class ManagerCtrl {
         } catch (IOException ex) {
         	ex.printStackTrace();
         	logger.error("IOException from loadMods()", ex);
-        	view.showMessage("error.loadmodfiles", "error.loadmodfiles.title", JOptionPane.ERROR_MESSAGE);
-        } catch (StreamException e) {
-        	e.printStackTrace();
-        	logger.error("StreamException from loadMods()", e);
-        	view.showMessage("error.loadmodfiles", "error.loadmodfiles.title", JOptionPane.ERROR_MESSAGE);
+        	view.showMessage(L10n.getString("error.loadmodfiles"), L10n.getString("error.loadmodfiles.title"), JOptionPane.ERROR_MESSAGE);
         }
         try {
             controller.buildGraphs();
@@ -130,6 +126,15 @@ public class ManagerCtrl {
         view.tableRemoveListSelectionListener(lsl);
         model.updateNotify();
         view.tableAddListSelectionListener(lsl);
+    }
+    
+    /**
+     * This method is used to get the running instance of the ManagerGUI class.
+     * @return the instance.
+     * @see get()
+     */
+    public static ManagerGUI getGUI() {
+        return view;
     }
 
     public void loadLaf() {
