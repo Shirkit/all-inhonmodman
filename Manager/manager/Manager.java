@@ -231,7 +231,7 @@ public class Manager {
      * Load all mods from the mods folder (set in Model) and put them into the Model array of mods.
      * @throws IOException
      */
-    public void loadMods() throws IOException {
+    public void loadMods() throws IOException, StreamException {
         File modsFolder = new File(ManagerOptions.getInstance().getModPath());
         // Get mod files from the directory
         FileFilter fileFilter = new FileFilter() {
@@ -266,7 +266,7 @@ public class Manager {
      * @throws FileNotFoundException if the file wasn't found.
      * @throws IOException if a random I/O exception has happened.
      */
-    public void addHonmod(File honmod, boolean copy) throws FileNotFoundException, IOException {
+    public void addHonmod(File honmod, boolean copy) throws FileNotFoundException, IOException, StreamException {
         if (!honmod.exists()) {
             throw new FileNotFoundException();
         }

@@ -108,6 +108,10 @@ public class ManagerCtrl {
         	ex.printStackTrace();
         	logger.error("IOException from loadMods()", ex);
         	view.showMessage("error.loadmodfiles", "error.loadmodfiles.title", JOptionPane.ERROR_MESSAGE);
+        } catch (StreamException e) {
+        	e.printStackTrace();
+        	logger.error("StreamException from loadMods()", e);
+        	view.showMessage("error.loadmodfiles", "error.loadmodfiles.title", JOptionPane.ERROR_MESSAGE);
         }
         try {
             controller.buildGraphs();
