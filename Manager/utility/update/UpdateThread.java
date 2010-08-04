@@ -12,11 +12,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.InvalidParameterException;
 import java.util.concurrent.Callable;
 import manager.Manager;
 import utility.ZIP;
+import utility.exception.UpdateModException;
 
 /**
  *
@@ -32,18 +35,35 @@ public class UpdateThread implements Callable<UpdateThread> {
         this.file = null;
     }
 
-    public UpdateThread call() throws MalformedURLException, FileNotFoundException, IOException {
-        BufferedReader in = new BufferedReader(new InputStreamReader(new URL(mod.getUpdateCheckUrl().trim()).openStream()));
-        String str = in.readLine();
-        in.close();
-        if (!Manager.getInstance().compareModsVersions(mod.getVersion(), str)) {
-            InputStream is = new URL(mod.getUpdateDownloadUrl().trim()).openStream();
-            file = new File(System.getProperty("java.io.tmpdir") + new File(mod.getPath()).getName());
-            FileOutputStream fos = new FileOutputStream(file, false);
-            ZIP.copyInputStream(is, fos);
-            is.close();
-            fos.flush();
-            fos.close();
+    public UpdateThread call() throws UpdateModException {
+        try {
+            if (mod.getUpdateCheckUrl() != null && mod.getUpdateDownloadUrl() != null) {
+                BufferedReader in = new BufferedReader(new InputStreamReader(new URL(mod.getUpdateCheckUrl().trim()).openStream()));
+                System.out.println(mod.getName());
+                String str = in.readLine();
+                in.close();
+                if (str != null && !Manager.getInstance().compareModsVersions(mod.getVersion(), str)) {
+                    InputStream is = new URL(mod.getUpdateDownloadUrl().trim()).openStream();
+                    file = new File(System.getProperty("java.io.tmpdir") + new File(mod.getPath()).getName());
+                    FileOutputStream fos = new FileOutputStream(file, false);
+                    ZIP.copyInputStream(is, fos);
+                    is.close();
+                    fos.flush();
+                    fos.close();
+                }
+            }
+        } catch (MalformedURLException ex) {
+            throw new UpdateModException(mod, ex);
+        } catch (ConnectException ex) {
+            throw new UpdateModException(mod, ex);
+        } catch (NullPointerException ex) {
+            throw new UpdateModException(mod, ex);
+        } catch (InvalidParameterException ex) {
+            throw new UpdateModException(mod, ex);
+        } catch (FileNotFoundException ex) {
+            throw new UpdateModException(mod, ex);
+        } catch (IOException ex) {
+            throw new UpdateModException(mod, ex);
         }
         return this;
     }

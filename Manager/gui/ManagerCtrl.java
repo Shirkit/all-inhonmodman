@@ -36,6 +36,7 @@ import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.prefs.Preferences;
 import javax.swing.JOptionPane;
@@ -74,7 +75,7 @@ public class ManagerCtrl {
      */
     public ManagerCtrl(Manager controller, ManagerGUI view) {
         this.model = ManagerOptions.getInstance();
-        this.controller = controller;
+        this.controller = Manager.getInstance();
         this.view = view;
 
 
@@ -97,6 +98,7 @@ public class ManagerCtrl {
         view.buttonCancelAddActionListener(new PrefsCancelListener());
         view.buttonHonFolderAddActionListener(new ChooseFolderHonListener());
         view.buttonUpdateModActionListener(new UpdateModListener());
+        view.itemDownloadModUpdates(new DownloadModUpdatesListener());
         // Add file drop functionality
         new FileDrop(view, new DropListener());
 
@@ -168,6 +170,7 @@ public class ManagerCtrl {
         view.tableRemoveListSelectionListener(lsl);
         model.updateNotify();
         view.tableAddListSelectionListener(lsl);
+        logger.info("ManagerCtrl started");
     }
     
     /**
@@ -556,6 +559,18 @@ public class ManagerCtrl {
             toUpdate.add(mod);
             controller.updateMod(toUpdate);
             model.updateNotify();
+        }
+    }
+
+    class DownloadModUpdatesListener implements ActionListener {
+
+        public void actionPerformed(ActionEvent e) {
+            ArrayList<Mod> toUpdate = new ArrayList<Mod>();
+            Iterator<Mod> it = ManagerOptions.getInstance().getMods().iterator();
+            while (it.hasNext()) {
+                toUpdate.add(it.next());
+            }
+            controller.updateMod(toUpdate);
         }
     }
 

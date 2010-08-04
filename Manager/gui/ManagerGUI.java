@@ -155,8 +155,11 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         itemApplyMods = new javax.swing.JMenuItem();
         itemApplyAndLaunch = new javax.swing.JMenuItem();
         itemUnapplyAllMods = new javax.swing.JMenuItem();
-        itemOpenModFolder = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JPopupMenu.Separator();
+        itemOpenModFolder = new javax.swing.JMenuItem();
+        jSeparator3 = new javax.swing.JPopupMenu.Separator();
+        itemDownloadModUpdates = new javax.swing.JMenuItem();
+        jSeparator2 = new javax.swing.JPopupMenu.Separator();
         itemExit = new javax.swing.JMenuItem();
         menuOptions = new javax.swing.JMenu();
         itemOpenPreferences = new javax.swing.JMenuItem();
@@ -379,7 +382,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         panelModDescriptionLayout.setVerticalGroup(
             panelModDescriptionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelModDescriptionLayout.createSequentialGroup()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 191, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 144, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(labelRequirements)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -456,7 +459,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                 .addContainerGap()
                 .addGroup(panelModListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panelModListLayout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 308, Short.MAX_VALUE)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 292, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(panelModDetails, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(panelModListLayout.createSequentialGroup()
@@ -470,8 +473,8 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelModListLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(panelModListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(panelModDetails, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 424, Short.MAX_VALUE)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 424, Short.MAX_VALUE))
+                    .addComponent(panelModDetails, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 394, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 394, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(panelModListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(buttonApplyMods)
@@ -502,13 +505,24 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         itemUnapplyAllMods.setName("itemUnapplyAllMods"); // NOI18N
         menuFile.add(itemUnapplyAllMods);
 
+        jSeparator1.setName("jSeparator1"); // NOI18N
+        menuFile.add(jSeparator1);
+
         itemOpenModFolder.setMnemonic(L10n.getMnemonic("menu.file.openfolder"));
         itemOpenModFolder.setText(L10n.getString("menu.file.openfolder"));
         itemOpenModFolder.setName("itemOpenModFolder"); // NOI18N
         menuFile.add(itemOpenModFolder);
 
-        jSeparator1.setName("jSeparator1"); // NOI18N
-        menuFile.add(jSeparator1);
+        jSeparator3.setName("jSeparator3"); // NOI18N
+        menuFile.add(jSeparator3);
+
+        itemDownloadModUpdates.setMnemonic(L10n.getMnemonic("menu.file.downloadmodupdates"));
+        itemDownloadModUpdates.setText(L10n.getString("menu.file.downloadmodupdates"));
+        itemDownloadModUpdates.setName("itemDownloadModUpdates"); // NOI18N
+        menuFile.add(itemDownloadModUpdates);
+
+        jSeparator2.setName("jSeparator2"); // NOI18N
+        menuFile.add(jSeparator2);
 
         itemExit.setMnemonic(L10n.getMnemonic("menu.file.exit"));
         itemExit.setText(L10n.getString("menu.file.exit"));
@@ -844,6 +858,10 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         itemOpenModFolder.addActionListener(al);
     }
 
+    public void itemDownloadModUpdates(ActionListener al) {
+        itemDownloadModUpdates.addActionListener(al);
+    }
+
     public void itemVisitForumThreadAddActionListener(ActionListener al) {
         itemVisitForumThread.addActionListener(al);
     }
@@ -984,6 +1002,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     private javax.swing.JMenuItem itemAbout;
     private javax.swing.JMenuItem itemApplyAndLaunch;
     private javax.swing.JMenuItem itemApplyMods;
+    private javax.swing.JMenuItem itemDownloadModUpdates;
     private javax.swing.JMenuItem itemExit;
     private javax.swing.JMenuItem itemOpenModFolder;
     private javax.swing.JMenuItem itemOpenPreferences;
@@ -994,6 +1013,8 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JPopupMenu.Separator jSeparator1;
+    private javax.swing.JPopupMenu.Separator jSeparator2;
+    private javax.swing.JPopupMenu.Separator jSeparator3;
     private javax.swing.JPopupMenu.Separator jSeparator4;
     private javax.swing.JLabel labelCLArguments;
     private javax.swing.JLabel labelChooseLanguage;

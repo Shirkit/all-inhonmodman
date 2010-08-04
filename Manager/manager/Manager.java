@@ -201,12 +201,12 @@ public class Manager {
     /**
      * This method runs the ManagerOptions.loadOptions method to load the options located in a file.
      */
-    public void loadOptions() throws StreamException{
+    public void loadOptions() throws StreamException {
         try {
             ManagerOptions.getInstance().loadOptions();
         } catch (FileNotFoundException e) {
             // Put a logger here
-        	logger.error("MAN: options file not found, now falling back", e);
+            logger.error("MAN: options file not found, now falling back", e);
             e.printStackTrace();
             ManagerOptions.getInstance().setGamePath(check("HoN folder"));
             ManagerOptions.getInstance().setModPath(check("Mod folder"));
@@ -262,26 +262,26 @@ public class Manager {
         ArrayList<Pair<String, String>> notfound = new ArrayList<Pair<String, String>>();
         ArrayList<ArrayList<Pair<String, String>>> problems = new ArrayList<ArrayList<Pair<String, String>>>();
         for (int i = 0; i < files.length; i++) {
-        	try {
-        		logger.error("Adding file - " + files[i].getName() + " from loadMods().");
-        		//ManagerCtrl.getGUI().showMessage(L10n.getString("error.loadmodfile").replace("#mod#", files[i].getName()), "TESTING", JOptionPane.ERROR_MESSAGE);
-        		addHonmod(files[i], false);
-        	} catch (ModStreamException e) {
-            	e.printStackTrace();
-            	logger.error("StreamException from loadMods(): file - " + files[i].getName() + " - is corrupted.", e);
-            	
-            	stream.addAll(e.getMods());
-            	//ManagerCtrl.getGUI().showMessage(L10n.getString("error.loadmodfile").replace("#mod#", files[i].getName()), "error.loadmodfile.title", JOptionPane.ERROR_MESSAGE);
+            try {
+                logger.error("Adding file - " + files[i].getName() + " from loadMods().");
+                //ManagerCtrl.getGUI().showMessage(L10n.getString("error.loadmodfile").replace("#mod#", files[i].getName()), "TESTING", JOptionPane.ERROR_MESSAGE);
+                addHonmod(files[i], false);
+            } catch (ModStreamException e) {
+                e.printStackTrace();
+                logger.error("StreamException from loadMods(): file - " + files[i].getName() + " - is corrupted.", e);
+
+                stream.addAll(e.getMods());
+                //ManagerCtrl.getGUI().showMessage(L10n.getString("error.loadmodfile").replace("#mod#", files[i].getName()), "error.loadmodfile.title", JOptionPane.ERROR_MESSAGE);
             } catch (ModNotFoundException e) {
-            	e.printStackTrace();
-            	logger.error("FileNotFoundException from loadMods(): file - " + files[i].getName() + " - is corrupted.", e);
-            	notfound.addAll(e.getMods());
-            	//ManagerCtrl.getGUI().showMessage(L10n.getString("error.loadmodfile").replace("#mod#", files[i].getName()), "error.loadmodfile.title", JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+                logger.error("FileNotFoundException from loadMods(): file - " + files[i].getName() + " - is corrupted.", e);
+                notfound.addAll(e.getMods());
+                //ManagerCtrl.getGUI().showMessage(L10n.getString("error.loadmodfile").replace("#mod#", files[i].getName()), "error.loadmodfile.title", JOptionPane.ERROR_MESSAGE);
             }
         }
         problems.add(stream);
         problems.add(notfound);
-        
+
         return problems;
     }
 
@@ -293,24 +293,24 @@ public class Manager {
      * @throws IOException if a random I/O exception has happened.
      */
     public void addHonmod(File honmod, boolean copy) throws ModNotFoundException, IOException, ModStreamException {
-    	ArrayList<Pair<String, String>> list = new ArrayList<Pair<String, String>>();
+        ArrayList<Pair<String, String>> list = new ArrayList<Pair<String, String>>();
         if (!honmod.exists()) {
-        	list.add(Tuple.from(honmod.getName(), "notfound"));
+            list.add(Tuple.from(honmod.getName(), "notfound"));
             throw new ModNotFoundException(list);
         }
         String xml = new String(ZIP.getFile(honmod, "mod.xml"));
         Mod m = null;
         try {
-        	m = XML.xmlToMod(xml);
+            m = XML.xmlToMod(xml);
         } catch (StreamException ex) {
-        	list.add(Tuple.from(honmod.getName(), "stream"));
-        	throw new ModStreamException(list);
+            list.add(Tuple.from(honmod.getName(), "stream"));
+            throw new ModStreamException(list);
         }
         Icon icon;
         try {
             icon = new ImageIcon(ZIP.getFile(honmod, "icon.png"));
         } catch (FileNotFoundException e) {
-            icon = null;
+            icon = new javax.swing.ImageIcon(getClass().getResource("/gui/resources/icon.png"));
         }
         m.setIcon(icon);
         logger.info("Mod file opened. Mod name: " + m.getName());
@@ -502,23 +502,28 @@ public class Manager {
      * @return a instance of a UpdateReturn containing the result of the method. Updated, failed and already up-to-date mods can be easily found there.
      */
     public UpdateReturn updateMod(ArrayList<Mod> mods) {
+        // Prepare the pool
         ExecutorService pool = Executors.newCachedThreadPool();
         Iterator<Mod> it = mods.iterator();
         HashSet<Future<UpdateThread>> temp = new HashSet<Future<UpdateThread>>();
+        // Submit to the pool
         while (it.hasNext()) {
-            temp.add(pool.submit(new UpdateThread(it.next())));
+            Mod tempMod = it.next();
+            temp.add(pool.submit(new UpdateThread(tempMod)));
+            logger.info("Started update on: " + tempMod.getName());
         }
+        // Transfer from the pool
         HashSet<Future<UpdateThread>> result = new HashSet<Future<UpdateThread>>();
-        while (!temp.isEmpty()) {
+        while (temp.size() != result.size()) {
             Iterator<Future<UpdateThread>> ite = temp.iterator();
             while (ite.hasNext()) {
                 Future<UpdateThread> ff = ite.next();
                 if (ff.isDone()) {
-                    temp.remove(ff);
                     result.add(ff);
                 }
             }
         }
+        // Prepare for results
         Iterator<Future<UpdateThread>> ite = result.iterator();
         UpdateReturn returnValue = new UpdateReturn();
         while (ite.hasNext()) {
@@ -527,67 +532,75 @@ public class Manager {
                 UpdateThread mod = (UpdateThread) ff.get();
                 File file = mod.getFile();
                 if (file != null) {
-                    System.out.println(file.getAbsolutePath());
                     FileInputStream fis = new FileInputStream(file);
+                    new File(mod.getMod().getPath()).setWritable(true);
                     FileOutputStream fos = new FileOutputStream(mod.getMod().getPath());
                     ZIP.copyInputStream(fis, fos);
                     fis.close();
                     fos.flush();
                     fos.close();
                     Mod newMod = null;
+                    String olderVersion = getMod(mod.getMod().getName()).getVersion();
                     try {
                         newMod = XML.xmlToMod(new String(ZIP.getFile(file, Mod.MOD_FILENAME)));
-                    } catch (StreamException e) {
-                    }
-                    newMod.setPath(mod.getMod().getPath());
-                    Mod oldMod = getMod(mod.getMod().getName());
-                    boolean wasEnabled = oldMod.isEnabled();
-                    HashSet<Mod> gotDisable = new HashSet<Mod>();
-                    gotDisable.add(oldMod);
-                    while (!gotDisable.isEmpty()) {
-                        Iterator<Mod> iter = gotDisable.iterator();
-                        while (iter.hasNext()) {
-                            try {
-                                Mod next = iter.next();
-                                disableMod(next.getName());
-                                // If he got under this, so disabling was successfull.
-                                gotDisable.remove(next);
-                            } catch (ModEnabledException ex) {
-                                // Couldn't disable, we need who didn't let disable him
-                                // TODO: Changed the behavior of the exception, need to be fixed
-                            	/*
-                                if (!gotDisable.contains(getMod(ex.getName()))) {
-                                gotDisable.add(getMod(ex.getName()));
+                        newMod.setPath(mod.getMod().getPath());
+                        Mod oldMod = getMod(mod.getMod().getName());
+                        boolean wasEnabled = oldMod.isEnabled();
+                        HashSet<Mod> gotDisable = new HashSet<Mod>();
+                        gotDisable.add(oldMod);
+                        while (!gotDisable.isEmpty()) {
+                            Iterator<Mod> iter = gotDisable.iterator();
+                            while (iter.hasNext()) {
+                                try {
+                                    Mod next = iter.next();
+                                    disableMod(next.getName());
+                                    // If he got under this, so disabling was successfull.
+                                    gotDisable.remove(next);
+                                } catch (ModEnabledException ex) {
+                                    // Couldn't disable, we need who didn't let disable him
+                                    // TODO: Changed the behavior of the exception, need to be fixed
+                                    Iterator<Pair<String, String>> itera = ex.getDeps().iterator();
+                                    while (itera.hasNext()) {
+                                        Pair<String, String> pair = itera.next();
+                                        if (!gotDisable.contains(getMod(Tuple.get1(pair)))) {
+                                            gotDisable.add(getMod(Tuple.get1(pair)));
+                                        }
+
+                                    }
                                 }
-                                 */
                             }
                         }
-                    }
-                    oldMod.copy(newMod);
-                    if (wasEnabled) {
-                        try {
-                            enableMod(newMod.getName(), false);
-                        } catch (Exception ex) {
-                            // Couldn't enable mod, just log it
-                            java.util.logging.Logger.getLogger(Manager.class.getName()).log(Level.SEVERE, null, ex);
+                        oldMod.copy(newMod);
+                        if (wasEnabled) {
+                            try {
+                                enableMod(newMod.getName(), false);
+                            } catch (Exception ex) {
+                                // Couldn't enable mod, just log it
+                                java.util.logging.Logger.getLogger(Manager.class.getName()).log(Level.SEVERE, null, ex);
+                            }
                         }
+                    } catch (StreamException e) {
+                        // Couldn't load new mod
+                        logger.info("Error while loading downloaded mod. Mod ignored");
                     }
+
                     returnValue.getUpdated().add(mod.getMod());
+                    logger.info(mod.getMod().getName() + "was updated to " + mod.getMod().getVersion() + " from " + olderVersion);
                 } else {
+                    logger.info(mod.getMod().getName() + " is up-to-date");
                     returnValue.getUpToDate().add(mod.getMod());
                 }
+            } catch (SecurityException ex) {
+                logger.info("Couldn't write on the file.");
             } catch (InterruptedException ex) {
                 // Nothing can get here
             } catch (ExecutionException ex) {
-                try {
-                    returnValue.getFailed().add(ff.get().getMod());
-                } catch (InterruptedException ex1) {
-                    java.util.logging.Logger.getLogger(Manager.class.getName()).log(Level.SEVERE, null, ex1);
-                } catch (ExecutionException ex1) {
-                    java.util.logging.Logger.getLogger(Manager.class.getName()).log(Level.SEVERE, null, ex1);
-                }
+                UpdateModException ex2 = (UpdateModException) ex.getCause();
+                logger.info("Failed to update: " + ex2.getMod().getName() + " - " + ex2.getCause().getMessage());
+                returnValue.getFailed().add(ex2.getMod());
             } catch (FileNotFoundException ex) {
                 // Can't get here
+                logger.info("random");
             } catch (IOException ex) {
                 // Random IO Exception
             }
@@ -764,7 +777,7 @@ public class Manager {
      * @throws IOException if a random I/O Exception happened.
      * @throws IllegalArgumentException if a mod used a invalid parameter to compare the mods version.
      */
-    public void enableMod(String name, boolean ignoreVersion) throws ModConflictException,ModVersionUnsatisfiedException,ModEnabledException,ModNotEnabledException,NoSuchElementException,ModVersionMissmatchException,NullPointerException,FileNotFoundException,IllegalArgumentException,IOException {
+    public void enableMod(String name, boolean ignoreVersion) throws ModConflictException, ModVersionUnsatisfiedException, ModEnabledException, ModNotEnabledException, NoSuchElementException, ModVersionMissmatchException, NullPointerException, FileNotFoundException, IllegalArgumentException, IOException {
         Mod m = getMod(name);
 
         if (!ignoreVersion) {
@@ -1249,35 +1262,33 @@ public class Manager {
 
         boolean result = false;
 
-        if (expressionVersion == null) {
+        if (expressionVersion == null || expressionVersion.isEmpty()) {
             expressionVersion = "*";
         }
 
         for (int i = 0; i < expressionVersion.length(); i++) {
             if (Character.isLetter(expressionVersion.charAt(i))) {
+                expressionVersion = expressionVersion.replaceFirst(Character.toString(expressionVersion.charAt(i)), "");
             }
         }
 
-        if ((!expressionVersion.contains("-") && (expressionVersion.equals("*") || expressionVersion.equals(singleVersion) || expressionVersion.equals("")))
-                || expressionVersion.equals("*-*")) {
+        if (expressionVersion.equals("*-*") || expressionVersion.equals("*") || expressionVersion.equals(singleVersion)) {
             result = true;
         } else if (expressionVersion.contains("-")) {
 
             int check = 0;
             String vEx1 = expressionVersion.substring(0, expressionVersion.indexOf("-"));
             logger.warn("MAN: vEx1: " + vEx1);
-            if (vEx1.isEmpty() || vEx1 == null) {
+            if (vEx1 == null || vEx1.isEmpty()) {
                 vEx1 = "*";
             }
             String vEx2 = expressionVersion.substring(expressionVersion.indexOf("-") + 1, expressionVersion.length());
             logger.warn("MAN: vEx2: " + vEx2);
-            if (vEx2.isEmpty() || vEx2 == null) {
+            if (vEx2 == null || vEx2.isEmpty()) {
                 vEx2 = "*";
             }
 
-            return checkVersion(vEx1, singleVersion) && checkVersion(singleVersion, vEx2);
-        } else {
-            throw new InvalidParameterException();
+            result = checkVersion(vEx1, singleVersion) && checkVersion(singleVersion, vEx2);
         }
         return result;
     }
