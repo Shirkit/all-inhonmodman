@@ -426,16 +426,20 @@
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace min="-2" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
+                      <Group type="102" attributes="0">
                           <Component id="jScrollPane1" pref="292" max="32767" attributes="0"/>
                           <EmptySpace type="unrelated" min="-2" max="-2" attributes="0"/>
-                          <Component id="panelModDetails" min="-2" pref="270" max="-2" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="buttonApplyMods" min="-2" pref="127" max="-2" attributes="0"/>
                           <EmptySpace min="-2" max="-2" attributes="0"/>
                           <Component id="buttonAddMod" min="-2" pref="127" max="-2" attributes="0"/>
+                          <EmptySpace min="-2" pref="43" max="-2" attributes="0"/>
                       </Group>
+                  </Group>
+                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                      <Component id="progressBar" max="32767" attributes="1"/>
+                      <Component id="panelModDetails" alignment="0" pref="270" max="32767" attributes="1"/>
                   </Group>
                   <EmptySpace min="-2" max="-2" attributes="0"/>
               </Group>
@@ -449,10 +453,13 @@
                       <Component id="panelModDetails" alignment="0" pref="394" max="32767" attributes="1"/>
                       <Component id="jScrollPane1" alignment="0" pref="394" max="32767" attributes="0"/>
                   </Group>
-                  <EmptySpace min="-2" max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="buttonApplyMods" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="buttonAddMod" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="1" attributes="0">
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="buttonApplyMods" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="buttonAddMod" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <Component id="progressBar" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
@@ -775,6 +782,15 @@
             </Component>
           </SubComponents>
         </Container>
+        <Component class="javax.swing.JProgressBar" name="progressBar">
+          <Properties>
+            <Property name="name" type="java.lang.String" value="progressBar" noResource="true"/>
+          </Properties>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new javax.swing.JProgressBar(0,100)"/>
+            <AuxValue name="JavaCodeGenerator_InitCodePre" type="java.lang.String" value="progressBar.setStringPainted(true);"/>
+          </AuxValues>
+        </Component>
       </SubComponents>
     </Container>
   </SubComponents>

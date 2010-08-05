@@ -3,13 +3,9 @@ package manager;
 import business.ManagerOptions;
 import business.Mod;
 import business.actions.*;
-import gui.ManagerCtrl;
-import gui.ManagerGUI;
-import gui.l10n.L10n;
 
 import java.net.MalformedURLException;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
 
 import utility.OS;
 import utility.XML;
@@ -29,9 +25,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.LinkedList;
 import java.util.NoSuchElementException;
-import java.util.Stack;
 import java.util.StringTokenizer;
 import java.util.Random;
 
@@ -44,6 +38,7 @@ import java.net.URL;
 import java.security.InvalidParameterException;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Observable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -68,7 +63,7 @@ import utility.update.UpdateThread;
  *
  * @author Shirkit
  */
-public class Manager {
+public class Manager extends Observable {
 
     private static Manager instance = null;
     //private ArrayList<Mod> mods;
@@ -500,8 +495,9 @@ public class Manager {
      * without needing any external influence.
      * @param mods to be updated.
      * @return a instance of a UpdateReturn containing the result of the method. Updated, failed and already up-to-date mods can be easily found there.
+     * @throws StreamException This exception is thrown in a serius error.
      */
-    public UpdateReturn updateMod(ArrayList<Mod> mods) {
+    public UpdateReturn updateMod(ArrayList<Mod> mods) throws StreamException {
         // Prepare the pool
         ExecutorService pool = Executors.newCachedThreadPool();
         Iterator<Mod> it = mods.iterator();
@@ -518,8 +514,14 @@ public class Manager {
             Iterator<Future<UpdateThread>> ite = temp.iterator();
             while (ite.hasNext()) {
                 Future<UpdateThread> ff = ite.next();
-                if (ff.isDone()) {
+                if (!result.contains(ff) && ff.isDone()) {
                     result.add(ff);
+                    logger.info("Finished " + result.size() + " out of " + temp.size() + " URL check");
+                    setChanged();
+                    int[] ints = new int[2];
+                    ints[0] = result.size();
+                    ints[1] = temp.size();
+                    notifyObservers(ints);
                 }
             }
         }
@@ -543,52 +545,54 @@ public class Manager {
                     String olderVersion = getMod(mod.getMod().getName()).getVersion();
                     try {
                         newMod = XML.xmlToMod(new String(ZIP.getFile(file, Mod.MOD_FILENAME)));
-                        newMod.setPath(mod.getMod().getPath());
-                        Mod oldMod = getMod(mod.getMod().getName());
-                        boolean wasEnabled = oldMod.isEnabled();
-                        HashSet<Mod> gotDisable = new HashSet<Mod>();
-                        gotDisable.add(oldMod);
-                        while (!gotDisable.isEmpty()) {
-                            Iterator<Mod> iter = gotDisable.iterator();
-                            while (iter.hasNext()) {
-                                try {
-                                    Mod next = iter.next();
-                                    disableMod(next.getName());
-                                    // If he got under this, so disabling was successfull.
-                                    gotDisable.remove(next);
-                                } catch (ModEnabledException ex) {
-                                    // Couldn't disable, we need who didn't let disable him
-                                    // TODO: Changed the behavior of the exception, need to be fixed
-                                    Iterator<Pair<String, String>> itera = ex.getDeps().iterator();
-                                    while (itera.hasNext()) {
-                                        Pair<String, String> pair = itera.next();
-                                        if (!gotDisable.contains(getMod(Tuple.get1(pair)))) {
-                                            gotDisable.add(getMod(Tuple.get1(pair)));
-                                        }
-
+                    } catch (StreamException e) {
+                        // Couldn't load new mod, XStream was unabled to parse the XML file.
+                        logger.error("Updated mod failed to load. Some problem happened while reading the mod. Critical error.");
+                        throw e;
+                        // Can't continue, since the mod could be required by another. This should never happens, unless a developer really messes up.
+                        // TODO : This can be improved, but I don't know how.
+                    }
+                    newMod.setPath(mod.getMod().getPath());
+                    Mod oldMod = getMod(mod.getMod().getName());
+                    boolean wasEnabled = oldMod.isEnabled();
+                    HashSet<Mod> gotDisable = new HashSet<Mod>();
+                    gotDisable.add(oldMod);
+                    while (!gotDisable.isEmpty()) {
+                        Iterator<Mod> iter = gotDisable.iterator();
+                        while (iter.hasNext()) {
+                            try {
+                                Mod next = iter.next();
+                                disableMod(next.getName());
+                                // If he got under this, so disabling was successfull.
+                                gotDisable.remove(next);
+                            } catch (ModEnabledException ex) {
+                                // Couldn't disable, we need who didn't let disable him
+                                // TODO: Changed the behavior of the exception, need to be fixed
+                                Iterator<Pair<String, String>> itera = ex.getDeps().iterator();
+                                while (itera.hasNext()) {
+                                    Pair<String, String> pair = itera.next();
+                                    if (!gotDisable.contains(getMod(Tuple.get1(pair)))) {
+                                        gotDisable.add(getMod(Tuple.get1(pair)));
                                     }
+
                                 }
                             }
                         }
-                        oldMod.copy(newMod);
-                        if (wasEnabled) {
-                            try {
-                                enableMod(newMod.getName(), false);
-                            } catch (Exception ex) {
-                                // Couldn't enable mod, just log it
-                                java.util.logging.Logger.getLogger(Manager.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                        }
-                    } catch (StreamException e) {
-                        // Couldn't load new mod
-                        logger.info("Error while loading downloaded mod. Mod ignored");
                     }
-
-                    returnValue.getUpdated().add(mod.getMod());
+                    oldMod.copy(newMod);
+                    if (wasEnabled) {
+                        try {
+                            enableMod(newMod.getName(), false);
+                        } catch (Exception ex) {
+                            // Couldn't enable mod, just log it
+                            logger.error("Could not enable mod " + newMod.getName());
+                        }
+                    }
+                    returnValue.addUpdated(mod.getMod(), olderVersion);
                     logger.info(mod.getMod().getName() + "was updated to " + mod.getMod().getVersion() + " from " + olderVersion);
                 } else {
                     logger.info(mod.getMod().getName() + " is up-to-date");
-                    returnValue.getUpToDate().add(mod.getMod());
+                    returnValue.addUpToDate(mod.getMod());
                 }
             } catch (SecurityException ex) {
                 logger.info("Couldn't write on the file.");
@@ -597,11 +601,11 @@ public class Manager {
             } catch (ExecutionException ex) {
                 UpdateModException ex2 = (UpdateModException) ex.getCause();
                 logger.info("Failed to update: " + ex2.getMod().getName() + " - " + ex2.getCause().getMessage());
-                returnValue.getFailed().add(ex2.getMod());
+                returnValue.addModFailed(ex2.getMod(), (Exception) ex2.getCause());
             } catch (FileNotFoundException ex) {
                 // Can't get here
-                logger.info("random");
             } catch (IOException ex) {
+                logger.error("Random I/O Exception happened", ex);
                 // Random IO Exception
             }
         }

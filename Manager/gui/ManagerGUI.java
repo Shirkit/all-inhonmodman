@@ -28,6 +28,7 @@ import business.actions.ActionRequirement;
 import java.io.File;
 import java.util.Iterator;
 import javax.swing.DefaultListModel;
+import javax.swing.JProgressBar;
 import utility.JarFileLoader;
 
 /**
@@ -150,6 +151,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         labelModStatus = new javax.swing.JLabel();
         buttonEnableMod = new javax.swing.JButton();
         buttonUpdateMod = new javax.swing.JButton();
+        progressBar = new javax.swing.JProgressBar(0,100);
         mainMenu = new javax.swing.JMenuBar();
         menuFile = new javax.swing.JMenu();
         itemApplyMods = new javax.swing.JMenuItem();
@@ -451,6 +453,9 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                 .addContainerGap())
         );
 
+        progressBar.setStringPainted(true);
+        progressBar.setName("progressBar"); // NOI18N
+
         javax.swing.GroupLayout panelModListLayout = new javax.swing.GroupLayout(panelModList);
         panelModList.setLayout(panelModListLayout);
         panelModListLayout.setHorizontalGroup(
@@ -460,12 +465,15 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                 .addGroup(panelModListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panelModListLayout.createSequentialGroup()
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 292, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(panelModDetails, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED))
                     .addGroup(panelModListLayout.createSequentialGroup()
                         .addComponent(buttonApplyMods, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(buttonAddMod, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(buttonAddMod, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(43, 43, 43)))
+                .addGroup(panelModListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(progressBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(panelModDetails, javax.swing.GroupLayout.DEFAULT_SIZE, 270, Short.MAX_VALUE))
                 .addContainerGap())
         );
         panelModListLayout.setVerticalGroup(
@@ -476,9 +484,11 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                     .addComponent(panelModDetails, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 394, Short.MAX_VALUE)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 394, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(panelModListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(buttonApplyMods)
-                    .addComponent(buttonAddMod))
+                .addGroup(panelModListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(panelModListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(buttonApplyMods)
+                        .addComponent(buttonAddMod))
+                    .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
@@ -886,6 +896,10 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         buttonHonFolder.addActionListener(al);
     }
 
+    public JProgressBar getProgressBar() {
+        return progressBar;
+    }
+
     /*
      * Various getters and setters
      */
@@ -1034,6 +1048,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     private javax.swing.JPanel panelModDescription;
     private javax.swing.JPanel panelModDetails;
     private javax.swing.JPanel panelModList;
+    private javax.swing.JProgressBar progressBar;
     private javax.swing.JTable tableModList;
     private javax.swing.JTextField textFieldCLArguments;
     private javax.swing.JTextField textFieldHonFolder;

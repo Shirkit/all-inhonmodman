@@ -39,7 +39,6 @@ public class UpdateThread implements Callable<UpdateThread> {
         try {
             if (mod.getUpdateCheckUrl() != null && mod.getUpdateDownloadUrl() != null) {
                 BufferedReader in = new BufferedReader(new InputStreamReader(new URL(mod.getUpdateCheckUrl().trim()).openStream()));
-                System.out.println(mod.getName());
                 String str = in.readLine();
                 in.close();
                 if (str != null && !Manager.getInstance().compareModsVersions(mod.getVersion(), str)) {
