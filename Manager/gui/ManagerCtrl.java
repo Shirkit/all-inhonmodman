@@ -20,6 +20,7 @@ import com.thoughtworks.xstream.io.StreamException;
 import gui.l10n.L10n;
 import business.ManagerOptions;
 import business.Mod;
+import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import utility.FileDrop;
@@ -62,7 +63,7 @@ import utility.update.UpdateReturn;
  *
  * @author Kovo
  */
-public class ManagerCtrl  implements Observer {
+public class ManagerCtrl implements Observer {
 
     Logger logger = Logger.getLogger(this.getClass().getPackage().getName());
     Manager controller;
@@ -109,7 +110,7 @@ public class ManagerCtrl  implements Observer {
         // Load Options and Mods and then Look and feel
         try {
             controller.loadOptions();
-        } catch (StreamException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             logger.error("StreamException from loadOptions()", e);
             // Mod options is invalid, must be deleted
@@ -164,16 +165,21 @@ public class ManagerCtrl  implements Observer {
             logger.error("IOException from buildGraphs()", ex);
         }
         loadLaf();
-        try {
-            controller.saveOptions();
+        /*try {
+        controller.saveOptions();
         } catch (Exception ex) {
-            ex.printStackTrace();
-            logger.error("Unable to saveOptions()", ex);
-        }
+        ex.printStackTrace();
+        logger.error("Unable to saveOptions()", ex);
+        }*/
 
         view.tableRemoveListSelectionListener(lsl);
         model.updateNotify();
         view.tableAddListSelectionListener(lsl);
+
+        if (model.getGuiRectangle() != null) {
+            view.setBounds(model.getGuiRectangle());
+        }
+
         logger.info("ManagerCtrl started");
     }
 
@@ -576,6 +582,7 @@ public class ManagerCtrl  implements Observer {
 
         public void actionPerformed(ActionEvent e) {
             view.getProgressBar().setVisible(true);
+            view.getProgressBar().paint(view.getProgressBar().getGraphics());
             ArrayList<Mod> toUpdate = new ArrayList<Mod>();
             Iterator<Mod> it = ManagerOptions.getInstance().getMods().iterator();
             while (it.hasNext()) {
@@ -596,12 +603,12 @@ public class ManagerCtrl  implements Observer {
             it = things.getUpToDateModList().iterator();
             if (it.hasNext()) {
                 /*while (it.hasNext()) {
-                    Mod mod = it.next();
-                    message += mod.getName() + " is up-to-date (" + mod.getVersion() + ")";
+                Mod mod = it.next();
+                message += mod.getName() + " is up-to-date (" + mod.getVersion() + ")";
                 }*/
                 message += "Up-to-date Mods aren't shown\n\n";
             }
-            
+
             it = things.getFailedModList().iterator();
             if (it.hasNext()) {
                 message += "Failed to update mods: \n\n";
@@ -854,7 +861,12 @@ public class ManagerCtrl  implements Observer {
     class ExitListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
-            // Close the main window
+            try {
+                // Close the main window
+                controller.saveOptions();
+            } catch (IOException ex) {
+                logger.error("Unable to save options");
+            }
             logger.info("Closing HonModManager...");
             System.exit(0);
         }

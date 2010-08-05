@@ -10,6 +10,7 @@ import com.thoughtworks.xstream.annotations.XStreamConverter;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import com.thoughtworks.xstream.io.StreamException;
+import java.awt.Rectangle;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Observable;
 import java.util.Set;
+import java.util.logging.Level;
 
 
 import org.apache.log4j.Logger;
@@ -50,7 +52,9 @@ public class ManagerOptions extends Observable {
     private String LAF;
     @XStreamImplicit
     private Set<Mod> applied;
-    
+    @XStreamAlias("gui")
+    private Rectangle guiRectangle;
+
     // Hidden fields
     @XStreamOmitField
     private ArrayList<Mod> mods;
@@ -112,7 +116,17 @@ public class ManagerOptions extends Observable {
     }
 
     public void saveOptions(File path) throws IOException {
+        logger.info("Saving options. Path=" + path.getAbsolutePath());
         XML.managerOptionsToXml(path);
+    }
+
+    public Rectangle getGuiRectangle() {
+        return guiRectangle;
+    }
+
+    public void setGuiRectangle(Rectangle guiRectangle) {
+        this.guiRectangle = guiRectangle;
+        updateNotify();
     }
 
     public void loadOptions() throws FileNotFoundException, StreamException {

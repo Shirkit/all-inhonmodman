@@ -6,6 +6,8 @@ import business.actions.*;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.StreamException;
 import com.thoughtworks.xstream.io.xml.DomDriver;
+import com.thoughtworks.xstream.mapper.CannotResolveClassException;
+import java.awt.Rectangle;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -111,9 +113,12 @@ public class XML {
         try {
             ObjectInputStream in = xstream.createObjectInputStream(new FileInputStream(path));
             while (true) {
-                Object o = in.readObject();
-                if (o.getClass().equals(Mod.class)) {
-                    applied.add((Mod) o);
+                try {
+                    Object o = in.readObject();
+                    if (o.getClass().equals(Mod.class)) {
+                        applied.add((Mod) o);
+                    }
+                } catch (CannotResolveClassException e) {
                 }
             }
 

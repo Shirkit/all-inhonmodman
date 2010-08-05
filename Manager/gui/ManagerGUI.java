@@ -1,5 +1,6 @@
 package gui;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.logging.Level;
 import javax.swing.JOptionPane;
@@ -25,7 +26,12 @@ import org.apache.log4j.Logger;
 import javax.swing.UIManager;
 import business.actions.Action;
 import business.actions.ActionRequirement;
+import java.awt.Dimension;
+import java.awt.Rectangle;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
+import java.util.Date;
 import java.util.Iterator;
 import javax.swing.DefaultListModel;
 import javax.swing.JProgressBar;
@@ -58,9 +64,11 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
      * @param model model patr of the MVC framework
      */
     public ManagerGUI(Manager controller) {
+        logger.info("Initializing gui");
+        ManagerOptions.getInstance().setGuiRectangle(getBounds());
         this.model = ManagerOptions.getInstance();
         this.controller = controller;
-        this.model.addObserver(this);
+        ManagerOptions.getInstance().addObserver(this);
         // Set Look and feel (based on preferences)
         prefs = Preferences.userNodeForPackage(Manager.class);
         //String lafClass = prefs.get(model.PREFS_LAF, "DUMMY_DEFAULT");
@@ -106,8 +114,15 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         setDetailsVisible(false);
         // This thing here is working along with formComponentShown to solve the fucking bug of not showing the correct size when running the app
         this.setResizable(false);
+
+        // Change default close operation to this
+        this.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                itemExit.doClick();
+                System.exit(0);
+            }
+        });
     }
-   
 
     /** This method is called from within the constructor to
      * initialize the form.
@@ -280,6 +295,12 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         setMinimumSize(new java.awt.Dimension(700, 450));
         setName("Form"); // NOI18N
         addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentMoved(java.awt.event.ComponentEvent evt) {
+                formComponentMoved(evt);
+            }
+            public void componentResized(java.awt.event.ComponentEvent evt) {
+                formComponentResized(evt);
+            }
             public void componentShown(java.awt.event.ComponentEvent evt) {
                 formComponentShown(evt);
             }
@@ -655,6 +676,16 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         this.setResizable(true);
     }//GEN-LAST:event_formComponentShown
 
+    private void formComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentResized
+        ManagerOptions.getInstance().setGuiRectangle(getBounds());
+        wantToSaveOptions();
+    }//GEN-LAST:event_formComponentResized
+
+    private void formComponentMoved(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentMoved
+        ManagerOptions.getInstance().setGuiRectangle(getBounds());
+        wantToSaveOptions();
+    }//GEN-LAST:event_formComponentMoved
+
     /**
      * Display specified message to the user using JOptionPane
      * @param message message to be displayed
@@ -938,6 +969,22 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
 
     public String getCLArguments() {
         return textFieldCLArguments.getText();
+    }
+    private long date = 0;
+
+    private void wantToSaveOptions() {
+        Date d = new Date();
+        if (date == 0) {
+            date = d.getTime() + 1000;
+        }
+        if (date <= d.getTime()) {
+            try {
+                Manager.getInstance().saveOptions();
+                date = d.getTime() + 1000;
+            } catch (IOException ex) {
+                java.util.logging.Logger.getLogger(ManagerGUI.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
 
     /**

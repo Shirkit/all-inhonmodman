@@ -31,6 +31,7 @@ import java.util.Random;
 
 import com.mallardsoft.tuple.*;
 import com.thoughtworks.xstream.io.StreamException;
+import gui.ManagerCtrl;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
