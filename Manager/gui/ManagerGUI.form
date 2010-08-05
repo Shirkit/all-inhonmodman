@@ -15,44 +15,48 @@
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" attributes="0">
-                  <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="1" attributes="0">
-                          <Component id="buttonOk" min="-2" pref="100" max="-2" attributes="1"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="buttonCancel" min="-2" pref="100" max="-2" attributes="1"/>
-                      </Group>
-                      <Group type="102" alignment="1" attributes="0">
+                      <Component id="labelModsFolder" alignment="1" min="-2" max="-2" attributes="0"/>
+                      <Component id="labelSelectLaf" alignment="1" min="-2" max="-2" attributes="0"/>
+                      <Component id="labelHonFolder" alignment="1" min="-2" max="-2" attributes="0"/>
+                      <Component id="labelChooseLanguage" alignment="1" min="-2" max="-2" attributes="0"/>
+                      <Component id="labelCLArguments" alignment="1" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Group type="102" alignment="0" attributes="0">
+                          <Component id="textFieldHonFolder" pref="166" max="32767" attributes="2"/>
                           <EmptySpace min="-2" max="-2" attributes="0"/>
+                          <Component id="buttonHonFolder" min="-2" max="-2" attributes="1"/>
+                      </Group>
+                      <Group type="102" attributes="0">
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Group type="102" alignment="1" attributes="0">
-                                  <Group type="103" groupAlignment="0" attributes="0">
-                                      <Component id="labelSelectLaf" alignment="0" min="-2" max="-2" attributes="0"/>
-                                      <Component id="labelCLArguments" alignment="0" min="-2" max="-2" attributes="0"/>
-                                      <Component id="labelChooseLanguage" alignment="0" min="-2" max="-2" attributes="0"/>
-                                      <Component id="labelHonFolder" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  </Group>
-                                  <EmptySpace min="-2" max="-2" attributes="0"/>
-                                  <Group type="103" groupAlignment="1" attributes="0">
-                                      <Component id="comboBoxChooseLanguage" alignment="0" pref="207" max="32767" attributes="2"/>
-                                      <Component id="comboBoxLafs" alignment="0" pref="207" max="32767" attributes="2"/>
-                                      <Component id="textFieldCLArguments" alignment="0" pref="207" max="32767" attributes="2"/>
-                                      <Component id="textFieldHonFolder" alignment="0" pref="207" max="32767" attributes="2"/>
-                                  </Group>
-                                  <EmptySpace min="-2" max="-2" attributes="0"/>
-                                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                      <Component id="buttonApplyLaf" max="32767" attributes="1"/>
-                                      <Component id="buttonHonFolder" alignment="0" max="32767" attributes="1"/>
-                                  </Group>
-                              </Group>
-                              <Group type="102" alignment="0" attributes="0">
-                                  <EmptySpace min="10" pref="10" max="10" attributes="0"/>
-                                  <Component id="jLabel1" pref="374" max="32767" attributes="0"/>
-                              </Group>
+                              <Component id="textFieldModsFolder" alignment="0" pref="166" max="32767" attributes="2"/>
+                              <Component id="comboBoxChooseLanguage" alignment="0" pref="166" max="32767" attributes="2"/>
+                              <Component id="comboBoxLafs" alignment="0" pref="166" max="32767" attributes="2"/>
+                              <Component id="textFieldCLArguments" alignment="0" pref="166" max="32767" attributes="2"/>
+                          </Group>
+                          <EmptySpace min="-2" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                              <Component id="buttonApplyLaf" alignment="1" max="32767" attributes="1"/>
+                              <Component id="buttonModsFolder" alignment="1" max="32767" attributes="1"/>
                           </Group>
                       </Group>
                   </Group>
-                  <EmptySpace min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
+              </Group>
+              <Group type="102" alignment="0" attributes="0">
+                  <EmptySpace min="22" pref="22" max="22" attributes="0"/>
+                  <Component id="jLabel1" pref="442" max="32767" attributes="0"/>
+                  <EmptySpace pref="12" max="32767" attributes="0"/>
+              </Group>
+              <Group type="102" alignment="1" attributes="0">
+                  <EmptySpace pref="257" max="32767" attributes="0"/>
+                  <Component id="buttonOk" min="-2" pref="100" max="-2" attributes="1"/>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Component id="buttonCancel" min="-2" pref="100" max="-2" attributes="1"/>
+                  <EmptySpace min="12" pref="12" max="12" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -65,7 +69,13 @@
                       <Component id="textFieldHonFolder" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="buttonHonFolder" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="labelModsFolder" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="textFieldModsFolder" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="buttonModsFolder" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="labelCLArguments" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="textFieldCLArguments" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -83,7 +93,7 @@
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace pref="31" max="32767" attributes="0"/>
+                  <EmptySpace max="32767" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="buttonCancel" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="buttonOk" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -110,7 +120,7 @@
         <Component class="javax.swing.JButton" name="buttonHonFolder">
           <Properties>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-              <Connection code="L10n.getString(&quot;prefs.button.honfolder&quot;)" type="code"/>
+              <Connection code="L10n.getString(&quot;prefs.button.change&quot;)" type="code"/>
             </Property>
             <Property name="name" type="java.lang.String" value="buttonHonFolder" noResource="true"/>
           </Properties>
@@ -134,7 +144,7 @@
         <Component class="javax.swing.JButton" name="buttonApplyLaf">
           <Properties>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-              <Connection code="L10n.getString(&quot;prefs.button.lookandfeel&quot;)" type="code"/>
+              <Connection code="L10n.getString(&quot;prefs.button.apply&quot;)" type="code"/>
             </Property>
             <Property name="name" type="java.lang.String" value="buttonApplyLaf" noResource="true"/>
           </Properties>
@@ -193,6 +203,27 @@
               <Connection code="L10n.getString(&quot;prefs.label.languagechanges&quot;)" type="code"/>
             </Property>
             <Property name="name" type="java.lang.String" value="jLabel1" noResource="true"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JButton" name="buttonModsFolder">
+          <Properties>
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+              <Connection code="L10n.getString(&quot;prefs.button.change&quot;)" type="code"/>
+            </Property>
+            <Property name="name" type="java.lang.String" value="buttonModsFolder" noResource="true"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="labelModsFolder">
+          <Properties>
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+              <Connection code="L10n.getString(&quot;prefs.label.modsfolder&quot;)" type="code"/>
+            </Property>
+            <Property name="name" type="java.lang.String" value="labelModsFolder" noResource="true"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JTextField" name="textFieldModsFolder">
+          <Properties>
+            <Property name="name" type="java.lang.String" value="textFieldModsFolder" noResource="true"/>
           </Properties>
         </Component>
       </SubComponents>

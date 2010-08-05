@@ -4,6 +4,8 @@
 package gui;
 
 import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.zip.ZipException;
 import manager.Manager;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -15,9 +17,16 @@ import org.jdesktop.application.SingleFrameApplication;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import gui.l10n.L10n;
+import java.awt.Desktop;
+import java.io.ByteArrayInputStream;
+import java.io.Console;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.RandomAccessFile;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import utility.ZIP;
 import utility.update.UpdateManager;
 
 /**
@@ -77,7 +86,24 @@ public class ManagerApp extends SingleFrameApplication {
         view.setTitle(title);
         try {
             if (hasUpdate.get().booleanValue()) {
-                view.showMessage(L10n.getString("message.updateavaliabe"),L10n.getString("message.updateavaliabe.title"), JOptionPane.INFORMATION_MESSAGE);
+                    //view.showMessage(L10n.getString("message.updateavaliabe"),L10n.getString("message.updateavaliabe.title"), JOptionPane.INFORMATION_MESSAGE);
+                    view.showMessage("This will work tomorrow",L10n.getString("message.updateavaliabe.title"), JOptionPane.INFORMATION_MESSAGE);
+                /*try {
+                    ByteArrayInputStream bais = new ByteArrayInputStream(ZIP.getFile(new File(ManagerApp.class.getProtectionDomain().getCodeSource().getLocation().getPath()), "updater"));
+                    File updater = new File(new File(".").getAbsolutePath() + File.separator + "Updater.jar");
+                    FileOutputStream fos = new FileOutputStream(updater);
+                    ZIP.copyInputStream(bais, fos);
+                    bais.close();
+                    fos.flush();
+                    fos.close();
+                    System.exit(0);
+                } catch (FileNotFoundException ex) {
+                    java.util.logging.Logger.getLogger(ManagerApp.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (ZipException ex) {
+                    java.util.logging.Logger.getLogger(ManagerApp.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (IOException ex) {
+                    java.util.logging.Logger.getLogger(ManagerApp.class.getName()).log(Level.SEVERE, null, ex);
+                }*/
             } else {
             }
         } catch (InterruptedException ex) {

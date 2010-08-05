@@ -26,23 +26,20 @@ public class ManagerOptionsConverter implements Converter {
         writer.addAttribute("lang", opt.getLanguage());
         writer.addAttribute("laf", opt.getLaf());
         writer.addAttribute("clargs", opt.getCLArgs());
-        if (opt.getGuiRectangle() != null) {
-            writer.startNode("gui");
-            writer.addAttribute("x", Integer.toString((int) opt.getGuiRectangle().getX()));
-            writer.addAttribute("y", Integer.toString((int) opt.getGuiRectangle().getY()));
-            writer.addAttribute("width", Integer.toString((int) opt.getGuiRectangle().getWidth()));
-            writer.addAttribute("height", Integer.toString((int) opt.getGuiRectangle().getHeight()));
-            writer.endNode();
-        }
-
+        writer.addAttribute("x", Integer.toString((int) opt.getGuiRectangle().getX()));
+        writer.addAttribute("y", Integer.toString((int) opt.getGuiRectangle().getY()));
+        writer.addAttribute("width", Integer.toString((int) opt.getGuiRectangle().getWidth()));
+        writer.addAttribute("height", Integer.toString((int) opt.getGuiRectangle().getHeight()));
 
         if (!(opt.getAppliedMods() == null)) {
             Iterator<Mod> it = opt.getAppliedMods().iterator();
             while (it.hasNext()) {
                 Mod m = it.next();
-                writer.startNode("modification");
-                mc.convertAnother(m);
-                writer.endNode();
+                if (m != null) {
+                    writer.startNode("modification");
+                    mc.convertAnother(m);
+                    writer.endNode();
+                }
             }
         }
     }
@@ -55,14 +52,28 @@ public class ManagerOptionsConverter implements Converter {
         value.setCLArgs(reader.getAttribute("clargs"));
         value.setLanguage(reader.getAttribute("lang"));
         value.setLaf(reader.getAttribute("laf"));
-        if (reader.hasMoreChildren()) {
-            try {
-                reader.moveDown();
-                if (reader.getNodeName().equals("gui")) {
-                    value.setGuiRectangle(new Rectangle(Integer.valueOf(reader.getAttribute("x")), Integer.valueOf(reader.getAttribute("y")), Integer.valueOf(reader.getAttribute("width")), Integer.valueOf(reader.getAttribute("height"))));
-                }
-            } catch (ConversionException e) {
-            }
+        int x = -9999999, y = -9999999, height = -9999999, width = -9999999;
+        String s = reader.getAttribute("x");
+        if (s != null) {
+            x = Integer.valueOf(s);
+        }
+        s = reader.getAttribute("y");
+        if (s != null) {
+            y = Integer.valueOf(s);
+        }
+        s = reader.getAttribute("height");
+        if (s != null) {
+            height = Integer.valueOf(s);
+        }
+        s = reader.getAttribute("width");
+        if (s != null) {
+            width = Integer.valueOf(s);
+        }
+        s = reader.getAttribute("y");
+        s = reader.getAttribute("height");
+        s = reader.getAttribute("width");
+        if (x != -9999999 && y != -9999999 && height != -9999999 && width != -9999999) {
+            value.setGuiRectangle(new Rectangle(x, y, width, height));
         }
 
         return value;

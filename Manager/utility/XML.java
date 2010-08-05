@@ -119,12 +119,11 @@ public class XML {
                         applied.add((Mod) o);
                     }
                 } catch (CannotResolveClassException e) {
+                } catch (ClassNotFoundException e) {
                 }
             }
 
         } catch (IOException ex) {
-//            Logger.getLogger(XML.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ClassNotFoundException ex) {
 //            Logger.getLogger(XML.class.getName()).log(Level.SEVERE, null, ex);
         }
         ManagerOptions temp = (ManagerOptions) xstream.fromXML(new FileInputStream(path));

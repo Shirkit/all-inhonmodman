@@ -31,7 +31,6 @@ import java.util.Random;
 
 import com.mallardsoft.tuple.*;
 import com.thoughtworks.xstream.io.StreamException;
-import gui.ManagerCtrl;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -232,6 +231,7 @@ public class Manager extends Observable {
      * @throws Exception 
      */
     public ArrayList<ArrayList<Pair<String, String>>> loadMods() throws IOException {
+        ManagerOptions.getInstance().getMods().clear();
         File modsFolder = new File(ManagerOptions.getInstance().getModPath());
         // Get mod files from the directory
         FileFilter fileFilter = new FileFilter() {

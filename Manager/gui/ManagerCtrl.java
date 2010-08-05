@@ -103,6 +103,7 @@ public class ManagerCtrl implements Observer {
         view.buttonCancelAddActionListener(new PrefsCancelListener());
         view.buttonHonFolderAddActionListener(new ChooseFolderHonListener());
         view.buttonUpdateModActionListener(new UpdateModListener());
+        view.buttonModsFolderAddActionListener(new ChooseFolderModsListener());
         view.itemDownloadModUpdates(new DownloadModUpdatesListener());
         // Add file drop functionality
         new FileDrop(view, new DropListener());
@@ -115,55 +116,7 @@ public class ManagerCtrl implements Observer {
             logger.error("StreamException from loadOptions()", e);
             // Mod options is invalid, must be deleted
         }
-        try {
-            ArrayList<ArrayList<Pair<String, String>>> exs = controller.loadMods();
-            if (!exs.isEmpty()) {
-                Enumeration en = Collections.enumeration(exs);
-
-                while (en.hasMoreElements()) {
-                    ArrayList<Pair<String, String>> e = (ArrayList<Pair<String, String>>) en.nextElement();
-                    Enumeration ex = Collections.enumeration(e);
-                    String stream = "";
-                    String notfound = "";
-                    while (ex.hasMoreElements()) {
-                        Pair<String, String> item = (Pair<String, String>) ex.nextElement();
-                        if (Tuple.get2(item).equalsIgnoreCase("stream")) {
-                            logger.error("ModStreamException: mod:" + Tuple.get1(item));
-                            stream += Tuple.get1(item);
-                            stream += ", ";
-                        }
-                        if (Tuple.get2(item).equalsIgnoreCase("notfound")) {
-                            logger.error("ModNotFoundException: mods:" + Tuple.get1(item));
-                            notfound += Tuple.get1(item);
-                            notfound += ", ";
-                        }
-
-                    }
-
-                    if (!stream.isEmpty()) {
-                        stream = stream.substring(0, stream.length() - 2);
-                        view.showMessage(L10n.getString("error.modstream").replace("#mod#", stream), L10n.getString("error.modstream.title"), JOptionPane.ERROR_MESSAGE);
-                    }
-
-                    if (!notfound.isEmpty()) {
-                        notfound = notfound.substring(0, notfound.length() - 2);
-                        view.showMessage(L10n.getString("error.modsnotfound").replace("#mod#", notfound), L10n.getString("error.modsnotfound.title"), JOptionPane.ERROR_MESSAGE);
-                    }
-
-                }
-            }
-
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            logger.error("IOException from loadMods()", ex);
-            view.showMessage(L10n.getString("error.loadmodfiles"), L10n.getString("error.loadmodfiles.title"), JOptionPane.ERROR_MESSAGE);
-        }
-        try {
-            controller.buildGraphs();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            logger.error("IOException from buildGraphs()", ex);
-        }
+        loadMods();
         loadLaf();
         /*try {
         controller.saveOptions();
@@ -219,6 +172,58 @@ public class ManagerCtrl implements Observer {
         int[] ints = (int[]) arg;
         view.getProgressBar().setValue(ints[0]);
         view.paint(view.getGraphics());
+    }
+
+    private void loadMods() {
+        try {
+            ArrayList<ArrayList<Pair<String, String>>> exs = controller.loadMods();
+            if (!exs.isEmpty()) {
+                Enumeration en = Collections.enumeration(exs);
+
+                while (en.hasMoreElements()) {
+                    ArrayList<Pair<String, String>> e = (ArrayList<Pair<String, String>>) en.nextElement();
+                    Enumeration ex = Collections.enumeration(e);
+                    String stream = "";
+                    String notfound = "";
+                    while (ex.hasMoreElements()) {
+                        Pair<String, String> item = (Pair<String, String>) ex.nextElement();
+                        if (Tuple.get2(item).equalsIgnoreCase("stream")) {
+                            logger.error("ModStreamException: mod:" + Tuple.get1(item));
+                            stream += Tuple.get1(item);
+                            stream += ", ";
+                        }
+                        if (Tuple.get2(item).equalsIgnoreCase("notfound")) {
+                            logger.error("ModNotFoundException: mods:" + Tuple.get1(item));
+                            notfound += Tuple.get1(item);
+                            notfound += ", ";
+                        }
+
+                    }
+
+                    if (!stream.isEmpty()) {
+                        stream = stream.substring(0, stream.length() - 2);
+                        view.showMessage(L10n.getString("error.modstream").replace("#mod#", stream), L10n.getString("error.modstream.title"), JOptionPane.ERROR_MESSAGE);
+                    }
+
+                    if (!notfound.isEmpty()) {
+                        notfound = notfound.substring(0, notfound.length() - 2);
+                        view.showMessage(L10n.getString("error.modsnotfound").replace("#mod#", notfound), L10n.getString("error.modsnotfound.title"), JOptionPane.ERROR_MESSAGE);
+                    }
+
+                }
+            }
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            logger.error("IOException from loadMods()", ex);
+            view.showMessage(L10n.getString("error.loadmodfiles"), L10n.getString("error.loadmodfiles.title"), JOptionPane.ERROR_MESSAGE);
+        }
+        try {
+            controller.buildGraphs();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            logger.error("IOException from buildGraphs()", ex);
+        }
     }
 
     /**
@@ -501,6 +506,7 @@ public class ManagerCtrl implements Observer {
             // TODO: Test
             try {
                 controller.applyMods();
+                view.updateModTable();
             } catch (Exception ex) {
                 logger.info("Exception: " + ex.getMessage());
                 ex.printStackTrace();
@@ -774,6 +780,7 @@ public class ManagerCtrl implements Observer {
             ManagerOptions.getInstance().setCLArgs(view.getCLArguments());
             ManagerOptions.getInstance().setLaf(view.getSelectedLafClass());
             ManagerOptions.getInstance().setLanguage(view.getSelectedLanguage());
+            ManagerOptions.getInstance().setModPath(view.getTextFieldModsFolder());
 
             try {
                 controller.saveOptions();
@@ -788,33 +795,10 @@ public class ManagerCtrl implements Observer {
                 e1.printStackTrace();
             }
 
-            /*// Save language choice
-            prefs = Preferences.userNodeForPackage(L10n.class);
-            String lang = view.getSelectedLanguage();
-            if (lang.equals(L10n.getDefaultLocale())) {
-            prefs.remove(model.PREFS_LOCALE);
-            } else {
-            prefs.put(model.PREFS_LOCALE, lang);
-            }
-            // Save HoN folder
-            // TODO: check that selected folder contains HoN
-            prefs = Preferences.userNodeForPackage(Manager.class);
-            prefs.put(model.PREFS_HONFOLDER, view.getSelectedHonFolder());
-            // Save CL arguments
-            if (view.getCLArguments().equals("")) {
-            prefs.remove(model.PREFS_CLARGUMENTS);
-            } else {
-            prefs.put(model.PREFS_CLARGUMENTS, view.getCLArguments());
-            }
-            // Save selected LaF
-            if (view.getSelectedLafClass().equals("default")) {
-            prefs.remove(model.PREFS_LAF);
-            } else {
-            prefs.put(model.PREFS_LAF, view.getSelectedLafClass());
-            }
-             */
             // Hide dialog
             view.getPrefsDialog().setVisible(false);
+            loadMods();
+            model.updateNotify();
         }
     }
 
@@ -845,6 +829,29 @@ public class ManagerCtrl implements Observer {
         }
     }
 
+    class ChooseFolderModsListener implements ActionListener {
+
+        public void actionPerformed(ActionEvent e) {
+            JFileChooser fc = new JFileChooser();
+            fc.setAcceptAllFileFilterUsed(false);
+            if (OS.isMac()) {
+                HoNFilter filter = new HoNFilter();
+                fc.setFileFilter(filter);
+                fc.setCurrentDirectory(new File("/Applications"));
+            } else {
+                fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            }
+
+
+            int returnVal = fc.showOpenDialog(view.getPrefsDialog());
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                File directory = fc.getSelectedFile();
+                view.setTextFieldModsFolder(directory.getPath());
+                logger.info("Mods folder selected: " + directory.getPath());
+            }
+        }
+    }
+
     /**
      * Listener for 'Cancel' button on preferences dialog
      */
@@ -864,7 +871,7 @@ public class ManagerCtrl implements Observer {
             try {
                 // Close the main window
                 controller.saveOptions();
-            } catch (IOException ex) {
+            } catch (Exception ex) {
                 logger.error("Unable to save options");
             }
             logger.info("Closing HonModManager...");

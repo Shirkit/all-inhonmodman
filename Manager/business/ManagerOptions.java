@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Observable;
 import java.util.Set;
-import java.util.logging.Level;
 
 
 import org.apache.log4j.Logger;
@@ -65,9 +64,13 @@ public class ManagerOptions extends Observable {
     @XStreamOmitField
     public static final String MANAGER_CHECK_UPDATE = "http://all-inhonmodman.svn.sourceforge.net/viewvc/all-inhonmodman/Manager/version.txt";
     @XStreamOmitField
+    public static final String MANAGER_UPDATER_URL = "http://all-inhonmodman.svn.sourceforge.net/viewvc/all-inhonmodman/Manager/Updater.jar";
+    @XStreamOmitField
+    public static final String MANAGER_DOWNLOAD_URL = "http://all-inhonmodman.svn.sourceforge.net/viewvc/all-inhonmodman/Manager/store/Manager.jar";
+    @XStreamOmitField
     public static final String HOMEPAGE = "http://sourceforge.net/projects/all-inhonmodman";
     @XStreamOmitField
-    public static final String VERSION = "0.2";
+    public static final String VERSION = "0.3";
     @XStreamOmitField
     public static final String PREFS_LOCALE = "locale";
     @XStreamOmitField
