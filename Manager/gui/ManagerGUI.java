@@ -454,6 +454,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         );
 
         progressBar.setStringPainted(true);
+        progressBar.setEnabled(false);
         progressBar.setName("progressBar"); // NOI18N
 
         javax.swing.GroupLayout panelModListLayout = new javax.swing.GroupLayout(panelModList);

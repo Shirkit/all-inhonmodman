@@ -211,9 +211,8 @@ public class ManagerCtrl  implements Observer {
 
     public void update(Observable o, Object arg) {
         int[] ints = (int[]) arg;
-        view.getProgressBar().setValue(50);
-        view.getProgressBar().repaint();
-        view.repaint();
+        view.getProgressBar().setValue(ints[0]);
+        view.paint(view.getGraphics());
     }
 
     /**
@@ -576,11 +575,13 @@ public class ManagerCtrl  implements Observer {
     class DownloadModUpdatesListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
+            view.getProgressBar().setVisible(true);
             ArrayList<Mod> toUpdate = new ArrayList<Mod>();
             Iterator<Mod> it = ManagerOptions.getInstance().getMods().iterator();
             while (it.hasNext()) {
                 toUpdate.add(it.next());
             }
+            view.getProgressBar().setMaximum(toUpdate.size());
             UpdateReturn things = controller.updateMod(toUpdate);
             it = things.getUpdatedModList().iterator();
             String message = "";
@@ -610,6 +611,7 @@ public class ManagerCtrl  implements Observer {
                 }
             }
             view.showMessage(message, "Title", JOptionPane.INFORMATION_MESSAGE);
+            view.getProgressBar().setVisible(false);
         }
     }
 
