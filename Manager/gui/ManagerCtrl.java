@@ -185,17 +185,19 @@ public class ManagerCtrl implements Observer {
     }
 
     public void update(Observable o, Object arg) {
-        int[] ints = (int[]) arg;
-        //view.getProgressBar().setValue(ints[0]);
-        //view.paint(view.getGraphics());
-        
-        
+        if (o.getClass().equals(Manager.class)) {
+            int[] ints = (int[]) arg;
+            view.getProgressBar().setValue(ints[0]);
+            view.paint(view.getGraphics());
+        }
+
+
         ArrayList<Integer> temp = new ArrayList<Integer>();
-        for (int i = 0 ; i < view.getModListTable().getColumnModel().getColumnCount(); i++) {
+        for (int i = 0; i < view.getModListTable().getColumnModel().getColumnCount(); i++) {
             temp.add(new Integer(view.getModListTable().getColumnModel().getColumn(i).getWidth()));
         }
         logger.error("Ctrl: TableEditListerner: " + temp.toString());
-        
+
     }
 
     private void loadMods() {
@@ -383,14 +385,14 @@ public class ManagerCtrl implements Observer {
     class TableEditListener implements TableModelListener {
 
         public void tableChanged(TableModelEvent e) {
-        	ArrayList<Integer> temp = new ArrayList<Integer>();
+            ArrayList<Integer> temp = new ArrayList<Integer>();
             /*
             for (int rr = 0; rr < view.getModListTable().getColumnModel().getColumnCount(); rr++) {
-            	view.getModListTable().getColumnModel().getColumn(rr).setWidth(view.getModListTable().getColumnModel().getColumn(rr).getWidth());
+            view.getModListTable().getColumnModel().getColumn(rr).setWidth(view.getModListTable().getColumnModel().getColumn(rr).getWidth());
             }
-            */
-            
-        	
+             */
+
+
             int row = e.getFirstRow();
             int column = e.getColumn();
             if ((row == -1) || (column == -1)) {
@@ -478,19 +480,19 @@ public class ManagerCtrl implements Observer {
                 }
 
             }
-            for (int i = 0 ; i < view.getModListTable().getColumnModel().getColumnCount(); i++) {
+            for (int i = 0; i < view.getModListTable().getColumnModel().getColumnCount(); i++) {
                 temp.add(new Integer(view.getModListTable().getColumnModel().getColumn(i).getWidth()));
             }
             logger.error("Ctrl: TableEditListerner: begin: " + temp.toString());
-            
-            
+
+
             // Again, save and restore ListSelectionListener
             view.tableRemoveListSelectionListener(lsl);
             model.updateNotify();
             view.tableAddListSelectionListener(lsl);
 
             temp.clear();
-            for (int i = 0 ; i < view.getModListTable().getColumnModel().getColumnCount(); i++) {
+            for (int i = 0; i < view.getModListTable().getColumnModel().getColumnCount(); i++) {
                 temp.add(new Integer(view.getModListTable().getColumnModel().getColumn(i).getWidth()));
             }
             logger.error("Ctrl: TableEditListerner: " + temp.toString());
@@ -884,7 +886,7 @@ public class ManagerCtrl implements Observer {
 
         public void columnMoved(TableColumnModelEvent e) {
             ArrayList<Integer> temp = new ArrayList<Integer>();
-            for (int i = 0 ; i < view.getModListTable().getColumnModel().getColumnCount(); i++) {
+            for (int i = 0; i < view.getModListTable().getColumnModel().getColumnCount(); i++) {
                 temp.add(new Integer(view.getModListTable().getColumnModel().getColumn(i).getWidth()));
             }
             ManagerOptions.getInstance().setColumnsWidth(temp);
@@ -893,7 +895,7 @@ public class ManagerCtrl implements Observer {
 
         public void columnMarginChanged(ChangeEvent e) {
             ArrayList<Integer> temp = new ArrayList<Integer>();
-            for (int i = 0 ; i < view.getModListTable().getColumnModel().getColumnCount(); i++) {
+            for (int i = 0; i < view.getModListTable().getColumnModel().getColumnCount(); i++) {
                 temp.add(new Integer(view.getModListTable().getColumnModel().getColumn(i).getWidth()));
             }
             ManagerOptions.getInstance().setColumnsWidth(temp);
@@ -905,15 +907,18 @@ public class ManagerCtrl implements Observer {
     }
 
     class ComponentEventListener implements ComponentListener {
+
         public void componentResized(ComponentEvent e) {
             ManagerOptions.getInstance().setGuiRectangle(view.getBounds());
             wantToSaveOptions();
         }
+
         public void componentMoved(ComponentEvent e) {
             ManagerOptions.getInstance().setGuiRectangle(view.getBounds());
             wantToSaveOptions();
 
         }
+
         public void componentShown(ComponentEvent e) {
         }
 
@@ -976,14 +981,14 @@ public class ManagerCtrl implements Observer {
     class ExitListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
-        	try {
-				Manager.getInstance().saveOptions();
-			} catch (IOException e1) {
-				logger.error("Unable to save options");
-				e1.printStackTrace();
-			}
+            try {
+                Manager.getInstance().saveOptions();
+            } catch (IOException e1) {
+                logger.error("Unable to save options");
+                e1.printStackTrace();
+            }
             logger.info("Closing HonModManager...");
-            //System.exit(0);
+            System.exit(0);
         }
     }
 }

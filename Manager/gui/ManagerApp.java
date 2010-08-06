@@ -53,7 +53,7 @@ public class ManagerApp extends SingleFrameApplication {
     protected void startup() {
     	// Checking java version
     	System.out.println(System.getProperty("java.version"));
-    	if (System.getProperty("java.version").startsWith("1.5")) {
+    	if (System.getProperty("java.version").startsWith("1.5") || System.getProperty("java.version").startsWith("1.4")) {
     		JOptionPane.showMessageDialog(null, "Please update your JRE environment to the latest version.","Error",JOptionPane.ERROR_MESSAGE);
     	}
     	
