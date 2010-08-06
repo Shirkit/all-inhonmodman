@@ -11,6 +11,7 @@ import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import java.awt.Rectangle;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
@@ -30,6 +31,14 @@ public class ManagerOptionsConverter implements Converter {
         writer.addAttribute("y", Integer.toString((int) opt.getGuiRectangle().getY()));
         writer.addAttribute("width", Integer.toString((int) opt.getGuiRectangle().getWidth()));
         writer.addAttribute("height", Integer.toString((int) opt.getGuiRectangle().getHeight()));
+        if (opt.getColumnsWidth() != null) {
+            Iterator<Integer> it = opt.getColumnsWidth().iterator();
+            int i = 0;
+            while (it.hasNext()) {
+                writer.addAttribute("columns-" + i, Integer.toString(it.next()));
+                i++;
+            }
+        }
 
         if (!(opt.getAppliedMods() == null)) {
             Iterator<Mod> it = opt.getAppliedMods().iterator();
@@ -76,6 +85,21 @@ public class ManagerOptionsConverter implements Converter {
             value.setGuiRectangle(new Rectangle(x, y, width, height));
         }
 
+        System.out.println("reading columns");
+        ArrayList<Integer> temp = new ArrayList<Integer>();
+        boolean working = true;
+        int i = 0;
+        while (working) {
+        System.out.println("reading!!!");
+            s = reader.getAttribute("columns-" + i);
+            i++;
+            if (s != null) {
+                temp.add(new Integer(s));
+            } else {
+                working = false;
+            }
+        }
+        value.setColumnsWidth(temp);
         return value;
     }
 

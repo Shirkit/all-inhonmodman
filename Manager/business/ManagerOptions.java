@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Observable;
 import java.util.Set;
+import javax.swing.table.TableColumnModel;
 
 
 import org.apache.log4j.Logger;
@@ -53,6 +54,8 @@ public class ManagerOptions extends Observable {
     private Set<Mod> applied;
     @XStreamAlias("gui")
     private Rectangle guiRectangle;
+    @XStreamAlias("columns")
+    private ArrayList<Integer> columnsWidth;
 
     // Hidden fields
     @XStreamOmitField
@@ -129,7 +132,14 @@ public class ManagerOptions extends Observable {
 
     public void setGuiRectangle(Rectangle guiRectangle) {
         this.guiRectangle = guiRectangle;
-        updateNotify();
+    }
+
+    public ArrayList<Integer> getColumnsWidth() {
+        return columnsWidth;
+    }
+
+    public void setColumnsWidth(ArrayList<Integer> columnsWidth) {
+        this.columnsWidth = columnsWidth;
     }
 
     public void loadOptions() throws FileNotFoundException, StreamException {

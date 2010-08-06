@@ -31,6 +31,7 @@ import java.awt.event.WindowEvent;
 import java.util.Date;
 import java.util.Iterator;
 import javax.swing.DefaultListModel;
+import javax.swing.JFrame;
 import javax.swing.JProgressBar;
 
 /**
@@ -119,6 +120,8 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                 System.exit(0);
             }
         });
+        getModListTable().getTableHeader().setReorderingAllowed(false);
+        getModListTable().setAutoCreateRowSorter(true);
     }
 
     /** This method is called from within the constructor to
@@ -221,7 +224,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
 
         textFieldCLArguments.setName("textFieldCLArguments"); // NOI18N
 
-        jLabel1.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
+        jLabel1.setFont(new java.awt.Font("Tahoma", 0, 10));
         jLabel1.setText(L10n.getString("prefs.label.languagechanges"));
         jLabel1.setName("jLabel1"); // NOI18N
 
@@ -313,12 +316,6 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         setMinimumSize(new java.awt.Dimension(700, 450));
         setName("Form"); // NOI18N
         addComponentListener(new java.awt.event.ComponentAdapter() {
-            public void componentMoved(java.awt.event.ComponentEvent evt) {
-                formComponentMoved(evt);
-            }
-            public void componentResized(java.awt.event.ComponentEvent evt) {
-                formComponentResized(evt);
-            }
             public void componentShown(java.awt.event.ComponentEvent evt) {
                 formComponentShown(evt);
             }
@@ -701,16 +698,6 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         this.setResizable(true);
     }//GEN-LAST:event_formComponentShown
 
-    private void formComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentResized
-        ManagerOptions.getInstance().setGuiRectangle(getBounds());
-        wantToSaveOptions();
-    }//GEN-LAST:event_formComponentResized
-
-    private void formComponentMoved(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentMoved
-        ManagerOptions.getInstance().setGuiRectangle(getBounds());
-        wantToSaveOptions();
-    }//GEN-LAST:event_formComponentMoved
-
     /**
      * Display specified message to the user using JOptionPane
      * @param message message to be displayed
@@ -1016,20 +1003,6 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     }
     private long date = 0;
 
-    private void wantToSaveOptions() {
-        Date d = new Date();
-        if (date == 0) {
-            date = d.getTime() + 1000;
-        }
-        if (date <= d.getTime()) {
-            try {
-                Manager.getInstance().saveOptions();
-                date = d.getTime() + 1000;
-            } catch (IOException ex) {
-                java.util.logging.Logger.getLogger(ManagerGUI.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-    }
 
     /**
      * Class of items in the Select LaF combo box on preferences dialog

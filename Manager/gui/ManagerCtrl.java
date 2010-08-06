@@ -1,7 +1,12 @@
 package gui;
 
+import java.awt.event.ComponentEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Observable;
-import java.util.logging.Level;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.TableColumnModelEvent;
+import javax.swing.event.TableColumnModelListener;
 import manager.Manager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -15,12 +20,11 @@ import org.apache.log4j.Logger;
 
 import com.mallardsoft.tuple.Pair;
 import com.mallardsoft.tuple.Tuple;
-import com.thoughtworks.xstream.io.StreamException;
 
 import gui.l10n.L10n;
 import business.ManagerOptions;
 import business.Mod;
-import java.awt.Rectangle;
+import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import utility.FileDrop;
@@ -34,16 +38,15 @@ import utility.exception.ModVersionMissmatchException;
 import utility.exception.ModVersionUnsatisfiedException;
 
 import java.io.IOException;
-import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Observer;
 import java.util.prefs.Preferences;
 import javax.swing.JOptionPane;
-import javax.swing.JProgressBar;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -51,6 +54,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 import utility.Game;
 import utility.update.UpdateReturn;
@@ -105,6 +109,8 @@ public class ManagerCtrl implements Observer {
         view.buttonUpdateModActionListener(new UpdateModListener());
         view.buttonModsFolderAddActionListener(new ChooseFolderModsListener());
         view.itemDownloadModUpdates(new DownloadModUpdatesListener());
+        view.getModListTable().getColumnModel().addColumnModelListener(new Columns2Listener());
+        view.addComponentListener(new ComponentEventListener());
         // Add file drop functionality
         new FileDrop(view, new DropListener());
 
@@ -131,6 +137,21 @@ public class ManagerCtrl implements Observer {
 
         if (model.getGuiRectangle() != null) {
             view.setBounds(model.getGuiRectangle());
+        }
+        if (model.getColumnsWidth() != null) {
+            if (model.getColumnsWidth().size() != view.getModListTable().getColumnModel().getColumnCount()) {
+                // If we change the interfaece, nothing else will need to done =]
+                model.setColumnsWidth(null);
+            } else {
+                int i = 0;
+                Iterator<Integer> it = model.getColumnsWidth().iterator();
+                while (it.hasNext()) {
+                    Integer integer = it.next();
+                    view.getModListTable().getColumnModel().getColumn(i).setWidth(integer);
+                    view.getModListTable().getColumnModel().getColumn(i).setPreferredWidth(integer);
+                    i++;
+                }
+            }
         }
 
         logger.info("ManagerCtrl started");
@@ -829,6 +850,53 @@ public class ManagerCtrl implements Observer {
         }
     }
 
+    class Columns2Listener implements TableColumnModelListener {
+
+        public void columnAdded(TableColumnModelEvent e) {
+        }
+
+        public void columnRemoved(TableColumnModelEvent e) {
+        }
+
+        public void columnMoved(TableColumnModelEvent e) {
+            ArrayList<Integer> temp = new ArrayList<Integer>();
+            for (int i = 0 ; i < view.getModListTable().getColumnModel().getColumnCount(); i++) {
+                temp.add(new Integer(view.getModListTable().getColumnModel().getColumn(i).getWidth()));
+            }
+            ManagerOptions.getInstance().setColumnsWidth(temp);
+            wantToSaveOptions();
+        }
+
+        public void columnMarginChanged(ChangeEvent e) {
+            ArrayList<Integer> temp = new ArrayList<Integer>();
+            for (int i = 0 ; i < view.getModListTable().getColumnModel().getColumnCount(); i++) {
+                temp.add(new Integer(view.getModListTable().getColumnModel().getColumn(i).getWidth()));
+            }
+            ManagerOptions.getInstance().setColumnsWidth(temp);
+            wantToSaveOptions();
+        }
+
+        public void columnSelectionChanged(ListSelectionEvent e) {
+        }
+    }
+
+    class ComponentEventListener implements ComponentListener {
+        public void componentResized(ComponentEvent e) {
+            ManagerOptions.getInstance().setGuiRectangle(view.getBounds());
+            wantToSaveOptions();
+        }
+        public void componentMoved(ComponentEvent e) {
+            ManagerOptions.getInstance().setGuiRectangle(view.getBounds());
+            wantToSaveOptions();
+
+        }
+        public void componentShown(ComponentEvent e) {
+        }
+
+        public void componentHidden(ComponentEvent e) {
+        }
+    }
+
     class ChooseFolderModsListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
@@ -848,6 +916,22 @@ public class ManagerCtrl implements Observer {
                 File directory = fc.getSelectedFile();
                 view.setTextFieldModsFolder(directory.getPath());
                 logger.info("Mods folder selected: " + directory.getPath());
+            }
+        }
+    }
+    long date;
+
+    private void wantToSaveOptions() {
+        Date d = new Date();
+        if (date == 0) {
+            date = d.getTime() + 1000;
+        }
+        if (date <= d.getTime()) {
+            try {
+                Manager.getInstance().saveOptions();
+                date = d.getTime() + 1000;
+            } catch (IOException ex) {
+                date = d.getTime() + 1000;
             }
         }
     }
