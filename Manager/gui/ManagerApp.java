@@ -51,7 +51,13 @@ public class ManagerApp extends SingleFrameApplication {
      */
     @Override
     protected void startup() {
-        // Initiate log4j logger
+    	// Checking java version
+    	System.out.println(System.getProperty("java.version"));
+    	if (System.getProperty("java.version").startsWith("1.5")) {
+    		JOptionPane.showMessageDialog(null, "Please update your JRE environment to the latest version.","Error",JOptionPane.ERROR_MESSAGE);
+    	}
+    	
+    	// Initiate log4j logger
         ClassLoader cl = this.getClass().getClassLoader();
         InputStream is = cl.getResourceAsStream(LOGGER_PROPS);
         Properties props = new Properties(); 
@@ -79,6 +85,7 @@ public class ManagerApp extends SingleFrameApplication {
         view.setTitle("HOLD A SECOND");
 
         view.setVisible(true);
+        view.setTitle(title);
 
         // show(new ManagerGUI());
 
@@ -87,7 +94,7 @@ public class ManagerApp extends SingleFrameApplication {
         while (!hasUpdate.isDone()) {
 
         }
-        view.setTitle(title);
+        
         try {
             if (hasUpdate.get().booleanValue()) {
                     //view.showMessage(L10n.getString("message.updateavaliabe"),L10n.getString("message.updateavaliabe.title"), JOptionPane.INFORMATION_MESSAGE);
