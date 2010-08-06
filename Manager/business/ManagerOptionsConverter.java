@@ -85,12 +85,10 @@ public class ManagerOptionsConverter implements Converter {
             value.setGuiRectangle(new Rectangle(x, y, width, height));
         }
 
-        System.out.println("reading columns");
         ArrayList<Integer> temp = new ArrayList<Integer>();
         boolean working = true;
         int i = 0;
         while (working) {
-        System.out.println("reading!!!");
             s = reader.getAttribute("columns-" + i);
             i++;
             if (s != null) {

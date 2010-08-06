@@ -550,7 +550,7 @@ public class ManagerCtrl implements Observer {
             // TODO: Test
             try {
                 controller.applyMods();
-                view.updateModTable();
+                //view.updateModTable();
             } catch (Exception ex) {
                 logger.info("Exception: " + ex.getMessage());
                 ex.printStackTrace();

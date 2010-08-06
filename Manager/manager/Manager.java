@@ -30,6 +30,7 @@ import java.util.StringTokenizer;
 import java.util.Random;
 
 import com.mallardsoft.tuple.*;
+import com.thoughtworks.xstream.converters.ConversionException;
 import com.thoughtworks.xstream.io.StreamException;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -273,6 +274,9 @@ public class Manager extends Observable {
                 logger.error("FileNotFoundException from loadMods(): file - " + files[i].getName() + " - is corrupted.", e);
                 notfound.addAll(e.getMods());
                 //ManagerCtrl.getGUI().showMessage(L10n.getString("error.loadmodfile").replace("#mod#", files[i].getName()), "error.loadmodfile.title", JOptionPane.ERROR_MESSAGE);
+            } catch (ConversionException e) {
+                e.printStackTrace();
+                logger.error("Conversion from loadMods(): file - " + files[i].getName() + " - is corrupted.", e);
             }
         }
         problems.add(stream);
@@ -1053,8 +1057,8 @@ public class Manager extends Observable {
                     } else {
 
                         // the selection is stored here
-                        int cursor = 0;
-                        int cursor2 = 0;
+                        int cursor[] = new int[1];
+                        int cursor2[] = new int[1];
 
                         // check if something is selected
                         boolean isSelected = false;
@@ -1082,32 +1086,36 @@ public class Manager extends Observable {
                             // Delete Action
                             if (editFileAction.getClass().equals(ActionEditFileDelete.class)) {
                                 if (isSelected) {
-                                    afterEdit = afterEdit.substring(0, cursor) + afterEdit.substring(cursor2);
-                                    isSelected = false;
+                                    for (int i = 0; i < cursor.length; i++) {
+                                        afterEdit = afterEdit.substring(0, cursor[i]) + afterEdit.substring(cursor2[i]);
+                                        cursor2[i] = cursor[i];
+                                        isSelected = false;
+                                    }
                                 } else {
                                     ActionEditFileDelete delete = (ActionEditFileDelete) editFileAction;
                                     throw new NothingSelectedModActionException(mod.getName(), mod.getVersion(), (Action) delete);
                                 }
-
                                 // Find Action
                             } else if (editFileAction.getClass().equals(ActionEditFileFind.class)) {
                                 ActionEditFileFind find = (ActionEditFileFind) editFileAction;
+                                cursor = new int[1];
+                                cursor2 = new int[1];
                                 if (find.getPosition() != null) {
                                     if (find.isPositionAtStart()) {
-                                        cursor = 0;
-                                        cursor2 = 0;
+                                        cursor[0] = 0;
+                                        cursor2[0] = 0;
                                         isSelected = true;
                                     } else if (find.isPositionAtEnd()) {
-                                        cursor = afterEdit.length();
-                                        cursor2 = cursor;
+                                        cursor[0] = afterEdit.length();
+                                        cursor2[0] = cursor[0];
                                         isSelected = true;
                                     } else {
                                         try {
-                                            cursor = Integer.parseInt(find.getPosition());
-                                            if (cursor < 0) {
-                                                cursor = afterEdit.length() - (cursor * (-1));
+                                            cursor[0] = Integer.parseInt(find.getPosition());
+                                            if (cursor[0] < 0) {
+                                                cursor[0] = afterEdit.length() - (cursor[0] * (-1));
                                             }
-                                            cursor2 = cursor;
+                                            cursor2[0] = cursor[0];
                                             isSelected = true;
                                         } catch (NumberFormatException e) {
                                             // it isn't a valid number or word, can't apply
@@ -1115,42 +1123,68 @@ public class Manager extends Observable {
                                         }
                                     }
                                 } else {
-                                    cursor = afterEdit.toLowerCase().trim().indexOf(find.getContent().toLowerCase().trim(), cursor);
-                                    if (cursor == -1) {
+                                    cursor[0] = afterEdit.toLowerCase().trim().indexOf(find.getContent().toLowerCase().trim(), cursor[0]);
+                                    if (cursor[0] == -1) {
                                         // couldn't find the string, can't apply
                                         logger.error("MAN: mod edit find: " + find.getContent());
-                                        System.err.println(afterEdit);
                                         throw new StringNotFoundModActionException(mod.getName(), mod.getVersion(), (Action) find, find.getContent());
                                     }
-                                    cursor2 = cursor + find.getContent().trim().length();
+                                    cursor2[0] = cursor[0] + find.getContent().trim().length();
                                     isSelected = true;
-                                    if (mod.getName().toLowerCase().contains("stash")) {
-                                        System.out.println(afterEdit.substring(cursor, cursor2));
-                                    }
                                 }
 
                                 // FindUp Action
                             } else if (editFileAction.getClass().equals(ActionEditFileFindUp.class)) {
                                 ActionEditFileFindUp findup = (ActionEditFileFindUp) editFileAction;
-                                cursor = afterEdit.trim().toLowerCase().lastIndexOf(findup.getContent().trim().toLowerCase(), cursor);
-                                if (cursor == -1) {
+                                cursor = new int[1];
+                                cursor2 = new int[1];
+                                cursor[0] = afterEdit.trim().toLowerCase().lastIndexOf(findup.getContent().trim().toLowerCase(), cursor[0]);
+                                if (cursor[0] == -1) {
                                     // couldn't find the string, can't apply
                                     throw new StringNotFoundModActionException(mod.getName(), mod.getVersion(), (Action) findup, findup.getContent());
                                 }
-                                cursor2 = cursor + findup.getContent().trim().length();
+                                cursor2[0] = cursor[0] + findup.getContent().trim().length();
                                 isSelected = true;
-
+                                // FindAll Action
+                            } else if (editFileAction.getClass().equals(ActionEditFileFindAll.class)) {
+                                ActionEditFileFindAll findall = (ActionEditFileFindAll) editFileAction;
+                                // Preparation
+                                ArrayList<Integer> firstPosition = new ArrayList<Integer>();
+                                ArrayList<Integer> lastPosition = new ArrayList<Integer>();
+                                int index = -1;
+                                int lastIndex = 0;
+                                while ((index = afterEdit.trim().toLowerCase().indexOf(findall.getContent().trim().toLowerCase(), lastIndex)) != -1) {
+                                    firstPosition.add(index);
+                                    lastPosition.add(index + findall.getContent().trim().length());
+                                    lastIndex = index + findall.getContent().trim().length();
+                                }
+                                if (firstPosition.isEmpty()) {
+                                    // no string was found, can't apply
+                                    throw new StringNotFoundModActionException(mod.getName(), mod.getVersion(), (Action) findall, findall.getContent());
+                                }
+                                // Insert into the array
+                                cursor = new int[firstPosition.size()];
+                                cursor2 = new int[firstPosition.size()];
+                                for (int i = 0; i < cursor.length; i++) {
+                                    cursor[i] = firstPosition.get(i);
+                                    cursor2[i] = lastPosition.get(i);
+                                }
+                                isSelected = true;
                                 // Insert Action
                             } else if (editFileAction.getClass().equals(ActionEditFileInsert.class)) {
                                 ActionEditFileInsert insert = (ActionEditFileInsert) editFileAction;
                                 if (isSelected) {
-                                    if (insert.isPositionAfter()) {
-                                        afterEdit = afterEdit.substring(0, cursor2) + insert.getContent() + afterEdit.substring(cursor2);
-                                    } else if (insert.isPositionBefore()) {
-                                        afterEdit = afterEdit.substring(0, cursor) + insert.getContent() + afterEdit.substring(cursor);
-                                    } else {
-                                        // position is invalid, can't apply
-                                        throw new InvalidModActionParameterException(mod.getName(), mod.getVersion(), (Action) insert);
+                                    for (int i = 0; i < cursor.length; i++) {
+                                        if (insert.isPositionAfter()) {
+                                            afterEdit = afterEdit.substring(0, cursor2[i]) + insert.getContent() + afterEdit.substring(cursor2[i]);
+                                        } else if (insert.isPositionBefore()) {
+                                            afterEdit = afterEdit.substring(0, cursor[i]) + insert.getContent() + afterEdit.substring(cursor[i]);
+                                            cursor[i] = cursor2[i];
+                                            cursor2[i] = cursor[i] + insert.getContent().trim().length();
+                                        } else {
+                                            // position is invalid, can't apply
+                                            throw new InvalidModActionParameterException(mod.getName(), mod.getVersion(), (Action) insert);
+                                        }
                                     }
                                 } else {
                                     // the guy didn't select anything yet, can't apply
@@ -1161,8 +1195,9 @@ public class Manager extends Observable {
                             } else if (editFileAction.getClass().equals(ActionEditFileReplace.class)) {
                                 ActionEditFileReplace replace = (ActionEditFileReplace) editFileAction;
                                 if (isSelected) {
-                                    //afterEdit = afterEdit.replace(afterEdit.substring(cursor, cursor2), replace.getContent());
-                                    afterEdit = afterEdit.substring(0, cursor) + replace.getContent() + afterEdit.substring(cursor2);
+                                    for (int i = 0; i < cursor.length; i++) {
+                                        afterEdit = afterEdit.substring(0, cursor[i]) + replace.getContent() + afterEdit.substring(cursor2[i]);
+                                    }
                                     isSelected = false;
                                 } else {
                                     throw new NothingSelectedModActionException(mod.getName(), mod.getVersion(), (Action) replace);

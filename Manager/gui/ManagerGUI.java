@@ -1,7 +1,9 @@
 package gui;
 
+import java.util.List;
 import javax.swing.JOptionPane;
 import gui.l10n.L10n;
+import javax.swing.RowSorter.SortKey;
 import manager.Manager;
 import business.ManagerOptions;
 import business.Mod;
@@ -28,6 +30,9 @@ import java.awt.event.WindowEvent;
 import java.util.Iterator;
 import javax.swing.DefaultListModel;
 import javax.swing.JProgressBar;
+import javax.swing.RowSorter;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 /**
  * Main form of the ModManager. This class is the 'view' part of the MVC framework
@@ -37,7 +42,7 @@ import javax.swing.JProgressBar;
 public class ManagerGUI extends javax.swing.JFrame implements Observer {
     // Model for this View (part of MVC pattern)
 
-	private static ManagerGUI instance = null;
+    private static ManagerGUI instance = null;
     private Manager controller;
     private ManagerOptions model;
     private static Logger logger = Logger.getLogger(ManagerGUI.class.getPackage().getName());
@@ -116,10 +121,12 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                 System.exit(0);
             }
         });
+        // Disallow changing columns order and allow sorting
         getModListTable().getTableHeader().setReorderingAllowed(false);
         getModListTable().setAutoCreateRowSorter(true);
+        getModListTable().getRowSorter().toggleSortOrder(1);
     }
-    
+
     /**
      * This method is used to get the running instance of the ManagerGUI class.
      * @return the instance.
@@ -752,6 +759,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
      * @param mods list of mods to display
      */
     public void updateModTable() {
+        Object o = tableModList.getRowSorter().getSortKeys();
         ArrayList<Mod> mods = ManagerOptions.getInstance().getMods();
         // Save current selected row
         int selectedRow = tableModList.getSelectedRow();
@@ -762,7 +770,8 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         // Display all mods
         logger.error("UPDATE: " + mods.size());
         for (int i = 0; i < mods.size(); i++) {
-            this.tableData[i] = new Object[5];
+            // new space for mod
+            this.tableData[i] = new Object[6];
             if (ManagerOptions.getInstance().getAppliedMods().contains(mods.get(i))) {
                 mods.get(i).enable();
             }
@@ -770,6 +779,8 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
             this.tableData[i][1] = (String) mods.get(i).getName();
             this.tableData[i][2] = (String) mods.get(i).getAuthor();
             this.tableData[i][3] = (String) mods.get(i).getVersion();
+            // Storing mod into the data for sorting
+            this.tableData[i][5] = (Mod) mods.get(i);
             if (mods.get(i).isEnabled()) {
                 if (ManagerOptions.getInstance().getAppliedMods().contains(mods.get(i))) {
                     this.tableData[i][4] = (String) L10n.getString("table.modstatus.applied");
@@ -783,17 +794,19 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         // Update table model
         DefaultTableModel dtm = (DefaultTableModel) tableModList.getModel();
         dtm.setDataVector(this.tableData, this.columnNames);
-        
+        // Restore the sort
+        tableModList.getRowSorter().setSortKeys((List<? extends SortKey>) o);
+
         ArrayList<Integer> temp = new ArrayList<Integer>();
         for (int i = 0 ; i < ManagerOptions.getInstance().getColumnsWidth().size(); i++) {
             temp.add(new Integer(ManagerOptions.getInstance().getColumnsWidth().get(i)));
         }
         logger.error("GUI: TableEditListerner: from ManagerOptions " + temp.toString());
-        
+
         if (model.getColumnsWidth() != null) {
             if (model.getColumnsWidth().size() != tableModList.getColumnModel().getColumnCount()) {
                 // If we change the interface, nothing else will need to done =]
-            	logger.error("NOT MATCH!!");
+                logger.error("NOT MATCH!!");
                 model.setColumnsWidth(null);
             } else {
                 int i = 0;
@@ -806,7 +819,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                 }
             }
         }
-        
+
         // Restore selected row
         tableModList.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         tableModList.getSelectionModel().setSelectionInterval(0, selectedRow);
@@ -830,12 +843,25 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
      * Display details of the selected mod in the right panel
      */
     public void displayModDetail() {
+        // Update for the sorting (this is really overhead)
+        for (int i = 0; i < tableModList.getRowCount(); i++) {
+            String modName = (String) getModListTable().getValueAt(i, 1);
+            for (int k = 0; k < tableData.length; k++) {
+                if (((String) tableData[k][1]).equals(modName)) {
+                    Object[] o = tableData[k];
+                    tableData[k] = tableData[i];
+                    tableData[i] = (Object[]) o;
+                }
+            }
+        }
         // Make sure that items in the panel are visible
         setDetailsVisible(true);
         Mod mod = null;
         int selectedRow = tableModList.getSelectedRow();
         try {
-            mod = Manager.getInstance().getMod(selectedRow);
+            // Older way
+            //mod = Manager.getInstance().getMod(selectedRow);
+            mod = (Mod) tableData[selectedRow][5];
         } catch (IndexOutOfBoundsException e) {
             if (selectedRow != -1) {
                 logger.error("Cannot display mod at index " + selectedRow);
@@ -1034,7 +1060,6 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         return textFieldCLArguments.getText();
     }
     private long date = 0;
-
 
     /**
      * Class of items in the Select LaF combo box on preferences dialog

@@ -169,6 +169,7 @@ public class XML {
         xstream.processAnnotations(ActionEditFile.class);
         xstream.processAnnotations(ActionEditFileDelete.class);
         xstream.processAnnotations(ActionEditFileFind.class);
+        xstream.processAnnotations(ActionEditFileFindAll.class);
         xstream.processAnnotations(ActionEditFileFindUp.class);
         xstream.processAnnotations(ActionEditFileInsert.class);
         xstream.processAnnotations(ActionEditFileReplace.class);
