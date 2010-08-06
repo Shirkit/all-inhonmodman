@@ -34,7 +34,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
 /**
- * This is just a copy of the Updater class.
+ * This is just a copy of the Updater class. You must call it with the 2 string arguments: [1] = Path to the current Manager Jar. [2] = URL to download the new manager.
  * @author Shirkit
  */
 public class Updater {
@@ -43,11 +43,13 @@ public class Updater {
     public static void main(String[] args) throws FileNotFoundException,InvalidParameterException, MalformedURLException, IOException {
         Dialog dialog = new Dialog();
         // Validation
-        if (args.length >= 1) {
+        if (args.length <= 1) {
+            dialog.updateLabel("No argument");
             throw new InvalidParameterException("No argument");
         }
         File managerJar = new File(args[0]);
         if (!managerJar.exists()) {
+            dialog.updateLabel("File not found");
             throw new FileNotFoundException(args[0]);
         }
 

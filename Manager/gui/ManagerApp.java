@@ -3,6 +3,8 @@
  */
 package gui;
 
+import business.ManagerOptions;
+import java.net.URISyntaxException;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.zip.ZipException;
@@ -24,11 +26,14 @@ import java.awt.Desktop;
 import java.io.ByteArrayInputStream;
 import java.io.Console;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.RandomAccessFile;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.jar.JarInputStream;
+import java.util.zip.ZipEntry;
 import utility.ZIP;
 import utility.update.UpdateManager;
 
@@ -37,11 +42,11 @@ import utility.update.UpdateManager;
  * The main class of the application.
  */
 public class ManagerApp extends SingleFrameApplication {
+
     Logger logger;
     Manager controller;      // Model
     ManagerGUI view;    // View
     ManagerCtrl ctrl;   // Controller
-
     // File with log4j configuration
     private static final String LOGGER_PROPS = "utility/log4j.properties";
 
@@ -51,20 +56,20 @@ public class ManagerApp extends SingleFrameApplication {
      */
     @Override
     protected void startup() {
-    	// Checking java version
-    	System.out.println(System.getProperty("java.version"));
-    	if (System.getProperty("java.version").startsWith("1.5") || System.getProperty("java.version").startsWith("1.4")) {
-    		JOptionPane.showMessageDialog(null, "Please update your JRE environment to the latest version.","Error",JOptionPane.ERROR_MESSAGE);
-    	}
-    	
-    	// Initiate log4j logger
+        // Checking java version
+        System.out.println(System.getProperty("java.version"));
+        if (System.getProperty("java.version").startsWith("1.5") || System.getProperty("java.version").startsWith("1.4")) {
+            JOptionPane.showMessageDialog(null, "Please update your JRE environment to the latest version.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+
+        // Initiate log4j logger
         ClassLoader cl = this.getClass().getClassLoader();
         InputStream is = cl.getResourceAsStream(LOGGER_PROPS);
-        Properties props = new Properties(); 
+        Properties props = new Properties();
         try {
             props.load(is);
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(null, "Cannot initialize logging system","Error",JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Cannot initialize logging system", "Error", JOptionPane.ERROR_MESSAGE);
         }
         PropertyConfigurator.configure(props);
         // Load l10n
@@ -75,7 +80,7 @@ public class ManagerApp extends SingleFrameApplication {
         }
         logger = Logger.getLogger(this.getClass().getPackage().getName());
         logger.info("HonMod manager is starting up...");
-        
+
 
         // Create the MVC framework
         controller = Manager.getInstance();
@@ -92,30 +97,40 @@ public class ManagerApp extends SingleFrameApplication {
         ExecutorService pool = Executors.newCachedThreadPool();
         Future<Boolean> hasUpdate = pool.submit(new UpdateManager());
         while (!hasUpdate.isDone()) {
-
         }
-        
+
         try {
             if (hasUpdate.get().booleanValue()) {
-                    //view.showMessage(L10n.getString("message.updateavaliabe"),L10n.getString("message.updateavaliabe.title"), JOptionPane.INFORMATION_MESSAGE);
-                    view.showMessage("This will work tomorrow",L10n.getString("message.updateavaliabe.title"), JOptionPane.INFORMATION_MESSAGE);
-                /*try {
-                    ByteArrayInputStream bais = new ByteArrayInputStream(ZIP.getFile(new File(ManagerApp.class.getProtectionDomain().getCodeSource().getLocation().getPath()), "updater"));
-                    File updater = new File(new File(".").getAbsolutePath() + File.separator + "Updater.jar");
-                    FileOutputStream fos = new FileOutputStream(updater);
-                    ZIP.copyInputStream(bais, fos);
-                    bais.close();
+                //view.showMessage(L10n.getString("message.updateavaliabe"),L10n.getString("message.updateavaliabe.title"), JOptionPane.INFORMATION_MESSAGE);
+                //view.showMessage("This will work tomorrow",L10n.getString("message.updateavaliabe.title"), JOptionPane.INFORMATION_MESSAGE);
+                try {
+                    InputStream in = getClass().getResourceAsStream("/Updater");
+                    FileOutputStream fos = new FileOutputStream(ManagerOptions.MANAGER_FOLDER + File.separator + "Updater.jar");
+                    ZIP.copyInputStream(in, fos);
+                    in.close();
                     fos.flush();
                     fos.close();
+                    String currentJar = "";
+                    try {
+                        currentJar = (ManagerApp.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
+                        currentJar = currentJar.replaceFirst("/", "");
+                    } catch (URISyntaxException ex) {
+                        java.util.logging.Logger.getLogger(ManagerApp.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    String updaterPath = System.getProperty("user.dir") + File.separator + "Updater.jar";
+                    Process updater = Runtime.getRuntime().exec("java -jar " + updaterPath + " " + currentJar + " " + ManagerOptions.MANAGER_DOWNLOAD_URL);
+                    System.out.println("java -jar " + updaterPath + " " + currentJar + " " + ManagerOptions.MANAGER_DOWNLOAD_URL);
                     System.exit(0);
-                } catch (FileNotFoundException ex) {
-                    java.util.logging.Logger.getLogger(ManagerApp.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (ZipException ex) {
-                    java.util.logging.Logger.getLogger(ManagerApp.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (IOException ex) {
                     java.util.logging.Logger.getLogger(ManagerApp.class.getName()).log(Level.SEVERE, null, ex);
-                }*/
+                }
+
             } else {
+                File f = new File(System.getProperty("user.dir") + File.separator + "Updater.jar");
+                if (f.exists()) {
+                    f.delete();
+                    f.deleteOnExit();
+                }
             }
         } catch (InterruptedException ex) {
             // Job is never stopped
@@ -133,12 +148,12 @@ public class ManagerApp extends SingleFrameApplication {
     @Override
     protected void configureWindow(java.awt.Window root) {
     }
-    
+
     @Override
     protected void shutdown() {
-    	super.shutdown();
-    	
-    	logger.error("Shutting down!!");
+        super.shutdown();
+
+        logger.error("Shutting down!!");
     }
 
     /**
