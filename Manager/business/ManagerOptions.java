@@ -20,9 +20,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Observable;
-import java.util.Observer;
 import java.util.Set;
-import javax.swing.table.TableColumnModel;
 
 
 import org.apache.log4j.Logger;

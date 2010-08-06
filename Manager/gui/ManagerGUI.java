@@ -1,10 +1,7 @@
 package gui;
 
-import java.io.IOException;
-import java.util.logging.Level;
 import javax.swing.JOptionPane;
 import gui.l10n.L10n;
-import javax.swing.JTextField;
 import manager.Manager;
 import business.ManagerOptions;
 import business.Mod;
@@ -21,7 +18,6 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelListener;
-import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.DefaultTableModel;
 import org.apache.log4j.Logger;
 import javax.swing.UIManager;
@@ -29,10 +25,8 @@ import business.actions.Action;
 import business.actions.ActionRequirement;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.Date;
 import java.util.Iterator;
 import javax.swing.DefaultListModel;
-import javax.swing.JFrame;
 import javax.swing.JProgressBar;
 
 /**

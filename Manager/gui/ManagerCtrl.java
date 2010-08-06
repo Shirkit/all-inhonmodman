@@ -1,8 +1,6 @@
 package gui;
 
 import java.awt.event.ComponentEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.Observable;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.TableColumnModelEvent;
@@ -54,7 +52,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 import utility.Game;
 import utility.update.UpdateReturn;

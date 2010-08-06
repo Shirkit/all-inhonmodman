@@ -7,7 +7,6 @@ import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.StreamException;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 import com.thoughtworks.xstream.mapper.CannotResolveClassException;
-import java.awt.Rectangle;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;

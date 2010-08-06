@@ -2,7 +2,6 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package utility.update.updater;
 
 import java.awt.BorderLayout;
@@ -17,7 +16,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.security.InvalidParameterException;
@@ -38,46 +36,56 @@ import javax.swing.JProgressBar;
  * @author Shirkit
  */
 public class Updater {
+
     public static final String versionFilePath = "version.txt";
 
-    public static void main(String[] args) throws FileNotFoundException,InvalidParameterException, MalformedURLException, IOException {
+    public static void main(String[] args) {
         Dialog dialog = new Dialog();
-        // Validation
-        if (args.length <= 1) {
-            dialog.updateLabel("No argument");
-            throw new InvalidParameterException("No argument");
-        }
-        File managerJar = new File(args[0]);
-        if (!managerJar.exists()) {
-            dialog.updateLabel("File not found");
-            throw new FileNotFoundException(args[0]);
-        }
+        try {
+            // Validation
+            if (args.length <= 1) {
+                throw new InvalidParameterException("No argument");
+            }
+            File managerJar = new File(args[0]);
+            if (!managerJar.exists()) {
+                throw new FileNotFoundException(args[0]);
+            }
 
-        // Connection
-        URL url = new URL(args[1]);
-        dialog.updateLabel("Connecting");
-        URLConnection connector = url.openConnection();
-        dialog.progressBar.setMaximum(connector.getContentLength());
-        // Download the file into a temp file
-        dialog.updateLabel("Preparing");
-        File output = new File(managerJar.getParent() + File.separator + "Manager.temp");
-        InputStream in = connector.getInputStream();
-        OutputStream out = new FileOutputStream(output);
-        dialog.updateLabel("Downloading");
-        copyInputStream(in, out, dialog.progressBar);
-        in.close();
-        out.flush();
-        out.close();
-        dialog.updateLabel("Finishing");
-        // Find version
-        String version = new String(getFile(output, versionFilePath));
-        // Rename file
-        File finalOutput = new File(output.getParent() + File.separator + "All-In Hon ModManager alpha v" + version + ".jar");
-        output.renameTo(finalOutput);
-        // Delete older version
-        managerJar.delete();
-        managerJar.deleteOnExit();
-
+            // Connection
+            URL url = new URL(args[1]);
+            dialog.updateLabel("Connecting");
+            URLConnection connector = url.openConnection();
+            dialog.progressBar.setMaximum(connector.getContentLength());
+            // Download the file into a temp file
+            dialog.updateLabel("Preparing");
+            File output = new File(managerJar.getParent() + File.separator + "Manager.temp");
+            InputStream in = connector.getInputStream();
+            OutputStream out = new FileOutputStream(output);
+            dialog.updateLabel("Downloading");
+            copyInputStream(in, out, dialog.progressBar);
+            in.close();
+            out.flush();
+            out.close();
+            dialog.updateLabel("Finishing");
+            // Find version
+            String version = new String(getFile(output, versionFilePath));
+            // Rename file
+            File finalOutput = new File(output.getParent() + File.separator + "All-In Hon ModManager alpha v" + version + ".jar");
+            output.renameTo(finalOutput);
+            // Delete older version
+            managerJar.delete();
+            managerJar.deleteOnExit();
+            System.exit(0);
+        } catch (Exception e) {
+            dialog.updateLabel("Closing...");
+            JOptionPane.showMessageDialog(null, "Failed to update manager\n\n" + e.toString());
+            long t0, t1;
+            t0 = System.currentTimeMillis();
+            do {
+                t1 = System.currentTimeMillis();
+            } while ((t1 - t0) < (1 * 1000));
+            System.exit(0);
+        }
     }
 
     public static byte[] getFile(File zip, String filename) throws FileNotFoundException, ZipException, IOException {
@@ -117,6 +125,7 @@ public class Updater {
     }
 
     public static class Dialog {
+
         JProgressBar progressBar;
         JButton cancel;
         JLabel label;
@@ -126,7 +135,7 @@ public class Updater {
             frame = new JFrame("All-In Hon ModManager Updater");
             // Try to center on screen
             Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-            frame.setBounds(((int) dim.getWidth()/100)*45,((int)dim.getHeight()/10)*4,200,200);
+            frame.setBounds(((int) dim.getWidth() / 100) * 45, ((int) dim.getHeight() / 10) * 4, 200, 200);
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             // Init values
             cancel = new JButton("Cancel");
@@ -135,9 +144,9 @@ public class Updater {
             label = new JLabel("Starting");
             cancel.addActionListener(new ButtonListener());
             JPanel panel = new JPanel(new BorderLayout());
-            panel.add(progressBar,BorderLayout.CENTER);
-            panel.add(label,BorderLayout.NORTH);
-            panel.add(cancel,BorderLayout.SOUTH);
+            panel.add(progressBar, BorderLayout.CENTER);
+            panel.add(label, BorderLayout.NORTH);
+            panel.add(cancel, BorderLayout.SOUTH);
             panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
             frame.setContentPane(panel);
             frame.pack();
@@ -146,16 +155,17 @@ public class Updater {
 
         public void updateLabel(String text) {
             label.setText(text);
+            frame.paint(frame.getGraphics());
         }
     }
 
     public static class ButtonListener implements ActionListener {
+
         public void actionPerformed(ActionEvent e) {
             int i = JOptionPane.showConfirmDialog(null, "Do you really want to cancel?", "Confirmation", JOptionPane.YES_NO_OPTION);
             if (i == 0) {
                 System.exit(0);
             }
         }
-
     }
 }

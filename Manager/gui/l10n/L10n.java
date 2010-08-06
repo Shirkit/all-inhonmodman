@@ -9,7 +9,6 @@ import java.util.prefs.Preferences;
 import org.apache.log4j.Logger;
 
 import business.ManagerOptions;
-import manager.Manager;
 
 /**
  * Takes care of HonModMan localization.

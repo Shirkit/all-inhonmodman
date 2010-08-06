@@ -3,16 +3,11 @@
  */
 package gui;
 
-import business.ManagerOptions;
-import java.net.URISyntaxException;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
-import java.util.zip.ZipException;
 import manager.Manager;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.EventObject;
 import java.util.Properties;
 import javax.swing.JOptionPane;
 import org.jdesktop.application.Application;
@@ -21,20 +16,9 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import gui.l10n.L10n;
 
-import java.awt.Component;
-import java.awt.Desktop;
-import java.io.ByteArrayInputStream;
-import java.io.Console;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.RandomAccessFile;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.jar.JarInputStream;
-import java.util.zip.ZipEntry;
-import utility.ZIP;
 import utility.update.UpdateManager;
 
 /**
@@ -101,8 +85,8 @@ public class ManagerApp extends SingleFrameApplication {
 
         try {
             if (hasUpdate.get().booleanValue()) {
-                //view.showMessage(L10n.getString("message.updateavaliabe"),L10n.getString("message.updateavaliabe.title"), JOptionPane.INFORMATION_MESSAGE);
-                //view.showMessage("This will work tomorrow",L10n.getString("message.updateavaliabe.title"), JOptionPane.INFORMATION_MESSAGE);
+                view.showMessage(L10n.getString("message.updateavaliabe"),L10n.getString("message.updateavaliabe.title"), JOptionPane.INFORMATION_MESSAGE);
+                /* Disabled until find a nice way to organize this
                 try {
                     InputStream in = getClass().getResourceAsStream("/Updater");
                     FileOutputStream fos = new FileOutputStream(ManagerOptions.MANAGER_FOLDER + File.separator + "Updater.jar");
@@ -130,7 +114,7 @@ public class ManagerApp extends SingleFrameApplication {
                 if (f.exists()) {
                     f.delete();
                     f.deleteOnExit();
-                }
+                }*/
             }
         } catch (InterruptedException ex) {
             // Job is never stopped
