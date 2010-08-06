@@ -10,6 +10,7 @@ import manager.Manager;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.EventObject;
 import java.util.Properties;
 import javax.swing.JOptionPane;
 import org.jdesktop.application.Application;
@@ -17,6 +18,8 @@ import org.jdesktop.application.SingleFrameApplication;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import gui.l10n.L10n;
+
+import java.awt.Component;
 import java.awt.Desktop;
 import java.io.ByteArrayInputStream;
 import java.io.Console;
@@ -66,11 +69,12 @@ public class ManagerApp extends SingleFrameApplication {
         }
         logger = Logger.getLogger(this.getClass().getPackage().getName());
         logger.info("HonMod manager is starting up...");
+        
 
         // Create the MVC framework
         controller = Manager.getInstance();
-        view = new ManagerGUI(controller);
-        ctrl = new ManagerCtrl(controller, view);
+        view = ManagerGUI.getInstance();
+        ctrl = new ManagerCtrl();
         String title = view.getTitle();
         view.setTitle("HOLD A SECOND");
 
@@ -121,6 +125,13 @@ public class ManagerApp extends SingleFrameApplication {
      */
     @Override
     protected void configureWindow(java.awt.Window root) {
+    }
+    
+    @Override
+    protected void shutdown() {
+    	super.shutdown();
+    	
+    	logger.error("Shutting down!!");
     }
 
     /**

@@ -21,6 +21,7 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelListener;
+import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.DefaultTableModel;
 import org.apache.log4j.Logger;
 import javax.swing.UIManager;
@@ -42,6 +43,7 @@ import javax.swing.JProgressBar;
 public class ManagerGUI extends javax.swing.JFrame implements Observer {
     // Model for this View (part of MVC pattern)
 
+	private static ManagerGUI instance = null;
     private Manager controller;
     private ManagerOptions model;
     private static Logger logger = Logger.getLogger(ManagerGUI.class.getPackage().getName());
@@ -60,11 +62,11 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
      * Creates the main form
      * @param model model patr of the MVC framework
      */
-    public ManagerGUI(Manager controller) {
+    public ManagerGUI() {
         logger.info("Initializing gui");
         ManagerOptions.getInstance().setGuiRectangle(getBounds());
         this.model = ManagerOptions.getInstance();
-        this.controller = controller;
+        this.controller = Manager.getInstance();
         ManagerOptions.getInstance().addObserver(this);
         // Set Look and feel (based on preferences)
         prefs = Preferences.userNodeForPackage(Manager.class);
@@ -122,6 +124,18 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         });
         getModListTable().getTableHeader().setReorderingAllowed(false);
         getModListTable().setAutoCreateRowSorter(true);
+    }
+    
+    /**
+     * This method is used to get the running instance of the ManagerGUI class.
+     * @return the instance.
+     * @see get()
+     */
+    public static ManagerGUI getInstance() {
+        if (instance == null) {
+            instance = new ManagerGUI();
+        }
+        return instance;
     }
 
     /** This method is called from within the constructor to
@@ -775,6 +789,30 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         // Update table model
         DefaultTableModel dtm = (DefaultTableModel) tableModList.getModel();
         dtm.setDataVector(this.tableData, this.columnNames);
+        
+        ArrayList<Integer> temp = new ArrayList<Integer>();
+        for (int i = 0 ; i < ManagerOptions.getInstance().getColumnsWidth().size(); i++) {
+            temp.add(new Integer(ManagerOptions.getInstance().getColumnsWidth().get(i)));
+        }
+        logger.error("GUI: TableEditListerner: from ManagerOptions " + temp.toString());
+        
+        if (model.getColumnsWidth() != null) {
+            if (model.getColumnsWidth().size() != tableModList.getColumnModel().getColumnCount()) {
+                // If we change the interface, nothing else will need to done =]
+            	logger.error("NOT MATCH!!");
+                model.setColumnsWidth(null);
+            } else {
+                int i = 0;
+                Iterator<Integer> it = ManagerOptions.getInstance().getColumnsWidth().iterator();
+                while (it.hasNext()) {
+                    Integer integer = it.next();
+                    tableModList.getColumnModel().getColumn(i).setWidth(integer);
+                    tableModList.getColumnModel().getColumn(i).setPreferredWidth(integer);
+                    i++;
+                }
+            }
+        }
+        
         // Restore selected row
         tableModList.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         tableModList.getSelectionModel().setSelectionInterval(0, selectedRow);

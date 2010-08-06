@@ -10,6 +10,9 @@ import com.thoughtworks.xstream.annotations.XStreamConverter;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import com.thoughtworks.xstream.io.StreamException;
+
+import gui.ManagerCtrl;
+
 import java.awt.Rectangle;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -17,6 +20,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Observable;
+import java.util.Observer;
 import java.util.Set;
 import javax.swing.table.TableColumnModel;
 
@@ -88,6 +92,8 @@ public class ManagerOptions extends Observable {
     private static Manager controller;
     @XStreamOmitField
     Logger logger;
+    @XStreamOmitField
+    private static ManagerCtrl guicontroller;
 
     private ManagerOptions() {
         MODS_FOLDER = "";
@@ -99,7 +105,9 @@ public class ManagerOptions extends Observable {
         mods = new ArrayList<Mod>();
         controller = Manager.getInstance();
         logger = Logger.getLogger(this.getClass().getPackage().getName());
+        
     }
+    
 
     public static ManagerOptions getInstance() {
         if (instance == null) {
@@ -162,6 +170,12 @@ public class ManagerOptions extends Observable {
         }
         if (temp.getModPath() != null) {
             instance.setModPath(temp.getModPath());
+        }
+        if (temp.getGuiRectangle() != null) {
+            instance.setGuiRectangle(temp.getGuiRectangle());
+        }
+        if (temp.getColumnsWidth() != null) {
+            instance.setColumnsWidth(temp.getColumnsWidth());
         }
     }
 

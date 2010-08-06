@@ -82,11 +82,12 @@ public class ManagerCtrl implements Observer {
      * @param model model of the MVC framework
      * @param view view of the MVC framework
      */
-    public ManagerCtrl(Manager controller, ManagerGUI view) {
+    public ManagerCtrl() {
         this.model = ManagerOptions.getInstance();
         this.controller = Manager.getInstance();
-        this.view = view;
+        this.view = ManagerGUI.getInstance();
         this.controller.addObserver(this);
+        this.model.addObserver(this);
 
 
         // Add listeners to view components
@@ -124,12 +125,6 @@ public class ManagerCtrl implements Observer {
         }
         loadMods();
         loadLaf();
-        /*try {
-        controller.saveOptions();
-        } catch (Exception ex) {
-        ex.printStackTrace();
-        logger.error("Unable to saveOptions()", ex);
-        }*/
 
         view.tableRemoveListSelectionListener(lsl);
         model.updateNotify();
@@ -191,8 +186,16 @@ public class ManagerCtrl implements Observer {
 
     public void update(Observable o, Object arg) {
         int[] ints = (int[]) arg;
-        view.getProgressBar().setValue(ints[0]);
-        view.paint(view.getGraphics());
+        //view.getProgressBar().setValue(ints[0]);
+        //view.paint(view.getGraphics());
+        
+        
+        ArrayList<Integer> temp = new ArrayList<Integer>();
+        for (int i = 0 ; i < view.getModListTable().getColumnModel().getColumnCount(); i++) {
+            temp.add(new Integer(view.getModListTable().getColumnModel().getColumn(i).getWidth()));
+        }
+        logger.error("Ctrl: TableEditListerner: " + temp.toString());
+        
     }
 
     private void loadMods() {
@@ -380,6 +383,14 @@ public class ManagerCtrl implements Observer {
     class TableEditListener implements TableModelListener {
 
         public void tableChanged(TableModelEvent e) {
+        	ArrayList<Integer> temp = new ArrayList<Integer>();
+            /*
+            for (int rr = 0; rr < view.getModListTable().getColumnModel().getColumnCount(); rr++) {
+            	view.getModListTable().getColumnModel().getColumn(rr).setWidth(view.getModListTable().getColumnModel().getColumn(rr).getWidth());
+            }
+            */
+            
+        	
             int row = e.getFirstRow();
             int column = e.getColumn();
             if ((row == -1) || (column == -1)) {
@@ -465,11 +476,24 @@ public class ManagerCtrl implements Observer {
                     }
                     logger.info("Mod at index " + row + " is now disabled");
                 }
-                // Again, save and restore ListSelectionListener
-                view.tableRemoveListSelectionListener(lsl);
-                model.updateNotify();
-                view.tableAddListSelectionListener(lsl);
+
             }
+            for (int i = 0 ; i < view.getModListTable().getColumnModel().getColumnCount(); i++) {
+                temp.add(new Integer(view.getModListTable().getColumnModel().getColumn(i).getWidth()));
+            }
+            logger.error("Ctrl: TableEditListerner: begin: " + temp.toString());
+            
+            
+            // Again, save and restore ListSelectionListener
+            view.tableRemoveListSelectionListener(lsl);
+            model.updateNotify();
+            view.tableAddListSelectionListener(lsl);
+
+            temp.clear();
+            for (int i = 0 ; i < view.getModListTable().getColumnModel().getColumnCount(); i++) {
+                temp.add(new Integer(view.getModListTable().getColumnModel().getColumn(i).getWidth()));
+            }
+            logger.error("Ctrl: TableEditListerner: " + temp.toString());
         }
     }
 
@@ -924,14 +948,14 @@ public class ManagerCtrl implements Observer {
     private void wantToSaveOptions() {
         Date d = new Date();
         if (date == 0) {
-            date = d.getTime() + 1000;
+            date = d.getTime() + 5000;
         }
         if (date <= d.getTime()) {
             try {
                 Manager.getInstance().saveOptions();
-                date = d.getTime() + 1000;
+                date = d.getTime() + 5000;
             } catch (IOException ex) {
-                date = d.getTime() + 1000;
+                date = d.getTime() + 5000;
             }
         }
     }
@@ -952,14 +976,14 @@ public class ManagerCtrl implements Observer {
     class ExitListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
-            try {
-                // Close the main window
-                controller.saveOptions();
-            } catch (Exception ex) {
-                logger.error("Unable to save options");
-            }
+        	try {
+				Manager.getInstance().saveOptions();
+			} catch (IOException e1) {
+				logger.error("Unable to save options");
+				e1.printStackTrace();
+			}
             logger.info("Closing HonModManager...");
-            System.exit(0);
+            //System.exit(0);
         }
     }
 }
