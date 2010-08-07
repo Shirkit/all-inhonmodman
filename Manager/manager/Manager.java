@@ -628,7 +628,7 @@ public class Manager extends Observable {
 
         if (!(list == null || list.isEmpty())) {
             Enumeration e = Collections.enumeration(list);
-            ArrayList<Pair<String, String>> deps = new ArrayList<Pair<String, String>>();
+            HashSet<Pair<String, String>> ddeps = new HashSet<Pair<String, String>>();
 
             if (mod.isEnabled()) { // from disableMod (actually not possible but whatever just leave it here)
                 while (e.hasMoreElements()) {
@@ -641,11 +641,11 @@ public class Manager extends Observable {
                     }
 
                     Pair<String, String> tmp = Tuple.from(d.getName(), d.getVersion());
-                    deps.add(tmp);
+                    ddeps.add(tmp);
                 }
 
-                if (!deps.isEmpty()) {
-                    throw new ModEnabledException(deps);
+                if (!ddeps.isEmpty()) {
+                    throw new ModEnabledException(ddeps);
                 }
             } else { // from enableMod
                 ArrayList<Pair<String, String>> clist = new ArrayList<Pair<String, String>>();
@@ -673,15 +673,15 @@ public class Manager extends Observable {
                     }
 
                     Pair<String, String> tmp = Tuple.from(d.getName(), d.getVersion());
-                    deps.add(tmp);
+                    ddeps.add(tmp);
                 }
 
                 if (!clist.isEmpty()) {
                     throw new ModVersionUnsatisfiedException(clist);
                 }
 
-                if (!deps.isEmpty()) {
-                    throw new ModNotEnabledException(deps);
+                if (!ddeps.isEmpty()) {
+                    throw new ModNotEnabledException(ddeps);
                 }
             }
         }
@@ -748,7 +748,7 @@ public class Manager extends Observable {
     private void revcheckdeps(Mod m) throws ModEnabledException {
         // get a list of dependencies on m
         ArrayList list = new ArrayList();
-        ArrayList<Pair<String, String>> revdeps = new ArrayList<Pair<String, String>>();
+        HashSet<Pair<String, String>> revdeps = new HashSet<Pair<String, String>>();
 
         for (int i = 0; i < deps.size(); i++) {
             ArrayList<Pair<String, String>> temp = (ArrayList<Pair<String, String>>) deps.get(i);

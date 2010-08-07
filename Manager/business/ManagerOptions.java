@@ -11,12 +11,19 @@ import com.thoughtworks.xstream.annotations.XStreamImplicit;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import com.thoughtworks.xstream.io.StreamException;
 
+import gui.ManagerAboutBox;
+import gui.ManagerApp;
 import gui.ManagerCtrl;
 
 import java.awt.Rectangle;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Observable;
@@ -63,6 +70,8 @@ public class ManagerOptions extends Observable {
     @XStreamOmitField
     private ArrayList<Mod> mods;
     @XStreamOmitField
+    public static final String MANAGER_VERSION = "version.txt";
+    @XStreamOmitField
     public static final String MANAGER_FOLDER = new File(".").getAbsolutePath();
     @XStreamOmitField
     public static final String OPTIONS_FILENAME = "managerOptions.xml";
@@ -74,8 +83,6 @@ public class ManagerOptions extends Observable {
     public static final String MANAGER_DOWNLOAD_URL = "http://all-inhonmodman.svn.sourceforge.net/viewvc/all-inhonmodman/Manager/store/Manager.jar";
     @XStreamOmitField
     public static final String HOMEPAGE = "http://sourceforge.net/projects/all-inhonmodman";
-    @XStreamOmitField
-    public static final String VERSION = "0.3";
     @XStreamOmitField
     public static final String PREFS_LOCALE = "locale";
     @XStreamOmitField
@@ -197,12 +204,16 @@ public class ManagerOptions extends Observable {
     	CLARGS = p;
     }
     
+    public String[] getVersion() throws IOException, URISyntaxException {
+    	URL version = getClass().getClassLoader().getResource(MANAGER_VERSION);
+    	BufferedReader in = new BufferedReader(new InputStreamReader(version.openStream()));
+    	//BufferedReader in = new BufferedReader(new FileReader(MANAGER_VERSION));
+    	String[] pattern = in.readLine().split(" ");
+    	return pattern;
+    }
+    
     public String getOptionsName() {
     	return OPTIONS_FILENAME;
-    }
-
-    public String getVersion() {
-        return VERSION;
     }
 
     public String getHomepage() {

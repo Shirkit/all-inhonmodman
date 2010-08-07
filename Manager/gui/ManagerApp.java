@@ -3,6 +3,8 @@
  */
 package gui;
 
+import java.net.MalformedURLException;
+import java.security.InvalidParameterException;
 import java.util.concurrent.ExecutionException;
 import manager.Manager;
 import java.io.FileNotFoundException;
@@ -20,6 +22,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import utility.update.UpdateManager;
+import utility.update.updater.Updater;
 
 /**
  * @author Shirkit

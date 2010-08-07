@@ -189,11 +189,13 @@ public class ManagerCtrl implements Observer {
         }
 
 
+        /*
         ArrayList<Integer> temp = new ArrayList<Integer>();
         for (int i = 0; i < view.getModListTable().getColumnModel().getColumnCount(); i++) {
             temp.add(new Integer(view.getModListTable().getColumnModel().getColumn(i).getWidth()));
         }
         logger.error("Ctrl: TableEditListerner: " + temp.toString());
+        */
 
     }
 
@@ -620,11 +622,19 @@ public class ManagerCtrl implements Observer {
     class UpdateModListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
+        	logger.info("Ctrl: " + e.getActionCommand() + " is called to update");
             Mod mod = controller.getMod(e.getActionCommand());
             ArrayList<Mod> toUpdate = new ArrayList<Mod>();
             toUpdate.add(mod);
-            controller.updateMod(toUpdate);
+            
+            view.getProgressBar().setMaximum(toUpdate.size());
+            UpdateReturn things = controller.updateMod(toUpdate);
+            if (things.getFailedModList().size() > 0)
+            	view.showMessage("Update of mod is not successful.", "Result", JOptionPane.INFORMATION_MESSAGE);
+            else
+            	view.showMessage("Update of mod is successful.", "Result", JOptionPane.INFORMATION_MESSAGE);
             model.updateNotify();
+            view.getProgressBar().setValue(0);
         }
     }
 
@@ -668,7 +678,7 @@ public class ManagerCtrl implements Observer {
                 }
             }
             view.showMessage(message, "Title", JOptionPane.INFORMATION_MESSAGE);
-            view.getProgressBar().setVisible(false);
+            view.getProgressBar().setValue(0);
         }
     }
 

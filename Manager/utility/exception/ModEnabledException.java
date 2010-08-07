@@ -8,6 +8,7 @@ package utility.exception;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashSet;
 
 import business.ManagerOptions;
 
@@ -19,13 +20,13 @@ import com.mallardsoft.tuple.*;
  */
 public class ModEnabledException extends Exception {
 
-	private ArrayList<Pair<String, String>> _deps;
+	private HashSet<Pair<String, String>> _deps;
 
     /**
      * @param name of the mod that was enabled.
      * @param version of the mod that was enabled.
      */
-    public ModEnabledException(ArrayList<Pair<String, String>> deps) {
+    public ModEnabledException(HashSet<Pair<String, String>> deps) {
         super();
         _deps = deps;
     }
@@ -33,7 +34,7 @@ public class ModEnabledException extends Exception {
     /**
      * @return the list of mods that depends on the mod that are not disabled
      */
-    public ArrayList<Pair<String, String>> getDeps() {
+    public HashSet<Pair<String, String>> getDeps() {
         return _deps;
     }
     

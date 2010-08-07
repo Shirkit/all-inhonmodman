@@ -16,6 +16,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.security.InvalidParameterException;
@@ -31,15 +32,16 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
+import business.ManagerOptions;
+
 /**
- * This is just a copy of the Updater class. You must call it with the 2 string arguments: [1] = Path to the current Manager Jar. [2] = URL to download the new manager.
+ * This is just a copy of the Updater class.
  * @author Shirkit
  */
 public class Updater {
+    public static final String versionFilePath = ManagerOptions.getInstance().MANAGER_VERSION;
 
-    public static final String versionFilePath = "version.txt";
-
-    public static void main(String[] args) {
+    public static void main(String[] args) throws FileNotFoundException,InvalidParameterException, MalformedURLException, IOException {
         Dialog dialog = new Dialog();
         try {
             // Validation
@@ -125,7 +127,6 @@ public class Updater {
     }
 
     public static class Dialog {
-
         JProgressBar progressBar;
         JButton cancel;
         JLabel label;
@@ -160,12 +161,12 @@ public class Updater {
     }
 
     public static class ButtonListener implements ActionListener {
-
         public void actionPerformed(ActionEvent e) {
             int i = JOptionPane.showConfirmDialog(null, "Do you really want to cancel?", "Confirmation", JOptionPane.YES_NO_OPTION);
             if (i == 0) {
                 System.exit(0);
             }
         }
+
     }
 }
