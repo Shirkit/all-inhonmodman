@@ -1,0 +1,17 @@
+0.3 alpha:
+- Major fixes in core structure.
+- Added a progress bar (only works with File -> Download Mods Updates currently)
+- Fixed File -> Download Mods Updates function
+- Added a way to change Mods Folder trhough Preferences menu
+- Manager will remember last position (X and Y on the screen), width and height. Applies to columns also
+- Columns can now be sorted
+- Users with Java 1.4 or 1.5 will be warned to download a new java version
+- Manager will just skip a mod if it isn't working (currently not working for mariosmith and mods that uses "findall" operation. If found, manager will halt. Please, remove this mod from folder to test the manager. You can add it later)
+- Logging improved a bit
+- Probally more, but I forgot to log them =\
+0.2 alpha:
+- Minor fix in checking for manager update version.
+- Updated license for using Synthetica Look and Feel.
+- Major fix while running the Manager for the first time.
+0.1 alpha:
+- First release to public

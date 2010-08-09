@@ -41,7 +41,7 @@ public class UpdateThread implements Callable<UpdateThread> {
                 BufferedReader in = new BufferedReader(new InputStreamReader(new URL(mod.getUpdateCheckUrl().trim()).openStream()));
                 String str = in.readLine();
                 in.close();
-                if (str != null && !Manager.getInstance().compareModsVersions(mod.getVersion(), str)) {
+                if (str != null && !str.toLowerCase().trim().contains("error") && !Manager.getInstance().compareModsVersions(mod.getVersion(), str)) {
                     InputStream is = new URL(mod.getUpdateDownloadUrl().trim()).openStream();
                     file = new File(System.getProperty("java.io.tmpdir") + new File(mod.getPath()).getName());
                     FileOutputStream fos = new FileOutputStream(file, false);

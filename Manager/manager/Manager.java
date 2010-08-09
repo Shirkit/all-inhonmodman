@@ -43,6 +43,7 @@ import java.util.Observable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.zip.ZipException;
 
 import org.apache.log4j.Logger;
 
@@ -463,11 +464,12 @@ public class Manager extends Observable {
      */
     public Mod getEnabledMod(String name) throws NoSuchElementException {
         Mod m = getMod(name);
+        if (m == null) {
+            throw new NoSuchElementException();
+        }
         if (m.isEnabled()) {
             return m;
         }
-
-        // Unreacheable
         throw new NoSuchElementException();
     }
 
@@ -556,6 +558,8 @@ public class Manager extends Observable {
                         throw e;
                         // Can't continue, since the mod could be required by another. This should never happens, unless a developer really messes up.
                         // TODO : This can be improved, but I don't know how.
+                    } catch (ZipException e) {
+                        System.out.println(file.getAbsolutePath());
                     }
                     newMod.setPath(mod.getMod().getPath());
                     Mod oldMod = getMod(mod.getMod().getName());
@@ -594,7 +598,7 @@ public class Manager extends Observable {
                         }
                     }
                     returnValue.addUpdated(mod.getMod(), olderVersion);
-                    logger.info(mod.getMod().getName() + "was updated to " + mod.getMod().getVersion() + " from " + olderVersion);
+                    logger.info(mod.getMod().getName() + "was updated to " + newMod.getVersion() + " from " + olderVersion);
                 } else {
                     logger.info(mod.getMod().getName() + " is up-to-date");
                     returnValue.addUpToDate(mod.getMod());
@@ -611,6 +615,7 @@ public class Manager extends Observable {
                 // Can't get here
             } catch (IOException ex) {
                 logger.error("Random I/O Exception happened", ex);
+                
                 // Random IO Exception
             }
         }
@@ -1292,7 +1297,7 @@ public class Manager extends Observable {
     }
 
     /**
-     * Compares the singleVersion of a Mod and another expressionVersion.
+     * Compares the singleVersion of a Mod and another expressionVersion. Letters are ignored (they are removed before the test) and commas (,) are replaced by dots (.)
      * @param singleVersion is the base version to be compared of. For example, a Mod's version go in here ('1.3', '3.2.57').
      * @param expressionVersion generally you put the ApplyAfter, ApplyBefore, ConditionVersion here ('1.35-*').
      * @return true if the mods have the same expressionVersion OR the singleVersion is in the range of the passed String expressionVersion. False otherwise.
@@ -1311,6 +1316,13 @@ public class Manager extends Observable {
                 expressionVersion = expressionVersion.replaceFirst(Character.toString(expressionVersion.charAt(i)), "");
             }
         }
+        for (int i = 0; i < singleVersion.length(); i++) {
+            if (Character.isLetter(singleVersion.charAt(i))) {
+                singleVersion = singleVersion.replaceFirst(Character.toString(singleVersion.charAt(i)), "");
+            }
+        }
+        expressionVersion = expressionVersion.replace(",", ".");
+        singleVersion = singleVersion.replace(",", ".");
 
         if (expressionVersion.equals("*-*") || expressionVersion.equals("*") || expressionVersion.equals(singleVersion)) {
             result = true;

@@ -1,4 +1,3 @@
-
 package gui;
 
 import java.awt.Frame;
@@ -10,6 +9,11 @@ import org.jdesktop.application.Action;
 
 import business.ManagerOptions;
 import gui.l10n.L10n;
+import java.awt.Dimension;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
+import javax.swing.AbstractButton;
 import manager.Manager;
 
 /**
@@ -18,6 +22,7 @@ import manager.Manager;
  * @author Shirkit, Kovo
  */
 public class ManagerAboutBox extends javax.swing.JDialog {
+
     Frame parent;
     ManagerOptions model;
     Manager controller;
@@ -30,20 +35,15 @@ public class ManagerAboutBox extends javax.swing.JDialog {
         this.parent = _parent;
         this.model = _model;
         logger = Logger.getLogger(this.getClass().getPackage().getName());
-        try {
-			initComponents();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        initComponents();
         getRootPane().setDefaultButton(closeButton);
-        
         controller = Manager.getInstance();
+        changelogEditorPane.setVisible(false);
+        changelogEditorPane.setEditable(false);
     }
 
-    @Action public void closeAboutBox() {
+    @Action
+    public void closeAboutBox() {
         dispose();
     }
 
@@ -55,7 +55,7 @@ public class ManagerAboutBox extends javax.swing.JDialog {
      * @throws URISyntaxException 
      */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    private void initComponents() throws IOException, URISyntaxException {
+    private void initComponents() {
 
         closeButton = new javax.swing.JButton();
         javax.swing.JLabel appTitleLabel = new javax.swing.JLabel();
@@ -70,6 +70,9 @@ public class ManagerAboutBox extends javax.swing.JDialog {
         appAuthors = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         aboutTextArea = new javax.swing.JTextArea();
+        changelogToggleButton = new javax.swing.JToggleButton();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        changelogEditorPane = new javax.swing.JEditorPane();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle(L10n.getString("about.title"));
@@ -77,7 +80,7 @@ public class ManagerAboutBox extends javax.swing.JDialog {
         setName("aboutBox"); // NOI18N
         setResizable(false);
 
-        javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance().getContext().getActionMap(ManagerAboutBox.class, this);
+        javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance(gui.ManagerApp.class).getContext().getActionMap(ManagerAboutBox.class, this);
         closeButton.setAction(actionMap.get("closeAboutBox")); // NOI18N
         closeButton.setText(L10n.getString("about.button.close"));
         closeButton.setName("closeButton"); // NOI18N
@@ -89,8 +92,7 @@ public class ManagerAboutBox extends javax.swing.JDialog {
         appVersionLabel.setText(L10n.getString("about.version.label"));
         appVersionLabel.setName("appVersionLabel"); // NOI18N
 
-        String[] version = this.model.getVersion();
-        appVersion.setText(version[0] + " " + version[1]);
+        appVersion.setText(this.model.getVersion());
         appVersion.setName("appVersion"); // NOI18N
 
         appHomepageLabel.setFont(appHomepageLabel.getFont().deriveFont(appHomepageLabel.getFont().getStyle() | java.awt.Font.BOLD));
@@ -100,10 +102,7 @@ public class ManagerAboutBox extends javax.swing.JDialog {
         appHomepage.setText(this.model.getHomepage());
         appHomepage.setName("appHomepage"); // NOI18N
 
-        if (getClass().getClassLoader().getResource("gui/resources/icon.png") == null)
-        	logger.error("ERROR at resource icon.png");
-        logger.error(getClass().getClassLoader().getResource("gui/resources/icon.png").toString());
-        labelModIcon.setIcon(new javax.swing.ImageIcon(getClass().getClassLoader().getResource("gui/resources/icon.png"))); // NOI18N
+        labelModIcon.setIcon(new javax.swing.ImageIcon(getClass().getResource("/gui/resources/icon.png"))); // NOI18N
         labelModIcon.setName("labelModIcon"); // NOI18N
 
         appLicenseLabel.setFont(appLicenseLabel.getFont().deriveFont(appLicenseLabel.getFont().getStyle() | java.awt.Font.BOLD));
@@ -141,6 +140,20 @@ public class ManagerAboutBox extends javax.swing.JDialog {
         aboutTextArea.setName("descTextArea"); // NOI18N
         jScrollPane1.setViewportView(aboutTextArea);
 
+        changelogToggleButton.setText(L10n.getString("about.button.changelog"));
+        changelogToggleButton.setName("changelogToggleButton"); // NOI18N
+        changelogToggleButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                changelogToggleButtonActionPerformed(evt);
+            }
+        });
+
+        jScrollPane3.setName("jScrollPane3"); // NOI18N
+
+        changelogEditorPane.setAutoscrolls(false);
+        changelogEditorPane.setName("changelogEditorPane"); // NOI18N
+        jScrollPane3.setViewportView(changelogEditorPane);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -148,24 +161,32 @@ public class ManagerAboutBox extends javax.swing.JDialog {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 378, Short.MAX_VALUE)
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 441, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(labelModIcon)
                         .addGap(18, 18, 18)
-                        .addComponent(appTitleLabel))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(appAuthorsLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(appLicenseLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(appVersionLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(appHomepageLabel, javax.swing.GroupLayout.Alignment.LEADING))
+                        .addComponent(appTitleLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 370, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(appVersion, javax.swing.GroupLayout.DEFAULT_SIZE, 297, Short.MAX_VALUE)
-                            .addComponent(appHomepage, javax.swing.GroupLayout.DEFAULT_SIZE, 297, Short.MAX_VALUE)
-                            .addComponent(appLicense, javax.swing.GroupLayout.DEFAULT_SIZE, 297, Short.MAX_VALUE)
-                            .addComponent(appAuthors, javax.swing.GroupLayout.DEFAULT_SIZE, 297, Short.MAX_VALUE)))
-                    .addComponent(closeButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(changelogToggleButton)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 155, Short.MAX_VALUE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                    .addComponent(appAuthorsLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(appLicenseLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(appVersionLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(appHomepageLabel, javax.swing.GroupLayout.Alignment.LEADING))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(appVersion, javax.swing.GroupLayout.DEFAULT_SIZE, 126, Short.MAX_VALUE)
+                                    .addComponent(appHomepage, javax.swing.GroupLayout.DEFAULT_SIZE, 126, Short.MAX_VALUE)
+                                    .addComponent(appLicense, javax.swing.GroupLayout.DEFAULT_SIZE, 126, Short.MAX_VALUE)
+                                    .addComponent(appAuthors, javax.swing.GroupLayout.DEFAULT_SIZE, 126, Short.MAX_VALUE))
+                                .addGap(38, 38, 38)))
+                        .addComponent(closeButton, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -177,10 +198,10 @@ public class ManagerAboutBox extends javax.swing.JDialog {
                         .addComponent(appTitleLabel))
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(labelModIcon)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(labelModIcon))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(appHomepageLabel)
                     .addComponent(appHomepage, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -196,9 +217,13 @@ public class ManagerAboutBox extends javax.swing.JDialog {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(appAuthorsLabel)
                     .addComponent(appAuthors, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(closeButton)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 33, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(closeButton)
+                    .addComponent(changelogToggleButton))
+                .addContainerGap())
         );
 
         pack();
@@ -210,16 +235,53 @@ public class ManagerAboutBox extends javax.swing.JDialog {
     private void appLicenseMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_appLicenseMouseClicked
         controller.openWebsite(licenseWeb);
     }//GEN-LAST:event_appLicenseMouseClicked
-    
+
+    private void changelogToggleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_changelogToggleButtonActionPerformed
+        AbstractButton but = (AbstractButton) changelogToggleButton;
+        // This means if he clicked to select the button
+        if (but.isSelected()) {
+            changelogEditorPane.setVisible(true);
+            this.setBounds(this.getX(), this.getY(), this.getWidth(), this.getHeight() + 300);
+            changelogEditorPane.setPreferredSize(new Dimension(changelogEditorPane.getWidth(), changelogEditorPane.getHeight() + 300));
+            if (changelogEditorPane.getText() == null || changelogEditorPane.getText().isEmpty()) {
+                URL version = getClass().getClassLoader().getResource("changelog.txt");
+                BufferedReader in;
+                String str = "";
+                try {
+                    in = new BufferedReader(new InputStreamReader(version.openStream()));
+                    while (true) {
+                        String temp = "";
+                        temp = in.readLine();
+                        if (temp != null && temp.length() > 0) {
+                            str += temp + "\n";
+                        } else {
+                            break;
+                        }
+                    }
+                } catch (IOException ex) {
+                }
+                str = str.replace("\n", "<br/>");
+                changelogEditorPane.setContentType("text/html");
+                changelogEditorPane.setText(str);
+            }
+        } else {
+            // Click to unselect
+            this.setBounds(this.getX(), this.getY(), this.getWidth(), this.getHeight() - 300);
+            changelogEditorPane.setPreferredSize(new Dimension(changelogEditorPane.getWidth(), changelogEditorPane.getHeight() - 300));
+            changelogEditorPane.setVisible(false);
+        }
+    }//GEN-LAST:event_changelogToggleButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextArea aboutTextArea;
     private javax.swing.JLabel appAuthors;
     private javax.swing.JLabel appAuthorsLabel;
     private javax.swing.JLabel appLicense;
     private javax.swing.JLabel appLicenseLabel;
+    private javax.swing.JEditorPane changelogEditorPane;
+    private javax.swing.JToggleButton changelogToggleButton;
     private javax.swing.JButton closeButton;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JLabel labelModIcon;
     // End of variables declaration//GEN-END:variables
-    
 }

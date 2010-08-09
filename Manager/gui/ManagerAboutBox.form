@@ -28,31 +28,42 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" attributes="0">
+          <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jScrollPane1" alignment="0" pref="441" max="32767" attributes="0"/>
+                  <Component id="jScrollPane3" alignment="0" pref="441" max="32767" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="labelModIcon" min="-2" max="-2" attributes="0"/>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Component id="appTitleLabel" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="jScrollPane1" pref="370" max="32767" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="1" attributes="0">
-                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                          <Component id="appAuthorsLabel" alignment="1" max="32767" attributes="1"/>
-                          <Component id="appLicenseLabel" alignment="1" max="32767" attributes="1"/>
-                          <Component id="appVersionLabel" alignment="0" max="32767" attributes="1"/>
-                          <Component id="appHomepageLabel" alignment="0" min="-2" max="-2" attributes="1"/>
-                      </Group>
-                      <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="appVersion" alignment="0" pref="297" max="32767" attributes="0"/>
-                          <Component id="appHomepage" alignment="0" pref="297" max="32767" attributes="0"/>
-                          <Component id="appLicense" alignment="0" pref="297" max="32767" attributes="0"/>
-                          <Component id="appAuthors" alignment="0" pref="297" max="32767" attributes="0"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="changelogToggleButton" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace pref="155" max="32767" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                                  <Component id="appAuthorsLabel" alignment="1" max="32767" attributes="1"/>
+                                  <Component id="appLicenseLabel" alignment="1" max="32767" attributes="1"/>
+                                  <Component id="appVersionLabel" alignment="0" max="32767" attributes="1"/>
+                                  <Component id="appHomepageLabel" alignment="0" min="-2" max="-2" attributes="1"/>
+                              </Group>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="appVersion" pref="126" max="32767" attributes="0"/>
+                                  <Component id="appHomepage" pref="126" max="32767" attributes="0"/>
+                                  <Component id="appLicense" pref="126" max="32767" attributes="0"/>
+                                  <Component id="appAuthors" pref="126" max="32767" attributes="0"/>
+                              </Group>
+                              <EmptySpace min="-2" pref="38" max="-2" attributes="0"/>
+                          </Group>
                       </Group>
+                      <Component id="closeButton" min="-2" pref="133" max="-2" attributes="1"/>
                   </Group>
-                  <Component id="closeButton" alignment="1" min="-2" pref="133" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -68,12 +79,13 @@
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="labelModIcon" min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="jScrollPane1" alignment="0" min="-2" pref="72" max="-2" attributes="1"/>
+                          <Component id="labelModIcon" alignment="0" min="-2" max="-2" attributes="1"/>
+                      </Group>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="jScrollPane1" min="-2" pref="58" max="-2" attributes="0"/>
-              <EmptySpace type="unrelated" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="appHomepageLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="appHomepage" alignment="3" min="-2" pref="14" max="-2" attributes="0"/>
@@ -93,9 +105,14 @@
                   <Component id="appAuthorsLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="appAuthors" alignment="3" min="-2" pref="16" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace type="unrelated" max="-2" attributes="0"/>
-              <Component id="closeButton" min="-2" max="-2" attributes="0"/>
-              <EmptySpace max="32767" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="jScrollPane3" pref="33" max="32767" attributes="0"/>
+              <EmptySpace type="separate" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="closeButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="changelogToggleButton" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -187,7 +204,7 @@
     <Component class="javax.swing.JLabel" name="labelModIcon">
       <Properties>
         <Property name="icon" type="javax.swing.Icon" noResource="true" editor="org.netbeans.modules.form.editors2.IconEditor">
-          <Image iconType="3" name="/Manager/gui/resources/icon.png"/>
+          <Image iconType="3" name="/gui/resources/icon.png"/>
         </Property>
         <Property name="name" type="java.lang.String" value="labelModIcon" noResource="true"/>
       </Properties>
@@ -273,6 +290,35 @@
               </Border>
             </Property>
             <Property name="name" type="java.lang.String" value="descTextArea" noResource="true"/>
+          </Properties>
+        </Component>
+      </SubComponents>
+    </Container>
+    <Component class="javax.swing.JToggleButton" name="changelogToggleButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection code="L10n.getString(&quot;about.button.changelog&quot;)" type="code"/>
+        </Property>
+        <Property name="name" type="java.lang.String" value="changelogToggleButton" noResource="true"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="changelogToggleButtonActionPerformed"/>
+      </Events>
+    </Component>
+    <Container class="javax.swing.JScrollPane" name="jScrollPane3">
+      <Properties>
+        <Property name="name" type="java.lang.String" value="jScrollPane3" noResource="true"/>
+      </Properties>
+      <AuxValues>
+        <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+      </AuxValues>
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+      <SubComponents>
+        <Component class="javax.swing.JEditorPane" name="changelogEditorPane">
+          <Properties>
+            <Property name="autoscrolls" type="boolean" value="false"/>
+            <Property name="name" type="java.lang.String" value="changelogEditorPane" noResource="true"/>
           </Properties>
         </Component>
       </SubComponents>

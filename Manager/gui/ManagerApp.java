@@ -3,8 +3,7 @@
  */
 package gui;
 
-import java.net.MalformedURLException;
-import java.security.InvalidParameterException;
+import business.ManagerOptions;
 import java.util.concurrent.ExecutionException;
 import manager.Manager;
 import java.io.FileNotFoundException;
@@ -22,7 +21,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import utility.update.UpdateManager;
-import utility.update.updater.Updater;
 
 /**
  * @author Shirkit
@@ -67,6 +65,8 @@ public class ManagerApp extends SingleFrameApplication {
         }
         logger = Logger.getLogger(this.getClass().getPackage().getName());
         logger.info("HonMod manager is starting up...");
+        logger.info("Java version:" + System.getProperty("java.version"));
+        logger.info("HonMod manager version:"+ManagerOptions.getInstance().getVersion());
 
 
         // Create the MVC framework
