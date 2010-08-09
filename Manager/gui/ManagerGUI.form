@@ -363,6 +363,9 @@
           <SubComponents>
             <MenuItem class="javax.swing.JMenuItem" name="itemApplyMods">
               <Properties>
+                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
+                  <KeyStroke key="Ctrl+S"/>
+                </Property>
                 <Property name="mnemonic" type="int" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                   <Connection code="L10n.getMnemonic(&quot;menu.file.applymods&quot;)" type="code"/>
                 </Property>
@@ -374,6 +377,9 @@
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="itemApplyAndLaunch">
               <Properties>
+                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
+                  <KeyStroke key="Shift+Ctrl+S"/>
+                </Property>
                 <Property name="mnemonic" type="int" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                   <Connection code="L10n.getMnemonic(&quot;menu.file.applyandlaunch&quot;)" type="code"/>
                 </Property>
@@ -401,6 +407,9 @@
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="itemOpenModFolder">
               <Properties>
+                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
+                  <KeyStroke key="Ctrl+F"/>
+                </Property>
                 <Property name="mnemonic" type="int" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                   <Connection code="L10n.getMnemonic(&quot;menu.file.openfolder&quot;)" type="code"/>
                 </Property>
@@ -417,6 +426,9 @@
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="itemDownloadModUpdates">
               <Properties>
+                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
+                  <KeyStroke key="Shift+Ctrl+U"/>
+                </Property>
                 <Property name="mnemonic" type="int" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                   <Connection code="L10n.getMnemonic(&quot;menu.file.downloadmodupdates&quot;)" type="code"/>
                 </Property>
@@ -433,6 +445,9 @@
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="itemExit">
               <Properties>
+                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
+                  <KeyStroke key="Ctrl+Q"/>
+                </Property>
                 <Property name="mnemonic" type="int" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                   <Connection code="L10n.getMnemonic(&quot;menu.file.exit&quot;)" type="code"/>
                 </Property>
@@ -457,6 +472,9 @@
           <SubComponents>
             <MenuItem class="javax.swing.JMenuItem" name="itemOpenPreferences">
               <Properties>
+                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
+                  <KeyStroke key="Ctrl+P"/>
+                </Property>
                 <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                   <Connection code="L10n.getString(&quot;menu.options.preferences&quot;)" type="code"/>
                 </Property>
@@ -465,6 +483,12 @@
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="itemOpenPreferencesActionPerformed"/>
               </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="jMenuItem1">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="jMenuItem1"/>
+                <Property name="name" type="java.lang.String" value="jMenuItem1" noResource="true"/>
+              </Properties>
             </MenuItem>
           </SubComponents>
         </Menu>
@@ -497,6 +521,9 @@
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="itemAbout">
               <Properties>
+                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
+                  <KeyStroke key="F1"/>
+                </Property>
                 <Property name="mnemonic" type="int" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                   <Connection code="L10n.getMnemonic(&quot;menu.help.about&quot;)" type="code"/>
                 </Property>
@@ -575,7 +602,7 @@
                   <EmptySpace min="-2" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" attributes="0">
-                          <Component id="jScrollPane1" pref="292" max="32767" attributes="0"/>
+                          <Component id="jScrollPane1" pref="495" max="32767" attributes="0"/>
                           <EmptySpace type="unrelated" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
@@ -639,7 +666,7 @@
                 <Property name="focusable" type="boolean" value="false"/>
                 <Property name="name" type="java.lang.String" value="tableModList" noResource="true"/>
                 <Property name="rowHeight" type="int" value="22"/>
-                <Property name="selectionBackground" type="java.awt.Color" noResource="true" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                <Property name="selectionBackground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="fe" green="a7" red="50" type="rgb"/>
                 </Property>
                 <Property name="selectionModel" type="javax.swing.ListSelectionModel" editor="org.netbeans.modules.form.editors2.JTableSelectionModelEditor">

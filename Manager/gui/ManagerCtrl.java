@@ -3,6 +3,7 @@ package gui;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.util.Observable;
+import java.util.logging.Level;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.TableColumnModelEvent;
 import javax.swing.event.TableColumnModelListener;
@@ -38,6 +39,7 @@ import utility.exception.ModVersionMissmatchException;
 import utility.exception.ModVersionUnsatisfiedException;
 
 import java.io.IOException;
+import java.nio.channels.FileLockInterruptionException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -56,6 +58,10 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 import utility.Game;
+import utility.exception.InvalidModActionParameterException;
+import utility.exception.NothingSelectedModActionException;
+import utility.exception.StringNotFoundModActionException;
+import utility.exception.UnknowModActionException;
 import utility.update.UpdateReturn;
 
 /**
@@ -112,7 +118,7 @@ public class ManagerCtrl implements Observer {
         view.getModListTable().getColumnModel().addColumnModelListener(new Columns2Listener());
         view.addComponentListener(new ComponentEventListener());
         view.getModListTable().addMouseListener(new MouseEnableModListener());
-        view.getModListTable().addKeyListener(new KeyEnableModListener());
+        view.getItemRefreshManager().addActionListener(new RefreshManagerListener());
         // Add file drop functionality
         new FileDrop(view, new DropListener());
 
@@ -196,10 +202,10 @@ public class ManagerCtrl implements Observer {
         /*
         ArrayList<Integer> temp = new ArrayList<Integer>();
         for (int i = 0; i < view.getModListTable().getColumnModel().getColumnCount(); i++) {
-            temp.add(new Integer(view.getModListTable().getColumnModel().getColumn(i).getWidth()));
+        temp.add(new Integer(view.getModListTable().getColumnModel().getColumn(i).getWidth()));
         }
         logger.error("Ctrl: TableEditListerner: " + temp.toString());
-        */
+         */
 
     }
 
@@ -402,7 +408,6 @@ public class ManagerCtrl implements Observer {
                 return;
             }
             TableModel tableModel = (TableModel) e.getSource();
-            Object data = tableModel.getValueAt(row, column);
             Mod mod = controller.getMod(row);
             enableMod(mod);
             logger.error("Ctrl: TableEditListerner: begin: " + temp.toString());
@@ -412,12 +417,6 @@ public class ManagerCtrl implements Observer {
             view.tableRemoveListSelectionListener(lsl);
             model.updateNotify();
             view.tableAddListSelectionListener(lsl);
-
-            temp.clear();
-            for (int i = 0; i < view.getModListTable().getColumnModel().getColumnCount(); i++) {
-                temp.add(new Integer(view.getModListTable().getColumnModel().getColumn(i).getWidth()));
-            }
-            logger.error("Ctrl: TableEditListerner: " + temp.toString());
         }
     }
 
@@ -471,18 +470,25 @@ public class ManagerCtrl implements Observer {
     class ApplyModsListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
-            logger.info("Applying mods...");
-            // TODO: Test
             try {
+                logger.info("Applying mods...");
                 controller.applyMods();
-                //view.updateModTable();
-            } catch (Exception ex) {
-                logger.info("Exception: " + ex.getMessage());
+                view.showMessage(L10n.getString("message.modsapplied"), L10n.getString("message.modsapplied.title"), JOptionPane.INFORMATION_MESSAGE);
+            } catch (UnknowModActionException ex) {
+                ex.printStackTrace();
+            } catch (FileLockInterruptionException ex) {
+                ex.printStackTrace();
+            } catch (NothingSelectedModActionException ex) {
+                ex.printStackTrace();
+            } catch (StringNotFoundModActionException ex) {
+                ex.printStackTrace();
+            } catch (InvalidModActionParameterException ex) {
+                ex.printStackTrace();
+            } catch (SecurityException ex) {
+                ex.printStackTrace();
+            } catch (IOException ex) {
                 ex.printStackTrace();
             }
-            view.showMessage(L10n.getString("message.modsapplied"),
-                    L10n.getString("message.modsapplied.title"),
-                    JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
@@ -545,17 +551,18 @@ public class ManagerCtrl implements Observer {
     class UpdateModListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
-        	logger.info("Ctrl: " + e.getActionCommand() + " is called to update");
+            logger.info("Ctrl: " + e.getActionCommand() + " is called to update");
             Mod mod = controller.getMod(e.getActionCommand());
             ArrayList<Mod> toUpdate = new ArrayList<Mod>();
             toUpdate.add(mod);
-            
+
             view.getProgressBar().setMaximum(toUpdate.size());
             UpdateReturn things = controller.updateMod(toUpdate);
-            if (things.getFailedModList().size() > 0)
-            	view.showMessage("Update of mod is not successful.", "Result", JOptionPane.INFORMATION_MESSAGE);
-            else
-            	view.showMessage("Update of mod is successful.", "Result", JOptionPane.INFORMATION_MESSAGE);
+            if (things.getFailedModList().size() > 0) {
+                view.showMessage("Update of mod is not successful.", "Result", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                view.showMessage("Update of mod is successful.", "Result", JOptionPane.INFORMATION_MESSAGE);
+            }
             model.updateNotify();
             view.getProgressBar().setValue(0);
         }
@@ -605,34 +612,24 @@ public class ManagerCtrl implements Observer {
         }
     }
 
-    class KeyEnableModListener implements KeyListener {
-
-        public void keyPressed(KeyEvent e) {
-            if (e.getKeyCode() == KeyEvent.VK_ENTER || e.getKeyCode() == KeyEvent.VK_SPACE) {
-                e.consume(); // remove next row behavior
-                // try to enable mod
-            }
-        }
-        public void keyTyped(KeyEvent e) {
-        }
-        public void keyReleased(KeyEvent e) {
-        }
-
-    }
-
     class MouseEnableModListener implements MouseListener {
 
         public void mouseClicked(MouseEvent e) {
             if (e.getClickCount() == 2) {
-                // try to enable mod
+                enableMod(controller.getMod(view.getSelectedMod()));
+                model.updateNotify();
             }
         }
+
         public void mousePressed(MouseEvent e) {
         }
+
         public void mouseReleased(MouseEvent e) {
         }
+
         public void mouseEntered(MouseEvent e) {
         }
+
         public void mouseExited(MouseEvent e) {
         }
     }
@@ -746,6 +743,15 @@ public class ManagerCtrl implements Observer {
         }
     }
 
+    class RefreshManagerListener implements ActionListener {
+
+        public void actionPerformed(ActionEvent e) {
+            loadMods();
+            model.updateNotify();
+        }
+
+    }
+
     /**
      * Listener for 'Choose HoN folder' button. Lets user navigate through
      * filesystem and select folder where HoN is installed
@@ -850,85 +856,85 @@ public class ManagerCtrl implements Observer {
     private void wantToSaveOptions() {
         Date d = new Date();
         if (date == 0) {
-            date = d.getTime() + 5000;
+            date = d.getTime() + 1000;
         }
         if (date <= d.getTime()) {
             try {
                 Manager.getInstance().saveOptions();
-                date = d.getTime() + 5000;
+                date = d.getTime() + 1000;
             } catch (IOException ex) {
-                date = d.getTime() + 5000;
+                date = d.getTime() + 1000;
             }
         }
     }
 
     private void enableMod(Mod mod) {
         if (mod.isEnabled()) {
+            try {
+                controller.disableMod(mod.getName());
+                logger.info("Mod '" + mod.getName() + "' has been DISABLED");
+            } catch (ModEnabledException ex) {
+                view.showMessage(L10n.getString("error.modenabled").replace("#mod#", mod.getName()).replace("#mod2#", ex.toString()),
+                        L10n.getString("error.modenabled.title"),
+                        JOptionPane.WARNING_MESSAGE);
+                logger.warn("Error disabling mod: " + mod.getName() + " because: " + ex.toString() + " is/are enabled.", ex);
+            }
+        } else {
+            try {
+                Mod m = controller.getMod(mod.getName());
+                String gameVersion = Game.getInstance().getVersion();
                 try {
-                    controller.disableMod(mod.getName());
-                } catch (ModEnabledException ex) {
-                    view.showMessage(L10n.getString("error.modenabled").replace("#mod#", mod.getName()).replace("#mod2#", ex.toString()),
+                    controller.enableMod(m.getName(), false);
+                    logger.info("Mod '" + mod.getName() + "' has been ENABLED");
+                } catch (NoSuchElementException e1) {
+                    view.showMessage(L10n.getString("error.modnotfound"),
+                            L10n.getString("error.modnotfound.title"),
+                            JOptionPane.WARNING_MESSAGE);
+                    logger.warn("Error enabling mod: " + m.getName() + " NoSuchElementException", e1);
+                } catch (NullPointerException e1) {
+                    view.showMessage(L10n.getString("error.pathnotset"),
+                            L10n.getString("error.pathnotset.title"),
+                            JOptionPane.WARNING_MESSAGE);
+                    logger.warn("Error enabling mod: " + m.getName() + " NullPointerException", e1);
+                } catch (ModEnabledException e1) {
+                    view.showMessage(L10n.getString("error.modenabled").replace("#mod#", m.getName()).replace("#mod2#", e1.toString()),
                             L10n.getString("error.modenabled.title"),
                             JOptionPane.WARNING_MESSAGE);
-                    logger.warn("Error disabling mod: " + mod.getName() + " because: " + ex.toString() + " is/are enabled.", ex);
-                }
-                logger.error("Mod '" + mod.getName() + "' is now DISABLED");
-            } else {
-                try {
-                    Mod m = controller.getMod(mod.getName());
-                    String gameVersion = Game.getInstance().getVersion();
-                    try {
-                        controller.enableMod(m.getName(), false);
-                        logger.info("Mod " + mod.getName() + " has been enabled");
-                    } catch (NoSuchElementException e1) {
-                        view.showMessage(L10n.getString("error.modnotfound"),
-                                L10n.getString("error.modnotfound.title"),
-                                JOptionPane.WARNING_MESSAGE);
-                        logger.warn("Error enabling mod: " + m.getName() + " NoSuchElementException", e1);
-                    } catch (NullPointerException e1) {
-                        view.showMessage(L10n.getString("error.pathnotset"),
-                                L10n.getString("error.pathnotset.title"),
-                                JOptionPane.WARNING_MESSAGE);
-                        logger.warn("Error enabling mod: " + m.getName() + " NullPointerException", e1);
-                    } catch (ModEnabledException e1) {
-                        view.showMessage(L10n.getString("error.modenabled").replace("#mod#", m.getName()).replace("#mod2#", e1.toString()),
-                                L10n.getString("error.modenabled.title"),
-                                JOptionPane.WARNING_MESSAGE);
-                        logger.warn("Error disabling mod: " + m.getName() + " because: " + e1.toString() + " is/are enabled.", e1);
-                    } catch (ModNotEnabledException e1) {
-                        view.showMessage(L10n.getString("error.modnotenabled").replace("#mod#", m.getName()).replace("#mod2#", e1.toString()),
-                                L10n.getString("error.modnotenabled.title"),
-                                JOptionPane.WARNING_MESSAGE);
-                        logger.warn("Error enabling mod: " + m.getName() + " because: " + e1.toString() + " is/are not enabled.", e1);
-                    } catch (ModVersionMissmatchException e1) {
-                        view.showMessage(L10n.getString("error.modversionmissmatch").replace("#mod#", m.getName()),
-                                L10n.getString("error.modversionmissmatch.title"),
-                                JOptionPane.WARNING_MESSAGE);
-                        logger.warn("Error enabling mod: " + m.getName() + " because: Game version = " + gameVersion + " - Mod app version = " + e1.getAppVersion() + " ModVersionMissmatchException", e1);
-                    } catch (ModConflictException e1) {
-                        // TODO: haven't tested this yet
-                        view.showMessage(L10n.getString("error.modconflict").replace("#mod#", m.getName()).replace("#mod2#", e1.toString()),
-                                L10n.getString("error.modconflict.title"),
-                                JOptionPane.WARNING_MESSAGE);
-                        logger.warn("Error enabling mod: " + m.getName() + " because there are conflict mods (" + e1.toString() + ") enabled", e1);
-                    } catch (ModVersionUnsatisfiedException e1) {
-                        // TODO: haven't tested this yet
-                        view.showMessage(L10n.getString("error.modversionunsatisfied").replace("#mod#", m.getName()).replace("#mod2#", e1.toString()),
-                                L10n.getString("error.modversionunsatisfied.title"),
-                                JOptionPane.WARNING_MESSAGE);
-                        logger.warn("Error enabling mod: " + m.getName() + " because some mods (" + e1.toString() + ") version(s) is/are not satisfied", e1);
-                    } catch (IllegalArgumentException e1) {
-                        // TODO Auto-generated catch block
-                        e1.printStackTrace();
-                    }
-                } catch (FileNotFoundException e1) {
-                    view.showMessage(L10n.getString("error.incorrectpath"),
-                            L10n.getString("error.incorrectpath.title"),
+                    logger.warn("Error disabling mod: " + m.getName() + " because: " + e1.toString() + " is/are enabled.", e1);
+                } catch (ModNotEnabledException e1) {
+                    view.showMessage(L10n.getString("error.modnotenabled").replace("#mod#", m.getName()).replace("#mod2#", e1.toString()),
+                            L10n.getString("error.modnotenabled.title"),
                             JOptionPane.WARNING_MESSAGE);
-                    logger.warn("Error enabling mod: " + mod.getName() + " FileNotFoundException", e1);
-                } catch (IOException e1) {
+                    logger.warn("Error enabling mod: " + m.getName() + " because: " + e1.toString() + " is/are not enabled.", e1);
+                } catch (ModVersionMissmatchException e1) {
+                    view.showMessage(L10n.getString("error.modversionmissmatch").replace("#mod#", m.getName()),
+                            L10n.getString("error.modversionmissmatch.title"),
+                            JOptionPane.WARNING_MESSAGE);
+                    logger.warn("Error enabling mod: " + m.getName() + " because: Game version = " + gameVersion + " - Mod app version = " + e1.getAppVersion() + " ModVersionMissmatchException", e1);
+                } catch (ModConflictException e1) {
+                    // TODO: haven't tested this yet
+                    view.showMessage(L10n.getString("error.modconflict").replace("#mod#", m.getName()).replace("#mod2#", e1.toString()),
+                            L10n.getString("error.modconflict.title"),
+                            JOptionPane.WARNING_MESSAGE);
+                    logger.warn("Error enabling mod: " + m.getName() + " because there are conflict mods (" + e1.toString() + ") enabled", e1);
+                } catch (ModVersionUnsatisfiedException e1) {
+                    // TODO: haven't tested this yet
+                    view.showMessage(L10n.getString("error.modversionunsatisfied").replace("#mod#", m.getName()).replace("#mod2#", e1.toString()),
+                            L10n.getString("error.modversionunsatisfied.title"),
+                            JOptionPane.WARNING_MESSAGE);
+                    logger.warn("Error enabling mod: " + m.getName() + " because some mods (" + e1.toString() + ") version(s) is/are not satisfied", e1);
+                } catch (IllegalArgumentException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
                 }
+            } catch (FileNotFoundException e1) {
+                view.showMessage(L10n.getString("error.incorrectpath"),
+                        L10n.getString("error.incorrectpath.title"),
+                        JOptionPane.WARNING_MESSAGE);
+                logger.warn("Error enabling mod: " + mod.getName() + " FileNotFoundException", e1);
+            } catch (IOException e1) {
             }
+        }
     }
 
     /**

@@ -35,6 +35,7 @@ import com.thoughtworks.xstream.io.StreamException;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.channels.FileLockInterruptionException;
 
 import java.security.InvalidParameterException;
 import java.util.HashSet;
@@ -265,13 +266,10 @@ public class Manager extends Observable {
                 //ManagerCtrl.getGUI().showMessage(L10n.getString("error.loadmodfile").replace("#mod#", files[i].getName()), "TESTING", JOptionPane.ERROR_MESSAGE);
                 addHonmod(files[i], false);
             } catch (ModStreamException e) {
-                e.printStackTrace();
                 logger.error("StreamException from loadMods(): file - " + files[i].getName() + " - is corrupted.", e);
-
                 stream.addAll(e.getMods());
                 //ManagerCtrl.getGUI().showMessage(L10n.getString("error.loadmodfile").replace("#mod#", files[i].getName()), "error.loadmodfile.title", JOptionPane.ERROR_MESSAGE);
             } catch (ModNotFoundException e) {
-                e.printStackTrace();
                 logger.error("FileNotFoundException from loadMods(): file - " + files[i].getName() + " - is corrupted.", e);
                 notfound.addAll(e.getMods());
                 //ManagerCtrl.getGUI().showMessage(L10n.getString("error.loadmodfile").replace("#mod#", files[i].getName()), "error.loadmodfile.title", JOptionPane.ERROR_MESSAGE);
@@ -615,7 +613,7 @@ public class Manager extends Observable {
                 // Can't get here
             } catch (IOException ex) {
                 logger.error("Random I/O Exception happened", ex);
-                
+
                 // Random IO Exception
             }
         }
@@ -840,7 +838,6 @@ public class Manager extends Observable {
         ArrayList<Mod> left = new ArrayList<Mod>();
         for (int i = 0; i < ManagerOptions.getInstance().getMods().size(); i++) {
             if (ManagerOptions.getInstance().getMods().get(i).isEnabled()) {
-                logger.error("MAN: sortmods: mod added to left: " + ManagerOptions.getInstance().getMods().get(i).getName());
                 left.add(ManagerOptions.getInstance().getMods().get(i));
             }
         }
@@ -850,20 +847,14 @@ public class Manager extends Observable {
             int ind = ManagerOptions.getInstance().getMods().indexOf(getMod(left.get(i).getName()));
             ArrayList<Pair<String, String>> list = deps.get(ind);
 
-            logger.error("MAN: sortmods: checking: " + left.get(i).getName());
-
             if (list == null || list.isEmpty()) {
                 list = after.get(ind);
                 Mod m = getMod(ind);
                 if (list == null || list.isEmpty()) {
-
-
-                    logger.error("MAN: sortmods: first: " + m.getName());
                     queue.add(m);
                 } else {
                     boolean yes = false;
                     for (int h = 0; h < list.size(); h++) {
-                        System.out.println("BREATH: " + Tuple.get1(list.get(h)));
                         try {
                             Mod mm = getMod(Tuple.get1(list.get(h)));
                             if (mm != null && mm.isEnabled() && !queue.contains(mm)) {
@@ -900,7 +891,6 @@ public class Manager extends Observable {
             Mod m = (Mod) e.nextElement();
 
             if (m.isEnabled()) {
-                logger.error("MAN: sortmods: second: " + m.getName());
                 ArrayList<Pair<String, String>> depslist = getDepsList(m);
 
                 if (depslist == null || depslist.isEmpty()) {
@@ -959,13 +949,15 @@ public class Manager extends Observable {
      * imcompatibility or a error by the mod's author.
      * @throws InvalidModActionParameterException if a action had a invalid parameter. Only the position of actions 'insert' and 'find' can throw this exception.
      * @throws SecurityException if the Manager couldn't do a action because of security business.
+     * @throws FileLockInterruptionException if the Manager couldn't open the resources999.s2z file.
      */
     public void applyMods() throws IOException,
             UnknowModActionException,
             NothingSelectedModActionException,
             StringNotFoundModActionException,
             InvalidModActionParameterException,
-            SecurityException {
+            SecurityException,
+            FileLockInterruptionException {
         ArrayList<Mod> applyOrder = sortMods();
         File tempFolder = new File(System.getProperty("java.io.tmpdir") + File.separator + "HoN Mod Manager");
         // This generates a temp folder. If it isn't possible, generates a random folder inside the OS's temp folder.
@@ -980,13 +972,11 @@ public class Manager extends Observable {
                 }
             }
         }
-        logger.error("MAN: temp: " + tempFolder.getAbsolutePath());
+        logger.error("Started mod applying. Folder=" + tempFolder.getAbsolutePath());
         tempFolder.mkdirs();
         Enumeration<Mod> list = Collections.enumeration(applyOrder);
         while (list.hasMoreElements()) {
             Mod mod = list.nextElement();
-            logger.error("MAN: mod: " + mod.getName());
-
             for (int j = 0; j < mod.getActions().size(); j++) {
                 Action action = mod.getActions().get(j);
                 if (action.getClass().equals(ActionCopyFile.class)) {
@@ -1028,6 +1018,7 @@ public class Manager extends Observable {
                                     }
                                 }
                             } else if (copyfile.overwrite() == 2) {
+                                // overwrite file
                                 byte[] file = ZIP.getFile(new File(mod.getPath()), toCopy);
                                 FileOutputStream fos = new FileOutputStream(temp);
                                 if (temp.delete() && temp.createNewFile()) {
@@ -1062,8 +1053,8 @@ public class Manager extends Observable {
                     } else {
 
                         // the selection is stored here
-                        int cursor[] = new int[1];
-                        int cursor2[] = new int[1];
+                        int cursor[] = new int[]{0};
+                        int cursor2[] = new int[]{0};
 
                         // check if something is selected
                         boolean isSelected = false;
@@ -1094,6 +1085,10 @@ public class Manager extends Observable {
                                     for (int i = 0; i < cursor.length; i++) {
                                         afterEdit = afterEdit.substring(0, cursor[i]) + afterEdit.substring(cursor2[i]);
                                         cursor2[i] = cursor[i];
+                                        for (int l = i + 1; k < cursor.length; k++) {
+                                            cursor[l] = cursor[l] - (cursor2[l] - cursor[l]);
+                                            cursor2[l] = cursor2[l] - (cursor2[l] - cursor[l]);
+                                        }
                                         isSelected = false;
                                     }
                                 } else {
@@ -1103,31 +1098,27 @@ public class Manager extends Observable {
                                 // Find Action
                             } else if (editFileAction.getClass().equals(ActionEditFileFind.class)) {
                                 ActionEditFileFind find = (ActionEditFileFind) editFileAction;
-                                cursor = new int[1];
-                                cursor2 = new int[1];
-                                if (find.getPosition() != null) {
-                                    if (find.isPositionAtStart()) {
-                                        cursor[0] = 0;
-                                        cursor2[0] = 0;
+                                cursor = new int[]{cursor[0]};
+                                cursor2 = new int[]{cursor2[0]};
+                                if (find.getPosition() != null && !find.isPositionAtEnd() && !find.isPositionAtStart()) {
+                                    try {
+                                        cursor[0] = cursor[0] + Integer.parseInt(find.getPosition());
+                                        cursor2[0] = cursor[0];
                                         isSelected = true;
-                                    } else if (find.isPositionAtEnd()) {
+                                    } catch (NumberFormatException e) {
+                                        // it isn't a valid number or word, can't apply
+                                        throw new InvalidModActionParameterException(mod.getName(), mod.getVersion(), (Action) find);
+                                    }
+                                } else {
+                                    if (find.isPositionAtEnd()) {
                                         cursor[0] = afterEdit.length();
                                         cursor2[0] = cursor[0];
                                         isSelected = true;
-                                    } else {
-                                        try {
-                                            cursor[0] = Integer.parseInt(find.getPosition());
-                                            if (cursor[0] < 0) {
-                                                cursor[0] = afterEdit.length() - (cursor[0] * (-1));
-                                            }
-                                            cursor2[0] = cursor[0];
-                                            isSelected = true;
-                                        } catch (NumberFormatException e) {
-                                            // it isn't a valid number or word, can't apply
-                                            throw new InvalidModActionParameterException(mod.getName(), mod.getVersion(), (Action) find);
-                                        }
+                                    } else if (find.isPositionAtStart()) {
+                                        cursor[0] = 0;
+                                        cursor2[0] = 0;
+                                        isSelected = true;
                                     }
-                                } else {
                                     cursor[0] = afterEdit.toLowerCase().trim().indexOf(find.getContent().toLowerCase().trim(), cursor[0]);
                                     if (cursor[0] == -1) {
                                         // couldn't find the string, can't apply
@@ -1182,10 +1173,18 @@ public class Manager extends Observable {
                                     for (int i = 0; i < cursor.length; i++) {
                                         if (insert.isPositionAfter()) {
                                             afterEdit = afterEdit.substring(0, cursor2[i]) + insert.getContent() + afterEdit.substring(cursor2[i]);
+                                            for (int l = i + 1; k < cursor.length; k++) {
+                                                cursor[l] = cursor[l] + insert.getContent().length();
+                                                cursor2[l] = cursor2[l] + insert.getContent().length();
+                                            }
                                         } else if (insert.isPositionBefore()) {
                                             afterEdit = afterEdit.substring(0, cursor[i]) + insert.getContent() + afterEdit.substring(cursor[i]);
                                             cursor[i] = cursor2[i];
                                             cursor2[i] = cursor[i] + insert.getContent().trim().length();
+                                            for (int l = i + 1; k < cursor.length; k++) {
+                                                cursor[l] = cursor[l] + insert.getContent().length();
+                                                cursor2[l] = cursor2[l] + insert.getContent().length();
+                                            }
                                         } else {
                                             // position is invalid, can't apply
                                             throw new InvalidModActionParameterException(mod.getName(), mod.getVersion(), (Action) insert);
@@ -1202,6 +1201,10 @@ public class Manager extends Observable {
                                 if (isSelected) {
                                     for (int i = 0; i < cursor.length; i++) {
                                         afterEdit = afterEdit.substring(0, cursor[i]) + replace.getContent() + afterEdit.substring(cursor2[i]);
+                                        for (int l = i + 1; k < cursor.length; k++) {
+                                            cursor[l] = cursor[l] + replace.getContent().length();
+                                            cursor2[l] = cursor2[l] + replace.getContent().length();
+                                        }
                                     }
                                     isSelected = false;
                                 } else {
@@ -1217,7 +1220,8 @@ public class Manager extends Observable {
                         if (!folder.getAbsolutePath().equalsIgnoreCase(tempFolder.getAbsolutePath())) {
                             if (!folder.exists()) {
                                 if (!folder.mkdirs()) {
-                                    throw new SecurityException();
+                                    // Can't access resources999.s2z
+                                    throw new FileLockInterruptionException();
                                 }
                             }
                         }
@@ -1254,7 +1258,7 @@ public class Manager extends Observable {
         File targetZip = new File(dest);
         if (targetZip.exists()) {
             if (!targetZip.delete()) {
-                throw new SecurityException();
+                throw new SecurityException(dest);
             }
         }
 
@@ -1509,8 +1513,6 @@ public class Manager extends Observable {
     public boolean isValidCondition(String condition) {
         boolean valid = true;
 
-        System.out.println("isValidCondition: " + condition);
-
         StringTokenizer st = new StringTokenizer(condition, "\' ()", true);
         while (st.hasMoreTokens()) {
             String token = st.nextToken();
@@ -1536,13 +1538,10 @@ public class Manager extends Observable {
 
                     try {
                         valid = (m.isEnabled() && validVersion(m, version));
-                        System.out.println("condition mod: " + valid);
                     } catch (Exception e) {
-                        System.out.println("version is not valid: " + e.getMessage());
                         valid = false;
                     }
                 } catch (NoSuchElementException e) {
-                    System.out.println("mod not found exception: " + e.getMessage());
                     valid = false;
                 }
             } else if (token.equalsIgnoreCase(" ")) {

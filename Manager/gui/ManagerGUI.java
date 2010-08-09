@@ -1,6 +1,7 @@
 package gui;
 
 import java.util.List;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import gui.l10n.L10n;
 import javax.swing.RowSorter.SortKey;
@@ -208,6 +209,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         itemExit = new javax.swing.JMenuItem();
         menuOptions = new javax.swing.JMenu();
         itemOpenPreferences = new javax.swing.JMenuItem();
+        jMenuItem1 = new javax.swing.JMenuItem();
         menuHelp = new javax.swing.JMenu();
         itemVisitForumThread = new javax.swing.JMenuItem();
         jSeparator4 = new javax.swing.JPopupMenu.Separator();
@@ -591,7 +593,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                 .addContainerGap()
                 .addGroup(panelModListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panelModListLayout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 292, Short.MAX_VALUE)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 495, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED))
                     .addGroup(panelModListLayout.createSequentialGroup()
                         .addComponent(buttonApplyMods, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -627,11 +629,13 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         menuFile.setText(L10n.getString("menu.file"));
         menuFile.setName("menuFile"); // NOI18N
 
+        itemApplyMods.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_MASK));
         itemApplyMods.setMnemonic(L10n.getMnemonic("menu.file.applymods"));
         itemApplyMods.setText(L10n.getString("menu.file.applymods"));
         itemApplyMods.setName("itemApplyMods"); // NOI18N
         menuFile.add(itemApplyMods);
 
+        itemApplyAndLaunch.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
         itemApplyAndLaunch.setMnemonic(L10n.getMnemonic("menu.file.applyandlaunch"));
         itemApplyAndLaunch.setText(L10n.getString("menu.file.applyandlaunch"));
         itemApplyAndLaunch.setName("itemApplyAndLaunch"); // NOI18N
@@ -645,6 +649,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         jSeparator1.setName("jSeparator1"); // NOI18N
         menuFile.add(jSeparator1);
 
+        itemOpenModFolder.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F, java.awt.event.InputEvent.CTRL_MASK));
         itemOpenModFolder.setMnemonic(L10n.getMnemonic("menu.file.openfolder"));
         itemOpenModFolder.setText(L10n.getString("menu.file.openfolder"));
         itemOpenModFolder.setName("itemOpenModFolder"); // NOI18N
@@ -653,6 +658,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         jSeparator3.setName("jSeparator3"); // NOI18N
         menuFile.add(jSeparator3);
 
+        itemDownloadModUpdates.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_U, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
         itemDownloadModUpdates.setMnemonic(L10n.getMnemonic("menu.file.downloadmodupdates"));
         itemDownloadModUpdates.setText(L10n.getString("menu.file.downloadmodupdates"));
         itemDownloadModUpdates.setName("itemDownloadModUpdates"); // NOI18N
@@ -661,6 +667,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         jSeparator2.setName("jSeparator2"); // NOI18N
         menuFile.add(jSeparator2);
 
+        itemExit.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Q, java.awt.event.InputEvent.CTRL_MASK));
         itemExit.setMnemonic(L10n.getMnemonic("menu.file.exit"));
         itemExit.setText(L10n.getString("menu.file.exit"));
         itemExit.setName("itemExit"); // NOI18N
@@ -672,6 +679,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         menuOptions.setText(L10n.getString("menu.options"));
         menuOptions.setName("menuOptions"); // NOI18N
 
+        itemOpenPreferences.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.CTRL_MASK));
         itemOpenPreferences.setText(L10n.getString("menu.options.preferences"));
         itemOpenPreferences.setName("itemOpenPreferences"); // NOI18N
         itemOpenPreferences.addActionListener(new java.awt.event.ActionListener() {
@@ -680,6 +688,10 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
             }
         });
         menuOptions.add(itemOpenPreferences);
+
+        jMenuItem1.setText("jMenuItem1");
+        jMenuItem1.setName("jMenuItem1"); // NOI18N
+        menuOptions.add(jMenuItem1);
 
         mainMenu.add(menuOptions);
 
@@ -695,6 +707,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         jSeparator4.setName("jSeparator4"); // NOI18N
         menuHelp.add(jSeparator4);
 
+        itemAbout.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F1, 0));
         itemAbout.setMnemonic(L10n.getMnemonic("menu.help.about"));
         itemAbout.setText(L10n.getString("menu.help.about"));
         itemAbout.setName("itemAbout"); // NOI18N
@@ -1009,6 +1022,10 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         buttonAddMod.addActionListener(al);
     }
 
+    public JMenuItem getItemRefreshManager() {
+        return jMenuItem1;
+    }
+
     public void buttonEnableModAddActionListener(ActionListener al) {
         buttonEnableMod.addActionListener(al);
     }
@@ -1223,6 +1240,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     private javax.swing.JMenuItem itemVisitForumThread;
     private javax.swing.JEditorPane jEditorPane1;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
