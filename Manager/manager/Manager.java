@@ -297,7 +297,7 @@ public class Manager extends Observable {
             list.add(Tuple.from(honmod.getName(), "notfound"));
             throw new ModNotFoundException(list);
         }
-        String xml = new String(ZIP.getFile(honmod, "mod.xml"));
+        String xml = new String(ZIP.getFile(honmod, Mod.MOD_FILENAME));
         Mod m = null;
         try {
             m = XML.xmlToMod(xml);
@@ -307,10 +307,17 @@ public class Manager extends Observable {
         }
         Icon icon;
         try {
-            icon = new ImageIcon(ZIP.getFile(honmod, "icon.png"));
+            icon = new ImageIcon(ZIP.getFile(honmod, Mod.ICON_FILENAME));
         } catch (FileNotFoundException e) {
             icon = new javax.swing.ImageIcon(getClass().getResource("/gui/resources/icon.png"));
         }
+        String changelog = null;
+        try {
+            changelog = new String(ZIP.getFile(honmod, "changelog.txt"));
+        } catch (IOException e) {
+            changelog = null;
+        }
+        m.setChangelog(changelog);
         m.setIcon(icon);
         logger.info("Mod file opened. Mod name: " + m.getName());
         m.setPath(honmod.getAbsolutePath());

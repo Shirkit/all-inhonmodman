@@ -20,6 +20,7 @@ public class Mod {
     // Constants
     public static final String MOD_FILENAME = "mod.xml";
     public static final String ICON_FILENAME = "icon.png";
+    public static final String CHANGELOG_FILENAME = "changelog.txt";
     // Attributes with Alias
     @XStreamAlias("name")
     @XStreamAsAttribute
@@ -67,6 +68,8 @@ public class Mod {
     private boolean enabled;
     @XStreamOmitField
     private Icon icon;
+    @XStreamOmitField
+    private String changelog;
 
     /**
      * Mod constructor.
@@ -276,6 +279,17 @@ public class Mod {
      */
     public Icon getIcon() {
         return icon;
+    }
+
+    /**
+     * Reurns a String with the content of the mod's Changelog in it.
+     */
+    public String getChangelog() {
+        return changelog;
+    }
+
+    public void setChangelog(String changelog) {
+        this.changelog = changelog;
     }
 
     /**

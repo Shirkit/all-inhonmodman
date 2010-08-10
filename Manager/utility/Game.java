@@ -1,5 +1,6 @@
 package utility;
 
+import business.ManagerOptions;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -31,6 +32,9 @@ public class Game {
     public static String findHonFolder() {
     	//TODO: finish this function for windows and linux
         // Try to find HoN folder in case we are on Windows
+        if (ManagerOptions.getInstance().getGamePath() != null && !ManagerOptions.getInstance().getGamePath().isEmpty()) {
+            return ManagerOptions.getInstance().getGamePath();
+        }
         if (OS.isWindows()) {
             // Get the folder from uninstall info in windows registry saved by HoN
             String registryData = WindowsRegistry.getRecord("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\hon", "InstallLocation");

@@ -1,9 +1,8 @@
 package gui;
 
+import java.awt.Rectangle;
 import java.awt.event.ComponentEvent;
-import java.awt.event.KeyEvent;
 import java.util.Observable;
-import java.util.logging.Level;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.TableColumnModelEvent;
 import javax.swing.event.TableColumnModelListener;
@@ -25,7 +24,6 @@ import gui.l10n.L10n;
 import business.ManagerOptions;
 import business.Mod;
 import java.awt.event.ComponentListener;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import utility.FileDrop;
@@ -45,6 +43,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Observer;
 import java.util.prefs.Preferences;
@@ -119,6 +118,8 @@ public class ManagerCtrl implements Observer {
         view.addComponentListener(new ComponentEventListener());
         view.getModListTable().addMouseListener(new MouseEnableModListener());
         view.getItemRefreshManager().addActionListener(new RefreshManagerListener());
+        view.getButtonViewChagelog().addActionListener(new ButtonViewModChangelogListener());
+        view.getButtonViewModDetails().addActionListener(new ButtonViewModChangelogListener());
         // Add file drop functionality
         new FileDrop(view, new DropListener());
 
@@ -566,6 +567,20 @@ public class ManagerCtrl implements Observer {
             model.updateNotify();
             view.getProgressBar().setValue(0);
         }
+    }
+
+    class ButtonViewModChangelogListener implements ActionListener {
+
+        public void actionPerformed(ActionEvent ae) {
+            if (ae.getActionCommand().equals("display changelog")) {
+                view.getPanelModChangelog().setVisible(true);
+                view.getPanelModDetails().setVisible(false);
+            } else {
+                view.getPanelModChangelog().setVisible(false);
+                view.getPanelModDetails().setVisible(true);
+            }
+        }
+
     }
 
     class DownloadModUpdatesListener implements ActionListener {
