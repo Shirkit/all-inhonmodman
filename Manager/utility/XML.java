@@ -2,6 +2,7 @@ package utility;
 
 import business.ManagerOptions;
 import business.Mod;
+import business.ShirkitDriver;
 import business.actions.*;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.StreamException;
@@ -26,8 +27,8 @@ import java.util.Set;
  */
 public class XML {
 
-    public static DomDriver getDriver() {
-        return new DomDriver("UTF-8");
+    public static ShirkitDriver getDriver() {
+        return new ShirkitDriver("UTF-8");
     }
 
     /**
