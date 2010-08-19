@@ -235,7 +235,12 @@ public class Manager extends Observable {
      */
     public ArrayList<ArrayList<Pair<String, String>>> loadMods() throws IOException {
         ManagerOptions.getInstance().getMods().clear();
-        File modsFolder = new File(ManagerOptions.getInstance().getModPath());
+        File modsFolder;
+        try {
+            modsFolder = new File(ManagerOptions.getInstance().getModPath());
+        } catch (NullPointerException ex) {
+            return new ArrayList<ArrayList<Pair<String, String>>>();
+        }
         // Get mod files from the directory
         FileFilter fileFilter = new FileFilter() {
 
@@ -1107,16 +1112,7 @@ public class Manager extends Observable {
                                 ActionEditFileFind find = (ActionEditFileFind) editFileAction;
                                 cursor = new int[]{cursor[0]};
                                 cursor2 = new int[]{cursor2[0]};
-                                if (find.getPosition() != null && !find.isPositionAtEnd() && !find.isPositionAtStart()) {
-                                    try {
-                                        cursor[0] = cursor[0] + Integer.parseInt(find.getPosition());
-                                        cursor2[0] = cursor[0];
-                                        isSelected = true;
-                                    } catch (NumberFormatException e) {
-                                        // it isn't a valid number or word, can't apply
-                                        throw new InvalidModActionParameterException(mod.getName(), mod.getVersion(), (Action) find);
-                                    }
-                                } else {
+                                if (find.getPosition() != null) {
                                     if (find.isPositionAtEnd()) {
                                         cursor[0] = afterEdit.length();
                                         cursor2[0] = cursor[0];
@@ -1125,14 +1121,28 @@ public class Manager extends Observable {
                                         cursor[0] = 0;
                                         cursor2[0] = 0;
                                         isSelected = true;
+                                    } else {
+                                        try {
+                                            cursor[0] = cursor[0] + Integer.parseInt(find.getPosition());
+                                            cursor2[0] = cursor[0];
+                                            isSelected = true;
+                                        } catch (NumberFormatException e) {
+                                            // it isn't a valid number or word, can't apply
+                                            throw new InvalidModActionParameterException(mod.getName(), mod.getVersion(), (Action) find);
+                                        }
                                     }
-                                    cursor[0] = afterEdit.toLowerCase().trim().indexOf(find.getContent().toLowerCase().trim(), cursor[0]);
+                                } else {
+                                    cursor[0] = afterEdit.toLowerCase().indexOf(find.getContent().toLowerCase(), cursor[0]);
                                     if (cursor[0] == -1) {
+                                    FileOutputStream fos = new FileOutputStream("C:\\teso2.txt");
+                                    fos.write(afterEdit.getBytes("UTF-8"));
+                                    fos = new FileOutputStream("C:\\teso3.txt");
+                                    fos.write(find.getContent().getBytes("UTF-8"));
                                         // couldn't find the string, can't apply
                                         logger.error("MAN: mod edit find: " + find.getContent());
                                         throw new StringNotFoundModActionException(mod.getName(), mod.getVersion(), (Action) find, find.getContent());
                                     }
-                                    cursor2[0] = cursor[0] + find.getContent().trim().length();
+                                    cursor2[0] = cursor[0] + find.getContent().length();
                                     isSelected = true;
                                 }
 
@@ -1141,12 +1151,12 @@ public class Manager extends Observable {
                                 ActionEditFileFindUp findup = (ActionEditFileFindUp) editFileAction;
                                 cursor = new int[1];
                                 cursor2 = new int[1];
-                                cursor[0] = afterEdit.trim().toLowerCase().lastIndexOf(findup.getContent().trim().toLowerCase(), cursor[0]);
+                                cursor[0] = afterEdit.toLowerCase().lastIndexOf(findup.getContent().toLowerCase(), cursor[0]);
                                 if (cursor[0] == -1) {
                                     // couldn't find the string, can't apply
                                     throw new StringNotFoundModActionException(mod.getName(), mod.getVersion(), (Action) findup, findup.getContent());
                                 }
-                                cursor2[0] = cursor[0] + findup.getContent().trim().length();
+                                cursor2[0] = cursor[0] + findup.getContent().length();
                                 isSelected = true;
                                 // FindAll Action
                             } else if (editFileAction.getClass().equals(ActionEditFileFindAll.class)) {
@@ -1156,10 +1166,10 @@ public class Manager extends Observable {
                                 ArrayList<Integer> lastPosition = new ArrayList<Integer>();
                                 int index = -1;
                                 int lastIndex = 0;
-                                while ((index = afterEdit.trim().toLowerCase().indexOf(findall.getContent().trim().toLowerCase(), lastIndex)) != -1) {
+                                while ((index = afterEdit.toLowerCase().indexOf(findall.getContent().toLowerCase(), lastIndex)) != -1) {
                                     firstPosition.add(index);
-                                    lastPosition.add(index + findall.getContent().trim().length());
-                                    lastIndex = index + findall.getContent().trim().length();
+                                    lastPosition.add(index + findall.getContent().length());
+                                    lastIndex = index + findall.getContent().length();
                                 }
                                 if (firstPosition.isEmpty()) {
                                     // no string was found, can't apply
@@ -1187,7 +1197,7 @@ public class Manager extends Observable {
                                         } else if (insert.isPositionBefore()) {
                                             afterEdit = afterEdit.substring(0, cursor[i]) + insert.getContent() + afterEdit.substring(cursor[i]);
                                             cursor[i] = cursor2[i];
-                                            cursor2[i] = cursor[i] + insert.getContent().trim().length();
+                                            cursor2[i] = cursor[i] + insert.getContent().length();
                                             for (int l = i + 1; k < cursor.length; k++) {
                                                 cursor[l] = cursor[l] + insert.getContent().length();
                                                 cursor2[l] = cursor2[l] + insert.getContent().length();
@@ -1227,8 +1237,8 @@ public class Manager extends Observable {
                         if (!folder.getAbsolutePath().equalsIgnoreCase(tempFolder.getAbsolutePath())) {
                             if (!folder.exists()) {
                                 if (!folder.mkdirs()) {
-                                    // Can't access resources999.s2z
-                                    throw new FileLockInterruptionException();
+                                    // Can't crete folders to path
+                                    throw new SecurityException(folder.getAbsolutePath());
                                 }
                             }
                         }
@@ -1256,7 +1266,7 @@ public class Manager extends Observable {
 
         String dest = "";
 
-        if (OS.isWindows()) {
+        if (OS.isWindows() || OS.isLinux()) {
             dest = ManagerOptions.getInstance().getGamePath() + File.separator + "game" + File.separator + "resources999.s2z";
         } else if (OS.isMac()) {
             dest = System.getProperty("user.home") + File.separator + "Library/Application Support/Heroes of Newerth/game/resources999.s2z";
@@ -1265,7 +1275,7 @@ public class Manager extends Observable {
         File targetZip = new File(dest);
         if (targetZip.exists()) {
             if (!targetZip.delete()) {
-                throw new SecurityException(dest);
+                throw new FileLockInterruptionException();
             }
         }
 

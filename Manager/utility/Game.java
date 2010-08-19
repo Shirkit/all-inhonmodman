@@ -30,7 +30,7 @@ public class Game {
      * @return folder where HoN is installed or null if such folder cannot be found
      */
     public static String findHonFolder() {
-    	//TODO: finish this function for windows and linux
+        //TODO: finish this function for windows and linux
         // Try to find HoN folder in case we are on Windows
         if (ManagerOptions.getInstance().getGamePath() != null && !ManagerOptions.getInstance().getGamePath().isEmpty()) {
             return ManagerOptions.getInstance().getGamePath();
@@ -62,7 +62,7 @@ public class Game {
      * @return folder of the mods or null
      */
     public static String findModFolder() {
-    	//TODO: finish this function for windows and linux
+        //TODO: finish this function for windows and linux
         // Try to find HoN folder in case we are on Windows
         if (OS.isWindows()) {
             return null;
@@ -298,5 +298,34 @@ public class Game {
      */
     private void setVersion(String version) {
         this.version = version;
+    }
+
+    public File getHonExecutable() throws FileNotFoundException {
+        if (path == null) {
+            path = findHonFolder();
+            if (path == null) {
+                throw new FileNotFoundException();
+            }
+        }
+        File honWindows = new File(path + File.separator + "hon.exe");
+        File honLinux = new File(path + File.separator + "hon-x86");
+        File honLinux64 = new File(path + File.separator + "hon-x86_64");
+        File honMac = new File(path);
+        if (OS.isWindows()) {
+            if (honWindows.exists()) {
+                return honWindows;
+            }
+        } else if (OS.isLinux()) {
+            if (honLinux64.exists()) {
+                return honLinux64;
+            } else if (honLinux.exists()) {
+                return honLinux;
+            }
+        } else if (OS.isMac()) {
+            if (honMac.exists()) {
+                return honMac;
+            }
+        }
+        return null;
     }
 }

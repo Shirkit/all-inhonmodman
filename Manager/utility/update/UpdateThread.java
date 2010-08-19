@@ -15,6 +15,7 @@ import java.io.InputStreamReader;
 import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.security.InvalidParameterException;
 import java.util.concurrent.Callable;
 import manager.Manager;
@@ -38,7 +39,10 @@ public class UpdateThread implements Callable<UpdateThread> {
     public UpdateThread call() throws UpdateModException {
         try {
             if (mod.getUpdateCheckUrl() != null && mod.getUpdateDownloadUrl() != null) {
-                BufferedReader in = new BufferedReader(new InputStreamReader(new URL(mod.getUpdateCheckUrl().trim()).openStream()));
+                URL url = new URL(mod.getUpdateCheckUrl().trim());
+                URLConnection connection = url.openConnection();
+                connection.setConnectTimeout(4000);
+                BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                 String str = in.readLine();
                 in.close();
                 if (str != null && !str.toLowerCase().trim().contains("error") && !Manager.getInstance().compareModsVersions(mod.getVersion(), str)) {

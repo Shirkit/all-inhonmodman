@@ -1,8 +1,8 @@
 package gui;
 
-import java.awt.Rectangle;
 import java.awt.event.ComponentEvent;
 import java.util.Observable;
+import java.util.logging.Level;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.TableColumnModelEvent;
 import javax.swing.event.TableColumnModelListener;
@@ -26,6 +26,7 @@ import business.Mod;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.FileOutputStream;
 import utility.FileDrop;
 import utility.OS;
 import utility.exception.ModConflictException;
@@ -43,7 +44,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Iterator;
-import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Observer;
 import java.util.prefs.Preferences;
@@ -120,6 +120,7 @@ public class ManagerCtrl implements Observer {
         view.getItemRefreshManager().addActionListener(new RefreshManagerListener());
         view.getButtonViewChagelog().addActionListener(new ButtonViewModChangelogListener());
         view.getButtonViewModDetails().addActionListener(new ButtonViewModChangelogListener());
+        view.getButtonLaunchHon().addActionListener(new LaunchHonButton());
         // Add file drop functionality
         new FileDrop(view, new DropListener());
 
@@ -198,15 +199,6 @@ public class ManagerCtrl implements Observer {
             view.getProgressBar().setValue(ints[0]);
             view.paint(view.getGraphics());
         }
-
-
-        /*
-        ArrayList<Integer> temp = new ArrayList<Integer>();
-        for (int i = 0; i < view.getModListTable().getColumnModel().getColumnCount(); i++) {
-        temp.add(new Integer(view.getModListTable().getColumnModel().getColumn(i).getWidth()));
-        }
-        logger.error("Ctrl: TableEditListerner: " + temp.toString());
-         */
 
     }
 
@@ -411,7 +403,6 @@ public class ManagerCtrl implements Observer {
             TableModel tableModel = (TableModel) e.getSource();
             Mod mod = controller.getMod(row);
             enableMod(mod);
-            logger.error("Ctrl: TableEditListerner: begin: " + temp.toString());
 
 
             // Again, save and restore ListSelectionListener
@@ -482,6 +473,14 @@ public class ManagerCtrl implements Observer {
             } catch (NothingSelectedModActionException ex) {
                 ex.printStackTrace();
             } catch (StringNotFoundModActionException ex) {
+                try {
+                    File f = new File("C:\\teso.txt");
+                    f.createNewFile();
+                    FileOutputStream fos = new FileOutputStream(f);
+                    fos.write(ex.getString().getBytes("UTF-8"));
+                } catch (Exception ex1) {
+                    java.util.logging.Logger.getLogger(ManagerCtrl.class.getName()).log(Level.SEVERE, null, ex1);
+                }
                 ex.printStackTrace();
             } catch (InvalidModActionParameterException ex) {
                 ex.printStackTrace();
@@ -500,12 +499,15 @@ public class ManagerCtrl implements Observer {
 
         public void actionPerformed(ActionEvent e) {
             logger.info("Applying mods and launching HoN...");
-            // TODO: Test & implement
-            // model.applyMods();
-            // model.runHoN();
-            view.showMessage(L10n.getString("message.modsapplied"),
-                    L10n.getString("message.modsapplied.title"),
-                    JOptionPane.INFORMATION_MESSAGE);
+            applyMods();
+            try {
+                Process game = Runtime.getRuntime().exec(Game.getInstance().getHonExecutable().getAbsolutePath());
+            } catch (IOException ex) {
+                view.showMessage(L10n.getString("message.honnotfound"),
+                    L10n.getString("message.honnotfound.title"),
+                    JOptionPane.ERROR_MESSAGE);
+                logger.error("HoN couldn't be launched. Hon path=" + model.getGamePath(), ex);
+            }
         }
     }
 
@@ -580,7 +582,6 @@ public class ManagerCtrl implements Observer {
                 view.getPanelModDetails().setVisible(true);
             }
         }
-
     }
 
     class DownloadModUpdatesListener implements ActionListener {
@@ -624,6 +625,7 @@ public class ManagerCtrl implements Observer {
             }
             view.showMessage(message, "Title", JOptionPane.INFORMATION_MESSAGE);
             view.getProgressBar().setValue(0);
+            view.updateModTable();
         }
     }
 
@@ -731,7 +733,8 @@ public class ManagerCtrl implements Observer {
     class PrefsOkListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
-            logger.error("CTRL: " + view.getSelectedHonFolder());
+            logger.info("Hon folder set to: " + view.getSelectedHonFolder());
+            logger.info("Mods folder set to: " + view.getTextFieldModsFolder());
             ManagerOptions.getInstance().setGamePath(view.getSelectedHonFolder());
             ManagerOptions.getInstance().setCLArgs(view.getCLArguments());
             ManagerOptions.getInstance().setLaf(view.getSelectedLafClass());
@@ -764,7 +767,21 @@ public class ManagerCtrl implements Observer {
             loadMods();
             model.updateNotify();
         }
+    }
 
+    class LaunchHonButton implements ActionListener {
+
+        public void actionPerformed(ActionEvent e) {
+            try {
+                if (Game.getInstance().getHonExecutable() != null) {
+                    applyMods();
+                    Process game = Runtime.getRuntime().exec(Game.getInstance().getHonExecutable().getAbsolutePath());
+                }
+            } catch (FileNotFoundException ex) {
+                java.util.logging.Logger.getLogger(ManagerCtrl.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+            }
+        }
     }
 
     /**
@@ -949,6 +966,27 @@ public class ManagerCtrl implements Observer {
                 logger.warn("Error enabling mod: " + mod.getName() + " FileNotFoundException", e1);
             } catch (IOException e1) {
             }
+        }
+    }
+
+    public void applyMods() {
+        try {
+            controller.applyMods();
+        } catch (FileLockInterruptionException ex) {
+            logger.error("Error applying mods. Can't write on the resources999.s2z file", ex);
+            view.showMessage(null, null, JOptionPane.ERROR_MESSAGE);
+        } catch (NothingSelectedModActionException ex) {
+            logger.error("Error applying mods. Nothing was selected. Mod=" + ex.getName() + " | Version=" + ex.getVersion() + " | ActionClass=" + ex.getAction().getClass(), ex);
+            view.showMessage(null, null, JOptionPane.ERROR_MESSAGE);
+        } catch (StringNotFoundModActionException ex) {
+            java.util.logging.Logger.getLogger(ManagerCtrl.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InvalidModActionParameterException ex) {
+            java.util.logging.Logger.getLogger(ManagerCtrl.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (UnknowModActionException ex) {
+        } catch (SecurityException ex) {
+            java.util.logging.Logger.getLogger(ManagerCtrl.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            java.util.logging.Logger.getLogger(ManagerCtrl.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
