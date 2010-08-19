@@ -22,15 +22,42 @@ public class ManagerOptionsConverter implements Converter {
 
     public void marshal(Object o, HierarchicalStreamWriter writer, MarshallingContext mc) {
         ManagerOptions opt = ManagerOptions.getInstance();
-        writer.addAttribute("honfolder", opt.getGamePath());
-        writer.addAttribute("modsfolder", opt.getModPath());
-        writer.addAttribute("lang", opt.getLanguage());
-        writer.addAttribute("laf", opt.getLaf());
-        writer.addAttribute("clargs", opt.getCLArgs());
-        writer.addAttribute("x", Integer.toString((int) opt.getGuiRectangle().getX()));
-        writer.addAttribute("y", Integer.toString((int) opt.getGuiRectangle().getY()));
-        writer.addAttribute("width", Integer.toString((int) opt.getGuiRectangle().getWidth()));
-        writer.addAttribute("height", Integer.toString((int) opt.getGuiRectangle().getHeight()));
+        try {
+            writer.addAttribute("honfolder", opt.getGamePath());
+        } catch (NullPointerException ex) {
+        }
+        try {
+            writer.addAttribute("modsfolder", opt.getModPath());
+        } catch (NullPointerException ex) {
+        }
+        try {
+            writer.addAttribute("lang", opt.getLanguage());
+        } catch (NullPointerException ex) {
+        }
+        try {
+            writer.addAttribute("laf", opt.getLaf());
+        } catch (NullPointerException ex) {
+        }
+        try {
+            writer.addAttribute("clargs", opt.getCLArgs());
+        } catch (NullPointerException ex) {
+        }
+        try {
+            writer.addAttribute("x", Integer.toString((int) opt.getGuiRectangle().getX()));
+        } catch (NullPointerException ex) {
+        }
+        try {
+            writer.addAttribute("y", Integer.toString((int) opt.getGuiRectangle().getY()));
+        } catch (NullPointerException ex) {
+        }
+        try {
+            writer.addAttribute("width", Integer.toString((int) opt.getGuiRectangle().getWidth()));
+        } catch (NullPointerException ex) {
+        }
+        try {
+            writer.addAttribute("height", Integer.toString((int) opt.getGuiRectangle().getHeight()));
+        } catch (NullPointerException ex) {
+        }
         if (opt.getColumnsWidth() != null) {
             Iterator<Integer> it = opt.getColumnsWidth().iterator();
             int i = 0;
