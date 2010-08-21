@@ -473,14 +473,6 @@ public class ManagerCtrl implements Observer {
             } catch (NothingSelectedModActionException ex) {
                 ex.printStackTrace();
             } catch (StringNotFoundModActionException ex) {
-                try {
-                    File f = new File("C:\\teso.txt");
-                    f.createNewFile();
-                    FileOutputStream fos = new FileOutputStream(f);
-                    fos.write(ex.getString().getBytes("UTF-8"));
-                } catch (Exception ex1) {
-                    java.util.logging.Logger.getLogger(ManagerCtrl.class.getName()).log(Level.SEVERE, null, ex1);
-                }
                 ex.printStackTrace();
             } catch (InvalidModActionParameterException ex) {
                 ex.printStackTrace();

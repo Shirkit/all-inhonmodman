@@ -1134,10 +1134,6 @@ public class Manager extends Observable {
                                 } else {
                                     cursor[0] = afterEdit.toLowerCase().indexOf(find.getContent().toLowerCase(), cursor[0]);
                                     if (cursor[0] == -1) {
-                                    FileOutputStream fos = new FileOutputStream("C:\\teso2.txt");
-                                    fos.write(afterEdit.getBytes("UTF-8"));
-                                    fos = new FileOutputStream("C:\\teso3.txt");
-                                    fos.write(find.getContent().getBytes("UTF-8"));
                                         // couldn't find the string, can't apply
                                         logger.error("MAN: mod edit find: " + find.getContent());
                                         throw new StringNotFoundModActionException(mod.getName(), mod.getVersion(), (Action) find, find.getContent());
