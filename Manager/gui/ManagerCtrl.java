@@ -462,25 +462,7 @@ public class ManagerCtrl implements Observer {
     class ApplyModsListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
-            try {
-                logger.info("Applying mods...");
-                controller.applyMods();
-                view.showMessage(L10n.getString("message.modsapplied"), L10n.getString("message.modsapplied.title"), JOptionPane.INFORMATION_MESSAGE);
-            } catch (UnknowModActionException ex) {
-                ex.printStackTrace();
-            } catch (FileLockInterruptionException ex) {
-                ex.printStackTrace();
-            } catch (NothingSelectedModActionException ex) {
-                ex.printStackTrace();
-            } catch (StringNotFoundModActionException ex) {
-                ex.printStackTrace();
-            } catch (InvalidModActionParameterException ex) {
-                ex.printStackTrace();
-            } catch (SecurityException ex) {
-                ex.printStackTrace();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
+            applyMods();
         }
     }
 
