@@ -946,21 +946,29 @@ public class ManagerCtrl implements Observer {
     public void applyMods() {
         try {
             controller.applyMods();
+            view.showMessage(L10n.getString("message.modsapplied"), L10n.getString("message.modsapplied.title"), JOptionPane.ERROR_MESSAGE);
         } catch (FileLockInterruptionException ex) {
             logger.error("Error applying mods. Can't write on the resources999.s2z file", ex);
-            view.showMessage(null, null, JOptionPane.ERROR_MESSAGE);
+            view.showMessage(L10n.getString("error.resources999").replace("#file#", ManagerOptions.getInstance().getGamePath() + File.separator + "game" + File.separator + "resources999.s2z"), L10n.getString("error.resources999"), JOptionPane.ERROR_MESSAGE);
         } catch (NothingSelectedModActionException ex) {
-            logger.error("Error applying mods. Nothing was selected. Mod=" + ex.getName() + " | Version=" + ex.getVersion() + " | ActionClass=" + ex.getAction().getClass(), ex);
-            view.showMessage(null, null, JOptionPane.ERROR_MESSAGE);
+            logger.error("Error applying mods. Nothing was selected and a operation that needs something to be selected was called. Mod=" + ex.getName() + " | Version=" + ex.getVersion() + " | ActionClass=" + ex.getAction().getClass(), ex);
+            view.showMessage(L10n.getString("error.modcantapply").replace("#mod#", ex.getName()), L10n.getString("error.modcantapply.title"), JOptionPane.ERROR_MESSAGE);
         } catch (StringNotFoundModActionException ex) {
-            java.util.logging.Logger.getLogger(ManagerCtrl.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error("Error applying mods. A find operation didn't find it's string. Mod=" + ex.getName() + " | Version=" + ex.getVersion() + " | String=" + ex.getString(),ex);
+            view.showMessage(L10n.getString("error.modcantapply").replace("#mod#", ex.getName()), L10n.getString("error.modcantapply.title"), JOptionPane.ERROR_MESSAGE);
         } catch (InvalidModActionParameterException ex) {
-            java.util.logging.Logger.getLogger(ManagerCtrl.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error("Error applying mods. A operation had a invalid parameter. Mod=" + ex.getName() + " | Version=" + ex.getVersion() + " | ActionClass" + ex.getAction().getClass(),ex);
+            view.showMessage(L10n.getString("error.modcantapply").replace("#mod#", ex.getName()), L10n.getString("error.modcantapply.title"), JOptionPane.ERROR_MESSAGE);
         } catch (UnknowModActionException ex) {
+            // In theory, this part can't be called
+            logger.error("Error applying mods. A unknown action was found. This message should never be logged.",ex);
+            view.showMessage(L10n.getString("error.modcantapply").replace("#mod#", ex.getName()), L10n.getString("error.modcantapply.title"), JOptionPane.ERROR_MESSAGE);
         } catch (SecurityException ex) {
-            java.util.logging.Logger.getLogger(ManagerCtrl.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error("Error applying mods. Security exception found, couldn't do some operations that were needed.",ex);
+            view.showMessage("Random error. Please, report it to the software developers", "Random error", JOptionPane.ERROR_MESSAGE);
         } catch (IOException ex) {
-            java.util.logging.Logger.getLogger(ManagerCtrl.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error("Error applying mods. A random I/O exception was thrown, can't apply.",ex);
+            view.showMessage("Random error. Please, report it to the software developers", "Random error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
