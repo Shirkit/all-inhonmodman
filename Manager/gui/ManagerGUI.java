@@ -901,7 +901,6 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         for (int i = 0 ; i < ManagerOptions.getInstance().getColumnsWidth().size(); i++) {
             temp.add(new Integer(ManagerOptions.getInstance().getColumnsWidth().get(i)));
         }
-        logger.error("GUI: TableEditListerner: from ManagerOptions " + temp.toString());
 
         if (model.getColumnsWidth() != null) {
             if (model.getColumnsWidth().size() != tableModList.getColumnModel().getColumnCount()) {

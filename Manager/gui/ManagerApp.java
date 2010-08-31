@@ -16,10 +16,14 @@ import org.jdesktop.application.SingleFrameApplication;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import gui.l10n.L10n;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import org.apache.log4j.Priority;
 import utility.update.UpdateManager;
 
 /**
@@ -42,7 +46,6 @@ public class ManagerApp extends SingleFrameApplication {
     @Override
     protected void startup() {
         // Checking java version
-        System.out.println(System.getProperty("java.version"));
         if (System.getProperty("java.version").startsWith("1.5") || System.getProperty("java.version").startsWith("1.4")) {
             JOptionPane.showMessageDialog(null, "Please update your JRE environment to the latest version.", "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -64,9 +67,13 @@ public class ManagerApp extends SingleFrameApplication {
             ex.printStackTrace();
         }
         logger = Logger.getLogger(this.getClass().getPackage().getName());
-        logger.info("HonMod manager is starting up...");
+        logger.info("\n\n------------------------------------------------------------------------------------------------------------------------");
+        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy - HH:mm:ss");
+        Date date = new Date();
+        logger.info("HonMod manager is starting. Local time:" + dateFormat.format(date));
         logger.info("Java version:" + System.getProperty("java.version"));
         logger.info("HonMod manager version:"+ManagerOptions.getInstance().getVersion());
+        logger.info("\n------------------------------------------------------------------------------------------------------------------------\n");
 
 
         // Create the MVC framework

@@ -50,6 +50,7 @@ import org.apache.log4j.Logger;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
@@ -187,10 +188,18 @@ public class Manager extends Observable {
             path = Game.findModFolder();
         }
 
+        // TODO: This needs to be changed
+
         if (path == null || path.isEmpty()) {
-            path = (String) JOptionPane.showInputDialog(
-                    new JFrame("First Time?"),
-                    "Is this your first time running this Mod Manager?\nPlease enter the path for " + name.toUpperCase() + ":");
+            JFileChooser fc = new JFileChooser(new File("."));
+            fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            fc.setMultiSelectionEnabled(false);
+            fc.showOpenDialog(null);
+            if (fc.getSelectedFile() != null) {
+                path = fc.getSelectedFile().getAbsolutePath();
+            } else {
+                path = null;
+            }
         }
 
         return path;
@@ -1347,17 +1356,17 @@ public class Manager extends Observable {
 
             int check = 0;
             String vEx1 = expressionVersion.substring(0, expressionVersion.indexOf("-"));
-            logger.warn("MAN: vEx1: " + vEx1);
             if (vEx1 == null || vEx1.isEmpty()) {
                 vEx1 = "*";
             }
             String vEx2 = expressionVersion.substring(expressionVersion.indexOf("-") + 1, expressionVersion.length());
-            logger.warn("MAN: vEx2: " + vEx2);
             if (vEx2 == null || vEx2.isEmpty()) {
                 vEx2 = "*";
             }
 
             result = checkVersion(vEx1, singleVersion) && checkVersion(singleVersion, vEx2);
+        } else {
+            result = checkVersion(expressionVersion, singleVersion);
         }
         return result;
     }
@@ -1461,8 +1470,6 @@ public class Manager extends Observable {
         while (lowst.hasMoreTokens() && highst.hasMoreTokens()) {
             String firsttk = lowst.nextToken();
             String secondtk = highst.nextToken();
-            logger.warn("firsttk: " + firsttk);
-            logger.warn("secondtk: " + secondtk);
 
             if (firsttk.contains("*") || secondtk.contains("*")) {
                 return true;
