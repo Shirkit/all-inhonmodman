@@ -20,6 +20,7 @@ public class BBCode {
         bbMap.put("\\[b\\](.+?)\\[/b\\]", "<strong>$1</strong>");
         bbMap.put("\\[i\\](.+?)\\[/i\\]", "<span style='font-style:italic;'>$1</span>");
         bbMap.put("\\[u\\](.+?)\\[/u\\]", "<span style='text-decoration:underline;'>$1</span>");
+        bbMap.put("\\[s\\](.+?)\\[/s\\]", "<span style='text-decoration:line-through;'>$1</span>");
         bbMap.put("\\[h1\\](.+?)\\[/h1\\]", "<h1>$1</h1>");
         bbMap.put("\\[h2\\](.+?)\\[/h2\\]", "<h2>$1</h2>");
         bbMap.put("\\[h3\\](.+?)\\[/h3\\]", "<h3>$1</h3>");
