@@ -190,7 +190,7 @@ public class Manager extends Observable {
 
         // TODO: This needs to be changed
 
-        if (path == null || path.isEmpty()) {
+        /*if (path == null || path.isEmpty()) {
             JFileChooser fc = new JFileChooser(new File("."));
             fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             fc.setMultiSelectionEnabled(false);
@@ -200,7 +200,7 @@ public class Manager extends Observable {
             } else {
                 path = null;
             }
-        }
+        }*/
 
         return path;
     }

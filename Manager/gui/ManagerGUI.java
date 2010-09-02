@@ -1166,18 +1166,19 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     public void buttonModsFolderAddActionListener(ActionListener al) {
         buttonModsFolder.addActionListener(al);
     }
-    
+
     public void popupMenuItemEnableDisableModAddActionListener(ActionListener al) {
         popupItemMenuEnableDisableMod.addActionListener(al);
     }
-    
+
     public void popupMenuItemViewChangelogAddActionListener(ActionListener al) {
         PopupItemMenuViewChangelog.addActionListener(al);
     }
-    
+
     public void popupMenuItemUpdateModAddActionListener(ActionListener al) {
         popupItemMenuUpdateMod.addActionListener(al);
     }
+
     public void popupMenuItemVisitWebsiteAddActionListener(ActionListener al) {
         popupItemMenuVisitWebsite.addActionListener(al);
     }
@@ -1237,8 +1238,14 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         return this.tableModList;
     }
 
-    public int getSelectedMod() {
-        return tableModList.getSelectedRow();
+    public Mod getSelectedMod() {
+        Mod mod = null;
+        int selectedRow = tableModList.getSelectedRow();
+        try {
+            mod = (Mod) tableData[selectedRow][5];
+        } catch (IndexOutOfBoundsException e) {
+        }
+        return mod;
     }
 
     public String getSelectedHonFolder() {
@@ -1324,7 +1331,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                     PopupItemMenuViewChangelog.setEnabled(true);
                     PopupItemMenuViewChangelog.setActionCommand("display changelog");
                 }
-                
+
                 rightClickTableMenu.show(e.getComponent(), e.getX(), e.getY());
             }
         }

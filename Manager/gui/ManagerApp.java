@@ -61,18 +61,17 @@ public class ManagerApp extends SingleFrameApplication {
         }
         PropertyConfigurator.configure(props);
         // Load l10n
-        try {
-            L10n.load();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
         logger = Logger.getLogger(this.getClass().getPackage().getName());
         logger.info("\n\n------------------------------------------------------------------------------------------------------------------------");
         DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy - HH:mm:ss");
         Date date = new Date();
         logger.info("HonMod manager is starting. Local time:" + dateFormat.format(date));
         logger.info("Java version:" + System.getProperty("java.version"));
-        logger.info("HonMod manager version:"+ManagerOptions.getInstance().getVersion());
+        logger.info("HonMod manager version:" + ManagerOptions.getInstance().getVersion());
+        try {
+            L10n.load();
+        } catch (IOException ex) {
+        }
         logger.info("\n------------------------------------------------------------------------------------------------------------------------\n");
 
 
@@ -95,35 +94,35 @@ public class ManagerApp extends SingleFrameApplication {
 
         try {
             if (hasUpdate.get().booleanValue()) {
-                view.showMessage(L10n.getString("message.updateavaliabe"),L10n.getString("message.updateavaliabe.title"), JOptionPane.INFORMATION_MESSAGE);
+                view.showMessage(L10n.getString("message.updateavaliabe"), L10n.getString("message.updateavaliabe.title"), JOptionPane.INFORMATION_MESSAGE);
                 /* Disabled until find a nice way to organize this
                 try {
-                    InputStream in = getClass().getResourceAsStream("/Updater");
-                    FileOutputStream fos = new FileOutputStream(ManagerOptions.MANAGER_FOLDER + File.separator + "Updater.jar");
-                    ZIP.copyInputStream(in, fos);
-                    in.close();
-                    fos.flush();
-                    fos.close();
-                    String currentJar = "";
-                    try {
-                        currentJar = (ManagerApp.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
-                        currentJar = currentJar.replaceFirst("/", "");
-                    } catch (URISyntaxException ex) {
-                        java.util.logging.Logger.getLogger(ManagerApp.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                    String updaterPath = System.getProperty("user.dir") + File.separator + "Updater.jar";
-                    Process updater = Runtime.getRuntime().exec("java -jar " + updaterPath + " " + currentJar + " " + ManagerOptions.MANAGER_DOWNLOAD_URL);
-                    System.out.println("java -jar " + updaterPath + " " + currentJar + " " + ManagerOptions.MANAGER_DOWNLOAD_URL);
-                    System.exit(0);
+                InputStream in = getClass().getResourceAsStream("/Updater");
+                FileOutputStream fos = new FileOutputStream(ManagerOptions.MANAGER_FOLDER + File.separator + "Updater.jar");
+                ZIP.copyInputStream(in, fos);
+                in.close();
+                fos.flush();
+                fos.close();
+                String currentJar = "";
+                try {
+                currentJar = (ManagerApp.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
+                currentJar = currentJar.replaceFirst("/", "");
+                } catch (URISyntaxException ex) {
+                java.util.logging.Logger.getLogger(ManagerApp.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                String updaterPath = System.getProperty("user.dir") + File.separator + "Updater.jar";
+                Process updater = Runtime.getRuntime().exec("java -jar " + updaterPath + " " + currentJar + " " + ManagerOptions.MANAGER_DOWNLOAD_URL);
+                System.out.println("java -jar " + updaterPath + " " + currentJar + " " + ManagerOptions.MANAGER_DOWNLOAD_URL);
+                System.exit(0);
                 } catch (IOException ex) {
-                    java.util.logging.Logger.getLogger(ManagerApp.class.getName()).log(Level.SEVERE, null, ex);
+                java.util.logging.Logger.getLogger(ManagerApp.class.getName()).log(Level.SEVERE, null, ex);
                 }
 
-            } else {
+                } else {
                 File f = new File(System.getProperty("user.dir") + File.separator + "Updater.jar");
                 if (f.exists()) {
-                    f.delete();
-                    f.deleteOnExit();
+                f.delete();
+                f.deleteOnExit();
                 }*/
             }
         } catch (InterruptedException ex) {

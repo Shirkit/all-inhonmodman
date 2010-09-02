@@ -24,6 +24,7 @@ import com.mallardsoft.tuple.Tuple;
 import gui.l10n.L10n;
 import business.ManagerOptions;
 import business.Mod;
+import com.thoughtworks.xstream.io.StreamException;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -109,6 +110,7 @@ public class ManagerCtrl implements Observer {
         view.tableAddListSelectionListener(lsl);
         view.tableAddModelListener(new TableEditListener());
         view.buttonVisitWebsiteAddActionListener(new VisitWebsiteListener());
+        view.popupMenuItemVisitWebsiteAddActionListener(new VisitWebsiteListener());
         view.buttonApplyLafAddActionListener(new ApplyLafListener());
         view.buttonOkAddActionListener(new PrefsOkListener());
         view.buttonCancelAddActionListener(new PrefsCancelListener());
@@ -130,10 +132,14 @@ public class ManagerCtrl implements Observer {
         try {
             // Load Options and Mods and then Look and feel
             controller.loadOptions();
-        } catch (FileNotFoundException ex) {
-            // TODO: Options file wasn't found, now must check if controller was able to find the Hon and Mod folder with the Game.findHonFolder()
-        } catch (StreamException ex) {
-            // TODO: Options file is invalid, must delete it
+        } catch (StreamException e) {
+            e.printStackTrace();
+            logger.error("StreamException from loadOptions()", e);
+            // Mod options is invalid, must be deleted
+        } catch (FileNotFoundException e) {
+            if (ManagerOptions.getInstance().getGamePath() == null || ManagerOptions.getInstance().getModPath() == null) {
+                view.showMessage(L10n.getString("error.honmodsfolder"), L10n.getString("error.honmodsfolder.title"), JOptionPane.ERROR_MESSAGE);
+            }
         }
         loadMods();
         loadLaf();
@@ -421,14 +427,8 @@ public class ManagerCtrl implements Observer {
     class VisitWebsiteListener implements ActionListener {
 
         public void actionPerformed(ActionEvent ae) {
-            int selectedMod = view.getSelectedMod();
-            if (selectedMod == -1) {
-                logger.warn("Unable to open website, no mod selected");
-                view.showMessage(L10n.getString("error.nomodselected"),
-                        L10n.getString("error.nomodselected.title"),
-                        JOptionPane.WARNING_MESSAGE);
-            }
-            if (controller.openModWebsite(selectedMod) == -1) {
+            // TODO: Check if it's null
+            if (controller.openWebsite(view.getSelectedMod().getWebLink()) == -1) {
                 view.showMessage(L10n.getString("error.websitenotsupported"),
                         L10n.getString("error.websitenotsupported.title"),
                         JOptionPane.ERROR_MESSAGE);
@@ -600,7 +600,7 @@ public class ManagerCtrl implements Observer {
 
         public void mouseClicked(MouseEvent e) {
             if (e.getClickCount() == 2) {
-                enableMod(controller.getMod(view.getSelectedMod()));
+                enableMod(view.getSelectedMod());
                 model.updateNotify();
             }
         }
