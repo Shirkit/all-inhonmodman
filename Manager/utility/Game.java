@@ -65,10 +65,23 @@ public class Game {
         //TODO: finish this function for windows and linux
         // Try to find HoN folder in case we are on Windows
         if (OS.isWindows()) {
-            return null;
+            String gameFolder = findHonFolder();
+            if (gameFolder != null) {
+                File folder = new File(gameFolder + File.separator + "game" + File.separator + "mods");
+                if (folder.exists() && folder.isDirectory()) {
+                    return folder.getAbsolutePath();
+                }
+            }
         }
         // Try to find HoN folder in case we are on Linux
         if (OS.isLinux()) {
+            String gameFolder = findHonFolder();
+            if (gameFolder != null) {
+                File folder = new File(gameFolder + File.separator + "game" + File.separator + "mods");
+                if (folder.exists() && folder.isDirectory()) {
+                    return folder.getAbsolutePath();
+                }
+            }
         }
         // Try to find HoN folder in case we are on Mac
         if (OS.isMac()) {
@@ -221,19 +234,13 @@ public class Game {
         Document dom = null;
 
         try {
-
             DocumentBuilder db = dbf.newDocumentBuilder();
             dom = db.parse(manifest);
-
-
+            // TODO: Handle exceptions
         } catch (ParserConfigurationException pce) {
-            pce.printStackTrace();
         } catch (SAXException se) {
-            se.printStackTrace();
         } catch (IOException ioe) {
-            ioe.printStackTrace();
         }
-
 
         Element docEle = dom.getDocumentElement();
         NodeList nl = docEle.getElementsByTagName("file");
@@ -244,10 +251,10 @@ public class Game {
 
                 if (el.getAttribute("path").equalsIgnoreCase("HoN")) {
 
-                    String version = el.getAttribute("version");
-                    logger.error("GAME: gameversion: " + version);
+                    String gameVersion = el.getAttribute("version");
+                    logger.error("GAME: gameversion: " + gameVersion);
 
-                    return version;
+                    return gameVersion;
                 }
             }
         }

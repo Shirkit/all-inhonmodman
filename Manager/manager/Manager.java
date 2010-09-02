@@ -208,15 +208,18 @@ public class Manager extends Observable {
     /**
      * This method runs the ManagerOptions.loadOptions method to load the options located in a file.
      */
-    public void loadOptions() throws StreamException {
+    public void loadOptions() throws StreamException, FileNotFoundException {
         try {
             ManagerOptions.getInstance().loadOptions();
+            logger.info("Options loaded.");
         } catch (FileNotFoundException e) {
             // Put a logger here
-            logger.error("MAN: options file not found, now falling back", e);
-            e.printStackTrace();
-            ManagerOptions.getInstance().setGamePath(check("HoN folder"));
-            ManagerOptions.getInstance().setModPath(check("Mod folder"));
+            logger.error("Failed loading options file.", e);
+            ManagerOptions.getInstance().setGamePath(Game.findHonFolder());
+            logger.info("HoN folder set to="+ManagerOptions.getInstance().getGamePath());
+            ManagerOptions.getInstance().setModPath(Game.findModFolder());
+            logger.info("Mods folder set to="+ManagerOptions.getInstance().getModPath());
+            throw e;
         }
 
         logger.error("MAN: finished loading options: " + ManagerOptions.getInstance().getAppliedMods());
@@ -383,6 +386,7 @@ public class Manager extends Observable {
      * @throws IndexOutOfBoundsException in case index is not in the mod list
      */
     public int openModWebsite(int modIndex) throws IndexOutOfBoundsException {
+        // TODO: This isn't working
         Mod mod = ManagerOptions.getInstance().getMods().get(modIndex);
         String url = mod.getWebLink();
 
@@ -409,6 +413,7 @@ public class Manager extends Observable {
         }
 
         try {
+            System.out.println(url);
             java.net.URI uri = new java.net.URI(url);
             desktop.browse(uri);
         } catch (Exception e) {

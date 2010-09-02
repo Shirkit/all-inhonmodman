@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.1" encoding="UTF-8" ?>
 
 <Form version="1.6" maxVersion="1.7" type="org.netbeans.modules.form.forminfo.JFrameFormInfo">
   <NonVisualComponents>
@@ -220,6 +220,51 @@
             <Property name="name" type="java.lang.String" value="textFieldModsFolder" noResource="true"/>
           </Properties>
         </Component>
+      </SubComponents>
+    </Container>
+    <Container class="javax.swing.JPopupMenu" name="rightClickTableMenu">
+      <Properties>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
+            <EtchetBorder bevelType="0"/>
+          </Border>
+        </Property>
+        <Property name="name" type="java.lang.String" value="rightClickTableMenu" noResource="true"/>
+      </Properties>
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout">
+        <Property name="useNullLayout" type="boolean" value="true"/>
+      </Layout>
+      <SubComponents>
+        <MenuItem class="javax.swing.JMenuItem" name="popupItemMenuEnableDisableMod">
+          <Properties>
+            <Property name="name" type="java.lang.String" value="popupItemMenuEnableDisableMod" noResource="true"/>
+          </Properties>
+        </MenuItem>
+        <MenuItem class="javax.swing.JMenuItem" name="popupItemMenuUpdateMod">
+          <Properties>
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+              <Connection code="L10n.getString(&quot;button.updatemod&quot;)" type="code"/>
+            </Property>
+            <Property name="name" type="java.lang.String" value="popupItemMenuUpdateMod" noResource="true"/>
+          </Properties>
+        </MenuItem>
+        <MenuItem class="javax.swing.JMenuItem" name="popupItemMenuVisitWebsite">
+          <Properties>
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+              <Connection code="L10n.getString(&quot;button.visitwebsite&quot;)" type="code"/>
+            </Property>
+            <Property name="name" type="java.lang.String" value="popupItemMenuVisitWebsite" noResource="true"/>
+          </Properties>
+        </MenuItem>
+        <MenuItem class="javax.swing.JMenuItem" name="PopupItemMenuViewChangelog">
+          <Properties>
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+              <Connection code="L10n.getString(&quot;button.viewchangelog&quot;)" type="code"/>
+            </Property>
+            <Property name="name" type="java.lang.String" value="PopupItemMenuViewChangelog" noResource="true"/>
+          </Properties>
+        </MenuItem>
       </SubComponents>
     </Container>
     <Menu class="javax.swing.JMenuBar" name="mainMenu">
@@ -459,13 +504,13 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Component id="panelModList" pref="796" max="32767" attributes="0"/>
+          <Component id="panelModList" pref="806" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
-              <Component id="panelModList" pref="472" max="32767" attributes="0"/>
+              <Component id="panelModList" pref="491" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
@@ -493,10 +538,10 @@
                           <Component id="buttonApplyMods" min="-2" pref="127" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="buttonAddMod" min="-2" pref="127" max="-2" attributes="0"/>
-                          <EmptySpace pref="28" max="32767" attributes="0"/>
+                          <EmptySpace pref="40" max="32767" attributes="0"/>
                           <Component id="buttonLaunchHon" min="-2" pref="26" max="-2" attributes="0"/>
                       </Group>
-                      <Component id="jScrollPane1" pref="315" max="32767" attributes="0"/>
+                      <Component id="jScrollPane1" pref="326" max="32767" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="1" max="-2" attributes="0">
@@ -513,9 +558,9 @@
               <Group type="102" attributes="0">
                   <EmptySpace min="-2" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="panelModChangelog" pref="414" max="32767" attributes="0"/>
-                      <Component id="panelModDetails" alignment="1" pref="414" max="32767" attributes="2"/>
-                      <Component id="jScrollPane1" alignment="1" pref="414" max="32767" attributes="0"/>
+                      <Component id="panelModChangelog" pref="432" max="32767" attributes="0"/>
+                      <Component id="panelModDetails" alignment="1" pref="432" max="32767" attributes="2"/>
+                      <Component id="jScrollPane1" alignment="1" pref="432" max="32767" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
@@ -633,8 +678,8 @@
                               <Component id="labelModIcon" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="labelModAuthor" pref="217" max="32767" attributes="0"/>
-                                  <Component id="labelModName" alignment="0" pref="217" max="32767" attributes="0"/>
+                                  <Component id="labelModAuthor" pref="218" max="32767" attributes="0"/>
+                                  <Component id="labelModName" alignment="0" pref="218" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
@@ -644,8 +689,8 @@
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="buttonUpdateMod" pref="142" max="32767" attributes="1"/>
-                                  <Component id="buttonViewChagelog" alignment="0" pref="142" max="32767" attributes="1"/>
+                                  <Component id="buttonUpdateMod" pref="143" max="32767" attributes="1"/>
+                                  <Component id="buttonViewChagelog" alignment="0" pref="143" max="32767" attributes="1"/>
                               </Group>
                           </Group>
                           <Component id="panelModDescription" alignment="0" min="-2" max="-2" attributes="1"/>
@@ -734,7 +779,7 @@
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="1" attributes="0">
-                          <Component id="jScrollPane2" pref="167" max="32767" attributes="0"/>
+                          <Component id="jScrollPane2" pref="183" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="labelRequirements" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
@@ -936,7 +981,7 @@
                           </Group>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jScrollPane4" pref="285" max="32767" attributes="0"/>
+                      <Component id="jScrollPane4" pref="304" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="buttonViewModDetails" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>

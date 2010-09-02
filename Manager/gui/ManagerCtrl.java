@@ -1,5 +1,6 @@
 package gui;
 
+import com.thoughtworks.xstream.io.StreamException;
 import java.awt.event.ComponentEvent;
 import java.util.Observable;
 import java.util.logging.Level;
@@ -97,6 +98,7 @@ public class ManagerCtrl implements Observer {
         // Add listeners to view components
         view.buttonAddModAddActionListener(new AddModListener());
         view.buttonEnableModAddActionListener(new EnableModListener());
+        view.popupMenuItemEnableDisableModAddActionListener(new EnableModListener());
         view.itemApplyModsAddActionListener(new ApplyModsListener());
         view.itemApplyAndLaunchAddActionListener(new ApplyAndLaunchListener());
         view.itemUnapplyAllModsAddActionListener(new UnapplyAllModsListener());
@@ -106,12 +108,13 @@ public class ManagerCtrl implements Observer {
         lsl = new ModTableSelectionListener(view.getModListTable());
         view.tableAddListSelectionListener(lsl);
         view.tableAddModelListener(new TableEditListener());
-        view.labelVisitWebsiteAddMouseListener(new VisitWebsiteListener());
+        view.buttonVisitWebsiteAddActionListener(new VisitWebsiteListener());
         view.buttonApplyLafAddActionListener(new ApplyLafListener());
         view.buttonOkAddActionListener(new PrefsOkListener());
         view.buttonCancelAddActionListener(new PrefsCancelListener());
         view.buttonHonFolderAddActionListener(new ChooseFolderHonListener());
         view.buttonUpdateModActionListener(new UpdateModListener());
+        view.popupMenuItemUpdateModAddActionListener(new UpdateModListener());
         view.buttonModsFolderAddActionListener(new ChooseFolderModsListener());
         view.itemDownloadModUpdates(new DownloadModUpdatesListener());
         view.getModListTable().getColumnModel().addColumnModelListener(new Columns2Listener());
@@ -119,18 +122,18 @@ public class ManagerCtrl implements Observer {
         view.getModListTable().addMouseListener(new MouseEnableModListener());
         view.getItemRefreshManager().addActionListener(new RefreshManagerListener());
         view.getButtonViewChagelog().addActionListener(new ButtonViewModChangelogListener());
+        view.popupMenuItemViewChangelogAddActionListener(new ButtonViewModChangelogListener());
         view.getButtonViewModDetails().addActionListener(new ButtonViewModChangelogListener());
         view.getButtonLaunchHon().addActionListener(new LaunchHonButton());
         // Add file drop functionality
         new FileDrop(view, new DropListener());
-
-        // Load Options and Mods and then Look and feel
         try {
+            // Load Options and Mods and then Look and feel
             controller.loadOptions();
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.error("StreamException from loadOptions()", e);
-            // Mod options is invalid, must be deleted
+        } catch (FileNotFoundException ex) {
+            // TODO: Options file wasn't found, now must check if controller was able to find the Hon and Mod folder with the Game.findHonFolder()
+        } catch (StreamException ex) {
+            // TODO: Options file is invalid, must delete it
         }
         loadMods();
         loadLaf();
@@ -415,22 +418,9 @@ public class ManagerCtrl implements Observer {
     /**
      * Listener for clicks on 'Visit website' label in mod details
      */
-    class VisitWebsiteListener implements MouseListener {
+    class VisitWebsiteListener implements ActionListener {
 
-        public void mouseClicked(MouseEvent me) {
-        }
-
-        public void mouseEntered(MouseEvent me) {
-        }
-
-        public void mouseExited(MouseEvent me) {
-        }
-
-        public void mouseReleased(MouseEvent me) {
-        }
-
-        public void mousePressed(MouseEvent me) {
-            // This is fired when mouse is clicked and released
+        public void actionPerformed(ActionEvent ae) {
             int selectedMod = view.getSelectedMod();
             if (selectedMod == -1) {
                 logger.warn("Unable to open website, no mod selected");
@@ -478,8 +468,8 @@ public class ManagerCtrl implements Observer {
                 Process game = Runtime.getRuntime().exec(Game.getInstance().getHonExecutable().getAbsolutePath());
             } catch (IOException ex) {
                 view.showMessage(L10n.getString("message.honnotfound"),
-                    L10n.getString("message.honnotfound.title"),
-                    JOptionPane.ERROR_MESSAGE);
+                        L10n.getString("message.honnotfound.title"),
+                        JOptionPane.ERROR_MESSAGE);
                 logger.error("HoN couldn't be launched. Hon path=" + model.getGamePath(), ex);
             }
         }
@@ -573,10 +563,11 @@ public class ManagerCtrl implements Observer {
             it = things.getUpdatedModList().iterator();
             String message = "";
             if (it.hasNext()) {
-                message += "Updated mods: \n\n";
+                message += L10n.getString("message.update.updatedmods") + " \n\n";
                 while (it.hasNext()) {
                     Mod mod = it.next();
-                    message += mod.getName() + " was updated from " + things.getOlderVersion(mod) + " to " + mod.getVersion() + "\n";
+                    message += L10n.getString("message.update.updated").replace("#mod#", mod.getName()).replace("#olderversion#", things.getOlderVersion(mod)).replace("#newversion#", mod.getVersion()) + "\n";
+                    //message += mod.getName() + " was updated from " + things.getOlderVersion(mod) + " to " + mod.getVersion() + "\n";
                 }
                 message += "\n\n";
             }
@@ -586,18 +577,20 @@ public class ManagerCtrl implements Observer {
                 Mod mod = it.next();
                 message += mod.getName() + " is up-to-date (" + mod.getVersion() + ")";
                 }*/
-                message += "Up-to-date Mods aren't shown\n\n";
+                //message += "Up-to-date Mods aren't shown\n\n";
+                message += L10n.getString("message.update.uptodate") + " \n\n";
             }
 
             it = things.getFailedModList().iterator();
             if (it.hasNext()) {
-                message += "Failed to update mods: \n\n";
+                //message += "Failed to update mods: \n\n";
+                message += L10n.getString("message.update.failed") + "\n\n";
                 while (it.hasNext()) {
                     Mod mod = it.next();
                     message += mod.getName() + " (" + things.getException(mod).getLocalizedMessage() + ")\n";
                 }
             }
-            view.showMessage(message, "Title", JOptionPane.INFORMATION_MESSAGE);
+            view.showMessage(message, L10n.getString("message.update.title"), JOptionPane.INFORMATION_MESSAGE);
             view.getProgressBar().setValue(0);
             view.updateModTable();
         }
@@ -954,20 +947,20 @@ public class ManagerCtrl implements Observer {
             logger.error("Error applying mods. Nothing was selected and a operation that needs something to be selected was called. Mod=" + ex.getName() + " | Version=" + ex.getVersion() + " | ActionClass=" + ex.getAction().getClass(), ex);
             view.showMessage(L10n.getString("error.modcantapply").replace("#mod#", ex.getName()), L10n.getString("error.modcantapply.title"), JOptionPane.ERROR_MESSAGE);
         } catch (StringNotFoundModActionException ex) {
-            logger.error("Error applying mods. A find operation didn't find it's string. Mod=" + ex.getName() + " | Version=" + ex.getVersion() + " | String=" + ex.getString(),ex);
+            logger.error("Error applying mods. A find operation didn't find it's string. Mod=" + ex.getName() + " | Version=" + ex.getVersion() + " | String=" + ex.getString(), ex);
             view.showMessage(L10n.getString("error.modcantapply").replace("#mod#", ex.getName()), L10n.getString("error.modcantapply.title"), JOptionPane.ERROR_MESSAGE);
         } catch (InvalidModActionParameterException ex) {
-            logger.error("Error applying mods. A operation had a invalid parameter. Mod=" + ex.getName() + " | Version=" + ex.getVersion() + " | ActionClass" + ex.getAction().getClass(),ex);
+            logger.error("Error applying mods. A operation had a invalid parameter. Mod=" + ex.getName() + " | Version=" + ex.getVersion() + " | ActionClass" + ex.getAction().getClass(), ex);
             view.showMessage(L10n.getString("error.modcantapply").replace("#mod#", ex.getName()), L10n.getString("error.modcantapply.title"), JOptionPane.ERROR_MESSAGE);
         } catch (UnknowModActionException ex) {
             // In theory, this part can't be called
-            logger.error("Error applying mods. A unknown action was found. This message should never be logged.",ex);
+            logger.error("Error applying mods. A unknown action was found. This message should never be logged.", ex);
             view.showMessage(L10n.getString("error.modcantapply").replace("#mod#", ex.getName()), L10n.getString("error.modcantapply.title"), JOptionPane.ERROR_MESSAGE);
         } catch (SecurityException ex) {
-            logger.error("Error applying mods. Security exception found, couldn't do some operations that were needed.",ex);
+            logger.error("Error applying mods. Security exception found, couldn't do some operations that were needed.", ex);
             view.showMessage("Random error. Please, report it to the software developers", "Random error", JOptionPane.ERROR_MESSAGE);
         } catch (IOException ex) {
-            logger.error("Error applying mods. A random I/O exception was thrown, can't apply.",ex);
+            logger.error("Error applying mods. A random I/O exception was thrown, can't apply.", ex);
             view.showMessage("Random error. Please, report it to the software developers", "Random error", JOptionPane.ERROR_MESSAGE);
         }
     }
