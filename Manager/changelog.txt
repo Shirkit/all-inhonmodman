@@ -1,3 +1,13 @@
+0.5 alpha:
+- Fixed bug while trying to apply mods and saying they aren't compatible (and they were, examples in appversion=1 should accept version 1.*)
+- Added a popup menu when right clicking in the table
+- Fixed a few graphical bug while applying a new Look and Feel
+- Improved auto search for HoN and Mods folder
+- Updated Strings file
+- Fixed bug while trying to open Mod's Website (it was opening another's mod website)
+- Improved logging methods
+- Changed behavior on Manager first launch
+- Added auto-update 100% working and functional
 0.4 alpha:
 - Updated compareModsVersion (it will ignore all letters. All commas ',' will be replaced by dots '.' to be inside honmod format)
 - Updated aboutBox to display ModManager changelog

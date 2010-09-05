@@ -16,6 +16,9 @@ import org.jdesktop.application.SingleFrameApplication;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import gui.l10n.L10n;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.net.URISyntaxException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -23,7 +26,7 @@ import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import org.apache.log4j.Priority;
+import utility.ZIP;
 import utility.update.UpdateManager;
 
 /**
@@ -93,37 +96,40 @@ public class ManagerApp extends SingleFrameApplication {
         }
 
         try {
+            File updaterJar = new File(System.getProperty("user.dir") + File.separator + "Updater.jar");
+            if (updaterJar.exists()) {
+                if (!updaterJar.delete())
+                updaterJar.deleteOnExit();
+            }
             if (hasUpdate.get().booleanValue()) {
-                view.showMessage(L10n.getString("message.updateavaliabe"), L10n.getString("message.updateavaliabe.title"), JOptionPane.INFORMATION_MESSAGE);
-                /* Disabled until find a nice way to organize this
-                try {
-                InputStream in = getClass().getResourceAsStream("/Updater");
-                FileOutputStream fos = new FileOutputStream(ManagerOptions.MANAGER_FOLDER + File.separator + "Updater.jar");
-                ZIP.copyInputStream(in, fos);
-                in.close();
-                fos.flush();
-                fos.close();
-                String currentJar = "";
-                try {
-                currentJar = (ManagerApp.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
-                currentJar = currentJar.replaceFirst("/", "");
-                } catch (URISyntaxException ex) {
-                java.util.logging.Logger.getLogger(ManagerApp.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                String updaterPath = System.getProperty("user.dir") + File.separator + "Updater.jar";
-                Process updater = Runtime.getRuntime().exec("java -jar " + updaterPath + " " + currentJar + " " + ManagerOptions.MANAGER_DOWNLOAD_URL);
-                System.out.println("java -jar " + updaterPath + " " + currentJar + " " + ManagerOptions.MANAGER_DOWNLOAD_URL);
-                System.exit(0);
-                } catch (IOException ex) {
-                java.util.logging.Logger.getLogger(ManagerApp.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                if (JOptionPane.showConfirmDialog(null, L10n.getString("message.updateavaliabe"), L10n.getString("message.updateavaliabe.title"), JOptionPane.YES_NO_OPTION) == 0) {
+                    try {
+                        InputStream in = getClass().getResourceAsStream("/Updater");
+                        FileOutputStream fos = new FileOutputStream(ManagerOptions.MANAGER_FOLDER + File.separator + "Updater.jar");
+                        ZIP.copyInputStream(in, fos);
+                        in.close();
+                        fos.flush();
+                        fos.close();
+                        String currentJar = "";
+                        try {
+                            currentJar = (ManagerApp.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
+                            currentJar = currentJar.replaceFirst("/", "");
+                        } catch (URISyntaxException ex) {
+                        }
+                        String updaterPath = System.getProperty("user.dir") + File.separator + "Updater.jar";
+                        Process updater = Runtime.getRuntime().exec("java -jar " + updaterPath + " " + currentJar + " " + ManagerOptions.MANAGER_DOWNLOAD_URL);
+                        System.out.println("java -jar " + updaterPath + " " + currentJar + " " + ManagerOptions.MANAGER_DOWNLOAD_URL);
+                        System.exit(0);
+                    } catch (IOException ex) {
+                    }
 
                 } else {
-                File f = new File(System.getProperty("user.dir") + File.separator + "Updater.jar");
-                if (f.exists()) {
-                f.delete();
-                f.deleteOnExit();
-                }*/
+                    File f = new File(System.getProperty("user.dir") + File.separator + "Updater.jar");
+                    if (f.exists()) {
+                        f.delete();
+                        f.deleteOnExit();
+                    }
+                }
             }
         } catch (InterruptedException ex) {
             // Job is never stopped
