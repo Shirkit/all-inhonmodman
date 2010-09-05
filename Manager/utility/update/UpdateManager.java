@@ -25,7 +25,7 @@ public class UpdateManager implements Callable<Boolean> {
             BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             String str = in.readLine();
             in.close();
-            if (str != null && !str.trim().toLowerCase().contains("error") && str.equalsIgnoreCase(ManagerOptions.getInstance().getVersion())) {
+            if (str == null || str.trim().toLowerCase().contains("error") || str.equalsIgnoreCase(ManagerOptions.getInstance().getVersion())) {
                 return new Boolean(false);
             }
             return new Boolean(true);

@@ -90,17 +90,19 @@ public class ManagerApp extends SingleFrameApplication {
 
         // show(new ManagerGUI());
 
+        File updaterJar = new File(System.getProperty("user.dir") + File.separator + "Updater.jar");
+        if (updaterJar.exists()) {
+            if (!updaterJar.delete()) {
+                updaterJar.deleteOnExit();
+            }
+        }
+
         ExecutorService pool = Executors.newCachedThreadPool();
         Future<Boolean> hasUpdate = pool.submit(new UpdateManager());
         while (!hasUpdate.isDone()) {
         }
 
         try {
-            File updaterJar = new File(System.getProperty("user.dir") + File.separator + "Updater.jar");
-            if (updaterJar.exists()) {
-                if (!updaterJar.delete())
-                updaterJar.deleteOnExit();
-            }
             if (hasUpdate.get().booleanValue()) {
                 if (JOptionPane.showConfirmDialog(null, L10n.getString("message.updateavaliabe"), L10n.getString("message.updateavaliabe.title"), JOptionPane.YES_NO_OPTION) == 0) {
                     try {
