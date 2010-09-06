@@ -60,6 +60,7 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 import utility.Game;
 import utility.exception.InvalidModActionParameterException;
+import utility.exception.ModZipException;
 import utility.exception.NothingSelectedModActionException;
 import utility.exception.StringNotFoundModActionException;
 import utility.exception.UnknowModActionException;
@@ -216,37 +217,49 @@ public class ManagerCtrl implements Observer {
             ArrayList<ArrayList<Pair<String, String>>> exs = controller.loadMods();
             if (!exs.isEmpty()) {
                 Enumeration en = Collections.enumeration(exs);
+                String stream = "";
+                String notfound = "";
+                String zip = "";
+                boolean before = false;
 
                 while (en.hasMoreElements()) {
                     ArrayList<Pair<String, String>> e = (ArrayList<Pair<String, String>>) en.nextElement();
                     Enumeration ex = Collections.enumeration(e);
-                    String stream = "";
-                    String notfound = "";
                     while (ex.hasMoreElements()) {
                         Pair<String, String> item = (Pair<String, String>) ex.nextElement();
                         if (Tuple.get2(item).equalsIgnoreCase("stream")) {
                             logger.error("ModStreamException: mod:" + Tuple.get1(item));
+                            if (before) {
+                                stream += ", ";
+                            }
                             stream += Tuple.get1(item);
-                            stream += ", ";
+                            before = true;
                         }
                         if (Tuple.get2(item).equalsIgnoreCase("notfound")) {
                             logger.error("ModNotFoundException: mods:" + Tuple.get1(item));
+                            if (before) {
+                                notfound += ", ";
+                            }
                             notfound += Tuple.get1(item);
-                            notfound += ", ";
+                            before = true;
+                        }
+                        if (Tuple.get2(item).equalsIgnoreCase("zip")) {
+                            logger.error("ModZipException: mod:" + Tuple.get1(item));
+                            if (before) {
+                                zip += ", ";
+                            }
+                            zip += Tuple.get1(item);
+                            before = true;
                         }
 
                     }
+                }
+                if (!stream.isEmpty() || !zip.isEmpty()) {
+                    view.showMessage("<html>"+L10n.getString("error.modcorrupt").replace("#mod#", "<strong>" + stream + zip +"</strong>")+"</html>", L10n.getString("error.modcorrupt.title"), JOptionPane.ERROR_MESSAGE);
+                }
 
-                    if (!stream.isEmpty()) {
-                        stream = stream.substring(0, stream.length() - 2);
-                        view.showMessage(L10n.getString("error.modstream").replace("#mod#", stream), L10n.getString("error.modstream.title"), JOptionPane.ERROR_MESSAGE);
-                    }
-
-                    if (!notfound.isEmpty()) {
-                        notfound = notfound.substring(0, notfound.length() - 2);
-                        view.showMessage(L10n.getString("error.modsnotfound").replace("#mod#", notfound), L10n.getString("error.modsnotfound.title"), JOptionPane.ERROR_MESSAGE);
-                    }
-
+                if (!notfound.isEmpty()) {
+                    view.showMessage(L10n.getString("error.modsnotfound").replace("#mod#", notfound), L10n.getString("error.modsnotfound.title"), JOptionPane.ERROR_MESSAGE);
                 }
             }
 
@@ -377,6 +390,8 @@ public class ManagerCtrl implements Observer {
                     } catch (ModStreamException e1) {
                         logger.error("Honmod file corrupted: " + e1.toString());
                         e1.printStackTrace();
+                    } catch (ModZipException ex) {
+                        logger.error("Honmod file corrupted: " + ex.toString());
                     }
                 }
                 // We need to save and restore ListSelectionListener since
@@ -655,6 +670,8 @@ public class ManagerCtrl implements Observer {
                     } catch (ModStreamException e) {
                         logger.info("Mod file failed (XML). Message: " + e.toString());
                         e.printStackTrace();
+                    } catch (ModZipException ex) {
+                        logger.error("Honmod file corrupted: " + ex.toString());
                     }
                 }
             }

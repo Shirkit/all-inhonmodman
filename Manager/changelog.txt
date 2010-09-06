@@ -1,3 +1,8 @@
+0.6 alpha:
+- Fixed bug while reading corrupted ZIP files.
+- Updated messages displayed to the users
+- Fixed bug with file encoding (files saved with different encodings where throwing some heavy problems, but we managed to fix that)
+- Another fix with appVersion, last one didn't solved for 100% of the cases, now it does. If a developer didn't specified an AppVersion, it's assume the value is '*'
 0.5 alpha:
 - Fixed bug while trying to apply mods and saying they aren't compatible (and they were, examples in appversion=1 should accept version 1.*)
 - Added a popup menu when right clicking in the table

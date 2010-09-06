@@ -32,7 +32,9 @@ import java.util.Random;
 import com.mallardsoft.tuple.*;
 import com.thoughtworks.xstream.converters.ConversionException;
 import com.thoughtworks.xstream.io.StreamException;
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.channels.FileLockInterruptionException;
@@ -50,6 +52,7 @@ import org.apache.log4j.Logger;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import utility.FileUtils;
 
 import utility.Game;
 import utility.update.UpdateReturn;
@@ -188,15 +191,15 @@ public class Manager extends Observable {
         // TODO: This needs to be changed
 
         /*if (path == null || path.isEmpty()) {
-            JFileChooser fc = new JFileChooser(new File("."));
-            fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-            fc.setMultiSelectionEnabled(false);
-            fc.showOpenDialog(null);
-            if (fc.getSelectedFile() != null) {
-                path = fc.getSelectedFile().getAbsolutePath();
-            } else {
-                path = null;
-            }
+        JFileChooser fc = new JFileChooser(new File("."));
+        fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        fc.setMultiSelectionEnabled(false);
+        fc.showOpenDialog(null);
+        if (fc.getSelectedFile() != null) {
+        path = fc.getSelectedFile().getAbsolutePath();
+        } else {
+        path = null;
+        }
         }*/
 
         return path;
@@ -213,9 +216,9 @@ public class Manager extends Observable {
             // Put a logger here
             logger.error("Failed loading options file.", e);
             ManagerOptions.getInstance().setGamePath(Game.findHonFolder());
-            logger.info("HoN folder set to="+ManagerOptions.getInstance().getGamePath());
+            logger.info("HoN folder set to=" + ManagerOptions.getInstance().getGamePath());
             ManagerOptions.getInstance().setModPath(Game.findModFolder());
-            logger.info("Mods folder set to="+ManagerOptions.getInstance().getModPath());
+            logger.info("Mods folder set to=" + ManagerOptions.getInstance().getModPath());
             throw e;
         }
 
@@ -273,6 +276,7 @@ public class Manager extends Observable {
         // Go through all the mods and load them
         ArrayList<Pair<String, String>> stream = new ArrayList<Pair<String, String>>();
         ArrayList<Pair<String, String>> notfound = new ArrayList<Pair<String, String>>();
+        ArrayList<Pair<String, String>> zip = new ArrayList<Pair<String, String>>();
         ArrayList<ArrayList<Pair<String, String>>> problems = new ArrayList<ArrayList<Pair<String, String>>>();
         for (int i = 0; i < files.length; i++) {
             try {
@@ -288,12 +292,15 @@ public class Manager extends Observable {
                 notfound.addAll(e.getMods());
                 //ManagerCtrl.getGUI().showMessage(L10n.getString("error.loadmodfile").replace("#mod#", files[i].getName()), "error.loadmodfile.title", JOptionPane.ERROR_MESSAGE);
             } catch (ConversionException e) {
-                e.printStackTrace();
                 logger.error("Conversion from loadMods(): file - " + files[i].getName() + " - is corrupted.", e);
+            } catch (ModZipException e) {
+                logger.error("ZipException from loadsMods(): file - " + files[i].getName() + " - is corrupted.", e);
+                zip.addAll(e.getMods());
             }
         }
         problems.add(stream);
         problems.add(notfound);
+        problems.add(zip);
 
         return problems;
     }
@@ -305,13 +312,19 @@ public class Manager extends Observable {
      * @throws FileNotFoundException if the file wasn't found.
      * @throws IOException if a random I/O exception has happened.
      */
-    public void addHonmod(File honmod, boolean copy) throws ModNotFoundException, IOException, ModStreamException {
+    public void addHonmod(File honmod, boolean copy) throws ModNotFoundException, ModStreamException, IOException, ModZipException {
         ArrayList<Pair<String, String>> list = new ArrayList<Pair<String, String>>();
         if (!honmod.exists()) {
             list.add(Tuple.from(honmod.getName(), "notfound"));
             throw new ModNotFoundException(list);
         }
-        String xml = new String(ZIP.getFile(honmod, Mod.MOD_FILENAME));
+        String xml = null;
+        try {
+            xml = new String(ZIP.getFile(honmod, Mod.MOD_FILENAME));
+        } catch (ZipException ex) {
+            list.add(Tuple.from(honmod.getName(), "zip"));
+            throw new ModZipException(list);
+        }
         Mod m = null;
         try {
             m = XML.xmlToMod(xml);
@@ -816,8 +829,20 @@ public class Manager extends Observable {
         Mod m = getMod(name);
 
         if (!ignoreVersion) {
-            if (!compareModsVersions(Game.getInstance().getVersion(), m.getAppVersion())) {
-                throw new ModVersionMissmatchException(name, m.getVersion(), m.getAppVersion());
+            if (m.getAppVersion() != null) {
+                if (!m.getAppVersion().contains("-") && !m.getAppVersion().contains("*")) {
+                    if (!compareModsVersions(Game.getInstance().getVersion(), m.getAppVersion() + ".*")) {
+                        throw new ModVersionMissmatchException(name, m.getVersion(), m.getAppVersion());
+                    }
+                } else if (m.getAppVersion().contains("*") && !m.getAppVersion().contains("-")) {
+                    if (!compareModsVersions(Game.getInstance().getVersion(), "-" + m.getAppVersion())) {
+                        throw new ModVersionMissmatchException(name, m.getVersion(), m.getAppVersion());
+                    }
+                } else {
+                    if (!compareModsVersions(Game.getInstance().getVersion(), m.getAppVersion())) {
+                        throw new ModVersionMissmatchException(name, m.getVersion(), m.getAppVersion());
+                    }
+                }
             }
         }
         if (!m.isEnabled()) {
@@ -995,11 +1020,12 @@ public class Manager extends Observable {
                 }
             }
         }
-        logger.error("Started mod applying. Folder=" + tempFolder.getAbsolutePath());
+        logger.info("Started mod applying. Folder=" + tempFolder.getAbsolutePath());
         tempFolder.mkdirs();
         Enumeration<Mod> list = Collections.enumeration(applyOrder);
         while (list.hasMoreElements()) {
             Mod mod = list.nextElement();
+            logger.info("Applying Mod=" + mod.getName() + " | Version=" + mod.getVersion());
             for (int j = 0; j < mod.getActions().size(); j++) {
                 Action action = mod.getActions().get(j);
                 if (action.getClass().equals(ActionCopyFile.class)) {
@@ -1087,17 +1113,11 @@ public class Manager extends Observable {
                         String afterEdit = "";
                         if (f.exists()) {
                             // Load file from temp folder. If any other mod changes the file, it's actions won't be lost.
-                            FileInputStream fin = new FileInputStream(f);
-                            OutputStream os = new ByteArrayOutputStream();
-                            ZIP.copyInputStream(fin, os);
-                            afterEdit = os.toString();
-                            fin.close();
-                            os.flush();
-                            os.close();
+                            afterEdit = FileUtils.loadFile(f);
                         } else {
                             // Load file from resources0.s2z if no other mod edited this file
                             String path = ManagerOptions.getInstance().getGamePath() + File.separator + "game" + File.separator + "resources0.s2z";
-                            afterEdit = new String(ZIP.getFile(new File(path), editfile.getName()));
+                            afterEdit = new String(ZIP.getFile(new File(path), editfile.getName()), "UTF-8");
                         }
                         for (int k = 0; k < editfile.getActions().size(); k++) {
                             ActionEditFileActions editFileAction = editfile.getActions().get(k);
@@ -1146,7 +1166,6 @@ public class Manager extends Observable {
                                     cursor[0] = afterEdit.toLowerCase().indexOf(find.getContent().toLowerCase(), cursor[0]);
                                     if (cursor[0] == -1) {
                                         // couldn't find the string, can't apply
-                                        logger.error("MAN: mod edit find: " + find.getContent());
                                         throw new StringNotFoundModActionException(mod.getName(), mod.getVersion(), (Action) find, find.getContent());
                                     }
                                     cursor2[0] = cursor[0] + find.getContent().length();
@@ -1368,7 +1387,7 @@ public class Manager extends Observable {
 
             result = checkVersion(vEx1, singleVersion) && checkVersion(singleVersion, vEx2);
         } else {
-            result = checkVersion(expressionVersion, singleVersion);
+            result = singleVersion.equals(expressionVersion);
         }
         return result;
     }
@@ -1496,7 +1515,9 @@ public class Manager extends Observable {
             }
              */
         }
-
+        if (lowst.hasMoreTokens()) {
+            return false;
+        }
         return true;
     }
 
