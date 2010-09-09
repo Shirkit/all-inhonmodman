@@ -732,11 +732,11 @@ public class Manager extends Observable {
      * @throws ModEnabledException if another mod that is already enabled has a conflict with the mod given by parameter.
      */
     private void checkcons(Mod mod) throws ModConflictException {
-        // get a list of conflicts
+        // get a list of conflicts specified by that mod
         ArrayList<Pair<String, String>> list = cons.get(ManagerOptions.getInstance().getMods().indexOf(mod));
-        if (!(list == null || list.isEmpty())) {
+        ArrayList<Pair<String, String>> conlist = new ArrayList<Pair<String, String>>();
+        if (list != null && !list.isEmpty()) {
 
-            ArrayList<Pair<String, String>> conlist = new ArrayList<Pair<String, String>>();
             Enumeration e = Collections.enumeration(list);
             while (e.hasMoreElements()) {
                 Pair<String, String> check = (Pair<String, String>) e.nextElement();
@@ -750,31 +750,25 @@ public class Manager extends Observable {
                     Pair<String, String> tmp = Tuple.from(m.getName(), m.getVersion());
                     conlist.add(tmp);
                 }
-
-                /*
-                try {
-                if (getEnabledMod(Tuple.get1(check)) != null) {
-                Iterator i = mod.getActions().iterator();
-                while (i.hasNext()) {
-                Action a = (Action) i.next();
-                if (a.getClass().equals(ActionIncompatibility.class)) {
-                ActionIncompatibility inc = (ActionIncompatibility) a;
-                if (inc.getName().equalsIgnoreCase(Tuple.get1(check))) {
-                if (!compareModsVersions(inc.getVersion(), Tuple.get2(check))) {
-                throw new ModEnabledException(Tuple.get1(check), Tuple.get2(check));
-                }
-                }
-                }
-                }
-                }
-                } catch (NoSuchElementException noSuchElementException) {
-                }
-                 */
             }
-
-            if (!conlist.isEmpty()) {
-                throw new ModConflictException(conlist);
-            }
+        }
+        
+        list = new ArrayList<Pair<String, String>>();
+        
+        // now check for reverse
+        for (int i = 0; i < cons.size(); i++) {
+        	list = cons.get(i);
+        	if (list != null && !list.isEmpty()) {
+        		for (int j = 0; j < list.size(); j++) {
+        			if (Tuple.get1(list.get(j)).equalsIgnoreCase(mod.getName()))
+        				conlist.add(Tuple.from(ManagerOptions.getInstance().getMods().get(i).getName(), ManagerOptions.getInstance().getMods().get(i).getVersion()));
+        		}
+        	}
+        	
+        }
+        
+        if (!conlist.isEmpty()) {
+            throw new ModConflictException(conlist);
         }
     }
 
@@ -884,15 +878,148 @@ public class Manager extends Observable {
     public ArrayList<Mod> sortMods() throws IOException {
         ArrayList<Mod> queue = new ArrayList<Mod>();
         ArrayList<Mod> left = new ArrayList<Mod>();
+        ArrayList<Integer> prio = new ArrayList<Integer>();
+        
+        // Filling left queue with unordered list of mods to apply
         for (int i = 0; i < ManagerOptions.getInstance().getMods().size(); i++) {
             if (ManagerOptions.getInstance().getMods().get(i).isEnabled()) {
                 left.add(ManagerOptions.getInstance().getMods().get(i));
             }
         }
-
-
+        
+        // Initialize prio array
         for (int i = 0; i < left.size(); i++) {
-            int ind = ManagerOptions.getInstance().getMods().indexOf(getMod(left.get(i).getName()));
+        	prio.add(0);
+        }
+        
+        // Calculating Priority for each mod
+        
+        // Looking into deps
+        for (int i = 0; i < left.size(); i++) {
+            Mod mod = left.get(i);
+            
+            for (int j = 0; j < deps.size(); j++) {
+                // Get the list of dep mods for that index j
+            	ArrayList<Pair<String, String>> list = deps.get(j);
+            	
+            	if (list != null && !list.isEmpty()) {
+	            	// Get the deps for the mod at index j
+	            	if (ManagerOptions.getInstance().getMods().indexOf(mod) == j) {
+	            		// Adding priority to the mod at index i for left queue for every enabled mod
+	                    Enumeration r = Collections.enumeration(list);
+	                    while (r.hasMoreElements()) {
+	                        Pair<String, String> m = (Pair<String, String>) r.nextElement();
+	                        if (ManagerOptions.getInstance().getMod(Tuple.get1(m)) != null && ManagerOptions.getInstance().getMod(Tuple.get1(m)).isEnabled()) {
+	                        	if (prio.get(i) <= prio.get(left.indexOf(ManagerOptions.getInstance().getMod(Tuple.get1(m)))))
+	                        		prio.set(i, prio.get(left.indexOf(ManagerOptions.getInstance().getMod(Tuple.get1(m)))) + 1);
+	                        }
+	                    }
+	            	}
+	            	
+	            	// The rest would be checking to see if others enabled has dependencies on mod at index i
+            	
+	            	for (int x = 0; x < list.size(); x++) {
+	            		Mod dependent = ManagerOptions.getInstance().getMod(Tuple.get1(list.get(x)));
+	            		if (dependent != null && dependent.isEnabled()) {
+	            			if (prio.get(left.indexOf(dependent)) <= prio.get(i))
+	            				prio.set(left.indexOf(dependent), prio.get(i) + 1);
+	            		}
+	            	}
+            	}
+            }
+        } 
+        
+        // Looking into after
+        for (int i = 0; i < left.size(); i++) {
+            Mod mod = left.get(i);
+            
+            for (int j = 0; j < after.size(); j++) {
+                // Get the list of dep mods for that index j
+            	ArrayList<Pair<String, String>> list = after.get(j);
+            	
+            	if (list != null && !list.isEmpty()) {
+	            	// Get the after for the mod at index j
+	            	if (ManagerOptions.getInstance().getMods().indexOf(mod) == j) {
+	            		
+	            		// Adding priority to the mod at index i for left queue for every enabled mod
+	                    Enumeration r = Collections.enumeration(list);
+	                    while (r.hasMoreElements()) {
+	                        Pair<String, String> m = (Pair<String, String>) r.nextElement();
+	                        if (ManagerOptions.getInstance().getMod(Tuple.get1(m)) != null && ManagerOptions.getInstance().getMod(Tuple.get1(m)).isEnabled()) {
+	                        	if (prio.get(i) <= prio.get(left.indexOf(ManagerOptions.getInstance().getMod(Tuple.get1(m)))))
+	                        		prio.set(i, prio.get(left.indexOf(ManagerOptions.getInstance().getMod(Tuple.get1(m)))) + 1);
+	                        }
+	                    }
+	            	}
+	            	
+	            	// The rest would be checking to see if others enabled has dependencies on mod at index i
+	            	for (int x = 0; x < list.size(); x++) {
+	            		Mod dependent = ManagerOptions.getInstance().getMod(Tuple.get1(list.get(x)));
+	            		if (dependent != null && dependent.isEnabled()) {
+	            			if (prio.get(left.indexOf(dependent)) <= prio.get(i))
+	            				prio.set(left.indexOf(dependent), prio.get(i) + 1);
+	            		}
+	            	}
+            	}
+            }
+        } 
+        
+        // Looking into before
+        for (int i = 0; i < left.size(); i++) {
+            Mod mod = left.get(i);
+            
+            for (int j = 0; j < before.size(); j++) {
+            	
+                // Get the list of dep mods for that index j
+            	ArrayList<Pair<String, String>> list = before.get(j);
+            	
+            	
+            	if (list != null && !list.isEmpty()) {
+	            	// Get the after for the mod at index j
+	            	if (ManagerOptions.getInstance().getMods().indexOf(mod) == j) {
+	            		
+	            		
+	            		// Adding priority to the mod at index i for left queue for every enabled mod
+	                    Enumeration r = Collections.enumeration(list);
+	                    while (r.hasMoreElements()) {
+	                        Pair<String, String> m = (Pair<String, String>) r.nextElement();
+	                        if (ManagerOptions.getInstance().getMod(Tuple.get1(m)) != null && ManagerOptions.getInstance().getMod(Tuple.get1(m)).isEnabled()) {
+	                        	if (prio.get(i) >= prio.get(left.indexOf(ManagerOptions.getInstance().getMod(Tuple.get1(m)))))
+	                        		prio.set(i, prio.get(left.indexOf(ManagerOptions.getInstance().getMod(Tuple.get1(m)))) - 1);
+	                        }
+	                    }
+	            	}
+	            	
+	            	// The rest would be checking to see if others enabled has dependencies on mod at index i
+	            	for (int x = 0; x < list.size(); x++) {
+	            		Mod dependent = ManagerOptions.getInstance().getMod(Tuple.get1(list.get(x)));
+	            		if (dependent != null && dependent.isEnabled()) {
+	            			if (prio.get(left.indexOf(dependent)) >= prio.get(i))
+	            				prio.set(left.indexOf(dependent), prio.get(i) - 1);
+	            		}
+	            	}
+            	}
+            }
+        }
+        
+        for (int i = 0; i < prio.size(); i++) {
+        	int priority = prio.get(i);
+        	Mod m = left.get(i);
+        	int j = i - 1;
+        	while (j >= 0 && prio.get(j) > priority) {
+        		prio.set(j + 1, prio.get(j));
+        		left.set(j + 1, left.get(j));
+        		j--;
+        		prio.set(j + 1, priority);
+        		left.set(j + 1, m);
+        	}
+        }
+        
+        
+/*
+        // 
+        for (int i = 0; i < left.size(); i++) {
+            int ind = ManagerOptions.getInstance().getMods().indexOf(left.get(i));
             ArrayList<Pair<String, String>> list = deps.get(ind);
 
             if (list == null || list.isEmpty()) {
@@ -984,8 +1111,8 @@ public class Manager extends Observable {
                 }
             }
         }
-
-        return queue;
+*/
+        return left;
     }
 
     /**

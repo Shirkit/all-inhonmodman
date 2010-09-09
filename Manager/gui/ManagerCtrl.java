@@ -912,6 +912,7 @@ public class ManagerCtrl implements Observer {
                             L10n.getString("error.pathnotset.title"),
                             JOptionPane.WARNING_MESSAGE);
                     logger.warn("Error enabling mod: " + m.getName() + " NullPointerException", e1);
+                    logger.warn("Error enabling mod detail: " + e1.getCause().getMessage(), e1);
                 } catch (ModEnabledException e1) {
                     view.showMessage(L10n.getString("error.modenabled").replace("#mod#", m.getName()).replace("#mod2#", e1.toString()),
                             L10n.getString("error.modenabled.title"),
