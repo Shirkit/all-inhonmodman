@@ -1002,11 +1002,12 @@ public class Manager extends Observable {
             }
         }
         
+        // Sorting time!!
         for (int i = 0; i < prio.size(); i++) {
         	int priority = prio.get(i);
         	Mod m = left.get(i);
         	int j = i - 1;
-        	while (j >= 0 && prio.get(j) > priority) {
+        	while (j >= 0 && prio.get(j) < priority) {
         		prio.set(j + 1, prio.get(j));
         		left.set(j + 1, left.get(j));
         		j--;
@@ -1015,6 +1016,10 @@ public class Manager extends Observable {
         	}
         }
         
+        // Print out the result
+        for (int i = 0; i < left.size(); i++) {
+        	logger.error("left #" + i + " " + left.get(i).getName());
+        }
         
 /*
         // 
