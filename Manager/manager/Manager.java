@@ -730,8 +730,14 @@ public class Manager extends Observable {
 					Iterator itt = mapping.entrySet().iterator();
 					while (itt.hasNext()) {
 						Map.Entry entry = (Map.Entry)itt.next();
-						if (!entry.getKey().equals(mod.getName()))
-							list.add(Tuple.from((String)entry.getKey(), (String)entry.getValue()));
+						if (!entry.getKey().equals(mod.getName())) {
+							Enumeration modsConflict = Collections.enumeration(ManagerOptions.getInstance().getModsWithName((String)entry.getKey()));
+							while (modsConflict.hasMoreElements()) {
+								Mod compare = (Mod)modsConflict.nextElement();
+								if (compareModsVersions(compare.getVersion(), (String)entry.getValue()) && compare.isEnabled())
+									list.add(Tuple.from((String)entry.getKey(), (String)entry.getValue()));
+							}
+						}
 					}
 				}
     		}
