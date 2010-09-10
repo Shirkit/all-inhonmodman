@@ -426,7 +426,15 @@ public class ManagerCtrl implements Observer {
             }
             TableModel tableModel = (TableModel) e.getSource();
             Mod mod = controller.getMod(row);
-            enableMod(mod);
+            try {
+				enableMod(mod);
+			} catch (ModNotEnabledException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (ModVersionUnsatisfiedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 
 
             // Again, save and restore ListSelectionListener
@@ -539,7 +547,19 @@ public class ManagerCtrl implements Observer {
             toUpdate.add(mod);
 
             view.getProgressBar().setMaximum(toUpdate.size());
-            UpdateReturn things = controller.updateMod(toUpdate);
+            UpdateReturn things = null;
+			try {
+				things = controller.updateMod(toUpdate);
+			} catch (StreamException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (ModNotEnabledException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (ModVersionUnsatisfiedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
             if (things.getFailedModList().size() > 0) {
                 view.showMessage("Update of mod is not successful.", "Result", JOptionPane.INFORMATION_MESSAGE);
             } else {
@@ -574,7 +594,19 @@ public class ManagerCtrl implements Observer {
                 toUpdate.add(it.next());
             }
             view.getProgressBar().setMaximum(toUpdate.size());
-            UpdateReturn things = controller.updateMod(toUpdate);
+            UpdateReturn things = null;
+			try {
+				things = controller.updateMod(toUpdate);
+			} catch (StreamException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (ModNotEnabledException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (ModVersionUnsatisfiedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
             it = things.getUpdatedModList().iterator();
             String message = "";
             if (it.hasNext()) {
@@ -615,7 +647,15 @@ public class ManagerCtrl implements Observer {
 
         public void mouseClicked(MouseEvent e) {
             if (e.getClickCount() == 2) {
-                enableMod(view.getSelectedMod());
+                try {
+					enableMod(view.getSelectedMod());
+				} catch (ModNotEnabledException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (ModVersionUnsatisfiedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
                 model.updateNotify();
             }
         }
@@ -640,7 +680,15 @@ public class ManagerCtrl implements Observer {
 
         public void actionPerformed(ActionEvent e) {
             Mod mod = controller.getMod(e.getActionCommand());
-            enableMod(mod);
+            try {
+				enableMod(mod);
+			} catch (ModNotEnabledException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (ModVersionUnsatisfiedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
             // Update GUI
             view.tableRemoveListSelectionListener(lsl);
             model.updateNotify();
@@ -884,10 +932,10 @@ public class ManagerCtrl implements Observer {
         }
     }
 
-    private void enableMod(Mod mod) {
+    private void enableMod(Mod mod) throws ModNotEnabledException, ModVersionUnsatisfiedException {
         if (mod.isEnabled()) {
             try {
-                controller.disableMod(mod.getName());
+                controller.disableMod(mod);
                 logger.info("Mod '" + mod.getName() + "' has been DISABLED");
             } catch (ModEnabledException ex) {
                 view.showMessage(L10n.getString("error.modenabled").replace("#mod#", mod.getName()).replace("#mod2#", ex.toString()),
@@ -900,7 +948,7 @@ public class ManagerCtrl implements Observer {
                 Mod m = controller.getMod(mod.getName());
                 String gameVersion = Game.getInstance().getVersion();
                 try {
-                    controller.enableMod(m.getName(), false);
+                    controller.enableMod(m, false);
                     logger.info("Mod '" + mod.getName() + "' has been ENABLED");
                 } catch (NoSuchElementException e1) {
                     view.showMessage(L10n.getString("error.modnotfound"),

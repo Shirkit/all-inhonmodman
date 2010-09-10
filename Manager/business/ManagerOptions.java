@@ -266,15 +266,37 @@ public class ManagerOptions extends Observable {
     	this.mods.add(mod);
     }
     
-    public Mod getMod(String name) {
+    public void addMod(Mod mod, boolean enabled) {
+    	if (this.mods == null) {
+    		this.mods = new ArrayList<Mod>();
+    	}
+    	
+    	this.mods.add(mod);
+    	if (enabled)
+    		this.mods.get(this.mods.indexOf(mod)).enable();
+    	else
+    		this.mods.get(this.mods.indexOf(mod)).disable();
+    }
+    
+    public ArrayList<Mod> getModsWithName(String name) {
+    	ArrayList<Mod> list = new ArrayList<Mod>();
     	for (int i = 0; i < mods.size(); i++) {
     		if (mods.get(i).getName().equalsIgnoreCase(name)) 
+    			list.add(mods.get(i));
+    	}
+    
+    	return list;
+    }
+
+    public Mod getMod(String name, String version) {
+    	for (int i = 0; i < mods.size(); i++) {
+    		if (mods.get(i).getName().equalsIgnoreCase(name) && mods.get(i).getVersion().equalsIgnoreCase(version)) 
     			return mods.get(i);
     	}
     
     	return null;
     }
-
+    
     public ArrayList<Mod> getMods() {
         if (mods == null) {
             mods = new ArrayList<Mod>();

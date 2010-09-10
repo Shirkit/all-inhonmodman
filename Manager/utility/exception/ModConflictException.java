@@ -8,6 +8,7 @@ package utility.exception;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashSet;
 
 import business.ManagerOptions;
 
@@ -19,13 +20,13 @@ import com.mallardsoft.tuple.*;
  */
 public class ModConflictException extends Exception {
 
-	private ArrayList<Pair<String, String>> _cons;
+	private HashSet<Pair<String, String>> _cons;
 
     /**
      * @param name of the mod that was enabled.
      * @param version of the mod that was enabled.
      */
-    public ModConflictException(ArrayList<Pair<String, String>> cons) {
+    public ModConflictException(HashSet<Pair<String, String>> cons) {
         super();
         _cons = cons;
     }
@@ -33,7 +34,7 @@ public class ModConflictException extends Exception {
     /**
      * @return the list of mods that depends on the mod that are not disabled
      */
-    public ArrayList<Pair<String, String>> getCons() {
+    public HashSet<Pair<String, String>> getCons() {
         return _cons;
     }
     

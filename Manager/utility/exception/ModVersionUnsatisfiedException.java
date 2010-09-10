@@ -8,6 +8,7 @@ package utility.exception;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashSet;
 
 import business.ManagerOptions;
 
@@ -19,13 +20,13 @@ import com.mallardsoft.tuple.*;
  */
 public class ModVersionUnsatisfiedException extends Exception {
 
-	private ArrayList<Pair<String, String>> _vers;
+	private HashSet<Pair<String, String>> _vers;
 
     /**
      * @param name of the mod that was enabled.
      * @param version of the mod that was enabled.
      */
-    public ModVersionUnsatisfiedException(ArrayList<Pair<String, String>> vers) {
+    public ModVersionUnsatisfiedException(HashSet<Pair<String, String>> vers) {
         super();
         _vers = vers;
     }
@@ -33,7 +34,7 @@ public class ModVersionUnsatisfiedException extends Exception {
     /**
      * @return the list of mods that depends on the mod that are not disabled
      */
-    public ArrayList<Pair<String, String>> getVers() {
+    public HashSet<Pair<String, String>> getVers() {
         return _vers;
     }
     
