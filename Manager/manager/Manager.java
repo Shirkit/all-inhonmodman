@@ -672,7 +672,7 @@ public class Manager extends Observable {
     		}
             
             if (!modEnabledEx.isEmpty())
-            	throw new ModNotEnabledException(modEnabledEx);
+            	throw new ModEnabledException(modEnabledEx);
     	// From enableMod
     	} else if (deps.containsKey(mod)) {
     		Iterator it = deps.get(mod).entrySet().iterator();
@@ -803,6 +803,89 @@ public class Manager extends Observable {
             ManagerOptions.getInstance().getMods().get(ManagerOptions.getInstance().getMods().indexOf(m)).disable();
         }
     }
+    
+    public ArrayList<Mod> depSort(ArrayList<Mod> list) {
+    	ArrayList<Mod> ulayer = new ArrayList<Mod>();
+    	ArrayList<Mod> dlayer = new ArrayList<Mod>();
+    	
+    	Enumeration e = Collections.enumeration(list);
+    	while (e.hasMoreElements()) {
+    		Mod m = (Mod)e.nextElement();
+    		if (deps.containsKey(m)) {
+    			Iterator it = deps.get(m).entrySet().iterator();
+    			while (it.hasNext()) {
+    				Map.Entry entry = (Map.Entry)it.next();
+    				Mod mod = ManagerOptions.getInstance().getEnabledModWithName((String)entry.getKey());
+    				if (mod != null && !ulayer.contains(mod))
+    					ulayer.add(mod);
+    			}
+    		}
+    	}
+    	
+    	e = Collections.enumeration(list);
+    	while (e.hasMoreElements()) {
+    		Mod m = (Mod)e.nextElement();
+    		if (!ulayer.contains(m))
+    			dlayer.add(m);
+    	}
+    	
+    	if (ulayer.isEmpty())
+    		return dlayer;
+    	
+    	ulayer = depSort(ulayer);
+    	ulayer.addAll(dlayer);
+    	return ulayer;
+    }
+    
+    public ArrayList<Mod> afterSort(ArrayList<Mod> list) {
+    	Enumeration e = Collections.enumeration(list);
+    	while (e.hasMoreElements()) {
+    		Mod m = (Mod)e.nextElement();
+    		if (after.containsKey(m)) {
+    			Iterator it = after.get(m).entrySet().iterator();
+    			while (it.hasNext()) {
+    				Map.Entry entry = (Map.Entry)it.next();
+    				Mod mod = ManagerOptions.getInstance().getEnabledModWithName((String)entry.getKey());
+    				if (mod != null) {
+	    				if (list.indexOf(mod) >= list.indexOf(m)) {
+	    					// Swap
+	    					int j = list.indexOf(mod);
+	    					int x = list.indexOf(m);
+	    					list.set(j, m);
+	    					list.set(x, mod);
+	    				}
+    				}
+    			}
+    		}
+    	}
+    	
+    	return list;
+    }
+    
+    public ArrayList<Mod> beforeSort(ArrayList<Mod> list) {
+    	Enumeration e = Collections.enumeration(list);
+    	while (e.hasMoreElements()) {
+    		Mod m = (Mod)e.nextElement();
+    		if (before.containsKey(m)) {
+    			Iterator it = before.get(m).entrySet().iterator();
+    			while (it.hasNext()) {
+    				Map.Entry entry = (Map.Entry)it.next();
+    				Mod mod = ManagerOptions.getInstance().getEnabledModWithName((String)entry.getKey());
+    				if (mod != null) {
+	    				if (list.indexOf(mod) <= list.indexOf(m)) {
+	    					// Swap
+	    					int j = list.indexOf(mod);
+	    					int x = list.indexOf(m);
+	    					list.set(j, m);
+	    					list.set(x, mod);
+	    				}
+    				}
+    			}
+    		}
+    	}
+    	
+    	return list;
+    }
 
     /**
      *
@@ -819,18 +902,15 @@ public class Manager extends Observable {
             }
         }
         
-        // Sorting by deps
         for (int i = 0; i < left.size(); i++) {
-        	Mod m = left.get(i);
-        	int j = i - 1;
-        	while (j >= 0 && deps.containsKey(left.get(j)) && deps.get(left.get(j)).containsKey(m.getName())) {
-        		// Swap
-        		left.set(j + 1, left.get(j));
-        		j--;
-        		left.set(j + 1, m);
-        	}
+        	logger.error("left before sort #" + i + " = " + left.get(i).getName());
         }
         
+        // Sorting by deps TODO:Need Fix
+        logger.error("Sorting by Dependencies");
+        left = beforeSort(afterSort(depSort(left)));
+        
+        /*
         // Sorting by before after
         for (int i = 0; i < left.size(); i++) {
         	Mod m = left.get(i);
@@ -852,7 +932,7 @@ public class Manager extends Observable {
         		left.set(j + 1, m);
         	}
         }
-        
+        */
         // Print out the result
         for (int i = 0; i < left.size(); i++) {
         	logger.error("applying order #" + i + " = " + left.get(i).getName());

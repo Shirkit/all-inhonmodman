@@ -287,6 +287,16 @@ public class ManagerOptions extends Observable {
     
     	return list;
     }
+    
+    public Mod getEnabledModWithName(String name) {
+    	ArrayList<Mod> list = new ArrayList<Mod>();
+    	for (int i = 0; i < mods.size(); i++) {
+    		if (mods.get(i).getName().equalsIgnoreCase(name) && mods.get(i).isEnabled()) 
+    			return mods.get(i);
+    	}
+    	
+    	return null;
+    }
 
     public Mod getMod(String name, String version) {
     	for (int i = 0; i < mods.size(); i++) {
