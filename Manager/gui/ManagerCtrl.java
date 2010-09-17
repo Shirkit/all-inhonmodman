@@ -1038,10 +1038,10 @@ public class ManagerCtrl implements Observer {
                     		Mod target = ManagerOptions.getInstance().getMod(Tuple.get1(element), Tuple.get2(element));
                     		controller.enableMod(target, false);
                     	}
+                    	
+                        // Enable the mod finally
+                        controller.enableMod(m, false);
                     }
-                    
-                    // Enable the mod finally
-                    controller.enableMod(m, false);
                     
                 } catch (ModVersionMissmatchException e1) {
                     view.showMessage(L10n.getString("error.modversionmissmatch").replace("#mod#", m.getName()),
