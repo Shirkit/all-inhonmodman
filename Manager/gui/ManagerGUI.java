@@ -846,6 +846,10 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     public void showMessage(String message, String title, int type) {
         JOptionPane.showMessageDialog(this, message, title, type);
     }
+    
+    public int confirmMessage(String message, String title, int type) {
+    	return JOptionPane.showConfirmDialog(this, message, title, type, JOptionPane.QUESTION_MESSAGE);
+    }
 
     /**
      * Custom table model of the mod list table

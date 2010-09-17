@@ -45,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Observer;
@@ -434,6 +435,24 @@ public class ManagerCtrl implements Observer {
 			} catch (ModVersionUnsatisfiedException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
+			} catch (NoSuchElementException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (NullPointerException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (IllegalArgumentException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (ModConflictException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (ModEnabledException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (ModVersionMissmatchException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
 			}
 
 
@@ -655,6 +674,24 @@ public class ManagerCtrl implements Observer {
 				} catch (ModVersionUnsatisfiedException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
+				} catch (NoSuchElementException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (NullPointerException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (IllegalArgumentException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (ModConflictException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (ModEnabledException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (ModVersionMissmatchException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
 				}
                 model.updateNotify();
             }
@@ -686,6 +723,24 @@ public class ManagerCtrl implements Observer {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			} catch (ModVersionUnsatisfiedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (NoSuchElementException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (NullPointerException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (IllegalArgumentException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (ModConflictException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (ModEnabledException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (ModVersionMissmatchException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
@@ -932,7 +987,7 @@ public class ManagerCtrl implements Observer {
         }
     }
 
-    private void enableMod(Mod mod) throws ModNotEnabledException, ModVersionUnsatisfiedException {
+    private void enableMod(Mod mod) throws ModNotEnabledException, ModVersionUnsatisfiedException, NoSuchElementException, NullPointerException, IllegalArgumentException, ModConflictException, ModEnabledException, ModVersionMissmatchException {
         if (mod.isEnabled()) {
             try {
                 controller.disableMod(mod);
@@ -967,10 +1022,27 @@ public class ManagerCtrl implements Observer {
                             JOptionPane.WARNING_MESSAGE);
                     logger.warn("Error disabling mod: " + m.getName() + " because: " + e1.toString() + " is/are enabled.", e1);
                 } catch (ModNotEnabledException e1) {
+                	
                     view.showMessage(L10n.getString("error.modnotenabled").replace("#mod#", m.getName()).replace("#mod2#", e1.toString()),
                             L10n.getString("error.modnotenabled.title"),
                             JOptionPane.WARNING_MESSAGE);
                     logger.warn("Error enabling mod: " + m.getName() + " because: " + e1.toString() + " is/are not enabled.", e1);
+                    
+                    HashSet<Pair<String, String>> enableMods = e1.getDeps();
+                    
+                    int response = view.confirmMessage(L10n.getString("suggest.suggestmodenable"), L10n.getString("suggest.suggestmodenable.title"), JOptionPane.YES_NO_OPTION);
+                    if (response == JOptionPane.YES_OPTION) {
+                    	Iterator it = enableMods.iterator();
+                    	while (it.hasNext()) {
+                    		Pair<String, String> element = (Pair<String, String>)it.next();
+                    		Mod target = ManagerOptions.getInstance().getMod(Tuple.get1(element), Tuple.get2(element));
+                    		controller.enableMod(target, false);
+                    	}
+                    }
+                    
+                    // Enable the mod finally
+                    controller.enableMod(m, false);
+                    
                 } catch (ModVersionMissmatchException e1) {
                     view.showMessage(L10n.getString("error.modversionmissmatch").replace("#mod#", m.getName()),
                             L10n.getString("error.modversionmissmatch.title"),
