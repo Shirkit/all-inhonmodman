@@ -16,11 +16,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.OutputStream;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,16 +26,13 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.Random;
 
 import com.mallardsoft.tuple.*;
 import com.thoughtworks.xstream.converters.ConversionException;
 import com.thoughtworks.xstream.io.StreamException;
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.channels.FileLockInterruptionException;
@@ -83,11 +78,11 @@ public class Manager extends Observable {
      * It's private since only one isntance of the controller is allowed to exist.
      */
     private Manager() {
-    	// Deps, After, and Before are all Map of Mod and ArrayList of Tuple, this way the key can query the mods requested and the value is the list
-    	//
-    	// Cons is an Arraylist of sets, this way each set has only 2 mods (should be), 
-    	// then by checking for all items in the list to find the sets contains the mod, one can pinpoint the incompatible mods too
-        deps = new HashMap<Mod, HashMap<String, String>>(); 
+        // Deps, After, and Before are all Map of Mod and ArrayList of Tuple, this way the key can query the mods requested and the value is the list
+        //
+        // Cons is an Arraylist of sets, this way each set has only 2 mods (should be),
+        // then by checking for all items in the list to find the sets contains the mod, one can pinpoint the incompatible mods too
+        deps = new HashMap<Mod, HashMap<String, String>>();
         cons = new HashSet<HashMap<String, String>>();
         after = new HashMap<Mod, HashMap<String, String>>();
         before = new HashMap<Mod, HashMap<String, String>>();
@@ -112,48 +107,51 @@ public class Manager extends Observable {
     public void buildGraphs() throws IOException {
         // First reset all new added mods from startup
         for (int i = 0; i < ManagerOptions.getInstance().getMods().size(); i++) {
-        	ManagerOptions.getInstance().getMods().get(i).disable();
+            ManagerOptions.getInstance().getMods().get(i).disable();
         }
-        
+
         ArrayList<Mod> mods = ManagerOptions.getInstance().getMods();
 
         // Now building the graph
         for (int i = 0; i < mods.size(); i++) {
             for (int j = 0; j < mods.get(i).getActions().size(); j++) {
-            	// ApplyAfter
+                // ApplyAfter
                 if (mods.get(i).getActions().get(j).getClass() == ActionApplyAfter.class) {
                     //Pair<String, String> afteri = Tuple.from(((ActionApplyAfter) mods.get(i).getActions().get(j)).getName(),
                     //        ((ActionApplyAfter) mods.get(i).getActions().get(j)).getVersion());
 
-                    if (!after.containsKey(mods.get(i)))
-                    	after.put(mods.get(i), new HashMap<String, String>());
+                    if (!after.containsKey(mods.get(i))) {
+                        after.put(mods.get(i), new HashMap<String, String>());
+                    }
                     after.get(mods.get(i)).put(((ActionApplyAfter) mods.get(i).getActions().get(j)).getName(), ((ActionApplyAfter) mods.get(i).getActions().get(j)).getVersion());
-                // ApplyBefore
+                    // ApplyBefore
                 } else if (mods.get(i).getActions().get(j).getClass() == ActionApplyBefore.class) {
                     //Pair<String, String> beforei = Tuple.from(((ActionApplyBefore) mods.get(i).getActions().get(j)).getName(),
                     //        ((ActionApplyBefore) mods.get(i).getActions().get(j)).getVersion());
-                    
-                	if (!before.containsKey(mods.get(i)))
-                    	before.put(mods.get(i), new HashMap<String, String>());
-                    before.get(mods.get(i)).put(((ActionApplyBefore) mods.get(i).getActions().get(j)).getName(), ((ActionApplyBefore) mods.get(i).getActions().get(j)).getVersion());                
-                // ApplyIncompatibility
+
+                    if (!before.containsKey(mods.get(i))) {
+                        before.put(mods.get(i), new HashMap<String, String>());
+                    }
+                    before.get(mods.get(i)).put(((ActionApplyBefore) mods.get(i).getActions().get(j)).getName(), ((ActionApplyBefore) mods.get(i).getActions().get(j)).getVersion());
+                    // ApplyIncompatibility
                 } else if (mods.get(i).getActions().get(j).getClass() == ActionIncompatibility.class) {
                     //Pair<String, String> coni = Tuple.from(((ActionIncompatibility) mods.get(i).getActions().get(j)).getName(),
                     //        ((ActionIncompatibility) mods.get(i).getActions().get(j)).getVersion());
                     //Pair<String, String> myi = Tuple.from(mods.get(i).getName(), mods.get(i).getVersion()); 
                     //Set<Pair<String, String>> conSet = new HashSet<Pair<String, String>>();
-                    
-                	HashMap<String, String> mapping = new HashMap<String, String>();
-                	mapping.put(mods.get(i).getName(), mods.get(i).getVersion());
-                	mapping.put(((ActionIncompatibility) mods.get(i).getActions().get(j)).getName(), ((ActionIncompatibility) mods.get(i).getActions().get(j)).getVersion());
+
+                    HashMap<String, String> mapping = new HashMap<String, String>();
+                    mapping.put(mods.get(i).getName(), mods.get(i).getVersion());
+                    mapping.put(((ActionIncompatibility) mods.get(i).getActions().get(j)).getName(), ((ActionIncompatibility) mods.get(i).getActions().get(j)).getVersion());
                     cons.add(mapping);
-                 // ApplyRequirement
+                    // ApplyRequirement
                 } else if (mods.get(i).getActions().get(j).getClass() == ActionRequirement.class) {
                     //Pair<String, String> depi = Tuple.from(((ActionRequirement) mods.get(i).getActions().get(j)).getName(),
                     //        ((ActionRequirement) mods.get(i).getActions().get(j)).getVersion());
 
-                	if (!deps.containsKey(mods.get(i)))
-                    	deps.put(mods.get(i), new HashMap<String, String>());
+                    if (!deps.containsKey(mods.get(i))) {
+                        deps.put(mods.get(i), new HashMap<String, String>());
+                    }
                     deps.get(mods.get(i)).put(((ActionRequirement) mods.get(i).getActions().get(j)).getName(), ((ActionRequirement) mods.get(i).getActions().get(j)).getVersion());
                 }
             }
@@ -167,6 +165,16 @@ public class Manager extends Observable {
      * 
      */
     public void saveOptions() throws IOException {
+        String name = ManagerOptions.getInstance().getManagerPath() + File.separator + ManagerOptions.getInstance().getOptionsName();
+        File f = new File(name);
+        if (f.exists()) {
+            f.delete();
+        }
+        ManagerOptions.getInstance().saveOptions(new File(name));
+        logger.info("Options saved. Path=" + f.getAbsolutePath());
+    }
+
+    public void saveOptionsNoLog() throws IOException {
         String name = ManagerOptions.getInstance().getManagerPath() + File.separator + ManagerOptions.getInstance().getOptionsName();
         File f = new File(name);
         if (f.exists()) {
@@ -221,7 +229,7 @@ public class Manager extends Observable {
             throw e;
         }
 
-        logger.error("MAN: finished loading options: " + ManagerOptions.getInstance().getAppliedMods());
+        logger.info("MAN: finished loading options: " + ManagerOptions.getInstance().getAppliedMods());
     }
 
     /**
@@ -272,7 +280,7 @@ public class Manager extends Observable {
         ArrayList<ArrayList<Pair<String, String>>> problems = new ArrayList<ArrayList<Pair<String, String>>>();
         for (int i = 0; i < files.length; i++) {
             try {
-                logger.error("Adding file - " + files[i].getName() + " from loadMods().");
+                //logger.error("Adding file - " + files[i].getName() + " from loadMods().");
                 //ManagerCtrl.getGUI().showMessage(L10n.getString("error.loadmodfile").replace("#mod#", files[i].getName()), "TESTING", JOptionPane.ERROR_MESSAGE);
                 addHonmod(files[i], false);
             } catch (ModStreamException e) {
@@ -312,7 +320,7 @@ public class Manager extends Observable {
         }
         String xml = null;
         try {
-            xml = new String(ZIP.getFile(honmod, Mod.MOD_FILENAME));
+            xml = new String(ZIP.getFile(honmod, Mod.MOD_FILENAME), "UTF-8");
         } catch (ZipException ex) {
             list.add(Tuple.from(honmod.getName(), "zip"));
             throw new ModZipException(list);
@@ -321,8 +329,12 @@ public class Manager extends Observable {
         try {
             m = XML.xmlToMod(xml);
         } catch (StreamException ex) {
-            list.add(Tuple.from(honmod.getName(), "stream"));
-            throw new ModStreamException(list);
+            try {
+                m = XML.xmlToMod(xml.substring(1));
+            } catch (StreamException ex1) {
+                list.add(Tuple.from(honmod.getName(), "stream"));
+                throw new ModStreamException(list);
+            }
         }
         Icon icon;
         try {
@@ -456,6 +468,7 @@ public class Manager extends Observable {
      * @param index index of the mod in the list of mods
      * @return mod at the given index
      * @throws IndexOutOfBoundsException in case index does not exist in the list of mods
+     * @deprecated This will not
      */
     public Mod getMod(int index) throws IndexOutOfBoundsException {
         return (Mod) ManagerOptions.getInstance().getMods().get(index);
@@ -551,7 +564,7 @@ public class Manager extends Observable {
                 Future<UpdateThread> ff = ite.next();
                 if (!result.contains(ff) && ff.isDone()) {
                     result.add(ff);
-                    logger.info("Finished " + result.size() + " out of " + temp.size() + " URL check");
+                    //logger.info("Finished " + result.size() + " out of " + temp.size() + " URL check");
                     setChanged();
                     int[] ints = new int[2];
                     ints[0] = result.size();
@@ -656,58 +669,63 @@ public class Manager extends Observable {
      * @throws ModNotEnabledException if the mod given by parameter requires another mod to be enabled.
      */
     private void checkdeps(Mod mod) throws ModNotEnabledException, ModEnabledException, ModVersionUnsatisfiedException {
-    	// From disableMod
-    	if (mod.isEnabled()) {
-    		Iterator it = deps.entrySet().iterator();
-    		HashSet<Pair<String, String>> modEnabledEx = new HashSet<Pair<String, String>>();
-    		Pair<String, String> match = Tuple.from(mod.getName(), mod.getVersion());
-    		
-    		while (it.hasNext()) {
-    			// Make sure all mods depending on mod is disabled first
-    			Map.Entry entry = (Map.Entry)it.next();
-    			Mod m = (Mod)entry.getKey();
-    			if (m.isEnabled() && ((HashMap<String, String>)entry.getValue()).containsKey(mod.getName()) && compareModsVersions(mod.getVersion(), ((HashMap<String, String>)entry.getValue()).get(mod.getName()))) {
-    				modEnabledEx.add(Tuple.from(m.getName(), m.getVersion()));
-    			}
-    		}
-            
-            if (!modEnabledEx.isEmpty())
-            	throw new ModEnabledException(modEnabledEx);
-    	// From enableMod
-    	} else if (deps.containsKey(mod)) {
-    		Iterator it = deps.get(mod).entrySet().iterator();
-    		HashSet<Pair<String, String>> modDisabledEx = new HashSet<Pair<String, String>>();
-            HashSet<Pair<String, String>> modUnsatisfiedEx = new HashSet<Pair<String, String>>();
-            
-    		while (it.hasNext()) {
-    			Map.Entry entry = (Map.Entry)it.next();
-            	
-            	// Make sure all dep exist and enabled
-            	ArrayList<Mod> allModWithName = ManagerOptions.getInstance().getModsWithName((String)entry.getKey());
-            	if (allModWithName == null || allModWithName.isEmpty()) {
-            		modDisabledEx.add(Tuple.from((String)entry.getKey(), (String)entry.getValue()));
-            	} else {
-                	// Make sure all exist and enabled mods are satisfied
-            		Enumeration e = Collections.enumeration(allModWithName);
-            		while (e.hasMoreElements()) {
-            			Mod m = (Mod)e.nextElement();
-            			if (!m.isEnabled() && compareModsVersions(m.getVersion(), (String)entry.getValue()))
-            				modDisabledEx.add(Tuple.from(m.getName(), m.getVersion()));
-            			
-            			if (m.isEnabled() && !compareModsVersions(m.getVersion(), (String)entry.getValue()))
-                			modUnsatisfiedEx.add(Tuple.from(m.getName(), m.getVersion()));
-            		}
-            	}
-    		}
-    		
-            if (!modDisabledEx.isEmpty())
-            	throw new ModNotEnabledException(modDisabledEx);
-            
-            // We place ModNotEnabledException higher priority than ModVersionUnsatisfied
-            if (!modUnsatisfiedEx.isEmpty())
-            	throw new ModVersionUnsatisfiedException(modUnsatisfiedEx);
+        // From disableMod
+        if (mod.isEnabled()) {
+            Iterator it = deps.entrySet().iterator();
+            HashSet<Pair<String, String>> modEnabledEx = new HashSet<Pair<String, String>>();
+            Pair<String, String> match = Tuple.from(mod.getName(), mod.getVersion());
 
-    	}    	
+            while (it.hasNext()) {
+                // Make sure all mods depending on mod is disabled first
+                Map.Entry entry = (Map.Entry) it.next();
+                Mod m = (Mod) entry.getKey();
+                if (m.isEnabled() && ((HashMap<String, String>) entry.getValue()).containsKey(mod.getName()) && compareModsVersions(mod.getVersion(), ((HashMap<String, String>) entry.getValue()).get(mod.getName()))) {
+                    modEnabledEx.add(Tuple.from(m.getName(), m.getVersion()));
+                }
+            }
+
+            if (!modEnabledEx.isEmpty()) {
+                throw new ModEnabledException(modEnabledEx);
+            }
+            // From enableMod
+        } else if (deps.containsKey(mod)) {
+            Iterator it = deps.get(mod).entrySet().iterator();
+            HashSet<Pair<String, String>> modDisabledEx = new HashSet<Pair<String, String>>();
+            HashSet<Pair<String, String>> modUnsatisfiedEx = new HashSet<Pair<String, String>>();
+
+            while (it.hasNext()) {
+                Map.Entry entry = (Map.Entry) it.next();
+
+                // Make sure all dep exist and enabled
+                ArrayList<Mod> allModWithName = ManagerOptions.getInstance().getModsWithName((String) entry.getKey());
+                if (allModWithName == null || allModWithName.isEmpty()) {
+                    modDisabledEx.add(Tuple.from((String) entry.getKey(), (String) entry.getValue()));
+                } else {
+                    // Make sure all exist and enabled mods are satisfied
+                    Enumeration e = Collections.enumeration(allModWithName);
+                    while (e.hasMoreElements()) {
+                        Mod m = (Mod) e.nextElement();
+                        if (!m.isEnabled() && compareModsVersions(m.getVersion(), (String) entry.getValue())) {
+                            modDisabledEx.add(Tuple.from(m.getName(), m.getVersion()));
+                        }
+
+                        if (m.isEnabled() && !compareModsVersions(m.getVersion(), (String) entry.getValue())) {
+                            modUnsatisfiedEx.add(Tuple.from(m.getName(), m.getVersion()));
+                        }
+                    }
+                }
+            }
+
+            if (!modDisabledEx.isEmpty()) {
+                throw new ModNotEnabledException(modDisabledEx);
+            }
+
+            // We place ModNotEnabledException higher priority than ModVersionUnsatisfied
+            if (!modUnsatisfiedEx.isEmpty()) {
+                throw new ModVersionUnsatisfiedException(modUnsatisfiedEx);
+            }
+
+        }
     }
 
     /**
@@ -716,36 +734,37 @@ public class Manager extends Observable {
      * @throws ModEnabledException if another mod that is already enabled has a conflict with the mod given by parameter.
      */
     private void checkcons(Mod mod) throws ModConflictException {
-    	Iterator it = cons.iterator();
-    	HashSet<Pair<String, String>> list = new HashSet<Pair<String, String>>();
-    	
-    	while (it.hasNext()) {
-    		HashMap<String, String> mapping = (HashMap<String, String>)it.next();
-    		
-    		// If this mapping has this mod name
-    		if (mapping.containsKey(mod.getName())) {
-    			
-				// Then it is probably saying this mod mod
-				if (compareModsVersions(mod.getVersion(), mapping.get(mod.getName()))) {
-					Iterator itt = mapping.entrySet().iterator();
-					while (itt.hasNext()) {
-						Map.Entry entry = (Map.Entry)itt.next();
-						if (!entry.getKey().equals(mod.getName())) {
-							Enumeration modsConflict = Collections.enumeration(ManagerOptions.getInstance().getModsWithName((String)entry.getKey()));
-							while (modsConflict.hasMoreElements()) {
-								Mod compare = (Mod)modsConflict.nextElement();
-								if (compareModsVersions(compare.getVersion(), (String)entry.getValue()) && compare.isEnabled())
-									list.add(Tuple.from((String)entry.getKey(), (String)entry.getValue()));
-							}
-						}
-					}
-				}
-    		}
-    	}
-    	
-    	if (!list.isEmpty()) {
+        Iterator it = cons.iterator();
+        HashSet<Pair<String, String>> list = new HashSet<Pair<String, String>>();
+
+        while (it.hasNext()) {
+            HashMap<String, String> mapping = (HashMap<String, String>) it.next();
+
+            // If this mapping has this mod name
+            if (mapping.containsKey(mod.getName())) {
+
+                // Then it is probably saying this mod mod
+                if (compareModsVersions(mod.getVersion(), mapping.get(mod.getName()))) {
+                    Iterator itt = mapping.entrySet().iterator();
+                    while (itt.hasNext()) {
+                        Map.Entry entry = (Map.Entry) itt.next();
+                        if (!entry.getKey().equals(mod.getName())) {
+                            Enumeration modsConflict = Collections.enumeration(ManagerOptions.getInstance().getModsWithName((String) entry.getKey()));
+                            while (modsConflict.hasMoreElements()) {
+                                Mod compare = (Mod) modsConflict.nextElement();
+                                if (compareModsVersions(compare.getVersion(), (String) entry.getValue()) && compare.isEnabled()) {
+                                    list.add(Tuple.from((String) entry.getKey(), (String) entry.getValue()));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (!list.isEmpty()) {
             throw new ModConflictException(list);
-        }        
+        }
     }
 
     /**
@@ -803,88 +822,91 @@ public class Manager extends Observable {
             ManagerOptions.getInstance().getMods().get(ManagerOptions.getInstance().getMods().indexOf(m)).disable();
         }
     }
-    
+
     public ArrayList<Mod> depSort(ArrayList<Mod> list) {
-    	ArrayList<Mod> ulayer = new ArrayList<Mod>();
-    	ArrayList<Mod> dlayer = new ArrayList<Mod>();
-    	
-    	Enumeration e = Collections.enumeration(list);
-    	while (e.hasMoreElements()) {
-    		Mod m = (Mod)e.nextElement();
-    		if (deps.containsKey(m)) {
-    			Iterator it = deps.get(m).entrySet().iterator();
-    			while (it.hasNext()) {
-    				Map.Entry entry = (Map.Entry)it.next();
-    				Mod mod = ManagerOptions.getInstance().getEnabledModWithName((String)entry.getKey());
-    				if (mod != null && !ulayer.contains(mod))
-    					ulayer.add(mod);
-    			}
-    		}
-    	}
-    	
-    	e = Collections.enumeration(list);
-    	while (e.hasMoreElements()) {
-    		Mod m = (Mod)e.nextElement();
-    		if (!ulayer.contains(m))
-    			dlayer.add(m);
-    	}
-    	
-    	if (ulayer.isEmpty())
-    		return dlayer;
-    	
-    	ulayer = depSort(ulayer);
-    	ulayer.addAll(dlayer);
-    	return ulayer;
+        ArrayList<Mod> ulayer = new ArrayList<Mod>();
+        ArrayList<Mod> dlayer = new ArrayList<Mod>();
+
+        Enumeration e = Collections.enumeration(list);
+        while (e.hasMoreElements()) {
+            Mod m = (Mod) e.nextElement();
+            if (deps.containsKey(m)) {
+                Iterator it = deps.get(m).entrySet().iterator();
+                while (it.hasNext()) {
+                    Map.Entry entry = (Map.Entry) it.next();
+                    Mod mod = ManagerOptions.getInstance().getEnabledModWithName((String) entry.getKey());
+                    if (mod != null && !ulayer.contains(mod)) {
+                        ulayer.add(mod);
+                    }
+                }
+            }
+        }
+
+        e = Collections.enumeration(list);
+        while (e.hasMoreElements()) {
+            Mod m = (Mod) e.nextElement();
+            if (!ulayer.contains(m)) {
+                dlayer.add(m);
+            }
+        }
+
+        if (ulayer.isEmpty()) {
+            return dlayer;
+        }
+
+        ulayer = depSort(ulayer);
+        ulayer.addAll(dlayer);
+        return ulayer;
     }
-    
+
     public ArrayList<Mod> afterSort(ArrayList<Mod> list) {
-    	Enumeration e = Collections.enumeration(list);
-    	while (e.hasMoreElements()) {
-    		Mod m = (Mod)e.nextElement();
-    		if (after.containsKey(m)) {
-    			Iterator it = after.get(m).entrySet().iterator();
-    			while (it.hasNext()) {
-    				Map.Entry entry = (Map.Entry)it.next();
-    				Mod mod = ManagerOptions.getInstance().getEnabledModWithName((String)entry.getKey());
-    				if (mod != null) {
-	    				if (list.indexOf(mod) >= list.indexOf(m)) {
-	    					// Swap
-	    					int j = list.indexOf(mod);
-	    					int x = list.indexOf(m);
-	    					list.set(j, m);
-	    					list.set(x, mod);
-	    				}
-    				}
-    			}
-    		}
-    	}
-    	
-    	return list;
+        Enumeration e = Collections.enumeration(list);
+        while (e.hasMoreElements()) {
+            Mod m = (Mod) e.nextElement();
+            if (after.containsKey(m)) {
+                Iterator it = after.get(m).entrySet().iterator();
+                while (it.hasNext()) {
+                    Map.Entry entry = (Map.Entry) it.next();
+                    Mod mod = ManagerOptions.getInstance().getEnabledModWithName((String) entry.getKey());
+                    if (mod != null) {
+                        if (list.indexOf(mod) >= list.indexOf(m)) {
+                            // Swap
+                            int j = list.indexOf(mod);
+                            int x = list.indexOf(m);
+                            list.set(j, m);
+                            list.set(x, mod);
+                        }
+                    }
+                }
+            }
+        }
+
+        return list;
     }
-    
+
     public ArrayList<Mod> beforeSort(ArrayList<Mod> list) {
-    	Enumeration e = Collections.enumeration(list);
-    	while (e.hasMoreElements()) {
-    		Mod m = (Mod)e.nextElement();
-    		if (before.containsKey(m)) {
-    			Iterator it = before.get(m).entrySet().iterator();
-    			while (it.hasNext()) {
-    				Map.Entry entry = (Map.Entry)it.next();
-    				Mod mod = ManagerOptions.getInstance().getEnabledModWithName((String)entry.getKey());
-    				if (mod != null) {
-	    				if (list.indexOf(mod) <= list.indexOf(m)) {
-	    					// Swap
-	    					int j = list.indexOf(mod);
-	    					int x = list.indexOf(m);
-	    					list.set(j, m);
-	    					list.set(x, mod);
-	    				}
-    				}
-    			}
-    		}
-    	}
-    	
-    	return list;
+        Enumeration e = Collections.enumeration(list);
+        while (e.hasMoreElements()) {
+            Mod m = (Mod) e.nextElement();
+            if (before.containsKey(m)) {
+                Iterator it = before.get(m).entrySet().iterator();
+                while (it.hasNext()) {
+                    Map.Entry entry = (Map.Entry) it.next();
+                    Mod mod = ManagerOptions.getInstance().getEnabledModWithName((String) entry.getKey());
+                    if (mod != null) {
+                        if (list.indexOf(mod) <= list.indexOf(m)) {
+                            // Swap
+                            int j = list.indexOf(mod);
+                            int x = list.indexOf(m);
+                            list.set(j, m);
+                            list.set(x, mod);
+                        }
+                    }
+                }
+            }
+        }
+
+        return list;
     }
 
     /**
@@ -894,50 +916,50 @@ public class Manager extends Observable {
      */
     public ArrayList<Mod> sortMods() throws IOException {
         ArrayList<Mod> left = new ArrayList<Mod>();
-        
+
         // Filling left queue with unordered list of mods to apply
         for (int i = 0; i < ManagerOptions.getInstance().getMods().size(); i++) {
             if (ManagerOptions.getInstance().getMods().get(i).isEnabled()) {
                 left.add(ManagerOptions.getInstance().getMods().get(i));
             }
         }
-        
-        for (int i = 0; i < left.size(); i++) {
-        	logger.error("left before sort #" + i + " = " + left.get(i).getName());
-        }
-        
+
+        /*for (int i = 0; i < left.size(); i++) {
+            logger.error("left before sort #" + i + " = " + left.get(i).getName());
+        }*/
+
         // Sorting by deps TODO:Need Fix
         logger.error("Sorting by Dependencies");
         left = beforeSort(afterSort(depSort(left)));
-        
+
         /*
         // Sorting by before after
         for (int i = 0; i < left.size(); i++) {
-        	Mod m = left.get(i);
-        	int j = i - 1;
-        	while (j >= 0 && after.containsKey(left.get(j)) && after.get(left.get(j)).containsKey(m.getName())) {
-        		// Swap
-        		left.set(j + 1, left.get(j));
-        		j--;
-        		left.set(j + 1, m);
-        	}
+        Mod m = left.get(i);
+        int j = i - 1;
+        while (j >= 0 && after.containsKey(left.get(j)) && after.get(left.get(j)).containsKey(m.getName())) {
+        // Swap
+        left.set(j + 1, left.get(j));
+        j--;
+        left.set(j + 1, m);
+        }
         }
         for (int i = 0; i < left.size(); i++) {
-        	Mod m = left.get(i);
-        	int j = i - 1;
-        	while (j >= 0 && before.containsKey(m) && before.get(m).containsKey(left.get(j).getName())) {
-        		// Swap
-        		left.set(j + 1, left.get(j));
-        		j--;
-        		left.set(j + 1, m);
-        	}
+        Mod m = left.get(i);
+        int j = i - 1;
+        while (j >= 0 && before.containsKey(m) && before.get(m).containsKey(left.get(j).getName())) {
+        // Swap
+        left.set(j + 1, left.get(j));
+        j--;
+        left.set(j + 1, m);
         }
-        */
+        }
+         */
         // Print out the result
-        for (int i = 0; i < left.size(); i++) {
-        	logger.error("applying order #" + i + " = " + left.get(i).getName());
-        }
-        
+        /*for (int i = 0; i < left.size(); i++) {
+            logger.error("applying order #" + i + " = " + left.get(i).getName());
+        }*/
+
         return left;
     }
 
@@ -976,7 +998,13 @@ public class Manager extends Observable {
         logger.info("Started mod applying. Folder=" + tempFolder.getAbsolutePath());
         tempFolder.mkdirs();
         Enumeration<Mod> list = Collections.enumeration(applyOrder);
+        int counted[] = new int[1];
         while (list.hasMoreElements()) {
+            // ---------------
+            counted[0]++;
+            setChanged();
+            notifyObservers(counted);
+            // ---------------
             Mod mod = list.nextElement();
             logger.info("Applying Mod=" + mod.getName() + " | Version=" + mod.getVersion());
             for (int j = 0; j < mod.getActions().size(); j++) {
@@ -1241,7 +1269,18 @@ public class Manager extends Observable {
                     throw new UnknowModActionException(action.getClass().getName(), mod.getName());
                 }
             }
+            // ---------------
+            counted[0]++;
+            setChanged();
+            notifyObservers(counted);
+            // ---------------
         }
+
+        // ---------------
+        counted[0]++;
+        setChanged();
+        notifyObservers(counted);
+        // ---------------
 
         String dest = "";
 
@@ -1258,12 +1297,23 @@ public class Manager extends Observable {
             }
         }
 
+        // ---------------
+        counted[0]++;
+        setChanged();
+        notifyObservers(counted);
+        // ---------------
+
         if (!applyOrder.isEmpty()) {
             ZIP.createZIP(tempFolder.getAbsolutePath(), targetZip.getAbsolutePath());
         } else {
             targetZip.createNewFile();
         }
         ManagerOptions.getInstance().setAppliedMods(new HashSet<Mod>(applyOrder));
+        // ---------------
+        counted[0]++;
+        setChanged();
+        notifyObservers(counted);
+        // ---------------
         saveOptions();
     }
 

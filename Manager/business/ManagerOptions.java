@@ -62,6 +62,9 @@ public class ManagerOptions extends Observable {
     private Rectangle guiRectangle;
     @XStreamAlias("columns")
     private ArrayList<Integer> columnsWidth;
+    @XStreamAlias("ignoregameversion")
+    private boolean ignoreGameVersion;
+
 
     // Hidden fields
     @XStreamOmitField
@@ -105,6 +108,7 @@ public class ManagerOptions extends Observable {
         mods = new ArrayList<Mod>();
         controller = Manager.getInstance();
         logger = Logger.getLogger(this.getClass().getPackage().getName());
+        ignoreGameVersion = false;
         
     }
     
@@ -114,10 +118,6 @@ public class ManagerOptions extends Observable {
             instance = new ManagerOptions();
         }
         return instance;
-    }
-    
-    public static void setInstance(Object o) {
-    	instance = (ManagerOptions) o;
     }
 
     /**
@@ -130,7 +130,6 @@ public class ManagerOptions extends Observable {
     }
 
     public void saveOptions(File path) throws IOException {
-        logger.info("Saving options. Path=" + path.getAbsolutePath());
         XML.managerOptionsToXml(path);
     }
 
@@ -198,6 +197,14 @@ public class ManagerOptions extends Observable {
     public void setCLArgs(String p) {
     	CLARGS = p;
     }
+
+    public void setIgnoreGameVersion(boolean ignoreGameVersion) {
+        this.ignoreGameVersion = ignoreGameVersion;
+    }
+
+    public boolean isIgnoreGameVersion() {
+        return ignoreGameVersion;
+    }
     
     public String getVersion() {
     	URL version = getClass().getClassLoader().getResource(MANAGER_VERSION);
@@ -207,7 +214,6 @@ public class ManagerOptions extends Observable {
             in = new BufferedReader(new InputStreamReader(version.openStream()));
             pattern = in.readLine();
         } catch (IOException ex) {
-            java.util.logging.Logger.getLogger(ManagerOptions.class.getName()).log(Level.SEVERE, null, ex);
         }
     	//BufferedReader in = new BufferedReader(new FileReader(MANAGER_VERSION));
     	return pattern;

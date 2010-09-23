@@ -3,6 +3,10 @@
 - Updated messages displayed to the users
 - Fixed bug with file encoding (files saved with different encodings where throwing some heavy problems, but we managed to fix that)
 - Another fix with appVersion, last one didn't solved for 100% of the cases, now it does. If a developer didn't specified an AppVersion, it's assume the value is '*'
+- Fixed bug with ApplyAfter (not being correctly loaded) and Incompatibility (say Mod A and B. B has Incompatibility with A. It was possible to enable B, then A, in this order).
+- Fixed some UI bugs
+- Updated messages displayed to the user
+- Progress bar now works when applying mods and while updating them.
 0.5 alpha:
 - Fixed bug while trying to apply mods and saying they aren't compatible (and they were, examples in appversion=1 should accept version 1.*)
 - Added a popup menu when right clicking in the table

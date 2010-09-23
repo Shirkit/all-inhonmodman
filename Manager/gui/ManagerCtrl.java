@@ -1,6 +1,5 @@
 package gui;
 
-import com.thoughtworks.xstream.io.StreamException;
 import java.awt.event.ComponentEvent;
 import java.util.Observable;
 import java.util.logging.Level;
@@ -208,7 +207,9 @@ public class ManagerCtrl implements Observer {
         if (o.getClass().equals(Manager.class)) {
             int[] ints = (int[]) arg;
             view.getProgressBar().setValue(ints[0]);
-            view.paint(view.getGraphics());
+            //view.paint(view.getGraphics());
+            //view.getProgressBar().paint(view.getProgressBar().getGraphics());
+            view.getProgressBar().update(view.getProgressBar().getGraphics());
         }
 
     }
@@ -256,7 +257,7 @@ public class ManagerCtrl implements Observer {
                     }
                 }
                 if (!stream.isEmpty() || !zip.isEmpty()) {
-                    view.showMessage("<html>"+L10n.getString("error.modcorrupt").replace("#mod#", "<strong>" + stream + zip +"</strong>")+"</html>", L10n.getString("error.modcorrupt.title"), JOptionPane.ERROR_MESSAGE);
+                    view.showMessage("<html>" + L10n.getString("error.modcorrupt").replace("#mod#", "<strong>" + stream + zip + "</strong>") + "</html>", L10n.getString("error.modcorrupt.title"), JOptionPane.ERROR_MESSAGE);
                 }
 
                 if (!notfound.isEmpty()) {
@@ -426,34 +427,34 @@ public class ManagerCtrl implements Observer {
                 return;
             }
             TableModel tableModel = (TableModel) e.getSource();
-            Mod mod = controller.getMod(row);
+            Mod mod = view.getSelectedMod();
             try {
-				enableMod(mod);
-			} catch (ModNotEnabledException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (ModVersionUnsatisfiedException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (NoSuchElementException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (NullPointerException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (IllegalArgumentException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (ModConflictException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (ModEnabledException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (ModVersionMissmatchException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+                enableMod(mod);
+            } catch (ModNotEnabledException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            } catch (ModVersionUnsatisfiedException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            } catch (NoSuchElementException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            } catch (NullPointerException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            } catch (IllegalArgumentException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            } catch (ModConflictException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            } catch (ModEnabledException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            } catch (ModVersionMissmatchException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
 
 
             // Again, save and restore ListSelectionListener
@@ -565,20 +566,21 @@ public class ManagerCtrl implements Observer {
             ArrayList<Mod> toUpdate = new ArrayList<Mod>();
             toUpdate.add(mod);
 
+            view.getProgressBar().setStringPainted(true);
             view.getProgressBar().setMaximum(toUpdate.size());
             UpdateReturn things = null;
-			try {
-				things = controller.updateMod(toUpdate);
-			} catch (StreamException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (ModNotEnabledException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (ModVersionUnsatisfiedException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+            try {
+                things = controller.updateMod(toUpdate);
+            } catch (StreamException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            } catch (ModNotEnabledException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            } catch (ModVersionUnsatisfiedException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
             if (things.getFailedModList().size() > 0) {
                 view.showMessage("Update of mod is not successful.", "Result", JOptionPane.INFORMATION_MESSAGE);
             } else {
@@ -586,6 +588,7 @@ public class ManagerCtrl implements Observer {
             }
             model.updateNotify();
             view.getProgressBar().setValue(0);
+            view.getProgressBar().setStringPainted(false);
         }
     }
 
@@ -614,18 +617,18 @@ public class ManagerCtrl implements Observer {
             }
             view.getProgressBar().setMaximum(toUpdate.size());
             UpdateReturn things = null;
-			try {
-				things = controller.updateMod(toUpdate);
-			} catch (StreamException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (ModNotEnabledException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (ModVersionUnsatisfiedException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+            try {
+                things = controller.updateMod(toUpdate);
+            } catch (StreamException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            } catch (ModNotEnabledException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            } catch (ModVersionUnsatisfiedException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
             it = things.getUpdatedModList().iterator();
             String message = "";
             if (it.hasNext()) {
@@ -667,32 +670,32 @@ public class ManagerCtrl implements Observer {
         public void mouseClicked(MouseEvent e) {
             if (e.getClickCount() == 2) {
                 try {
-					enableMod(view.getSelectedMod());
-				} catch (ModNotEnabledException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (ModVersionUnsatisfiedException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (NoSuchElementException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (NullPointerException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (IllegalArgumentException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (ModConflictException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (ModEnabledException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (ModVersionMissmatchException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
+                    enableMod(view.getSelectedMod());
+                } catch (ModNotEnabledException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                } catch (ModVersionUnsatisfiedException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                } catch (NoSuchElementException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                } catch (NullPointerException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                } catch (IllegalArgumentException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                } catch (ModConflictException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                } catch (ModEnabledException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                } catch (ModVersionMissmatchException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
                 model.updateNotify();
             }
         }
@@ -718,32 +721,32 @@ public class ManagerCtrl implements Observer {
         public void actionPerformed(ActionEvent e) {
             Mod mod = controller.getMod(e.getActionCommand());
             try {
-				enableMod(mod);
-			} catch (ModNotEnabledException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (ModVersionUnsatisfiedException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (NoSuchElementException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (NullPointerException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (IllegalArgumentException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (ModConflictException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (ModEnabledException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (ModVersionMissmatchException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+                enableMod(mod);
+            } catch (ModNotEnabledException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            } catch (ModVersionUnsatisfiedException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            } catch (NoSuchElementException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            } catch (NullPointerException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            } catch (IllegalArgumentException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            } catch (ModConflictException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            } catch (ModEnabledException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            } catch (ModVersionMissmatchException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
             // Update GUI
             view.tableRemoveListSelectionListener(lsl);
             model.updateNotify();
@@ -827,6 +830,7 @@ public class ManagerCtrl implements Observer {
             ManagerOptions.getInstance().setLaf(view.getSelectedLafClass());
             ManagerOptions.getInstance().setLanguage(view.getSelectedLanguage());
             ManagerOptions.getInstance().setModPath(view.getTextFieldModsFolder());
+            ManagerOptions.getInstance().setIgnoreGameVersion(view.getIgnoreGameVersion());
 
             try {
                 controller.saveOptions();
@@ -979,7 +983,7 @@ public class ManagerCtrl implements Observer {
         }
         if (date <= d.getTime()) {
             try {
-                Manager.getInstance().saveOptions();
+                Manager.getInstance().saveOptionsNoLog();
                 date = d.getTime() + 1000;
             } catch (IOException ex) {
                 date = d.getTime() + 1000;
@@ -1003,7 +1007,7 @@ public class ManagerCtrl implements Observer {
                 Mod m = controller.getMod(mod.getName());
                 String gameVersion = Game.getInstance().getVersion();
                 try {
-                    controller.enableMod(m, false);
+                    controller.enableMod(m, ManagerOptions.getInstance().isIgnoreGameVersion());
                     logger.info("Mod '" + mod.getName() + "' has been ENABLED");
                 } catch (NoSuchElementException e1) {
                     view.showMessage(L10n.getString("error.modnotfound"),
@@ -1022,27 +1026,27 @@ public class ManagerCtrl implements Observer {
                             JOptionPane.WARNING_MESSAGE);
                     logger.warn("Error disabling mod: " + m.getName() + " because: " + e1.toString() + " is/are enabled.", e1);
                 } catch (ModNotEnabledException e1) {
-                	
+
                     view.showMessage(L10n.getString("error.modnotenabled").replace("#mod#", m.getName()).replace("#mod2#", e1.toString()),
                             L10n.getString("error.modnotenabled.title"),
                             JOptionPane.WARNING_MESSAGE);
                     logger.warn("Error enabling mod: " + m.getName() + " because: " + e1.toString() + " is/are not enabled.", e1);
-                    
+
                     HashSet<Pair<String, String>> enableMods = e1.getDeps();
-                    
+
                     int response = view.confirmMessage(L10n.getString("suggest.suggestmodenable"), L10n.getString("suggest.suggestmodenable.title"), JOptionPane.YES_NO_OPTION);
                     if (response == JOptionPane.YES_OPTION) {
-                    	Iterator it = enableMods.iterator();
-                    	while (it.hasNext()) {
-                    		Pair<String, String> element = (Pair<String, String>)it.next();
-                    		Mod target = ManagerOptions.getInstance().getMod(Tuple.get1(element), Tuple.get2(element));
-                    		controller.enableMod(target, false);
-                    	}
-                    	
+                        Iterator it = enableMods.iterator();
+                        while (it.hasNext()) {
+                            Pair<String, String> element = (Pair<String, String>) it.next();
+                            Mod target = ManagerOptions.getInstance().getMod(Tuple.get1(element), Tuple.get2(element));
+                            controller.enableMod(target, false);
+                        }
+
                         // Enable the mod finally
                         controller.enableMod(m, false);
                     }
-                    
+
                 } catch (ModVersionMissmatchException e1) {
                     view.showMessage(L10n.getString("error.modversionmissmatch").replace("#mod#", m.getName()),
                             L10n.getString("error.modversionmissmatch.title"),
@@ -1076,6 +1080,17 @@ public class ManagerCtrl implements Observer {
 
     public void applyMods() {
         try {
+            int count = 0;
+            Iterator<Mod> iterator = model.getMods().iterator();
+            while (iterator.hasNext()) {
+                if (iterator.next().isEnabled()) {
+                    count += 2;
+                }
+            }
+            count = count + (model.getAppliedMods().size())*2 + 3;
+            view.getProgressBar().setStringPainted(true);
+            view.getProgressBar().setMaximum(count);
+            view.getProgressBar().paint(view.getProgressBar().getGraphics());
             controller.applyMods();
             view.showMessage(L10n.getString("message.modsapplied"), L10n.getString("message.modsapplied.title"), JOptionPane.ERROR_MESSAGE);
         } catch (FileLockInterruptionException ex) {
@@ -1100,6 +1115,9 @@ public class ManagerCtrl implements Observer {
         } catch (IOException ex) {
             logger.error("Error applying mods. A random I/O exception was thrown, can't apply.", ex);
             view.showMessage("Random error. Please, report it to the software developers", "Random error", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            view.getProgressBar().setValue(0);
+            view.getProgressBar().setStringPainted(false);
         }
     }
 

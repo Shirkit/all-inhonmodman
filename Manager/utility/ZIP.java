@@ -181,7 +181,7 @@ public class ZIP {
             while (path.contains("\\")) {
                 path = path.replace("\\", "/");
             }
-            logger.error("ZIP: " + path);
+            //logger.error("ZIP: " + path);
             ZipEntry anEntry = new ZipEntry(path);
             anEntry.setTime(f.lastModified());
             //place the zip entry in the ZipOutputStream object

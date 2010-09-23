@@ -4,7 +4,6 @@
  */
 package business;
 
-import com.thoughtworks.xstream.converters.ConversionException;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
@@ -58,6 +57,10 @@ public class ManagerOptionsConverter implements Converter {
             writer.addAttribute("height", Integer.toString((int) opt.getGuiRectangle().getHeight()));
         } catch (NullPointerException ex) {
         }
+        try {
+            writer.addAttribute("ignoregameversion", Boolean.toString(opt.isIgnoreGameVersion()));
+        } catch (NullPointerException ex) {
+        }
         if (opt.getColumnsWidth() != null) {
             Iterator<Integer> it = opt.getColumnsWidth().iterator();
             int i = 0;
@@ -88,6 +91,7 @@ public class ManagerOptionsConverter implements Converter {
         value.setCLArgs(reader.getAttribute("clargs"));
         value.setLanguage(reader.getAttribute("lang"));
         value.setLaf(reader.getAttribute("laf"));
+        value.setIgnoreGameVersion(Boolean.parseBoolean(reader.getAttribute("ignoregameversion")));
         int x = -9999999, y = -9999999, height = -9999999, width = -9999999;
         String s = reader.getAttribute("x");
         if (s != null) {
