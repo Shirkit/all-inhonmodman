@@ -4,6 +4,10 @@ import business.ManagerOptions;
 import business.Mod;
 import business.actions.*;
 
+import javax.swing.JFileChooser;
+//import javax.swing.filechooser.FileFilter;
+import gui.l10n.L10n;
+
 import java.net.MalformedURLException;
 import java.util.concurrent.ExecutionException;
 
@@ -50,6 +54,8 @@ import org.apache.log4j.Logger;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
+
 import utility.FileUtils;
 
 import utility.Game;
@@ -184,6 +190,7 @@ public class Manager extends Observable {
     }
 
     /**
+     * Not using it currently
      * check update the path of the Hon or Mod folder according to the string passed in
      * and prompt the user for input if the designate functions have failed.
      */
@@ -197,17 +204,22 @@ public class Manager extends Observable {
 
         // TODO: This needs to be changed
 
-        /*if (path == null || path.isEmpty()) {
-        JFileChooser fc = new JFileChooser(new File("."));
-        fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        fc.setMultiSelectionEnabled(false);
-        fc.showOpenDialog(null);
-        if (fc.getSelectedFile() != null) {
-        path = fc.getSelectedFile().getAbsolutePath();
-        } else {
-        path = null;
+        if (path == null || path.isEmpty()) {
+            JFileChooser fc = new JFileChooser();
+            fc.setAcceptAllFileFilterUsed(false);
+            fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            if (OS.isMac()) {
+                fc.setCurrentDirectory(new File("/Applications"));
+            }
+
+        	fc.setMultiSelectionEnabled(false);
+        	fc.showOpenDialog(null);
+	        if (fc.getSelectedFile() != null) {
+	        	path = fc.getSelectedFile().getAbsolutePath();
+	        } else {
+	        	path = null;
+	        }
         }
-        }*/
 
         return path;
     }

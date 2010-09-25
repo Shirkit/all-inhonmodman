@@ -824,7 +824,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         // Get HoN folder
         //String honFolder = prefs.get(model.PREFS_HONFOLDER, "DUMMY_DEFAULT");
         String honFolder = ManagerOptions.getInstance().getGamePath();
-        if (honFolder.isEmpty()) {
+        if (honFolder == null || honFolder.isEmpty()) {
             textFieldHonFolder.setText("");
         } else {
             textFieldHonFolder.setText(honFolder);

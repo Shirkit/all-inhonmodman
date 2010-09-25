@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import javax.imageio.stream.FileImageInputStream;
+import javax.swing.JFileChooser;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -50,8 +51,14 @@ public class Game {
         // Try to find HoN folder in case we are on Mac
         if (OS.isMac()) {
             File a = new File("/Applications/Heroes of Newerth.app");
-            logger.error("GAME: Mac: " + a.getPath() + " exists");
-            return a.exists() ? a.getPath() : null;
+            if (a.exists()) {
+            	logger.error("GAME: Mac: " + a.getPath() + " exists");
+            	return a.getAbsolutePath();
+            }
+            else {
+            	logger.error("GAME: Mac: " + a.getPath() + " doesn't exist");
+            	return null;
+            }
         }
         return null;
     }
