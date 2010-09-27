@@ -674,6 +674,20 @@ public class Manager extends Observable {
         }
         return returnValue;
     }
+    
+    private void checkdiff(Mod mod) throws ModSameNameDifferentVersionsException {
+    	HashSet<Pair<String, String>> modDiffEx = new HashSet<Pair<String, String>>();
+    	Enumeration e = Collections.enumeration(ManagerOptions.getInstance().getMods());
+    	while (e.hasMoreElements()) {
+    		Mod m = (Mod)e.nextElement();
+    		if (m.getName().equalsIgnoreCase(mod.getName()) && m.isEnabled() && !m.getVersion().equalsIgnoreCase(mod.getVersion())) {
+    			modDiffEx.add(Tuple.from(m.getName(), m.getVersion()));
+    		}
+    	}
+    	
+    	if (!modDiffEx.isEmpty())
+    		throw new ModSameNameDifferentVersionsException(modDiffEx);
+    }
 
     /**
      * This function checks to see if all dependencies of a given mod are satisfied. If a dependency isn't satisfied, throws exceptions.
@@ -781,7 +795,7 @@ public class Manager extends Observable {
 
     /**
      * This function trys to enable the mod with the name given. Throws exceptions if didn't no success while enabling the mod.
-     * ignoreVersion should be always false, unless the user especifically says so.
+     * ignoreGameVersion should be always false, unless the user especifically says so.
      * @param name of the mod
      * @throws ModEnabledException if a mod was enabled and caused an incompatibility with the Mod that is being tryied to apply.
      * @throws ModNotEnabledException if a mod that was required by this mod wasn't enabled.
@@ -793,8 +807,18 @@ public class Manager extends Observable {
      * @throws IOException if a random I/O Exception happened.
      * @throws IllegalArgumentException if a mod used a invalid parameter to compare the mods version.
      */
-    public void enableMod(Mod m, boolean ignoreVersion) throws ModConflictException, ModVersionUnsatisfiedException, ModEnabledException, ModNotEnabledException, NoSuchElementException, ModVersionMissmatchException, NullPointerException, FileNotFoundException, IllegalArgumentException, IOException {
-        if (!ignoreVersion) {
+    public void enableMod(Mod m, boolean ignoreGameVersion) throws ModConflictException, 
+    															ModVersionUnsatisfiedException, 
+    															ModEnabledException, 
+    															ModNotEnabledException, 
+    															NoSuchElementException, 
+    															ModVersionMissmatchException, 
+    															NullPointerException, 
+    															FileNotFoundException, 
+    															IllegalArgumentException, 
+    															IOException,
+    															ModSameNameDifferentVersionsException {
+        if (!ignoreGameVersion) {
             if (m.getAppVersion() != null) {
                 if (!m.getAppVersion().contains("-") && !m.getAppVersion().contains("*")) {
                     if (!compareModsVersions(Game.getInstance().getVersion(), m.getAppVersion() + ".*")) {
@@ -811,7 +835,9 @@ public class Manager extends Observable {
                 }
             }
         }
+        
         if (!m.isEnabled()) {
+        	checkdiff(m);
             checkcons(m);
             checkdeps(m);
             // enable it

@@ -34,6 +34,7 @@ import utility.exception.ModConflictException;
 import utility.exception.ModEnabledException;
 import utility.exception.ModNotEnabledException;
 import utility.exception.ModNotFoundException;
+import utility.exception.ModSameNameDifferentVersionsException;
 import utility.exception.ModStreamException;
 import utility.exception.ModVersionMissmatchException;
 import utility.exception.ModVersionUnsatisfiedException;
@@ -454,7 +455,10 @@ public class ManagerCtrl implements Observer {
             } catch (ModVersionMissmatchException e1) {
                 // TODO Auto-generated catch block
                 e1.printStackTrace();
-            }
+            } catch (ModSameNameDifferentVersionsException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 
 
             // Again, save and restore ListSelectionListener
@@ -695,7 +699,10 @@ public class ManagerCtrl implements Observer {
                 } catch (ModVersionMissmatchException e1) {
                     // TODO Auto-generated catch block
                     e1.printStackTrace();
-                }
+                } catch (ModSameNameDifferentVersionsException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
                 model.updateNotify();
             }
         }
@@ -746,7 +753,10 @@ public class ManagerCtrl implements Observer {
             } catch (ModVersionMissmatchException e1) {
                 // TODO Auto-generated catch block
                 e1.printStackTrace();
-            }
+            } catch (ModSameNameDifferentVersionsException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
             // Update GUI
             view.tableRemoveListSelectionListener(lsl);
             model.updateNotify();
@@ -991,7 +1001,7 @@ public class ManagerCtrl implements Observer {
         }
     }
 
-    private void enableMod(Mod mod) throws ModNotEnabledException, ModVersionUnsatisfiedException, NoSuchElementException, NullPointerException, IllegalArgumentException, ModConflictException, ModEnabledException, ModVersionMissmatchException {
+    private void enableMod(Mod mod) throws ModNotEnabledException, ModVersionUnsatisfiedException, NoSuchElementException, NullPointerException, IllegalArgumentException, ModConflictException, ModEnabledException, ModVersionMissmatchException, ModSameNameDifferentVersionsException {
         if (mod.isEnabled()) {
             try {
                 controller.disableMod(mod);
@@ -1067,7 +1077,10 @@ public class ManagerCtrl implements Observer {
                 } catch (IllegalArgumentException e1) {
                     // TODO Auto-generated catch block
                     e1.printStackTrace();
-                }
+                } catch (ModSameNameDifferentVersionsException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
             } catch (FileNotFoundException e1) {
                 view.showMessage(L10n.getString("error.incorrectpath"),
                         L10n.getString("error.incorrectpath.title"),
