@@ -1,0 +1,81 @@
+[b]0.1 alpha:[/b]
+- First release to public
+
+[b]0.2 alpha:[/b]
+- Minor fix in checking for manager update version.
+- Updated license for using Synthetica Look and Feel.
+- Major fix while running the Manager for the first time.
+
+[b]0.3 alpha:[/b]
+- Major fixes in core structure.
+- Added a progress bar (only works with File -> Download Mods Updates currently)
+- Fixed File -> Download Mods Updates function
+- Added a way to change Mods Folder trhough Preferences menu
+- Manager will remember last position (X and Y on the screen), width and height. Applies to columns also
+- Columns can now be sorted
+- Users with Java 1.4 or 1.5 will be warned to download a new java version
+- Manager will just skip a mod if it isn't working (currently not working for mariosmith and mods that uses "findall" operation. If found, manager will halt. Please, remove this mod from folder to test the manager. You can add it later)
+- Logging improved a bit
+- Probally more, but I forgot to log them =\
+
+[b]0.4 alpha:[/b]
+- Updated compareModsVersion (it will ignore all letters. All commas ',' will be replaced by dots '.' to be inside honmod format)
+- Updated aboutBox to display ModManager changelog
+- Updated ManagerOptions.getVersion() to return the full string, instead of a array of strings, each one with one word. If needed, we create another method for that.
+- Updated string in language file
+- Enabled mod enabling if double clicking in table (can't navigate through keyboard yet)
+- Updated way that mods are updated, trying to avoid error pages
+- Added changelog.txt file for the Manager
+- Almost finished manager update, only needs a place to host the file
+- Fixed bug while searching for strings (find operation). It was completly wrong when used with <find position="start"> and reworked entire method to work with findall operation correctly
+- Added keyboard hotkeys
+- Added support for mod's changelog (see Honmod format for changes)
+- Changed interface a bit (Mod's title reisized, added buttons for Mod's optionals [update, website, changelog])
+- Fixed method to get HoN's folder (if you set the path correctly, it wouldn't use this data)
+- Added tooltips
+- Set connection timeout for Mod's update to 4 seconds and 1.5 seconds to Manager
+- Fixed bug while launching Manager (combination of null arguments)
+- Fixed bug after launching Manager for the first time
+- Updated most of error messages
+- Fixed resources999.s2z file not being generated
+- Added button to apply and launch hon
+- Updated logger file for more detailed information
+- Fixed bug while saving options if a value was null
+- Fixed bug while updating mods and not updating the table
+- Added button to apply and launch hon
+- Added a Refresh menu item for mod developers
+- Fixed bug while loading the mods if Mod's Path not set yet
+
+[b]0.5 alpha:[/b]
+- Fixed bug while trying to apply mods and saying they aren't compatible (and they were, examples in appversion=1 should accept version 1.*)
+- Added a popup menu when right clicking in the table
+- Fixed a few graphical bug while applying a new Look and Feel
+- Improved auto search for HoN and Mods folder
+- Updated Strings file
+- Fixed bug while trying to open Mod's Website (it was opening another's mod website)
+- Improved logging methods
+- Changed behavior on Manager first launch
+- Added auto-update 100% working and functional
+
+[b]0.6 alpha:[/b]
+- Fixed bug while reading corrupted ZIP files.
+- Updated messages displayed to the users
+- Fixed bug with file encoding (files saved with different encodings where throwing some heavy problems, but we managed to fix that)
+- Another fix with appVersion, last one didn't solved for 100% of the cases, now it does. If a developer didn't specified an AppVersion, it's assume the value is '*'
+- Fixed bug with ApplyAfter (not being correctly loaded) and Incompatibility (say Mod A and B. B has Incompatibility with A. It was possible to enable B, then A, in this order).
+- Fixed some UI bugs
+- Updated messages displayed to the user
+- Progress bar now works when applying mods and while updating them.
+
+[b]0.7 alpha:[/b]
+- Optmized code for better performance and understanding.
+- Fixed bug while updating mods in Linux and Mac.
+- Added option to auto-update the Manager.
+- Removed unused message header in the logging method.
+- If mod path or game path isn't change in preferences, it won't load all the mods again (old behavior).
+- Added support for BBCode in mod's changelog.
+- Improved program starting speed.
+- Fixed wrong display in progress bar while applying mods.
+- Reduced size of managerOptions.xml file (it was storing a large number of unecessary information.
+- Fixed bug while starting the Manager and not loading the last used X, Y, Height and Widht.
+- Temporary sollution for Mod Options Framework and Movable Frames mod's requirements.
