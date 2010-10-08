@@ -61,6 +61,10 @@ public class ManagerOptionsConverter implements Converter {
             writer.addAttribute("ignoregameversion", Boolean.toString(opt.isIgnoreGameVersion()));
         } catch (NullPointerException ex) {
         }
+        try {
+            writer.addAttribute("autoupdate", Boolean.toString(opt.isAutoUpdate()));
+        } catch (NullPointerException ex) {
+        }
         if (opt.getColumnsWidth() != null) {
             Iterator<Integer> it = opt.getColumnsWidth().iterator();
             int i = 0;
@@ -75,8 +79,9 @@ public class ManagerOptionsConverter implements Converter {
             while (it.hasNext()) {
                 Mod m = it.next();
                 if (m != null) {
+                    Mod n = new Mod(m.getName(), m.getVersion(), m.getAuthor());
                     writer.startNode("modification");
-                    mc.convertAnother(m);
+                    mc.convertAnother(n);
                     writer.endNode();
                 }
             }
@@ -92,6 +97,7 @@ public class ManagerOptionsConverter implements Converter {
         value.setLanguage(reader.getAttribute("lang"));
         value.setLaf(reader.getAttribute("laf"));
         value.setIgnoreGameVersion(Boolean.parseBoolean(reader.getAttribute("ignoregameversion")));
+        value.setAutoUpdate(Boolean.parseBoolean(reader.getAttribute("autoupdate")));
         int x = -9999999, y = -9999999, height = -9999999, width = -9999999;
         String s = reader.getAttribute("x");
         if (s != null) {
@@ -109,9 +115,6 @@ public class ManagerOptionsConverter implements Converter {
         if (s != null) {
             width = Integer.valueOf(s);
         }
-        s = reader.getAttribute("y");
-        s = reader.getAttribute("height");
-        s = reader.getAttribute("width");
         if (x != -9999999 && y != -9999999 && height != -9999999 && width != -9999999) {
             value.setGuiRectangle(new Rectangle(x, y, width, height));
         }

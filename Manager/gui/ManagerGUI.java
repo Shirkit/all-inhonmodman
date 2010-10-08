@@ -16,7 +16,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.prefs.Preferences;
 import javax.swing.JDialog;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
@@ -35,6 +34,7 @@ import java.awt.event.WindowEvent;
 import java.util.Iterator;
 import javax.swing.DefaultListModel;
 import javax.swing.JProgressBar;
+import utility.BBCode;
 
 /**
  * Main form of the ModManager. This class is the 'view' part of the MVC framework
@@ -48,7 +48,6 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     private Manager controller;
     private ManagerOptions model;
     private static Logger logger = Logger.getLogger(ManagerGUI.class.getPackage().getName());
-    private Preferences prefs;
     // Column names of the mod list table
     private String[] columnNames = new String[]{
         "",
@@ -63,28 +62,11 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
      * Creates the main form
      * @param model model patr of the MVC framework
      */
-    public ManagerGUI() {
+    private ManagerGUI() {
         logger.info("Initializing gui");
-        ManagerOptions.getInstance().setGuiRectangle(getBounds());
         this.model = ManagerOptions.getInstance();
         this.controller = Manager.getInstance();
         ManagerOptions.getInstance().addObserver(this);
-        // Set Look and feel (based on preferences)
-        prefs = Preferences.userNodeForPackage(Manager.class);
-        //String lafClass = prefs.get(model.PREFS_LAF, "DUMMY_DEFAULT");
-        String lafClass = ManagerOptions.getInstance().getLaf();
-        try {
-            if (lafClass.isEmpty()) {
-                // No LaF set in preferences, set default
-                logger.info("Setting default look and feel");
-                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            } else {
-                logger.info("Setting look and feel to: " + lafClass);
-                UIManager.setLookAndFeel(lafClass);
-            }
-        } catch (Exception e) {
-            logger.warn("Cannot change L&F: " + e.getMessage());
-        }
 
         // Registration for Synthetica Look and Feel
         String[] li = {"Licensee=Pedro Torres", "LicenseRegistrationNumber=NCPT200729", "Product=Synthetica", "LicenseType=Non Commercial", "ExpireDate=--.--.----", "MaxVersion=2.999.999"};
@@ -104,7 +86,8 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         comboBoxChooseLanguage.addItem(new Language("English", "en"));
         //comboBoxChooseLanguage.addItem(new Language("Slovak", "sk"));
         // Set model of the LaF combobox. This will not be localized
-        comboBoxLafs.addItem(new LaF("Default", "default"));
+        comboBoxLafs.addItem(new LaF("Default", UIManager.getSystemLookAndFeelClassName()));
+        comboBoxLafs.addItem(new LaF("Metal", UIManager.getCrossPlatformLookAndFeelClassName()));
         comboBoxLafs.addItem(new LaF("JGoodies", "com.jgoodies.looks.plastic.PlasticXPLookAndFeel"));
         // Components on the Mod details panel are not visible by default
         setDetailsVisible(false);
@@ -114,6 +97,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         // Change default close operation to this
         this.addWindowListener(new WindowAdapter() {
 
+            @Override
             public void windowClosing(WindowEvent e) {
                 itemExit.doClick();
                 System.exit(0);
@@ -166,11 +150,13 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         textFieldModsFolder = new javax.swing.JTextField();
         labelChooseLookAndFeel = new javax.swing.JLabel();
         checkBoxIgnoreGameVersion = new javax.swing.JCheckBox();
+        checkBoxAutoUpdate = new javax.swing.JCheckBox();
         rightClickTableMenu = new javax.swing.JPopupMenu();
         popupItemMenuEnableDisableMod = new javax.swing.JMenuItem();
         popupItemMenuUpdateMod = new javax.swing.JMenuItem();
         popupItemMenuVisitWebsite = new javax.swing.JMenuItem();
-        PopupItemMenuViewChangelog = new javax.swing.JMenuItem();
+        popupItemMenuViewChangelog = new javax.swing.JMenuItem();
+        popupItemMenuDeleteMod = new javax.swing.JMenuItem();
         panelModList = new javax.swing.JPanel();
         progressBar = new javax.swing.JProgressBar(0,100);
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -277,6 +263,9 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         checkBoxIgnoreGameVersion.setToolTipText(L10n.getString("tooltip.prefs.ignoregameversion"));
         checkBoxIgnoreGameVersion.setName("checkBoxIgnoreGameVersion"); // NOI18N
 
+        checkBoxAutoUpdate.setText(L10n.getString("prefs.label.autoupdate"));
+        checkBoxAutoUpdate.setName("checkBoxAutoUpdate"); // NOI18N
+
         javax.swing.GroupLayout dialogOptionsLayout = new javax.swing.GroupLayout(dialogOptions.getContentPane());
         dialogOptions.getContentPane().setLayout(dialogOptionsLayout);
         dialogOptionsLayout.setHorizontalGroup(
@@ -300,7 +289,8 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                             .addComponent(labelHonFolder, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(labelModsFolder, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(labelCLArguments, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 121, Short.MAX_VALUE)
-                            .addComponent(checkBoxIgnoreGameVersion, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(checkBoxIgnoreGameVersion, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(checkBoxAutoUpdate, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(dialogOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(textFieldHonFolder, javax.swing.GroupLayout.DEFAULT_SIZE, 354, Short.MAX_VALUE)
@@ -344,7 +334,9 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                     .addComponent(comboBoxChooseLanguage, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(checkBoxIgnoreGameVersion)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 37, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(checkBoxAutoUpdate)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 38, Short.MAX_VALUE)
                 .addComponent(labelChangeLanguageImplication)
                 .addGap(7, 7, 7)
                 .addGroup(dialogOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -367,9 +359,13 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         popupItemMenuVisitWebsite.setName("popupItemMenuVisitWebsite"); // NOI18N
         rightClickTableMenu.add(popupItemMenuVisitWebsite);
 
-        PopupItemMenuViewChangelog.setText(L10n.getString("button.viewchangelog"));
-        PopupItemMenuViewChangelog.setName("PopupItemMenuViewChangelog"); // NOI18N
-        rightClickTableMenu.add(PopupItemMenuViewChangelog);
+        popupItemMenuViewChangelog.setText(L10n.getString("button.viewchangelog"));
+        popupItemMenuViewChangelog.setName("popupItemMenuViewChangelog"); // NOI18N
+        rightClickTableMenu.add(popupItemMenuViewChangelog);
+
+        popupItemMenuDeleteMod.setText(L10n.getString("button.deletemod"));
+        popupItemMenuDeleteMod.setName("popupItemMenuDeleteMod"); // NOI18N
+        rightClickTableMenu.add(popupItemMenuDeleteMod);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle(L10n.getString("application.title"));
@@ -454,6 +450,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
 
         jScrollPane4.setName("jScrollPane4"); // NOI18N
 
+        jEditorPane1.setContentType("text/html");
         jEditorPane1.setEditable(false);
         jEditorPane1.setName("jEditorPane1"); // NOI18N
         jScrollPane4.setViewportView(jEditorPane1);
@@ -465,7 +462,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
             .addGroup(panelModChangelogLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(panelModChangelogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane4)
+                    .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 414, Short.MAX_VALUE)
                     .addGroup(panelModChangelogLayout.createSequentialGroup()
                         .addComponent(labelModIcon1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -836,7 +833,17 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         } else {
             textFieldModsFolder.setText(modsFolder);
         }
-        dialogOptions.setSize(500, 350);
+        if (ManagerOptions.getInstance().isIgnoreGameVersion()) {
+            checkBoxIgnoreGameVersion.setSelected(true);
+        } else {
+            checkBoxIgnoreGameVersion.setSelected(false);
+        }
+        if (ManagerOptions.getInstance().isAutoUpdate()) {
+            checkBoxAutoUpdate.setSelected(true);
+        } else {
+            checkBoxAutoUpdate.setSelected(false);
+        }
+        dialogOptions.setSize(500, 370);
         dialogOptions.setLocationRelativeTo(this);
         dialogOptions.setVisible(true);
     }//GEN-LAST:event_itemOpenPreferencesActionPerformed
@@ -863,9 +870,9 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     public void showMessage(String message, String title, int type) {
         JOptionPane.showMessageDialog(this, message, title, type);
     }
-    
+
     public int confirmMessage(String message, String title, int type) {
-    	return JOptionPane.showConfirmDialog(this, message, title, type, JOptionPane.QUESTION_MESSAGE);
+        return JOptionPane.showConfirmDialog(this, message, title, type, JOptionPane.QUESTION_MESSAGE);
     }
 
     /**
@@ -898,6 +905,23 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         }
     }
 
+    public void deleteSelectedMod() {
+        int selectedRow = tableModList.getSelectedRow();
+        Mod mod = null;
+        try {
+            mod = (Mod) tableData[selectedRow][5];
+        } catch (IndexOutOfBoundsException e) {
+            if (selectedRow != -1) {
+                logger.error("Cannot delete mod at index " + selectedRow);
+            }
+            return;
+        }
+        model.getAppliedMods().remove(mod);
+        model.getMods().remove(mod);
+        ((DefaultTableModel) tableModList.getModel()).removeRow(selectedRow);
+        updateModTable();
+    }
+
     /**
      * Update table with the list of mods
      *
@@ -914,13 +938,9 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         }
         this.tableData = new Object[mods.size()][];
         // Display all mods
-        logger.error("UPDATE: " + mods.size());
         for (int i = 0; i < mods.size(); i++) {
             // new space for mod
             this.tableData[i] = new Object[6];
-            if (ManagerOptions.getInstance().getAppliedMods().contains(mods.get(i))) {
-                mods.get(i).enable();
-            }
             this.tableData[i][0] = (Boolean) mods.get(i).isEnabled();
             this.tableData[i][1] = (String) mods.get(i).getName();
             this.tableData[i][2] = (String) mods.get(i).getAuthor();
@@ -950,8 +970,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
 
         if (model.getColumnsWidth() != null) {
             if (model.getColumnsWidth().size() != tableModList.getColumnModel().getColumnCount()) {
-                // If we change the interface, nothing else will need to done =]
-                logger.error("NOT MATCH!!");
+                // If we change the interface (columns number from one version to another), nothing else will need to be done =]
                 model.setColumnsWidth(null);
             } else {
                 int i = 0;
@@ -1010,7 +1029,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
             //mod = Manager.getInstance().getMod(selectedRow);
             mod = (Mod) tableData[selectedRow][5];
         } catch (IndexOutOfBoundsException e) {
-            if (selectedRow != -1) {
+            if (selectedRow > 0) {
                 logger.error("Cannot display mod at index " + selectedRow);
             }
             return;
@@ -1034,7 +1053,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
             labelModAuthor1.setText(labelModAuthor.getText());
             labelModName1.setText(labelModName.getText());
             labelModIcon1.setIcon(labelModIcon.getIcon());
-            jEditorPane1.setText(mod.getChangelog());
+            jEditorPane1.setText(BBCode.bbCodeToHtml(mod.getChangelog()));
         } else {
             buttonViewChagelog.setEnabled(false);
         }
@@ -1189,7 +1208,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     }
 
     public void popupMenuItemViewChangelogAddActionListener(ActionListener al) {
-        PopupItemMenuViewChangelog.addActionListener(al);
+        popupItemMenuViewChangelog.addActionListener(al);
     }
 
     public void popupMenuItemUpdateModAddActionListener(ActionListener al) {
@@ -1198,6 +1217,10 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
 
     public void popupMenuItemVisitWebsiteAddActionListener(ActionListener al) {
         popupItemMenuVisitWebsite.addActionListener(al);
+    }
+
+    public void popupItemMenuDeleteModAddActionListener(ActionListener al) {
+        popupItemMenuDeleteMod.addActionListener(al);
     }
 
     public JProgressBar getProgressBar() {
@@ -1225,6 +1248,10 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
 
     public boolean getIgnoreGameVersion() {
         return checkBoxIgnoreGameVersion.isSelected();
+    }
+
+    public boolean getAutoUpdate() {
+        return checkBoxAutoUpdate.isSelected();
     }
 
     public String getSelectedLafClass() {
@@ -1318,9 +1345,11 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
      */
     class PopupListener extends MouseAdapter {
 
+        @Override
         public void mousePressed(MouseEvent e) {
         }
 
+        @Override
         public void mouseReleased(MouseEvent e) {
             tableModList.setRowSelectionInterval(tableModList.rowAtPoint(e.getPoint()), tableModList.rowAtPoint(e.getPoint()));
             showPopup(e);
@@ -1346,10 +1375,10 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                 popupItemMenuUpdateMod.setActionCommand(mod.getName());
                 popupItemMenuEnableDisableMod.setActionCommand(mod.getName());
                 if (mod.getChangelog() == null) {
-                    PopupItemMenuViewChangelog.setEnabled(false);
+                    popupItemMenuViewChangelog.setEnabled(false);
                 } else {
-                    PopupItemMenuViewChangelog.setEnabled(true);
-                    PopupItemMenuViewChangelog.setActionCommand("display changelog");
+                    popupItemMenuViewChangelog.setEnabled(true);
+                    popupItemMenuViewChangelog.setActionCommand("display changelog");
                 }
 
                 rightClickTableMenu.show(e.getComponent(), e.getX(), e.getY());
@@ -1388,7 +1417,6 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         }
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JMenuItem PopupItemMenuViewChangelog;
     private javax.swing.JTextArea areaModDesc;
     private javax.swing.JButton buttonAddMod;
     private javax.swing.JButton buttonApplyLaf;
@@ -1403,6 +1431,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     private javax.swing.JButton buttonViewChagelog;
     private javax.swing.JButton buttonViewModDetails;
     private javax.swing.JButton buttonVisitWebsite;
+    private javax.swing.JCheckBox checkBoxAutoUpdate;
     private javax.swing.JCheckBox checkBoxIgnoreGameVersion;
     private javax.swing.JComboBox comboBoxChooseLanguage;
     private javax.swing.JComboBox comboBoxLafs;
@@ -1448,8 +1477,10 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     private javax.swing.JPanel panelModDescription;
     private javax.swing.JPanel panelModDetails;
     private javax.swing.JPanel panelModList;
+    private javax.swing.JMenuItem popupItemMenuDeleteMod;
     private javax.swing.JMenuItem popupItemMenuEnableDisableMod;
     private javax.swing.JMenuItem popupItemMenuUpdateMod;
+    private javax.swing.JMenuItem popupItemMenuViewChangelog;
     private javax.swing.JMenuItem popupItemMenuVisitWebsite;
     private javax.swing.JProgressBar progressBar;
     private javax.swing.JPopupMenu rightClickTableMenu;

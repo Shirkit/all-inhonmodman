@@ -21,7 +21,7 @@ public class UpdateManager implements Callable<Boolean> {
         try {
             URL url = new URL(ManagerOptions.getInstance().getUpdateCheckUrl().trim());
             URLConnection connection = url.openConnection();
-            connection.setConnectTimeout(1500);
+            connection.setConnectTimeout(2000);
             BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             String str = in.readLine();
             in.close();

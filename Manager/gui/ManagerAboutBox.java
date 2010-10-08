@@ -10,11 +10,13 @@ import org.jdesktop.application.Action;
 import business.ManagerOptions;
 import gui.l10n.L10n;
 import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import javax.swing.AbstractButton;
 import manager.Manager;
+import utility.BBCode;
 
 /**
  * About dialog
@@ -80,7 +82,7 @@ public class ManagerAboutBox extends javax.swing.JDialog {
         setName("aboutBox"); // NOI18N
         setResizable(false);
 
-        javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance(gui.ManagerApp.class).getContext().getActionMap(ManagerAboutBox.class, this);
+        javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance().getContext().getActionMap(ManagerAboutBox.class, this);
         closeButton.setAction(actionMap.get("closeAboutBox")); // NOI18N
         closeButton.setText(L10n.getString("about.button.close"));
         closeButton.setName("closeButton"); // NOI18N
@@ -130,7 +132,7 @@ public class ManagerAboutBox extends javax.swing.JDialog {
 
         aboutTextArea.setColumns(20);
         aboutTextArea.setEditable(false);
-        aboutTextArea.setFont(new java.awt.Font("Tahoma", 0, 11)); // NOI18N
+        aboutTextArea.setFont(new java.awt.Font("Tahoma", 0, 11));
         aboutTextArea.setLineWrap(true);
         aboutTextArea.setRows(3);
         aboutTextArea.setText(L10n.getString("about.description"));
@@ -252,7 +254,7 @@ public class ManagerAboutBox extends javax.swing.JDialog {
                     while (true) {
                         String temp = "";
                         temp = in.readLine();
-                        if (temp != null && temp.length() > 0) {
+                        if (temp != null) {
                             str += temp + "\n";
                         } else {
                             break;
@@ -262,7 +264,7 @@ public class ManagerAboutBox extends javax.swing.JDialog {
                 }
                 str = str.replace("\n", "<br/>");
                 changelogEditorPane.setContentType("text/html");
-                changelogEditorPane.setText(str);
+                changelogEditorPane.setText("<html>" + BBCode.bbCodeToHtml(str) + "</html>");
             }
         } else {
             // Click to unselect

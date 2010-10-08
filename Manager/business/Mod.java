@@ -88,7 +88,9 @@ public class Mod {
      * @param mod to be copied.
      */
     public void copy(Mod mod) {
-        this.actions = mod.actions;
+        if (mod.actions != null) {
+            this.actions = new ArrayList<Action>(mod.actions);
+        }
         this.application = mod.getApplication();
         this.appversion = mod.getAppVersion();
         this.author = mod.getAuthor();
@@ -100,6 +102,8 @@ public class Mod {
         this.version = mod.getVersion();
         this.weblink = mod.getWebLink();
         this.path = mod.getPath();
+        this.enabled = mod.isEnabled();
+        this.changelog = mod.getChangelog();
     }
 
     /**
@@ -119,25 +123,49 @@ public class Mod {
     public ArrayList<Action> getActions(String type) {
         Action act;
         ArrayList<Action> typeActions = new ArrayList<Action>();
-        for (Iterator actionsIter = actions.iterator(); actionsIter.hasNext(); ) {
-            act = (Action)actionsIter.next();
-            if (act.getClass() == getTypeActionClass(type)) typeActions.add(act);
+        for (Iterator actionsIter = actions.iterator(); actionsIter.hasNext();) {
+            act = (Action) actionsIter.next();
+            if (act.getClass() == getTypeActionClass(type)) {
+                typeActions.add(act);
+            }
         }
         return typeActions;
     }
 
     private Class getTypeActionClass(String type) {
-        if (type.equals(Action.APPLY_AFTER)) return ActionApplyAfter.class;
-        if (type.equals(Action.APPLY_BEFORE)) return ActionApplyBefore.class;
-        if (type.equals(Action.COPY_FILE)) return ActionCopyFile.class;
-        if (type.equals(Action.DELETE)) return ActionEditFileDelete.class;
-        if (type.equals(Action.EDIT_FILE)) return ActionEditFile.class;
-        if (type.equals(Action.FIND)) return ActionEditFileFind.class;
-        if (type.equals(Action.FIND_UP)) return ActionEditFileFindUp.class;
-        if (type.equals(Action.INCOMPATIBILITY)) return ActionIncompatibility.class;
-        if (type.equals(Action.INSERT)) return ActionEditFileInsert.class;
-        if (type.equals(Action.REPLACE)) return ActionEditFileReplace.class;
-        if (type.equals(Action.REQUIREMENT)) return ActionRequirement.class;
+        if (type.equals(Action.APPLY_AFTER)) {
+            return ActionApplyAfter.class;
+        }
+        if (type.equals(Action.APPLY_BEFORE)) {
+            return ActionApplyBefore.class;
+        }
+        if (type.equals(Action.COPY_FILE)) {
+            return ActionCopyFile.class;
+        }
+        if (type.equals(Action.DELETE)) {
+            return ActionEditFileDelete.class;
+        }
+        if (type.equals(Action.EDIT_FILE)) {
+            return ActionEditFile.class;
+        }
+        if (type.equals(Action.FIND)) {
+            return ActionEditFileFind.class;
+        }
+        if (type.equals(Action.FIND_UP)) {
+            return ActionEditFileFindUp.class;
+        }
+        if (type.equals(Action.INCOMPATIBILITY)) {
+            return ActionIncompatibility.class;
+        }
+        if (type.equals(Action.INSERT)) {
+            return ActionEditFileInsert.class;
+        }
+        if (type.equals(Action.REPLACE)) {
+            return ActionEditFileReplace.class;
+        }
+        if (type.equals(Action.REQUIREMENT)) {
+            return ActionRequirement.class;
+        }
         return Action.class;
     }
 
@@ -298,16 +326,17 @@ public class Mod {
     @Override
     @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
     public boolean equals(Object o) {
-    	Mod compare = (Mod)o;
-    	
-    	if(compare.getName().equals(this.getName()) && compare.getVersion().equals(this.getVersion()))
-    		return true;
-    	else
-    		return false;
+        Mod compare = (Mod) o;
+
+        if (compare.getName().equals(this.getName()) && compare.getVersion().equals(this.getVersion())) {
+            return true;
+        } else {
+            return false;
+        }
     }
-    
+
     @Override
     public int hashCode() {
-    	return this.getName().hashCode() + (int)this.getVersion().hashCode();	
+        return this.getName().hashCode() + (int) this.getVersion().hashCode();
     }
 }

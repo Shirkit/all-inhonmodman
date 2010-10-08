@@ -21,8 +21,8 @@ import org.apache.log4j.Logger;
  * @author Shirkit
  */
 public class ZIP {
-	
-	static Logger logger = Logger.getLogger(ZIP.class.getPackage().getName());
+
+    static Logger logger = Logger.getLogger(ZIP.class.getPackage().getName());
 
     /**
      * Retrives only one file given by it's relative path and name and retrives a byte array of it.
@@ -37,6 +37,9 @@ public class ZIP {
         if (!zip.exists()) {
             throw new FileNotFoundException(zip.getName());
         }
+        while (filename.charAt(0) == '/') {
+            filename = filename.substring(1);
+        }
 
         ZipFile zipFile = new ZipFile(zip);
         Enumeration entries = zipFile.entries();
@@ -48,19 +51,22 @@ public class ZIP {
             ZipEntry entry = (ZipEntry) entries.nextElement();
 
             if (entry.getName().equalsIgnoreCase(filename)) {
-                copyInputStream(zipFile.getInputStream(entry), output = new ByteArrayOutputStream());
+                FileUtils.copyInputStream(zipFile.getInputStream(entry), output = new ByteArrayOutputStream());
                 result = output.toByteArray();
                 output.close();
                 return result;
             }
         }
-        
+
         throw new FileNotFoundException(filename);
     }
 
     public static long getLastModified(File zip, String filename) throws FileNotFoundException, ZipException, IOException {
         if (!zip.exists()) {
             throw new FileNotFoundException(zip.getName());
+        }
+        while (filename.charAt(0) == '/') {
+            filename = filename.substring(1);
         }
 
         ZipFile zipFile = new ZipFile(zip);
@@ -112,7 +118,7 @@ public class ZIP {
             } else if (entry.getName().contains("/")) {
                 new File(folder + File.separator + entry.getName().substring(0, entry.getName().lastIndexOf("/"))).mkdirs();
             } else {
-                copyInputStream(zipFile.getInputStream(entry), output = new FileOutputStream(file.getAbsolutePath() + File.separator + entry.getName()));
+                FileUtils.copyInputStream(zipFile.getInputStream(entry), output = new FileOutputStream(file.getAbsolutePath() + File.separator + entry.getName()));
                 output.close();
             }
         }
@@ -120,14 +126,6 @@ public class ZIP {
 
         return file;
 
-    }
-
-    public static void copyInputStream(InputStream in, OutputStream out) throws IOException {
-        byte[] buffer = new byte[1024];
-        int len;
-        while (((len = in.read(buffer)) >= 0)) {
-            out.write(buffer, 0, len);
-        }
     }
 
     /**

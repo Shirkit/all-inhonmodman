@@ -27,7 +27,6 @@ import com.thoughtworks.xstream.io.StreamException;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.io.FileOutputStream;
 import utility.FileDrop;
 import utility.OS;
 import utility.exception.ModConflictException;
@@ -49,6 +48,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Observer;
+import java.util.Set;
 import java.util.prefs.Preferences;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
@@ -93,10 +93,51 @@ public class ManagerCtrl implements Observer {
     public ManagerCtrl() {
         this.model = ManagerOptions.getInstance();
         this.controller = Manager.getInstance();
-        this.view = ManagerGUI.getInstance();
+        view = ManagerGUI.getInstance();
         this.controller.addObserver(this);
         this.model.addObserver(this);
 
+
+        try {
+            // Load Options and Mods and then Look and feel
+            controller.loadOptions();
+        } catch (StreamException e) {
+            e.printStackTrace();
+            logger.error("StreamException from loadOptions()", e);
+            // Mod options is invalid, must be deleted
+        } catch (FileNotFoundException e) {
+            if (ManagerOptions.getInstance().getGamePath() == null || ManagerOptions.getInstance().getModPath() == null) {
+                view.showMessage(L10n.getString("error.honmodsfolder"), L10n.getString("error.honmodsfolder.title"), JOptionPane.ERROR_MESSAGE);
+            }
+        }
+        loadMods();
+        loadLaf();
+
+        view.tableRemoveListSelectionListener(lsl);
+        model.updateNotify();
+        view.tableAddListSelectionListener(lsl);
+
+        if (model.getColumnsWidth() != null) {
+            if (model.getColumnsWidth().size() != view.getModListTable().getColumnModel().getColumnCount()) {
+                // If we change the interfaece, nothing else will need to done =]
+                model.setColumnsWidth(null);
+            } else {
+                System.out.println("OCLUNAS");
+                int i = 0;
+                Iterator<Integer> it = model.getColumnsWidth().iterator();
+                while (it.hasNext()) {
+                    Integer integer = it.next();
+                    view.getModListTable().getColumnModel().getColumn(i).setWidth(integer);
+                    view.getModListTable().getColumnModel().getColumn(i).setPreferredWidth(integer);
+                    i++;
+                }
+            }
+        }
+        view.setVisible(true);
+        view.updateModTable();
+        if (model.getGuiRectangle() != null) {
+            view.setBounds(model.getGuiRectangle());
+        }
 
         // Add listeners to view components
         view.buttonAddModAddActionListener(new AddModListener());
@@ -127,47 +168,12 @@ public class ManagerCtrl implements Observer {
         view.getItemRefreshManager().addActionListener(new RefreshManagerListener());
         view.getButtonViewChagelog().addActionListener(new ButtonViewModChangelogListener());
         view.popupMenuItemViewChangelogAddActionListener(new ButtonViewModChangelogListener());
+        view.popupItemMenuDeleteModAddActionListener(new DeleteModListener());
         view.getButtonViewModDetails().addActionListener(new ButtonViewModChangelogListener());
         view.getButtonLaunchHon().addActionListener(new LaunchHonButton());
         // Add file drop functionality
         new FileDrop(view, new DropListener());
-        try {
-            // Load Options and Mods and then Look and feel
-            controller.loadOptions();
-        } catch (StreamException e) {
-            e.printStackTrace();
-            logger.error("StreamException from loadOptions()", e);
-            // Mod options is invalid, must be deleted
-        } catch (FileNotFoundException e) {
-            if (ManagerOptions.getInstance().getGamePath() == null || ManagerOptions.getInstance().getModPath() == null) {
-                view.showMessage(L10n.getString("error.honmodsfolder"), L10n.getString("error.honmodsfolder.title"), JOptionPane.ERROR_MESSAGE);
-            }
-        }
-        loadMods();
-        loadLaf();
-
-        view.tableRemoveListSelectionListener(lsl);
-        model.updateNotify();
-        view.tableAddListSelectionListener(lsl);
-
-        if (model.getGuiRectangle() != null) {
-            view.setBounds(model.getGuiRectangle());
-        }
-        if (model.getColumnsWidth() != null) {
-            if (model.getColumnsWidth().size() != view.getModListTable().getColumnModel().getColumnCount()) {
-                // If we change the interfaece, nothing else will need to done =]
-                model.setColumnsWidth(null);
-            } else {
-                int i = 0;
-                Iterator<Integer> it = model.getColumnsWidth().iterator();
-                while (it.hasNext()) {
-                    Integer integer = it.next();
-                    view.getModListTable().getColumnModel().getColumn(i).setWidth(integer);
-                    view.getModListTable().getColumnModel().getColumn(i).setPreferredWidth(integer);
-                    i++;
-                }
-            }
-        }
+        // End Add listeners
 
         logger.info("ManagerCtrl started");
     }
@@ -187,7 +193,19 @@ public class ManagerCtrl implements Observer {
         try {
             if (lafClass.equals("default") || lafClass.isEmpty()) {
                 logger.info("Changing LaF to Default");
-                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                if (OS.isWindows()) {
+                    try {
+                        UIManager.setLookAndFeel("com.jgoodies.looks.plastic.PlasticXPLookAndFeel");
+                    } catch (Exception e) {
+                        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                    }
+                } else {
+                    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                }
+                SwingUtilities.updateComponentTreeUI(view);
+                SwingUtilities.updateComponentTreeUI(view.getPrefsDialog());
+                view.pack();
+                view.getPrefsDialog().pack();
             } else {
                 logger.info("Changing LaF to " + lafClass);
                 UIManager.setLookAndFeel(lafClass);
@@ -218,6 +236,26 @@ public class ManagerCtrl implements Observer {
     private void loadMods() {
         try {
             ArrayList<ArrayList<Pair<String, String>>> exs = controller.loadMods();
+            try {
+                controller.buildGraphs();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                logger.error("IOException from buildGraphs()", ex);
+            }
+            Set<Mod> newApplied = new HashSet<Mod>();
+            Iterator<Mod> applied = ManagerOptions.getInstance().getAppliedMods().iterator();
+            while (applied.hasNext()) {
+                Mod appliedMod = applied.next();
+                Iterator<Mod> mods = ManagerOptions.getInstance().getMods().iterator();
+                while (mods.hasNext()) {
+                    Mod mod = mods.next();
+                    if (appliedMod.equals(mod)) {
+                        newApplied.add(mod);
+                        mod.enable();
+                    }
+                }
+            }
+            ManagerOptions.getInstance().setAppliedMods(newApplied);
             if (!exs.isEmpty()) {
                 Enumeration en = Collections.enumeration(exs);
                 String stream = "";
@@ -270,12 +308,6 @@ public class ManagerCtrl implements Observer {
             ex.printStackTrace();
             logger.error("IOException from loadMods()", ex);
             view.showMessage(L10n.getString("error.loadmodfiles"), L10n.getString("error.loadmodfiles.title"), JOptionPane.ERROR_MESSAGE);
-        }
-        try {
-            controller.buildGraphs();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            logger.error("IOException from buildGraphs()", ex);
         }
     }
 
@@ -456,9 +488,9 @@ public class ManagerCtrl implements Observer {
                 // TODO Auto-generated catch block
                 e1.printStackTrace();
             } catch (ModSameNameDifferentVersionsException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
 
 
             // Again, save and restore ListSelectionListener
@@ -565,13 +597,15 @@ public class ManagerCtrl implements Observer {
     class UpdateModListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
+            //view.getProgressBar().setStringPainted(true);
             logger.info("Ctrl: " + e.getActionCommand() + " is called to update");
             Mod mod = controller.getMod(e.getActionCommand());
             ArrayList<Mod> toUpdate = new ArrayList<Mod>();
             toUpdate.add(mod);
 
-            view.getProgressBar().setStringPainted(true);
+            view.getProgressBar().setVisible(true);
             view.getProgressBar().setMaximum(toUpdate.size());
+            view.getProgressBar().paint(view.getProgressBar().getGraphics());
             UpdateReturn things = null;
             try {
                 things = controller.updateMod(toUpdate);
@@ -592,7 +626,6 @@ public class ManagerCtrl implements Observer {
             }
             model.updateNotify();
             view.getProgressBar().setValue(0);
-            view.getProgressBar().setStringPainted(false);
         }
     }
 
@@ -609,17 +642,30 @@ public class ManagerCtrl implements Observer {
         }
     }
 
+    class DeleteModListener implements ActionListener {
+
+        public void actionPerformed(ActionEvent e) {
+            Mod m = view.getSelectedMod();
+            view.deleteSelectedMod();
+            File f = new File(m.getPath());
+            if (!f.delete()) {
+                view.showMessage("Failed to delete file", "Failed", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
     class DownloadModUpdatesListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
             view.getProgressBar().setVisible(true);
-            view.getProgressBar().paint(view.getProgressBar().getGraphics());
+            view.getProgressBar().setStringPainted(true);
             ArrayList<Mod> toUpdate = new ArrayList<Mod>();
             Iterator<Mod> it = ManagerOptions.getInstance().getMods().iterator();
             while (it.hasNext()) {
                 toUpdate.add(it.next());
             }
             view.getProgressBar().setMaximum(toUpdate.size());
+            view.getProgressBar().paint(view.getProgressBar().getGraphics());
             UpdateReturn things = null;
             try {
                 things = controller.updateMod(toUpdate);
@@ -665,6 +711,7 @@ public class ManagerCtrl implements Observer {
             }
             view.showMessage(message, L10n.getString("message.update.title"), JOptionPane.INFORMATION_MESSAGE);
             view.getProgressBar().setValue(0);
+            view.getProgressBar().setStringPainted(false);
             view.updateModTable();
         }
     }
@@ -700,9 +747,9 @@ public class ManagerCtrl implements Observer {
                     // TODO Auto-generated catch block
                     e1.printStackTrace();
                 } catch (ModSameNameDifferentVersionsException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
                 model.updateNotify();
             }
         }
@@ -754,9 +801,9 @@ public class ManagerCtrl implements Observer {
                 // TODO Auto-generated catch block
                 e1.printStackTrace();
             } catch (ModSameNameDifferentVersionsException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
             // Update GUI
             view.tableRemoveListSelectionListener(lsl);
             model.updateNotify();
@@ -833,6 +880,7 @@ public class ManagerCtrl implements Observer {
     class PrefsOkListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
+            String oldModsFolder = ManagerOptions.getInstance().getModPath();
             logger.info("Hon folder set to: " + view.getSelectedHonFolder());
             logger.info("Mods folder set to: " + view.getTextFieldModsFolder());
             ManagerOptions.getInstance().setGamePath(view.getSelectedHonFolder());
@@ -841,6 +889,7 @@ public class ManagerCtrl implements Observer {
             ManagerOptions.getInstance().setLanguage(view.getSelectedLanguage());
             ManagerOptions.getInstance().setModPath(view.getTextFieldModsFolder());
             ManagerOptions.getInstance().setIgnoreGameVersion(view.getIgnoreGameVersion());
+            ManagerOptions.getInstance().setAutoUpdate(view.getAutoUpdate());
 
             try {
                 controller.saveOptions();
@@ -857,8 +906,10 @@ public class ManagerCtrl implements Observer {
 
             // Hide dialog
             view.getPrefsDialog().setVisible(false);
-            loadMods();
-            model.updateNotify();
+            if (!oldModsFolder.equals(ManagerOptions.getInstance().getModPath())) {
+                loadMods();
+                model.updateNotify();
+            }
         }
     }
 
@@ -984,7 +1035,7 @@ public class ManagerCtrl implements Observer {
             }
         }
     }
-    long date;
+    private long date;
 
     private void wantToSaveOptions() {
         Date d = new Date();
@@ -1030,31 +1081,25 @@ public class ManagerCtrl implements Observer {
                             JOptionPane.WARNING_MESSAGE);
                     logger.warn("Error enabling mod: " + m.getName() + " NullPointerException", e1);
                     logger.warn("Error enabling mod detail: " + e1.getCause().getMessage(), e1);
-                } catch (ModEnabledException e1) {
-                    view.showMessage(L10n.getString("error.modenabled").replace("#mod#", m.getName()).replace("#mod2#", e1.toString()),
-                            L10n.getString("error.modenabled.title"),
-                            JOptionPane.WARNING_MESSAGE);
-                    logger.warn("Error disabling mod: " + m.getName() + " because: " + e1.toString() + " is/are enabled.", e1);
                 } catch (ModNotEnabledException e1) {
 
-                    view.showMessage(L10n.getString("error.modnotenabled").replace("#mod#", m.getName()).replace("#mod2#", e1.toString()),
-                            L10n.getString("error.modnotenabled.title"),
-                            JOptionPane.WARNING_MESSAGE);
-                    logger.warn("Error enabling mod: " + m.getName() + " because: " + e1.toString() + " is/are not enabled.", e1);
+                    /*view.showMessage(L10n.getString("error.modnotenabled").replace("#mod#", m.getName()).replace("#mod2#", e1.toString()),
+                    L10n.getString("error.modnotenabled.title"),
+                    JOptionPane.WARNING_MESSAGE);
+                    logger.warn("Error enabling mod: " + m.getName() + " because: " + e1.toString() + " is/are not enabled.", e1);*/
 
-                    HashSet<Pair<String, String>> enableMods = e1.getDeps();
-
-                    int response = view.confirmMessage(L10n.getString("suggest.suggestmodenable"), L10n.getString("suggest.suggestmodenable.title"), JOptionPane.YES_NO_OPTION);
+                    int response = view.confirmMessage(L10n.getString("error.modnotenabled").replace("#mod#", m.getName()).replace("#mod2#", e1.toString()) + "\n" + L10n.getString("suggest.suggestmodenable"), L10n.getString("suggest.suggestmodenable.title"), JOptionPane.YES_NO_OPTION);
                     if (response == JOptionPane.YES_OPTION) {
+                        HashSet<Pair<String, String>> enableMods = e1.getDeps();
                         Iterator it = enableMods.iterator();
                         while (it.hasNext()) {
                             Pair<String, String> element = (Pair<String, String>) it.next();
                             Mod target = ManagerOptions.getInstance().getMod(Tuple.get1(element), Tuple.get2(element));
-                            controller.enableMod(target, false);
+                            controller.enableMod(target, ManagerOptions.getInstance().isIgnoreGameVersion());
                         }
 
                         // Enable the mod finally
-                        controller.enableMod(m, false);
+                        controller.enableMod(m, ManagerOptions.getInstance().isIgnoreGameVersion());
                     }
 
                 } catch (ModVersionMissmatchException e1) {
@@ -1078,9 +1123,9 @@ public class ManagerCtrl implements Observer {
                     // TODO Auto-generated catch block
                     e1.printStackTrace();
                 } catch (ModSameNameDifferentVersionsException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             } catch (FileNotFoundException e1) {
                 view.showMessage(L10n.getString("error.incorrectpath"),
                         L10n.getString("error.incorrectpath.title"),
@@ -1100,7 +1145,7 @@ public class ManagerCtrl implements Observer {
                     count += 2;
                 }
             }
-            count = count + (model.getAppliedMods().size())*2 + 3;
+            count = count + 3;
             view.getProgressBar().setStringPainted(true);
             view.getProgressBar().setMaximum(count);
             view.getProgressBar().paint(view.getProgressBar().getGraphics());

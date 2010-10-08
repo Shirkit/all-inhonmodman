@@ -19,7 +19,7 @@ import java.net.URLConnection;
 import java.security.InvalidParameterException;
 import java.util.concurrent.Callable;
 import manager.Manager;
-import utility.ZIP;
+import utility.FileUtils;
 import utility.exception.UpdateModException;
 
 /**
@@ -41,17 +41,16 @@ public class UpdateThread implements Callable<UpdateThread> {
             if (mod.getUpdateCheckUrl() != null && mod.getUpdateDownloadUrl() != null) {
                 URL url = new URL(mod.getUpdateCheckUrl().trim());
                 URLConnection connection = url.openConnection();
-                connection.setConnectTimeout(4000);
+                connection.setConnectTimeout(5000);
                 BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                 String str = in.readLine();
                 in.close();
                 if (str != null && !str.toLowerCase().trim().contains("error") && !Manager.getInstance().compareModsVersions(mod.getVersion(), str)) {
                     InputStream is = new URL(mod.getUpdateDownloadUrl().trim()).openStream();
-                    file = new File(System.getProperty("java.io.tmpdir") + new File(mod.getPath()).getName());
+                    file = new File(System.getProperty("java.io.tmpdir") + File.separator + new File(mod.getPath()).getName());
                     FileOutputStream fos = new FileOutputStream(file, false);
-                    ZIP.copyInputStream(is, fos);
+                    FileUtils.copyInputStream(is, fos);
                     is.close();
-                    fos.flush();
                     fos.close();
                 }
             }

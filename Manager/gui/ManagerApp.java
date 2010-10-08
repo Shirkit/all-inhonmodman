@@ -5,7 +5,6 @@ package gui;
 
 import business.ManagerOptions;
 import java.util.concurrent.ExecutionException;
-import manager.Manager;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,7 +25,7 @@ import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import utility.ZIP;
+import utility.FileUtils;
 import utility.update.UpdateManager;
 
 /**
@@ -36,7 +35,6 @@ import utility.update.UpdateManager;
 public class ManagerApp extends SingleFrameApplication {
 
     Logger logger;
-    Manager controller;      // Model
     ManagerGUI view;    // View
     ManagerCtrl ctrl;   // Controller
     // File with log4j configuration
@@ -68,27 +66,22 @@ public class ManagerApp extends SingleFrameApplication {
         logger.info("\n\n------------------------------------------------------------------------------------------------------------------------");
         DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy - HH:mm:ss");
         Date date = new Date();
-        logger.info("HonMod manager is starting. Local time:" + dateFormat.format(date));
-        logger.info("Java version:" + System.getProperty("java.version"));
-        logger.info("HonMod manager version:" + ManagerOptions.getInstance().getVersion());
+        logger.info("HonMod manager is starting.");
+        logger.info("Local time: " + dateFormat.format(date));
+        logger.info("Java version: " + System.getProperty("java.version"));
+        logger.info("HonMod manager version: " + ManagerOptions.getInstance().getVersion());
+        logger.info("Running on: " + System.getProperty("os.name") + "|" + System.getProperty("os.version") + "|" + System.getProperty("os.arch"));
         try {
             L10n.load();
         } catch (IOException ex) {
         }
         logger.info("\n------------------------------------------------------------------------------------------------------------------------\n");
 
+        // Look for Manager update
+        ExecutorService pool = Executors.newCachedThreadPool();
+        Future<Boolean> hasUpdate = pool.submit(new UpdateManager());
 
-        // Create the MVC framework
-        controller = Manager.getInstance();
-        view = ManagerGUI.getInstance();
         ctrl = new ManagerCtrl();
-        String title = view.getTitle();
-        view.setTitle("HOLD A SECOND");
-
-        view.setVisible(true);
-        view.setTitle(title);
-
-        // show(new ManagerGUI());
 
         File updaterJar = new File(System.getProperty("user.dir") + File.separator + "Updater.jar");
         if (updaterJar.exists()) {
@@ -97,20 +90,17 @@ public class ManagerApp extends SingleFrameApplication {
             }
         }
 
-        ExecutorService pool = Executors.newCachedThreadPool();
-        Future<Boolean> hasUpdate = pool.submit(new UpdateManager());
         while (!hasUpdate.isDone()) {
         }
 
         try {
             if (hasUpdate.get().booleanValue()) {
-                if (JOptionPane.showConfirmDialog(null, L10n.getString("message.updateavaliabe"), L10n.getString("message.updateavaliabe.title"), JOptionPane.YES_NO_OPTION) == 0) {
+                if (ManagerOptions.getInstance().isAutoUpdate() || JOptionPane.showConfirmDialog(null, L10n.getString("message.updateavaliabe"), L10n.getString("message.updateavaliabe.title"), JOptionPane.YES_NO_OPTION) == 0) {
                     try {
                         InputStream in = getClass().getResourceAsStream("/Updater");
                         FileOutputStream fos = new FileOutputStream(ManagerOptions.MANAGER_FOLDER + File.separator + "Updater.jar");
-                        ZIP.copyInputStream(in, fos);
+                        FileUtils.copyInputStream(in, fos);
                         in.close();
-                        fos.flush();
                         fos.close();
                         String currentJar = "";
                         try {
@@ -125,12 +115,6 @@ public class ManagerApp extends SingleFrameApplication {
                     } catch (IOException ex) {
                     }
 
-                } else {
-                    File f = new File(System.getProperty("user.dir") + File.separator + "Updater.jar");
-                    if (f.exists()) {
-                        f.delete();
-                        f.deleteOnExit();
-                    }
                 }
             }
         } catch (InterruptedException ex) {

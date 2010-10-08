@@ -52,7 +52,7 @@ public class Game {
         if (OS.isMac()) {
             File a = new File("/Applications/Heroes of Newerth.app");
             if (a.exists()) {
-            	logger.error("GAME: Mac: " + a.getPath() + " exists");
+            	logger.info("GAME: Mac: " + a.getPath() + " exists");
             	return a.getAbsolutePath();
             }
             else {

@@ -6,7 +6,6 @@ import business.ShirkitDriver;
 import business.actions.*;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.StreamException;
-import com.thoughtworks.xstream.io.xml.DomDriver;
 import com.thoughtworks.xstream.mapper.CannotResolveClassException;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -18,7 +17,9 @@ import java.io.ObjectInputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -69,6 +70,45 @@ public class XML {
         return temp;
     }
 
+    private static Mod removeRequiredMods(Mod m) {
+        Iterator<Action> actions = m.getActions().iterator();
+        ActionRequirement movableframe = null;
+        ActionRequirement modoptionsframework = null;
+        while (actions.hasNext()) {
+            Action action = actions.next();
+            if (action.getClass().equals(ActionRequirement.class)) {
+                ActionRequirement require = (ActionRequirement) action;
+                if (require.getName().contains("Mod Options Framework")) {
+                    movableframe = require;
+                    System.err.println(m.getName() + " removed " + require.getName());
+                } else if (require.getName().contains("Movable Frames")) {
+                    modoptionsframework = require;
+                    System.err.println(m.getName() + " removed " + require.getName());
+                }
+            }
+        }
+        if (modoptionsframework != null) {
+            m.getActions().remove(modoptionsframework);
+        }
+        if (movableframe != null) {
+            m.getActions().remove(movableframe);
+        }
+        /*for (int i=0; i < m.getActions().size(); i++) {
+            Action action = m.getActions().get(i);
+            System.out.println(action.toString());
+            if (action.getClass().equals(ActionRequirement.class)) {
+                ActionRequirement require = (ActionRequirement) action;
+                System.out.println(require.getName());
+                if (require.getName().contains("Mod Options Framework") || require.getName().contains("Movable Frames")) {
+                    m.getActions().remove(i);
+                    System.err.println(m.getName() + " removed " + require.getName());
+                    return removeRequiredMods(m);
+                }
+            }
+        }*/
+        return m;
+    }
+
     /**
      * Loads the content of a XML file into a Mod.
      * @param file to be read.
@@ -80,10 +120,19 @@ public class XML {
         if (file.exists()) {
             XStream xstream = new XStream(getDriver());
             updateAlias(xstream);
-            return (Mod) xstream.fromXML(new FileInputStream(file));
+            Mod m = (Mod) xstream.fromXML(new FileInputStream(file));
+            return removeRequiredMods(m);
         } else {
             throw new FileNotFoundException();
         }
+    }
+
+    public static Mod xmlToMod(String fileString, ShirkitDriver driver) throws FileNotFoundException {
+
+        XStream xstream = new XStream(getDriver());
+        xstream = updateAlias(xstream);
+        Mod m = (Mod) xstream.fromXML(fileString);
+        return removeRequiredMods(m);
 
     }
 
@@ -96,7 +145,8 @@ public class XML {
 
         XStream xstream = new XStream(getDriver());
         xstream = updateAlias(xstream);
-        return (Mod) xstream.fromXML(fileString);
+        Mod m = (Mod) xstream.fromXML(fileString);
+        return removeRequiredMods(m);
 
     }
 

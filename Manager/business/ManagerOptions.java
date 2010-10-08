@@ -11,8 +11,6 @@ import com.thoughtworks.xstream.annotations.XStreamImplicit;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import com.thoughtworks.xstream.io.StreamException;
 
-import gui.ManagerCtrl;
-
 import java.awt.Rectangle;
 import java.io.BufferedReader;
 import java.io.File;
@@ -24,8 +22,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Observable;
 import java.util.Set;
-import java.util.logging.Level;
-
 
 import org.apache.log4j.Logger;
 
@@ -41,77 +37,50 @@ import utility.XML;
 @XStreamConverter(ManagerOptionsConverter.class)
 public class ManagerOptions extends Observable {
 
-    @XStreamAlias("modsfolder")
-    @XStreamAsAttribute
+    // Saved fields
     private String MODS_FOLDER;
-    @XStreamAlias("honfolder")
-    @XStreamAsAttribute
     private String HON_FOLDER;
-    @XStreamAlias("clargs")
-    @XStreamAsAttribute
     private String CLARGS;
-    @XStreamAlias("lang")
-    @XStreamAsAttribute
     private String LANG;
-    @XStreamAlias("laf")
-    @XStreamAsAttribute
     private String LAF;
-    @XStreamImplicit
     private Set<Mod> applied;
-    @XStreamAlias("gui")
     private Rectangle guiRectangle;
-    @XStreamAlias("columns")
     private ArrayList<Integer> columnsWidth;
-    @XStreamAlias("ignoregameversion")
     private boolean ignoreGameVersion;
-
-
+    private boolean autoUpdate;
+    private boolean autoEnableDependencies;
     // Hidden fields
-    @XStreamOmitField
     private ArrayList<Mod> mods;
-    @XStreamOmitField
     public static final String MANAGER_VERSION = "version.txt";
-    @XStreamOmitField
     public static final String MANAGER_FOLDER = new File(".").getAbsolutePath();
-    @XStreamOmitField
     public static final String OPTIONS_FILENAME = "managerOptions.xml";
-    @XStreamOmitField
     public static final String MANAGER_CHECK_UPDATE = "http://dl.dropbox.com/u/10303236/version.txt";
-    @XStreamOmitField
     public static final String MANAGER_DOWNLOAD_URL = "http://dl.dropbox.com/u/10303236/Manager.jar";
-    @XStreamOmitField
+    public static final String MANAGER_UPDATE_URL = "http://dl.dropbox.com/u/10303236/Updater.jar";
     public static final String HOMEPAGE = "http://sourceforge.net/projects/all-inhonmodman";
-    @XStreamOmitField
     public static final String PREFS_LOCALE = "locale";
-    @XStreamOmitField
     public static final String PREFS_LAF = "laf";
-    @XStreamOmitField
     public static final String PREFS_CLARGUMENTS = "clarguments";
-    @XStreamOmitField
     public static final String PREFS_HONFOLDER = "honfolder";
-    @XStreamOmitField
     private static ManagerOptions instance;
-    @XStreamOmitField
     private static Manager controller;
-    @XStreamOmitField
     Logger logger;
-    @XStreamOmitField
-    private static ManagerCtrl guicontroller;
 
     private ManagerOptions() {
         MODS_FOLDER = "";
         HON_FOLDER = "";
         CLARGS = "";
         LANG = "";
-        LAF = "";
+        LAF = "default";
         applied = new HashSet<Mod>();
         mods = new ArrayList<Mod>();
         controller = Manager.getInstance();
         logger = Logger.getLogger(this.getClass().getPackage().getName());
         ignoreGameVersion = false;
-        
+        autoUpdate = false;
+        autoEnableDependencies = false;
+
     }
-    
 
     public static ManagerOptions getInstance() {
         if (instance == null) {
@@ -150,8 +119,7 @@ public class ManagerOptions extends Observable {
     }
 
     public void loadOptions() throws FileNotFoundException, StreamException {
-    	ManagerOptions temp = XML.xmlToManagerOptions(new File(getManagerPath() + File.separator + OPTIONS_FILENAME));
-        instance = new ManagerOptions();
+        ManagerOptions temp = XML.xmlToManagerOptions(new File(getManagerPath() + File.separator + OPTIONS_FILENAME));
         if (temp.getAppliedMods() != null) {
             instance.setAppliedMods(temp.getAppliedMods());
         }
@@ -176,6 +144,8 @@ public class ManagerOptions extends Observable {
         if (temp.getColumnsWidth() != null) {
             instance.setColumnsWidth(temp.getColumnsWidth());
         }
+        instance.setIgnoreGameVersion(temp.ignoreGameVersion);
+        instance.setAutoUpdate(temp.isAutoUpdate());
     }
 
     public void setModPath(String p) {
@@ -185,58 +155,76 @@ public class ManagerOptions extends Observable {
     public void setGamePath(String p) {
         HON_FOLDER = p;
     }
-    
+
     public void setLanguage(String p) {
-    	LANG = p;
+        LANG = p;
     }
-    
+
     public void setLaf(String p) {
-    	LAF = p;
+        LAF = p;
     }
-    
+
     public void setCLArgs(String p) {
-    	CLARGS = p;
+        CLARGS = p;
     }
 
     public void setIgnoreGameVersion(boolean ignoreGameVersion) {
         this.ignoreGameVersion = ignoreGameVersion;
     }
 
+    public void setAutoUpdate(boolean autoUpdate) {
+        this.autoUpdate = autoUpdate;
+    }
+
+    public void setAutoEnableDependencies(boolean autoEnableDependencies) {
+        this.autoEnableDependencies = autoEnableDependencies;
+    }
+
     public boolean isIgnoreGameVersion() {
         return ignoreGameVersion;
     }
-    
+
+    public boolean isAutoUpdate() {
+        return autoUpdate;
+    }
+
+    public boolean isAutoEnableDependencies() {
+        return autoEnableDependencies;
+    }
+
+
+
     public String getVersion() {
-    	URL version = getClass().getClassLoader().getResource(MANAGER_VERSION);
-    	BufferedReader in;
+        URL version = getClass().getClassLoader().getResource(MANAGER_VERSION);
+        BufferedReader in;
         String pattern = "";
         try {
             in = new BufferedReader(new InputStreamReader(version.openStream()));
             pattern = in.readLine();
         } catch (IOException ex) {
         }
-    	//BufferedReader in = new BufferedReader(new FileReader(MANAGER_VERSION));
-    	return pattern;
+        //BufferedReader in = new BufferedReader(new FileReader(MANAGER_VERSION));
+        return pattern;
     }
-    
+
     public String getOptionsName() {
-    	return OPTIONS_FILENAME;
+        return OPTIONS_FILENAME;
     }
 
     public String getHomepage() {
         return HOMEPAGE;
     }
-    
+
     public String getLanguage() {
-    	return LANG;
+        return LANG;
     }
-    
+
     public String getLaf() {
-    	return LAF;
+        return LAF;
     }
-    
+
     public String getCLArgs() {
-    	return CLARGS;
+        return CLARGS;
     }
 
     public String getModPath() {
@@ -263,56 +251,60 @@ public class ManagerOptions extends Observable {
     public String getUpdateCheckUrl() {
         return MANAGER_CHECK_UPDATE;
     }
-    
+
     public void addMod(Mod mod) {
-    	if (this.mods == null) {
-    		this.mods = new ArrayList<Mod>();
-    	}
-    	
-    	this.mods.add(mod);
+        if (this.mods == null) {
+            this.mods = new ArrayList<Mod>();
+        }
+
+        this.mods.add(mod);
     }
-    
+
     public void addMod(Mod mod, boolean enabled) {
-    	if (this.mods == null) {
-    		this.mods = new ArrayList<Mod>();
-    	}
-    	
-    	this.mods.add(mod);
-    	if (enabled)
-    		this.mods.get(this.mods.indexOf(mod)).enable();
-    	else
-    		this.mods.get(this.mods.indexOf(mod)).disable();
+        if (this.mods == null) {
+            this.mods = new ArrayList<Mod>();
+        }
+
+        this.mods.add(mod);
+        if (enabled) {
+            this.mods.get(this.mods.indexOf(mod)).enable();
+        } else {
+            this.mods.get(this.mods.indexOf(mod)).disable();
+        }
     }
-    
+
     public ArrayList<Mod> getModsWithName(String name) {
-    	ArrayList<Mod> list = new ArrayList<Mod>();
-    	for (int i = 0; i < mods.size(); i++) {
-    		if (mods.get(i).getName().equalsIgnoreCase(name)) 
-    			list.add(mods.get(i));
-    	}
-    
-    	return list;
+        ArrayList<Mod> list = new ArrayList<Mod>();
+        for (int i = 0; i < mods.size(); i++) {
+            if (mods.get(i).getName().equalsIgnoreCase(name)) {
+                list.add(mods.get(i));
+            }
+        }
+
+        return list;
     }
-    
+
     public Mod getEnabledModWithName(String name) {
-    	ArrayList<Mod> list = new ArrayList<Mod>();
-    	for (int i = 0; i < mods.size(); i++) {
-    		if (mods.get(i).getName().equalsIgnoreCase(name) && mods.get(i).isEnabled()) 
-    			return mods.get(i);
-    	}
-    	
-    	return null;
+        ArrayList<Mod> list = new ArrayList<Mod>();
+        for (int i = 0; i < mods.size(); i++) {
+            if (mods.get(i).getName().equalsIgnoreCase(name) && mods.get(i).isEnabled()) {
+                return mods.get(i);
+            }
+        }
+
+        return null;
     }
 
     public Mod getMod(String name, String version) {
-    	for (int i = 0; i < mods.size(); i++) {
-    		if (mods.get(i).getName().equalsIgnoreCase(name) && mods.get(i).getVersion().equalsIgnoreCase(version)) 
-    			return mods.get(i);
-    	}
-    
-    	return null;
+        for (int i = 0; i < mods.size(); i++) {
+            if (mods.get(i).getName().equalsIgnoreCase(name) && mods.get(i).getVersion().equalsIgnoreCase(version)) {
+                return mods.get(i);
+            }
+        }
+
+        return null;
     }
-    
+
     public ArrayList<Mod> getMods() {
         if (mods == null) {
             mods = new ArrayList<Mod>();
@@ -324,6 +316,4 @@ public class ManagerOptions extends Observable {
         this.mods = mods;
         updateNotify();
     }
-
-
 }

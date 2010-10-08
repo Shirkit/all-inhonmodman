@@ -4,10 +4,6 @@ import business.ManagerOptions;
 import business.Mod;
 import business.actions.*;
 
-import javax.swing.JFileChooser;
-//import javax.swing.filechooser.FileFilter;
-import gui.l10n.L10n;
-
 import java.net.MalformedURLException;
 import java.util.concurrent.ExecutionException;
 
@@ -19,7 +15,6 @@ import utility.exception.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.ByteArrayInputStream;
 import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -164,6 +159,15 @@ public class Manager extends Observable {
         }
     }
 
+    private void doSaveOptions() throws IOException {
+        String name = ManagerOptions.getInstance().getManagerPath() + File.separator + ManagerOptions.getInstance().getOptionsName();
+        File f = new File(name);
+        if (f.exists()) {
+            f.delete();
+        }
+        ManagerOptions.getInstance().saveOptions(new File(name));
+    }
+
     /**
      * This method saves the ManagerOptions attributes in a file. The file is located in the same folder of the Manager.
      * The filename can be get in the ManagerOptions.
@@ -171,22 +175,12 @@ public class Manager extends Observable {
      * 
      */
     public void saveOptions() throws IOException {
-        String name = ManagerOptions.getInstance().getManagerPath() + File.separator + ManagerOptions.getInstance().getOptionsName();
-        File f = new File(name);
-        if (f.exists()) {
-            f.delete();
-        }
-        ManagerOptions.getInstance().saveOptions(new File(name));
-        logger.info("Options saved. Path=" + f.getAbsolutePath());
+        doSaveOptions();
+        logger.info("Options saved. Path=" + ManagerOptions.getInstance().getManagerPath() + File.separator + ManagerOptions.getInstance().getOptionsName());
     }
 
     public void saveOptionsNoLog() throws IOException {
-        String name = ManagerOptions.getInstance().getManagerPath() + File.separator + ManagerOptions.getInstance().getOptionsName();
-        File f = new File(name);
-        if (f.exists()) {
-            f.delete();
-        }
-        ManagerOptions.getInstance().saveOptions(new File(name));
+        doSaveOptions();
     }
 
     /**
@@ -212,13 +206,13 @@ public class Manager extends Observable {
                 fc.setCurrentDirectory(new File("/Applications"));
             }
 
-        	fc.setMultiSelectionEnabled(false);
-        	fc.showOpenDialog(null);
-	        if (fc.getSelectedFile() != null) {
-	        	path = fc.getSelectedFile().getAbsolutePath();
-	        } else {
-	        	path = null;
-	        }
+            fc.setMultiSelectionEnabled(false);
+            fc.showOpenDialog(null);
+            if (fc.getSelectedFile() != null) {
+                path = fc.getSelectedFile().getAbsolutePath();
+            } else {
+                path = null;
+            }
         }
 
         return path;
@@ -344,10 +338,10 @@ public class Manager extends Observable {
             try {
                 m = XML.xmlToMod(xml.substring(1));
             } catch (StreamException ex1) {
-                list.add(Tuple.from(honmod.getName(), "stream"));
-                throw new ModStreamException(list);
-            }
-        }
+                        list.add(Tuple.from(honmod.getName(), "stream"));
+                        throw new ModStreamException(list);
+                    }
+                }
         Icon icon;
         try {
             icon = new ImageIcon(ZIP.getFile(honmod, Mod.ICON_FILENAME));
@@ -594,13 +588,8 @@ public class Manager extends Observable {
                 UpdateThread mod = (UpdateThread) ff.get();
                 File file = mod.getFile();
                 if (file != null) {
-                    FileInputStream fis = new FileInputStream(file);
                     new File(mod.getMod().getPath()).setWritable(true);
-                    FileOutputStream fos = new FileOutputStream(mod.getMod().getPath());
-                    ZIP.copyInputStream(fis, fos);
-                    fis.close();
-                    fos.flush();
-                    fos.close();
+                    FileUtils.copyFile(file, mod.getMod().getPath());
                     Mod newMod = null;
                     String olderVersion = getMod(mod.getMod().getName()).getVersion();
                     try {
@@ -662,7 +651,7 @@ public class Manager extends Observable {
                 // Nothing can get here
             } catch (ExecutionException ex) {
                 UpdateModException ex2 = (UpdateModException) ex.getCause();
-                logger.info("Failed to update: " + ex2.getMod().getName() + " - " + ex2.getCause().getMessage());
+                logger.info("Failed to update: " + ex2.getMod().getName() + " - " + ex2.getCause().getClass() + " - " + ex2.getCause().getMessage());
                 returnValue.addModFailed(ex2.getMod(), (Exception) ex2.getCause());
             } catch (FileNotFoundException ex) {
                 // Can't get here
@@ -674,19 +663,20 @@ public class Manager extends Observable {
         }
         return returnValue;
     }
-    
+
     private void checkdiff(Mod mod) throws ModSameNameDifferentVersionsException {
-    	HashSet<Pair<String, String>> modDiffEx = new HashSet<Pair<String, String>>();
-    	Enumeration e = Collections.enumeration(ManagerOptions.getInstance().getMods());
-    	while (e.hasMoreElements()) {
-    		Mod m = (Mod)e.nextElement();
-    		if (m.getName().equalsIgnoreCase(mod.getName()) && m.isEnabled() && !m.getVersion().equalsIgnoreCase(mod.getVersion())) {
-    			modDiffEx.add(Tuple.from(m.getName(), m.getVersion()));
-    		}
-    	}
-    	
-    	if (!modDiffEx.isEmpty())
-    		throw new ModSameNameDifferentVersionsException(modDiffEx);
+        HashSet<Pair<String, String>> modDiffEx = new HashSet<Pair<String, String>>();
+        Enumeration e = Collections.enumeration(ManagerOptions.getInstance().getMods());
+        while (e.hasMoreElements()) {
+            Mod m = (Mod) e.nextElement();
+            if (m.getName().equalsIgnoreCase(mod.getName()) && m.isEnabled() && !m.getVersion().equalsIgnoreCase(mod.getVersion())) {
+                modDiffEx.add(Tuple.from(m.getName(), m.getVersion()));
+            }
+        }
+
+        if (!modDiffEx.isEmpty()) {
+            throw new ModSameNameDifferentVersionsException(modDiffEx);
+        }
     }
 
     /**
@@ -807,41 +797,45 @@ public class Manager extends Observable {
      * @throws IOException if a random I/O Exception happened.
      * @throws IllegalArgumentException if a mod used a invalid parameter to compare the mods version.
      */
-    public void enableMod(Mod m, boolean ignoreGameVersion) throws ModConflictException, 
-    															ModVersionUnsatisfiedException, 
-    															ModEnabledException, 
-    															ModNotEnabledException, 
-    															NoSuchElementException, 
-    															ModVersionMissmatchException, 
-    															NullPointerException, 
-    															FileNotFoundException, 
-    															IllegalArgumentException, 
-    															IOException,
-    															ModSameNameDifferentVersionsException {
-        if (!ignoreGameVersion) {
-            if (m.getAppVersion() != null) {
-                if (!m.getAppVersion().contains("-") && !m.getAppVersion().contains("*")) {
-                    if (!compareModsVersions(Game.getInstance().getVersion(), m.getAppVersion() + ".*")) {
-                        throw new ModVersionMissmatchException(m.getName(), m.getVersion(), m.getAppVersion());
-                    }
-                } else if (m.getAppVersion().contains("*") && !m.getAppVersion().contains("-")) {
-                    if (!compareModsVersions(Game.getInstance().getVersion(), "-" + m.getAppVersion())) {
-                        throw new ModVersionMissmatchException(m.getName(), m.getVersion(), m.getAppVersion());
-                    }
-                } else {
-                    if (!compareModsVersions(Game.getInstance().getVersion(), m.getAppVersion())) {
-                        throw new ModVersionMissmatchException(m.getName(), m.getVersion(), m.getAppVersion());
+    public void enableMod(Mod m, boolean ignoreGameVersion) throws ModConflictException,
+            ModVersionUnsatisfiedException,
+            ModNotEnabledException,
+            NoSuchElementException,
+            ModVersionMissmatchException,
+            NullPointerException,
+            FileNotFoundException,
+            IllegalArgumentException,
+            IOException,
+            ModSameNameDifferentVersionsException {
+        if (!m.isEnabled()) {
+            if (!ignoreGameVersion) {
+                if (m.getAppVersion() != null) {
+                    if (!m.getAppVersion().contains("-") && !m.getAppVersion().contains("*")) {
+                        if (!compareModsVersions(Game.getInstance().getVersion(), m.getAppVersion() + ".*")) {
+                            throw new ModVersionMissmatchException(m.getName(), m.getVersion(), m.getAppVersion());
+                        }
+                    } else if (m.getAppVersion().contains("*") && !m.getAppVersion().contains("-")) {
+                        if (!compareModsVersions(Game.getInstance().getVersion(), "-" + m.getAppVersion())) {
+                            throw new ModVersionMissmatchException(m.getName(), m.getVersion(), m.getAppVersion());
+                        }
+                    } else {
+                        if (!compareModsVersions(Game.getInstance().getVersion(), m.getAppVersion())) {
+                            throw new ModVersionMissmatchException(m.getName(), m.getVersion(), m.getAppVersion());
+                        }
                     }
                 }
             }
-        }
-        
-        if (!m.isEnabled()) {
-        	checkdiff(m);
+
+            checkdiff(m);
             checkcons(m);
-            checkdeps(m);
+            try {
+                checkdeps(m);
+            } catch (ModEnabledException e) {
+                // Exception never thrown
+            }
             // enable it
             ManagerOptions.getInstance().getMods().get(ManagerOptions.getInstance().getMods().indexOf(m)).enable();
+            m.enable();
         }
     }
 
@@ -849,14 +843,18 @@ public class Manager extends Observable {
      * Tries to disable a mod given by it's name. Throws exception if an error occoured.
      * @param name of the mod.
      * @throws ModEnabledException if another mod is enabled and requires the given by parameter mod to continue enabled.
-     * @throws ModVersionUnsatisfiedException 
-     * @throws ModNotEnabledException 
      */
-    public void disableMod(Mod m) throws ModEnabledException, ModNotEnabledException, ModVersionUnsatisfiedException {
+    public void disableMod(Mod m) throws ModEnabledException {
         if (m.isEnabled()) {
-            checkdeps(m);
+            try {
+                checkdeps(m);
+            } catch (ModNotEnabledException ex) {
+                // Never thrown
+            } catch (ModVersionUnsatisfiedException ex) {
+                // Never thrown
+            }
             // disable it
-            ManagerOptions.getInstance().getAppliedMods().remove(m);
+            //ManagerOptions.getInstance().getAppliedMods().remove(m);
             ManagerOptions.getInstance().getMods().get(ManagerOptions.getInstance().getMods().indexOf(m)).disable();
         }
     }
@@ -963,7 +961,7 @@ public class Manager extends Observable {
         }
 
         /*for (int i = 0; i < left.size(); i++) {
-            logger.error("left before sort #" + i + " = " + left.get(i).getName());
+        logger.error("left before sort #" + i + " = " + left.get(i).getName());
         }*/
 
         // Sorting by deps TODO:Need Fix
@@ -995,7 +993,7 @@ public class Manager extends Observable {
          */
         // Print out the result
         /*for (int i = 0; i < left.size(); i++) {
-            logger.error("applying order #" + i + " = " + left.get(i).getName());
+        logger.error("applying order #" + i + " = " + left.get(i).getName());
         }*/
 
         return left;
@@ -1038,11 +1036,11 @@ public class Manager extends Observable {
         Enumeration<Mod> list = Collections.enumeration(applyOrder);
         int counted[] = new int[1];
         while (list.hasMoreElements()) {
-            // ---------------
+            // --------------- Progress bar update
             counted[0]++;
             setChanged();
             notifyObservers(counted);
-            // ---------------
+            // --------------- Progress bar update
             Mod mod = list.nextElement();
             logger.info("Applying Mod=" + mod.getName() + " | Version=" + mod.getVersion());
             for (int j = 0; j < mod.getActions().size(); j++) {
@@ -1073,28 +1071,16 @@ public class Manager extends Observable {
                             } else if (copyfile.overwrite() == 1) {
                                 // Overwrite if newer
                                 if (ZIP.getLastModified(new File(mod.getPath()), toCopy) > temp.lastModified()) {
-                                    byte[] file = ZIP.getFile(new File(mod.getPath()), toCopy);
-                                    FileOutputStream fos = new FileOutputStream(temp);
                                     if (temp.delete() && temp.createNewFile()) {
-                                        ByteArrayInputStream bais = new ByteArrayInputStream(file);
-                                        ZIP.copyInputStream(bais, fos);
-                                        bais.close();
-                                        fos.flush();
-                                        fos.close();
+                                        FileUtils.writeFile(ZIP.getFile(new File(mod.getPath()), toCopy), temp);
                                     } else {
                                         throw new SecurityException();
                                     }
                                 }
                             } else if (copyfile.overwrite() == 2) {
                                 // overwrite file
-                                byte[] file = ZIP.getFile(new File(mod.getPath()), toCopy);
-                                FileOutputStream fos = new FileOutputStream(temp);
                                 if (temp.delete() && temp.createNewFile()) {
-                                    ByteArrayInputStream bais = new ByteArrayInputStream(file);
-                                    ZIP.copyInputStream(bais, fos);
-                                    bais.close();
-                                    fos.flush();
-                                    fos.close();
+                                    FileUtils.writeFile(ZIP.getFile(new File(mod.getPath()), toCopy), temp);
                                 } else {
                                     throw new SecurityException();
                                 }
@@ -1104,12 +1090,7 @@ public class Manager extends Observable {
                             if (!temp.getParentFile().exists() && !temp.getParentFile().mkdirs()) {
                                 throw new SecurityException();
                             }
-                            byte[] file = ZIP.getFile(new File(mod.getPath()), toCopy);
-                            FileOutputStream fos = new FileOutputStream(temp);
-                            ByteArrayInputStream bais = new ByteArrayInputStream(file);
-                            ZIP.copyInputStream(bais, fos);
-                            fos.flush();
-                            bais.close();
+                            FileUtils.writeFile(ZIP.getFile(new File(mod.getPath()), toCopy), temp);
                         }
                         temp.setLastModified(ZIP.getLastModified(new File(mod.getPath()), toCopy));
                     }
@@ -1289,13 +1270,7 @@ public class Manager extends Observable {
                         }
 
                         // Write String afterEdit to a file
-                        FileOutputStream fos = new FileOutputStream(temp);
-                        ByteArrayInputStream in = new ByteArrayInputStream(afterEdit.getBytes("UTF-8"));
-                        //fos.write(afterEdit.getBytes("UTF-8"));
-                        ZIP.copyInputStream(in, fos);
-                        fos.flush();
-                        fos.close();
-                        in.close();
+                        FileUtils.writeFile(afterEdit.getBytes("UTF-8"), temp);
 
                     }
                     // ApplyAfter, ApplyBefore, Incompatibility, Requirement Action
@@ -1307,18 +1282,18 @@ public class Manager extends Observable {
                     throw new UnknowModActionException(action.getClass().getName(), mod.getName());
                 }
             }
-            // ---------------
+            // --------------- Progress bar update
             counted[0]++;
             setChanged();
             notifyObservers(counted);
-            // ---------------
+            // --------------- Progress bar update
         }
 
-        // ---------------
+        // --------------- Progress bar update
         counted[0]++;
         setChanged();
         notifyObservers(counted);
-        // ---------------
+        // --------------- Progress bar update
 
         String dest = "";
 
@@ -1335,11 +1310,11 @@ public class Manager extends Observable {
             }
         }
 
-        // ---------------
+        // --------------- Progress bar update
         counted[0]++;
         setChanged();
         notifyObservers(counted);
-        // ---------------
+        // --------------- Progress bar update
 
         if (!applyOrder.isEmpty()) {
             ZIP.createZIP(tempFolder.getAbsolutePath(), targetZip.getAbsolutePath());
@@ -1347,11 +1322,11 @@ public class Manager extends Observable {
             targetZip.createNewFile();
         }
         ManagerOptions.getInstance().setAppliedMods(new HashSet<Mod>(applyOrder));
-        // ---------------
+        // --------------- Progress bar update
         counted[0]++;
         setChanged();
         notifyObservers(counted);
-        // ---------------
+        // --------------- Progress bar update
         saveOptions();
     }
 
