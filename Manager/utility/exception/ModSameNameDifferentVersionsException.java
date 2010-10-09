@@ -15,7 +15,7 @@ import business.ManagerOptions;
 import com.mallardsoft.tuple.*;
 
 /**
- * If a mod tried to be disabled but those mods depend on it are not cleared (a.k.a. not disabled), this exception is thrown.
+ * This exception is thrown when mods enabled with same name but different versions
  * @author Penn
  */
 public class ModSameNameDifferentVersionsException extends Exception {
