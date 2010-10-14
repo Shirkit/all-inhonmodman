@@ -25,6 +25,8 @@ import business.ManagerOptions;
 import business.Mod;
 import com.thoughtworks.xstream.io.StreamException;
 import java.awt.event.ComponentListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import utility.FileDrop;
@@ -170,6 +172,7 @@ public class ManagerCtrl implements Observer {
         view.popupItemMenuDeleteModAddActionListener(new DeleteModListener());
         view.getButtonViewModDetails().addActionListener(new ButtonViewModChangelogListener());
         view.getButtonLaunchHon().addActionListener(new LaunchHonButton());
+        view.getModListTable().addKeyListener(new ModTableKeyListener());
         // Add file drop functionality
         new FileDrop(view, new DropListener());
         // End Add listeners
@@ -596,6 +599,32 @@ public class ManagerCtrl implements Observer {
         }
     }
 
+    class ModTableKeyListener implements KeyListener {
+
+        public void keyTyped(KeyEvent e) {
+            view.getModListTable().changeSelection(view.getModListTable().getSelectedRow(), 0, false, false);
+            if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                e.consume();
+            }
+        }
+
+        public void keyPressed(KeyEvent e) {
+            view.getModListTable().changeSelection(view.getModListTable().getSelectedRow(), 0, false, false);
+            if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                enableMod(view.getSelectedMod());
+                model.updateNotify();
+                e.consume();
+            }
+        }
+
+        public void keyReleased(KeyEvent e) {
+            view.getModListTable().changeSelection(view.getModListTable().getSelectedRow(), 0, false, false);
+            if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                e.consume();
+            }
+        }
+    }
+
     class UpdateModListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
@@ -1016,7 +1045,7 @@ public class ManagerCtrl implements Observer {
                     e1.printStackTrace();
                 } catch (ModSameNameDifferentVersionsException e1) {
                     // TODO Auto-generated catch block
-                    view.showMessage(L10n.getString("error.modsameversion").replace("#mod#", mod.getName()),L10n.getString("error.modsameversion.title"), JOptionPane.ERROR_MESSAGE);
+                    view.showMessage(L10n.getString("error.modsameversion").replace("#mod#", mod.getName()), L10n.getString("error.modsameversion.title"), JOptionPane.ERROR_MESSAGE);
                     logger.error("Error enabling mod: " + mod.getName() + " because another mod is already enabled.", e1);
                 }
             } catch (FileNotFoundException e1) {

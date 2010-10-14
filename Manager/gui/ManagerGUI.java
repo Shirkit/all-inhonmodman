@@ -1,5 +1,7 @@
 package gui;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JMenuItem;
@@ -27,13 +29,21 @@ import javax.swing.UIManager;
 import business.actions.Action;
 import business.actions.ActionRequirement;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Iterator;
+import javax.swing.AbstractAction;
 import javax.swing.DefaultListModel;
+import javax.swing.InputMap;
+import javax.swing.JComponent;
 import javax.swing.JProgressBar;
+import javax.swing.KeyStroke;
+import javax.swing.text.JTextComponent;
 import utility.BBCode;
 
 /**
@@ -109,6 +119,8 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         getModListTable().getRowSorter().toggleSortOrder(1);
         getModListTable().addMouseListener(new PopupListener());
         getProgressBar().setStringPainted(false);
+
+        getModListTable().setFocusable(true);
     }
 
     /**

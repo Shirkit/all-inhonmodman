@@ -1060,6 +1060,7 @@ public class Manager extends Observable {
 
                         // check if something is selected
                         boolean isSelected = false;
+                        boolean lastIsDelete = false;
 
                         // Check for file
                         File f = new File(tempFolder.getAbsolutePath() + File.separator + editfile.getName());
@@ -1086,6 +1087,7 @@ public class Manager extends Observable {
                                             cursor2[l] = cursor2[l] - (cursor2[l] - cursor[l]);
                                         }
                                         isSelected = false;
+                                        lastIsDelete = true;
                                     }
                                 } else {
                                     ActionEditFileDelete delete = (ActionEditFileDelete) editFileAction;
@@ -1101,15 +1103,18 @@ public class Manager extends Observable {
                                         cursor[0] = afterEdit.length();
                                         cursor2[0] = cursor[0];
                                         isSelected = true;
+                                        lastIsDelete = false;
                                     } else if (find.isPositionAtStart()) {
                                         cursor[0] = 0;
                                         cursor2[0] = 0;
                                         isSelected = true;
+                                        lastIsDelete = false;
                                     } else {
                                         try {
                                             cursor[0] = cursor[0] + Integer.parseInt(find.getPosition());
                                             cursor2[0] = cursor[0];
                                             isSelected = true;
+                                            lastIsDelete = false;
                                         } catch (NumberFormatException e) {
                                             // it isn't a valid number or word, can't apply
                                             throw new InvalidModActionParameterException(mod.getName(), mod.getVersion(), (Action) find);
@@ -1123,6 +1128,7 @@ public class Manager extends Observable {
                                     }
                                     cursor2[0] = cursor[0] + find.getContent().length();
                                     isSelected = true;
+                                    lastIsDelete = false;
                                 }
 
                                 // FindUp Action
@@ -1137,6 +1143,7 @@ public class Manager extends Observable {
                                 }
                                 cursor2[0] = cursor[0] + findup.getContent().length();
                                 isSelected = true;
+                                lastIsDelete = false;
                                 // FindAll Action
                             } else if (editFileAction.getClass().equals(ActionEditFileFindAll.class)) {
                                 ActionEditFileFindAll findall = (ActionEditFileFindAll) editFileAction;
@@ -1162,10 +1169,11 @@ public class Manager extends Observable {
                                     cursor2[i] = lastPosition.get(i);
                                 }
                                 isSelected = true;
+                                lastIsDelete = false;
                                 // Insert Action
                             } else if (editFileAction.getClass().equals(ActionEditFileInsert.class)) {
                                 ActionEditFileInsert insert = (ActionEditFileInsert) editFileAction;
-                                if (isSelected) {
+                                if (isSelected || (!isSelected && lastIsDelete)) {
                                     for (int i = 0; i < cursor.length; i++) {
                                         if (insert.isPositionAfter()) {
                                             afterEdit = afterEdit.substring(0, cursor2[i]) + insert.getContent() + afterEdit.substring(cursor2[i]);
@@ -1203,6 +1211,7 @@ public class Manager extends Observable {
                                         }
                                     }
                                     isSelected = false;
+                                    lastIsDelete = false;
                                 } else {
                                     throw new NothingSelectedModActionException(mod.getName(), mod.getVersion(), (Action) replace);
                                 }

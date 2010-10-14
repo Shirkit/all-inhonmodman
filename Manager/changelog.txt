@@ -88,3 +88,8 @@
 - Changed behavior when manager quits. If you had unsaved operations, the maanger will pop-up to remember you.
 - Fixed bug while restarting the manager. It's height, width, x, y and columns width could be wrongly loaded.
 - Some changes in language file (let's hope I don't need change anything else, to start translation).
+
+[b]0.8 alpha:[/b]
+- Mod developers can now use a Insert action after a Delete. Although the developer should use the Replace action in this case, but this shall be allowed from now on.
+- '\' inside editfile's path will be replaced with '/' to avoid mistakes. File separators inside ZIP files need to be represented with '/', but since this can be fixed, it will be.
+- Added ability to navigate through the mod list in using the keyboard (Arrow keys to go up or down, Enter or Space to enable/disable mod).

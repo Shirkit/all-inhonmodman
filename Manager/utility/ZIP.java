@@ -41,6 +41,10 @@ public class ZIP {
             filename = filename.substring(1);
         }
 
+        if (filename.contains("\\")) {
+            filename = filename.replace("\\", "/");
+        }
+
         ZipFile zipFile = new ZipFile(zip);
         Enumeration entries = zipFile.entries();
 
