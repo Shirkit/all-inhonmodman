@@ -4,7 +4,6 @@ import business.ManagerOptions;
 import business.Mod;
 import business.actions.*;
 
-import java.net.MalformedURLException;
 import java.util.concurrent.ExecutionException;
 
 import utility.OS;
@@ -16,8 +15,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.FileFilter;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,9 +28,6 @@ import java.util.Random;
 import com.mallardsoft.tuple.*;
 import com.thoughtworks.xstream.converters.ConversionException;
 import com.thoughtworks.xstream.io.StreamException;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.nio.channels.FileLockInterruptionException;
 
 import java.security.InvalidParameterException;
@@ -73,6 +67,7 @@ public class Manager extends Observable {
     private HashSet<HashMap<String, String>> cons;
     private HashMap<Mod, HashMap<String, String>> after;
     private HashMap<Mod, HashMap<String, String>> before;
+    private ArrayList<String> resources0FolderTree;
     private static Logger logger = Logger.getLogger(Manager.class.getPackage().getName());
 
     /**
@@ -87,6 +82,25 @@ public class Manager extends Observable {
         cons = new HashSet<HashMap<String, String>>();
         after = new HashMap<Mod, HashMap<String, String>>();
         before = new HashMap<Mod, HashMap<String, String>>();
+        resources0FolderTree = new ArrayList<String>();
+        resources0FolderTree.add("buildings");
+        resources0FolderTree.add("core" + File.separator + "cursors");
+        resources0FolderTree.add("core" + File.separator + "fonts");
+        resources0FolderTree.add("core" + File.separator + "materials");
+        resources0FolderTree.add("core" + File.separator + "null");
+        resources0FolderTree.add("core" + File.separator + "post");
+        resources0FolderTree.add("heroes");
+        resources0FolderTree.add("items");
+        resources0FolderTree.add("music");
+        resources0FolderTree.add("npcs");
+        resources0FolderTree.add("scripts");
+        resources0FolderTree.add("shared");
+        resources0FolderTree.add("stringtables");
+        resources0FolderTree.add("tools");
+        resources0FolderTree.add("tools");
+        resources0FolderTree.add("triggers");
+        resources0FolderTree.add("ui");
+        resources0FolderTree.add("world");
     }
 
     /**
@@ -235,7 +249,7 @@ public class Manager extends Observable {
             throw e;
         }
 
-        logger.info("MAN: finished loading options: " + ManagerOptions.getInstance().getAppliedMods());
+        logger.info("MAN: finished loading options.");
     }
 
     /**
@@ -283,6 +297,7 @@ public class Manager extends Observable {
         ArrayList<Pair<String, String>> stream = new ArrayList<Pair<String, String>>();
         ArrayList<Pair<String, String>> notfound = new ArrayList<Pair<String, String>>();
         ArrayList<Pair<String, String>> zip = new ArrayList<Pair<String, String>>();
+        ArrayList<Pair<String, String>> duplicate = new ArrayList<Pair<String, String>>();
         ArrayList<ArrayList<Pair<String, String>>> problems = new ArrayList<ArrayList<Pair<String, String>>>();
         for (int i = 0; i < files.length; i++) {
             try {
@@ -297,6 +312,9 @@ public class Manager extends Observable {
                 logger.error("FileNotFoundException from loadMods(): file - " + files[i].getName() + " - is corrupted.", e);
                 notfound.addAll(e.getMods());
                 //ManagerCtrl.getGUI().showMessage(L10n.getString("error.loadmodfile").replace("#mod#", files[i].getName()), "error.loadmodfile.title", JOptionPane.ERROR_MESSAGE);
+            } catch (ModDuplicateException e) {
+                logger.error("ModDuplicateException from loadMods().", e);
+                duplicate.addAll(e.getMods());
             } catch (ConversionException e) {
                 logger.error("Conversion from loadMods(): file - " + files[i].getName() + " - is corrupted.", e);
             } catch (ModZipException e) {
@@ -307,6 +325,7 @@ public class Manager extends Observable {
         problems.add(stream);
         problems.add(notfound);
         problems.add(zip);
+        problems.add(duplicate);
 
         return problems;
     }
@@ -318,7 +337,7 @@ public class Manager extends Observable {
      * @throws FileNotFoundException if the file wasn't found.
      * @throws IOException if a random I/O exception has happened.
      */
-    public void addHonmod(File honmod, boolean copy) throws ModNotFoundException, ModStreamException, IOException, ModZipException {
+    public void addHonmod(File honmod, boolean copy) throws ModNotFoundException, ModStreamException, IOException, ModZipException, ModDuplicateException {
         ArrayList<Pair<String, String>> list = new ArrayList<Pair<String, String>>();
         if (!honmod.exists()) {
             list.add(Tuple.from(honmod.getName(), "notfound"));
@@ -338,10 +357,16 @@ public class Manager extends Observable {
             try {
                 m = XML.xmlToMod(xml.substring(1));
             } catch (StreamException ex1) {
-                        list.add(Tuple.from(honmod.getName(), "stream"));
-                        throw new ModStreamException(list);
-                    }
-                }
+                list.add(Tuple.from(honmod.getName(), "stream"));
+                throw new ModStreamException(list);
+            }
+        }
+        m.setPath(honmod.getAbsolutePath());
+        if (getMod(m.getName(), m.getVersion()) != null) {
+            list.add(Tuple.from(new File(getMod(m.getName(), m.getVersion()).getPath()).getName(), "duplicate"));
+            list.add(Tuple.from(honmod.getName(), "duplicate"));
+            throw new ModDuplicateException(list);
+        }
         Icon icon;
         try {
             icon = new ImageIcon(ZIP.getFile(honmod, Mod.ICON_FILENAME));
@@ -357,45 +382,13 @@ public class Manager extends Observable {
         m.setChangelog(changelog);
         m.setIcon(icon);
         logger.info("Mod file opened. Mod name: " + m.getName());
-        m.setPath(honmod.getAbsolutePath());
         m.setId(0);
         if (copy) {
             // Copy the honmod file to mods directory
-            copyFile(honmod, new File(ManagerOptions.getInstance().getModPath() + File.separator + honmod.getName()), false);
+            FileUtils.copyFile(honmod, new File(ManagerOptions.getInstance().getModPath() + File.separator + honmod.getName()));
             logger.info("Mod file copied to mods older");
         }
         addMod(m);
-    }
-
-    /**
-     * Copies a file (source) into another file (target), appending the file or not.
-     * @param source the file to be copied.
-     * @param target the file where the source is going to be written.
-     * @param append if wants to append the file. If true, the file source will be copied to the end of the target, if target exists.
-     * If false, the file target will be ignore (if exists or not, only the source content will exist).
-     * @throws FileNotFoundException if one the files doesn't exist. If the directory tree doesn't exist, the file target can't be written.
-     * @throws IOException if a random I/O exception happened.
-     */
-    private static void copyFile(File source, File target, boolean append) throws FileNotFoundException, IOException {
-        FileInputStream fis = new FileInputStream(source);
-        FileOutputStream fos = new FileOutputStream(target, append);
-        try {
-            byte[] buf = new byte[1024];
-            int i = 0;
-            while ((i = fis.read(buf)) != -1) {
-                fos.write(buf, 0, i);
-            }
-        } catch (IOException e) {
-            throw e;
-        } finally {
-            if (fis != null) {
-                fis.close();
-            }
-            if (fos != null) {
-                fos.flush();
-                fos.close();
-            }
-        }
     }
 
     /**
@@ -433,7 +426,6 @@ public class Manager extends Observable {
         }
 
         try {
-            System.out.println(url);
             java.net.URI uri = new java.net.URI(url);
             desktop.browse(uri);
         } catch (Exception e) {
@@ -474,7 +466,7 @@ public class Manager extends Observable {
      * @param index index of the mod in the list of mods
      * @return mod at the given index
      * @throws IndexOutOfBoundsException in case index does not exist in the list of mods
-     * @deprecated This will not
+     * @deprecated This method doesn't make sense.
      */
     public Mod getMod(int index) throws IndexOutOfBoundsException {
         return (Mod) ManagerOptions.getInstance().getMods().get(index);
@@ -483,10 +475,10 @@ public class Manager extends Observable {
     /**
      * This function returns the mod from the arraylist mods given it's name.
      * @param name of the mod.
-     * @return the found Mod.
-     * @throws NoSuchElementException if the mod wasn't found
+     * @param version Version or a version expression of the mod. Examples: "1.1", "1.1-1.5", "*-1.6" or "*". A null string or no lenght will be assumed as any version.
+     * @return the found Mod or null if isn't found.
      */
-    public Mod getMod(String name) {
+    public Mod getMod(String name, String version) {
         // get the enumration object for ArrayList mods
         Enumeration e = Collections.enumeration(ManagerOptions.getInstance().getMods());
 
@@ -494,52 +486,13 @@ public class Manager extends Observable {
         while (e.hasMoreElements()) {
             Mod m = (Mod) e.nextElement();
             if (m.getName().equalsIgnoreCase(name)) {
-                return m;
+                if (compareModsVersions(m.getVersion(), version)) {
+                    return m;
+                }
             }
         }
 
         return null;
-    }
-
-    /**
-     * This function returns the mod from the arraylist mods, but only if it's enabled.
-     * @param name of the mod.
-     * @return the found Mod.
-     * @throws NoSuchElementException if the mod wasn't found.
-     */
-    public Mod getEnabledMod(String name) throws NoSuchElementException {
-        Mod m = getMod(name);
-        if (m == null) {
-            throw new NoSuchElementException();
-        }
-        if (m.isEnabled()) {
-            return m;
-        }
-        throw new NoSuchElementException();
-    }
-
-    /**
-     * This function returns the mod from the arraylist mods, but only if it's disabled.
-     * @param name of the mod.
-     * @return the found Mod.
-     * @throws NoSuchElementException if the mod wasn't found.
-     */
-    public Mod getDisabledMod(String name) throws NoSuchElementException {
-        Mod m = getMod(name);
-        if (!m.isEnabled()) {
-            return m;
-        }
-
-        // Unreacheable
-        throw new NoSuchElementException();
-    }
-
-    public void updateManager() {
-        try {
-            BufferedReader in = new BufferedReader(new InputStreamReader(new URL(new Mod().getUpdateCheckUrl().trim()).openStream()));
-        } catch (MalformedURLException ex) {
-        } catch (IOException ex) {
-        }
     }
 
     /**
@@ -551,7 +504,7 @@ public class Manager extends Observable {
      * @throws ModVersionUnsatisfiedException 
      * @throws ModNotEnabledException 
      */
-    public UpdateReturn updateMod(ArrayList<Mod> mods) throws StreamException, ModNotEnabledException, ModVersionUnsatisfiedException {
+    public UpdateReturn updateMod(ArrayList<Mod> mods) {
         // Prepare the pool
         ExecutorService pool = Executors.newCachedThreadPool();
         Iterator<Mod> it = mods.iterator();
@@ -591,56 +544,56 @@ public class Manager extends Observable {
                     new File(mod.getMod().getPath()).setWritable(true);
                     FileUtils.copyFile(file, mod.getMod().getPath());
                     Mod newMod = null;
-                    String olderVersion = getMod(mod.getMod().getName()).getVersion();
+                    String olderVersion = mod.getMod().getVersion();
                     try {
                         newMod = XML.xmlToMod(new String(ZIP.getFile(file, Mod.MOD_FILENAME)));
-                    } catch (StreamException e) {
-                        // Couldn't load new mod, XStream was unabled to parse the XML file.
-                        logger.error("Updated mod failed to load. Some problem happened while reading the mod. Critical error.");
-                        throw e;
-                        // Can't continue, since the mod could be required by another. This should never happens, unless a developer really messes up.
-                        // TODO : This can be improved, but I don't know how.
-                    } catch (ZipException e) {
-                        System.out.println(file.getAbsolutePath());
+                    } catch (StreamException ex) {
+                        logger.info("StreamException: Failed to update: " + mod.getMod().getName(), ex);
+                        returnValue.addModFailed(mod.getMod(), ex);
+                    } catch (ZipException ex) {
+                        logger.info("ZipException: Failed to update: " + mod.getMod().getName(), ex);
+                        returnValue.addModFailed(mod.getMod(), ex);
                     }
-                    newMod.setPath(mod.getMod().getPath());
-                    Mod oldMod = getMod(mod.getMod().getName());
-                    boolean wasEnabled = oldMod.isEnabled();
-                    HashSet<Mod> gotDisable = new HashSet<Mod>();
-                    gotDisable.add(oldMod);
-                    while (!gotDisable.isEmpty()) {
-                        Iterator<Mod> iter = gotDisable.iterator();
-                        while (iter.hasNext()) {
-                            try {
-                                Mod next = iter.next();
-                                disableMod(next);
-                                // If he got under this, so disabling was successfull.
-                                gotDisable.remove(next);
-                            } catch (ModEnabledException ex) {
-                                // Couldn't disable, we need who didn't let disable him
-                                // TODO: Changed the behavior of the exception, need to be fixed
-                                Iterator<Pair<String, String>> itera = ex.getDeps().iterator();
-                                while (itera.hasNext()) {
-                                    Pair<String, String> pair = itera.next();
-                                    if (!gotDisable.contains(getMod(Tuple.get1(pair)))) {
-                                        gotDisable.add(getMod(Tuple.get1(pair)));
-                                    }
+                    if (newMod != null) {
+                        newMod.setPath(mod.getMod().getPath());
+                        Mod oldMod = getMod(mod.getMod().getName(), olderVersion);
+                        boolean wasEnabled = oldMod.isEnabled();
+                        HashSet<Mod> gotDisable = new HashSet<Mod>();
+                        gotDisable.add(oldMod);
+                        while (!gotDisable.isEmpty()) {
+                            Iterator<Mod> iter = gotDisable.iterator();
+                            while (iter.hasNext()) {
+                                try {
+                                    Mod next = iter.next();
+                                    disableMod(next);
+                                    // If he got under this, so disabling was successfull.
+                                    gotDisable.remove(next);
+                                } catch (ModEnabledException ex) {
+                                    // Couldn't disable, we need who didn't let disable him
+                                    // TODO: Changed the behavior of the exception, need to be fixed
+                                    Iterator<Pair<String, String>> itera = ex.getDeps().iterator();
+                                    while (itera.hasNext()) {
+                                        Pair<String, String> pair = itera.next();
+                                        if (!gotDisable.contains(getMod(Tuple.get1(pair), Tuple.get2(pair)))) {
+                                            gotDisable.add(getMod(Tuple.get1(pair), Tuple.get2(pair)));
+                                        }
 
+                                    }
                                 }
                             }
                         }
-                    }
-                    oldMod.copy(newMod);
-                    if (wasEnabled) {
-                        try {
-                            enableMod(newMod, false);
-                        } catch (Exception ex) {
-                            // Couldn't enable mod, just log it
-                            logger.error("Could not enable mod " + newMod.getName());
+                        oldMod.copy(newMod);
+                        if (wasEnabled) {
+                            try {
+                                enableMod(newMod, false);
+                            } catch (Exception ex) {
+                                // Couldn't enable mod, just log it
+                                logger.error("Could not enable mod " + newMod.getName());
+                            }
                         }
+                        returnValue.addUpdated(mod.getMod(), olderVersion);
+                        logger.info(mod.getMod().getName() + "was updated to " + newMod.getVersion() + " from " + olderVersion);
                     }
-                    returnValue.addUpdated(mod.getMod(), olderVersion);
-                    logger.info(mod.getMod().getName() + "was updated to " + newMod.getVersion() + " from " + olderVersion);
                 } else {
                     logger.info(mod.getMod().getName() + " is up-to-date");
                     returnValue.addUpToDate(mod.getMod());
@@ -657,7 +610,6 @@ public class Manager extends Observable {
                 // Can't get here
             } catch (IOException ex) {
                 logger.error("Random I/O Exception happened", ex);
-
                 // Random IO Exception
             }
         }
@@ -1001,6 +953,7 @@ public class Manager extends Observable {
 
     /**
      * Tries to apply the currently enabled mods. They can be found in the Model class.
+     * @param outputToFile If true, the Manager will output the current mods to a folder tree in the HoN/game folder puting the files inside. If not, it will generate the resources999.s2z file. This sould be true for 'Developer Mode'.
      * @throws IOException if a random I/O error happened.
      * @throws UnknowModActionException if a unkown Action was found. Actions that aren't know by the program can't be applied.
      * @throws NothingSelectedModActionException if a action tried to do a action that involves a string, but no string was selected.
@@ -1010,7 +963,7 @@ public class Manager extends Observable {
      * @throws SecurityException if the Manager couldn't do a action because of security business.
      * @throws FileLockInterruptionException if the Manager couldn't open the resources999.s2z file.
      */
-    public void applyMods() throws IOException,
+    public void applyMods(boolean outputToFolderTree) throws IOException,
             UnknowModActionException,
             NothingSelectedModActionException,
             StringNotFoundModActionException,
@@ -1317,7 +1270,20 @@ public class Manager extends Observable {
         // --------------- Progress bar update
 
         if (!applyOrder.isEmpty()) {
-            ZIP.createZIP(tempFolder.getAbsolutePath(), targetZip.getAbsolutePath());
+            if (!outputToFolderTree) {
+                ZIP.createZIP(tempFolder.getAbsolutePath(), targetZip.getAbsolutePath());
+            } else {
+                deleteFolderTree();
+                FileUtils.copyFolderToFolder(tempFolder, new File(ManagerOptions.getInstance().getGamePath() + File.separator + "game"));
+                Iterator<String> it = resources0FolderTree.iterator();
+                while (it.hasNext()) {
+                    File folder = new File(ManagerOptions.getInstance().getGamePath() + File.separator + "game" + File.separator + it.next());
+                    if (folder.exists() && folder.isDirectory()) {
+                        File warningFile = new File(folder, "! FILES AND FOLDER HERE WILL BE DELETED ON NEXT APPLY");
+                        warningFile.createNewFile();
+                    }
+                }
+            }
         } else {
             targetZip.createNewFile();
         }
@@ -1341,8 +1307,9 @@ public class Manager extends Observable {
         while (i.hasNext()) {
             i.next().disable();
         }
+        deleteFolderTree();
         try {
-            applyMods();
+            applyMods(false);
         } catch (IOException ex) {
             throw ex;
         } catch (UnknowModActionException ex) {
@@ -1356,6 +1323,18 @@ public class Manager extends Observable {
             saveOptions();
         } catch (IOException ex) {
             throw ex;
+        }
+    }
+
+    private void deleteFolderTree() {
+        Iterator<String> it = resources0FolderTree.iterator();
+        while (it.hasNext()) {
+            File folder = new File(ManagerOptions.getInstance().getGamePath() + File.separator + "game" + File.separator + it.next());
+            if (folder.exists() && folder.isDirectory()) {
+                if (!FileUtils.deleteDir(folder)) {
+                    System.out.println("failed to delete folder");
+                }
+            }
         }
     }
 
@@ -1593,7 +1572,7 @@ public class Manager extends Observable {
                         mod = mod.substring(0, mod.indexOf('['));
                     }
 
-                    Mod m = getMod(mod);
+                    Mod m = getMod(mod, version);
 
                     try {
                         valid = (m.isEnabled() && validVersion(m, version));

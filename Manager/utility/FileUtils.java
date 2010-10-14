@@ -77,6 +77,36 @@ public class FileUtils {
         out.close();
     }
 
+    public static void copyFolderToFolder(File source, File destination) throws FileNotFoundException, IOException {
+        File[] fileList = source.listFiles();
+        for (int i = 0; i < fileList.length; i++) {
+            File sourceFile = fileList[i];
+            File destinationFile = new File(destination, sourceFile.getName());
+            if (sourceFile.isDirectory()) {
+                if (destinationFile.mkdirs()) {
+                    copyFolderToFolder(sourceFile, destinationFile);
+                }
+            } else {
+                copyFile(sourceFile, destinationFile);
+            }
+        }
+    }
+
+    public static boolean deleteDir(File dir) {
+        if (dir.isDirectory()) {
+            String[] children = dir.list();
+            for (int i = 0; i < children.length; i++) {
+                boolean success = deleteDir(new File(dir, children[i]));
+                if (!success) {
+                    return false;
+                }
+            }
+        }
+
+        // The directory is now empty so delete it
+        return dir.delete();
+    }
+
     public static void copyInputStream(InputStream in, OutputStream out) throws IOException {
         byte[] buffer = new byte[1024];
         int len;

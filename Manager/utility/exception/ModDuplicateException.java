@@ -8,10 +8,6 @@ package utility.exception;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashSet;
-
-import business.ManagerOptions;
-
 import com.mallardsoft.tuple.*;
 
 /**
@@ -20,13 +16,13 @@ import com.mallardsoft.tuple.*;
  */
 public class ModDuplicateException extends Exception {
 
-	private HashSet<Pair<String, String>> _mods;
+	private ArrayList<Pair<String, String>> _mods;
 
     /**
      * @param name of the mod that was enabled.
      * @param version of the mod that was enabled.
      */
-    public ModDuplicateException(HashSet<Pair<String, String>> mods) {
+    public ModDuplicateException(ArrayList<Pair<String, String>> mods) {
         super();
         _mods = mods;
     }
@@ -34,7 +30,7 @@ public class ModDuplicateException extends Exception {
     /**
      * @return the list of mods that depends on the mod that are not disabled
      */
-    public HashSet<Pair<String, String>> getMods() {
+    public ArrayList<Pair<String, String>> getMods() {
         return _mods;
     }
     

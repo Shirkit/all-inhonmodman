@@ -5,10 +5,7 @@
 package business;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
-import com.thoughtworks.xstream.annotations.XStreamImplicit;
-import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import com.thoughtworks.xstream.io.StreamException;
 
 import java.awt.Rectangle;
@@ -49,6 +46,7 @@ public class ManagerOptions extends Observable {
     private boolean ignoreGameVersion;
     private boolean autoUpdate;
     private boolean autoEnableDependencies;
+    private boolean developerMode;
     // Hidden fields
     private ArrayList<Mod> mods;
     public static final String MANAGER_VERSION = "version.txt";
@@ -79,7 +77,9 @@ public class ManagerOptions extends Observable {
         ignoreGameVersion = false;
         autoUpdate = false;
         autoEnableDependencies = false;
-
+        developerMode = false;
+        guiRectangle = null;
+        columnsWidth = new ArrayList<Integer>();
     }
 
     public static ManagerOptions getInstance() {
@@ -144,8 +144,9 @@ public class ManagerOptions extends Observable {
         if (temp.getColumnsWidth() != null) {
             instance.setColumnsWidth(temp.getColumnsWidth());
         }
-        instance.setIgnoreGameVersion(temp.ignoreGameVersion);
+        instance.setIgnoreGameVersion(temp.isIgnoreGameVersion());
         instance.setAutoUpdate(temp.isAutoUpdate());
+        instance.setDeveloperMode(temp.isDeveloperMode());
     }
 
     public void setModPath(String p) {
@@ -180,6 +181,10 @@ public class ManagerOptions extends Observable {
         this.autoEnableDependencies = autoEnableDependencies;
     }
 
+    public void setDeveloperMode(boolean developerMode) {
+        this.developerMode = developerMode;
+    }
+
     public boolean isIgnoreGameVersion() {
         return ignoreGameVersion;
     }
@@ -192,7 +197,9 @@ public class ManagerOptions extends Observable {
         return autoEnableDependencies;
     }
 
-
+    public boolean isDeveloperMode() {
+        return developerMode;
+    }
 
     public String getVersion() {
         URL version = getClass().getClassLoader().getResource(MANAGER_VERSION);

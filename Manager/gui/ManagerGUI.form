@@ -42,6 +42,7 @@
                               <Component id="labelCLArguments" alignment="0" pref="121" max="32767" attributes="1"/>
                               <Component id="checkBoxIgnoreGameVersion" alignment="0" max="32767" attributes="1"/>
                               <Component id="checkBoxAutoUpdate" alignment="0" max="32767" attributes="1"/>
+                              <Component id="checkBoxDeveloperMode" alignment="0" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="1" attributes="0">
@@ -100,7 +101,9 @@
                   <Component id="checkBoxIgnoreGameVersion" min="-2" max="-2" attributes="0"/>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                   <Component id="checkBoxAutoUpdate" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace pref="38" max="32767" attributes="0"/>
+                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                  <Component id="checkBoxDeveloperMode" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace pref="55" max="32767" attributes="0"/>
                   <Component id="labelChangeLanguageImplication" min="-2" max="-2" attributes="0"/>
                   <EmptySpace min="7" pref="7" max="7" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
@@ -257,6 +260,17 @@
               <Connection code="L10n.getString(&quot;prefs.label.autoupdate&quot;)" type="code"/>
             </Property>
             <Property name="name" type="java.lang.String" value="checkBoxAutoUpdate" noResource="true"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JCheckBox" name="checkBoxDeveloperMode">
+          <Properties>
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+              <Connection code="L10n.getString(&quot;prefs.label.developermode&quot;)" type="code"/>
+            </Property>
+            <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+              <Connection code="L10n.getString(&quot;tooltip.prefs.developermode&quot;)" type="code"/>
+            </Property>
+            <Property name="name" type="java.lang.String" value="checkBoxDeveloperMode" noResource="true"/>
           </Properties>
         </Component>
       </SubComponents>

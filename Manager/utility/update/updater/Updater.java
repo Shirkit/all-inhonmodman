@@ -11,16 +11,19 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.security.InvalidParameterException;
 import java.util.Enumeration;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
@@ -32,21 +35,21 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
-import business.ManagerOptions;
-
 /**
- * This is just a copy of the Updater class.
+ * This is just a copy of the Updater class for saving it inside our project. You must build this class outside and pack into jar for predicted behavior.
+ * You must call it with the 2 string arguments: [1] = Path to the current Manager Jar. [2] = URL to download the new manager.
  * @author Shirkit
  */
 public class Updater {
-    public static final String versionFilePath = ManagerOptions.getInstance().MANAGER_VERSION;
 
-    public static void main(String[] args) throws FileNotFoundException,InvalidParameterException, MalformedURLException, IOException {
+    public static final String versionFilePath = "version.txt";
+
+    public static void main(String[] args) {
         Dialog dialog = new Dialog();
         try {
             // Validation
-            if (args.length <= 1) {
-                throw new InvalidParameterException("No argument");
+            if (args.length <= 1 || args.length >= 3) {
+                throw new InvalidParameterException("Invalid nunmber of parameters. Call must be \"java  -jar  Updater.jar  PATH_TO_MANAGER.JAR  URL_TO_DOWNLOAD_NEW_JAR\"");
             }
             File managerJar = new File(args[0]);
             if (!managerJar.exists()) {
@@ -60,23 +63,45 @@ public class Updater {
             dialog.progressBar.setMaximum(connector.getContentLength());
             // Download the file into a temp file
             dialog.updateLabel("Preparing");
-            File output = new File(managerJar.getParent() + File.separator + "Manager.temp");
+            File downloadedFile = new File(managerJar.getParent() + File.separator + "Manager.temp");
             InputStream in = connector.getInputStream();
-            OutputStream out = new FileOutputStream(output);
+            OutputStream out = new FileOutputStream(downloadedFile);
             dialog.updateLabel("Downloading");
             copyInputStream(in, out, dialog.progressBar);
             in.close();
             out.flush();
             out.close();
             dialog.updateLabel("Finishing");
-            // Find version
-            String version = new String(getFile(output, versionFilePath));
-            // Rename file
-            File finalOutput = new File(output.getParent() + File.separator + "All-In Hon ModManager alpha v" + version + ".jar");
-            output.renameTo(finalOutput);
-            // Delete older version
-            managerJar.delete();
-            managerJar.deleteOnExit();
+            // If any error happens, then we'll move to the older way
+            url = new URL(args[2]);
+            dialog.updateLabel("Connecting");
+            connector = url.openConnection();
+            dialog.progressBar.setMaximum(connector.getContentLength());
+            // Download the file into a temp file
+            dialog.updateLabel("Preparing");
+            downloadedFile.delete();
+            downloadedFile = new File(managerJar.getParent() + File.separator + "Manager.temp");
+            in = connector.getInputStream();
+            out = new FileOutputStream(downloadedFile);
+            dialog.updateLabel("Downloading");
+            copyInputStream(in, out, dialog.progressBar);
+            in.close();
+            out.flush();
+            out.close();
+
+            dialog.updateLabel("Finishing");
+            // Replace older manager with the new one
+            in = new FileInputStream(downloadedFile);
+            out = new FileOutputStream(managerJar);
+            copyInputStream(in, out, null);
+            in.close();
+            out.flush();
+            out.close();
+            // Delete temp file
+            downloadedFile.delete();
+            downloadedFile.deleteOnExit();
+            // Exit
+            Process runManager = Runtime.getRuntime().exec("java -jar " + managerJar.getAbsolutePath());
             System.exit(0);
         } catch (Exception e) {
             dialog.updateLabel("Closing...");
@@ -126,7 +151,47 @@ public class Updater {
         }
     }
 
+    public static File putJarInJar(File source, File destination) throws FileNotFoundException, IOException {
+        if (!source.exists() || !destination.exists()) {
+            throw new FileNotFoundException();
+        }
+
+        JarFile sourceJar = new JarFile(source);
+        JarFile destinationJar = new JarFile(destination);
+        Enumeration entriesSource = sourceJar.entries();
+        Enumeration entriesDestination = destinationJar.entries();
+        File temp = new File(source.getAbsolutePath() + ".temp");
+        JarOutputStream jos = new JarOutputStream(new FileOutputStream(temp), destinationJar.getManifest());
+
+        while (entriesSource.hasMoreElements()) {
+            JarEntry entry = (JarEntry) entriesSource.nextElement();
+            if (!entry.getName().equals("META-INF/MANIFEST.MF")) {
+                jos.putNextEntry(entry);
+                InputStream in = sourceJar.getInputStream(entry);
+                copyInputStream(in, jos, null);
+                in.close();
+            }
+        }
+
+        while (entriesDestination.hasMoreElements()) {
+            JarEntry destEntry = (JarEntry) entriesDestination.nextElement();
+            if (sourceJar.getJarEntry(destEntry.getName()) == null) {
+                jos.putNextEntry(destEntry);
+                InputStream in = destinationJar.getInputStream(destEntry);
+                copyInputStream(in, jos, null);
+                in.close();
+            }
+        }
+
+        jos.flush();
+        jos.finish();
+        jos.close();
+
+        return temp;
+    }
+
     public static class Dialog {
+
         JProgressBar progressBar;
         JButton cancel;
         JLabel label;
@@ -161,12 +226,12 @@ public class Updater {
     }
 
     public static class ButtonListener implements ActionListener {
+
         public void actionPerformed(ActionEvent e) {
             int i = JOptionPane.showConfirmDialog(null, "Do you really want to cancel?", "Confirmation", JOptionPane.YES_NO_OPTION);
             if (i == 0) {
                 System.exit(0);
             }
         }
-
     }
 }

@@ -80,10 +80,8 @@ public class XML {
                 ActionRequirement require = (ActionRequirement) action;
                 if (require.getName().contains("Mod Options Framework")) {
                     movableframe = require;
-                    System.err.println(m.getName() + " removed " + require.getName());
                 } else if (require.getName().contains("Movable Frames")) {
                     modoptionsframework = require;
-                    System.err.println(m.getName() + " removed " + require.getName());
                 }
             }
         }
@@ -93,19 +91,6 @@ public class XML {
         if (movableframe != null) {
             m.getActions().remove(movableframe);
         }
-        /*for (int i=0; i < m.getActions().size(); i++) {
-            Action action = m.getActions().get(i);
-            System.out.println(action.toString());
-            if (action.getClass().equals(ActionRequirement.class)) {
-                ActionRequirement require = (ActionRequirement) action;
-                System.out.println(require.getName());
-                if (require.getName().contains("Mod Options Framework") || require.getName().contains("Movable Frames")) {
-                    m.getActions().remove(i);
-                    System.err.println(m.getName() + " removed " + require.getName());
-                    return removeRequiredMods(m);
-                }
-            }
-        }*/
         return m;
     }
 

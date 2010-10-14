@@ -79,3 +79,12 @@
 - Reduced size of managerOptions.xml file (it was storing a large number of unecessary information.
 - Fixed bug while starting the Manager and not loading the last used X, Y, Height and Widht.
 - Temporary sollution for Mod Options Framework and Movable Frames mod's requirements.
+- Changed annoying behavior when Manager starts. It was pop-uping an error message if a mod failed to load before the main window actually load, so the baloon wouldn't be displayed as a program in the task bar, but you had to press OK to continue. Now main window loads before show pop-up messages.
+- Added developer mode. For now, it just build the files in a folder tree, instead of generating a resources999.s2z file. Future plans include pop-up every possible error for the developer to avoid syntax errors.
+- Fixed bug in layout while displaying mod's with author's name or mod's name too long.
+- Fixed message display while adding a honmod file while drag-droping or pressing the "Add Mod" button.
+- Fixed bug while updating new mods, if the newly download mod was corrupt, the manager could stop working.
+- Duplicate mods cannot co-exist anymore. They won't load, just the first one. The rest will be ignored.
+- Changed behavior when manager quits. If you had unsaved operations, the maanger will pop-up to remember you.
+- Fixed bug while restarting the manager. It's height, width, x, y and columns width could be wrongly loaded.
+- Some changes in language file (let's hope I don't need change anything else, to start translation).

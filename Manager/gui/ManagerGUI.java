@@ -151,6 +151,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         labelChooseLookAndFeel = new javax.swing.JLabel();
         checkBoxIgnoreGameVersion = new javax.swing.JCheckBox();
         checkBoxAutoUpdate = new javax.swing.JCheckBox();
+        checkBoxDeveloperMode = new javax.swing.JCheckBox();
         rightClickTableMenu = new javax.swing.JPopupMenu();
         popupItemMenuEnableDisableMod = new javax.swing.JMenuItem();
         popupItemMenuUpdateMod = new javax.swing.JMenuItem();
@@ -266,6 +267,10 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         checkBoxAutoUpdate.setText(L10n.getString("prefs.label.autoupdate"));
         checkBoxAutoUpdate.setName("checkBoxAutoUpdate"); // NOI18N
 
+        checkBoxDeveloperMode.setText(L10n.getString("prefs.label.developermode"));
+        checkBoxDeveloperMode.setToolTipText(L10n.getString("tooltip.prefs.developermode"));
+        checkBoxDeveloperMode.setName("checkBoxDeveloperMode"); // NOI18N
+
         javax.swing.GroupLayout dialogOptionsLayout = new javax.swing.GroupLayout(dialogOptions.getContentPane());
         dialogOptions.getContentPane().setLayout(dialogOptionsLayout);
         dialogOptionsLayout.setHorizontalGroup(
@@ -290,7 +295,8 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                             .addComponent(labelModsFolder, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(labelCLArguments, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 121, Short.MAX_VALUE)
                             .addComponent(checkBoxIgnoreGameVersion, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(checkBoxAutoUpdate, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(checkBoxAutoUpdate, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(checkBoxDeveloperMode, javax.swing.GroupLayout.Alignment.LEADING))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(dialogOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(textFieldHonFolder, javax.swing.GroupLayout.DEFAULT_SIZE, 354, Short.MAX_VALUE)
@@ -336,7 +342,9 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                 .addComponent(checkBoxIgnoreGameVersion)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(checkBoxAutoUpdate)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 38, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(checkBoxDeveloperMode)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 55, Short.MAX_VALUE)
                 .addComponent(labelChangeLanguageImplication)
                 .addGap(7, 7, 7)
                 .addGroup(dialogOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -833,17 +841,10 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         } else {
             textFieldModsFolder.setText(modsFolder);
         }
-        if (ManagerOptions.getInstance().isIgnoreGameVersion()) {
-            checkBoxIgnoreGameVersion.setSelected(true);
-        } else {
-            checkBoxIgnoreGameVersion.setSelected(false);
-        }
-        if (ManagerOptions.getInstance().isAutoUpdate()) {
-            checkBoxAutoUpdate.setSelected(true);
-        } else {
-            checkBoxAutoUpdate.setSelected(false);
-        }
-        dialogOptions.setSize(500, 370);
+        checkBoxIgnoreGameVersion.setSelected(ManagerOptions.getInstance().isIgnoreGameVersion());
+        checkBoxAutoUpdate.setSelected(ManagerOptions.getInstance().isAutoUpdate());
+        checkBoxDeveloperMode.setSelected(ManagerOptions.getInstance().isDeveloperMode());
+        dialogOptions.setSize(600, 410);
         dialogOptions.setLocationRelativeTo(this);
         dialogOptions.setVisible(true);
     }//GEN-LAST:event_itemOpenPreferencesActionPerformed
@@ -964,8 +965,13 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         tableModList.getRowSorter().setSortKeys((List<? extends SortKey>) o);
 
         ArrayList<Integer> temp = new ArrayList<Integer>();
-        for (int i = 0; i < ManagerOptions.getInstance().getColumnsWidth().size(); i++) {
-            temp.add(new Integer(ManagerOptions.getInstance().getColumnsWidth().get(i)));
+        try {
+            for (int i = 0; i < ManagerOptions.getInstance().getColumnsWidth().size(); i++) {
+                temp.add(new Integer(ManagerOptions.getInstance().getColumnsWidth().get(i)));
+            }
+        } catch (NullPointerException e) {
+            // I really don't know why is this throwing NullPointException when there is no managerOptions.xml file, but this will solve for now
+            // TODO: fix this bug
         }
 
         if (model.getColumnsWidth() != null) {
@@ -1254,6 +1260,10 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         return checkBoxAutoUpdate.isSelected();
     }
 
+    public boolean getDeveloperMode() {
+        return checkBoxDeveloperMode.isSelected();
+    }
+
     public String getSelectedLafClass() {
         return ((LaF) comboBoxLafs.getSelectedItem()).getLafClass();
     }
@@ -1432,6 +1442,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     private javax.swing.JButton buttonViewModDetails;
     private javax.swing.JButton buttonVisitWebsite;
     private javax.swing.JCheckBox checkBoxAutoUpdate;
+    private javax.swing.JCheckBox checkBoxDeveloperMode;
     private javax.swing.JCheckBox checkBoxIgnoreGameVersion;
     private javax.swing.JComboBox comboBoxChooseLanguage;
     private javax.swing.JComboBox comboBoxLafs;
