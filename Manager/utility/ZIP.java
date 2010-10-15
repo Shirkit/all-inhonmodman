@@ -145,7 +145,23 @@ public class ZIP {
         zipDir(source, zos, source);
         zos.flush();
         zos.close();
+    }
 
+
+    /**
+     *
+     * @param source Path to the folder to be compressed.
+     * @param file Path to where the .zip file will be created.
+     * @throws FileNotFoundException if coudln't create/open a extracted file.
+     * @throws IOException if an I/O error has occurred
+     */
+    public static void createZIP(String source, String file, String comment) throws FileNotFoundException, IOException, ZipException {
+        // creates the buffer to generate the zip
+        ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(file));
+        zipDir(source, zos, source);
+        zos.setComment(comment);
+        zos.flush();
+        zos.close();
     }
 
     /**
@@ -198,5 +214,69 @@ public class ZIP {
 
         }
 
+    }
+
+    public static String extractZipComment(String filename) {
+        String retStr = null;
+        try {
+            File file = new File(filename);
+            int fileLen = (int) file.length();
+
+            FileInputStream in = new FileInputStream(file);
+
+            /* The whole ZIP comment (including the magic byte sequence)
+             * MUST fit in the buffer
+             * otherwise, the comment will not be recognized correctly
+             *
+             * You can safely increase the buffer size if you like
+             */
+            byte[] buffer = new byte[Math.min(fileLen, 8192)];
+            int len;
+
+            in.skip(fileLen - buffer.length);
+
+            if ((len = in.read(buffer)) > 0) {
+                retStr = getZipCommentFromBuffer(buffer, len);
+            }
+
+            in.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return retStr;
+    }
+
+    private static String getZipCommentFromBuffer(byte[] buffer, int len) {
+        byte[] magicDirEnd = {0x50, 0x4b, 0x05, 0x06};
+        int buffLen = Math.min(buffer.length, len);
+        // Check the buffer from the end
+        for (int i = buffLen - magicDirEnd.length - 22; i >= 0; i--) {
+            boolean isMagicStart = true;
+            for (int k = 0; k < magicDirEnd.length; k++) {
+                if (buffer[i + k] != magicDirEnd[k]) {
+                    isMagicStart = false;
+                    break;
+                }
+            }
+            if (isMagicStart) {
+                // Magic Start found!
+                int commentLen = buffer[i + 20] + buffer[i + 21] * 256;
+                // ---- Added this to prevent negative values
+                if (commentLen < 0) {
+                    commentLen = commentLen * -1;
+                }
+                // ---- Added this to prevent negative values
+                int realLen = buffLen - i - 22;
+                System.out.println("ZIP comment found at buffer position " + (i + 22) + " with len=" + commentLen + ", good!");
+                if (commentLen != realLen) {
+                    System.out.println("WARNING! ZIP comment size mismatch: directory says len is "
+                            + commentLen + ", but file ends after " + realLen + " bytes!");
+                }
+                // Old way: String comment = new String (buffer, i+22, Math.min(commentLen, realLen));
+                String comment = new String(buffer, i + 22, realLen);
+                return comment;
+            }
+        }
+        return null;
     }
 }

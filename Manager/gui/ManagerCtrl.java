@@ -634,9 +634,9 @@ public class ManagerCtrl implements Observer {
             ArrayList<Mod> toUpdate = new ArrayList<Mod>();
             toUpdate.add(mod);
 
-            view.getProgressBar().setVisible(true);
-            view.getProgressBar().setMaximum(toUpdate.size());
-            view.getProgressBar().paint(view.getProgressBar().getGraphics());
+            //view.getProgressBar().setVisible(true);
+            //view.getProgressBar().setMaximum(toUpdate.size());
+            //view.getProgressBar().paint(view.getProgressBar().getGraphics());
             UpdateReturn things = null;
             things = controller.updateMod(toUpdate);
             if (!things.getFailedModList().isEmpty()) {
@@ -647,7 +647,7 @@ public class ManagerCtrl implements Observer {
                 view.showMessage(L10n.getString("message.update.updated").replace("#mod#", things.getUpdatedModList().get(0).getName()).replace("#olderversion#", things.getOlderVersion(mod)).replace("#newversion#", mod.getVersion()), L10n.getString("message.update.title"), JOptionPane.INFORMATION_MESSAGE);
             }
             model.updateNotify();
-            view.getProgressBar().setValue(0);
+            //view.getProgressBar().setValue(0);
         }
     }
 
@@ -859,9 +859,9 @@ public class ManagerCtrl implements Observer {
                     applyMods();
                     Process game = Runtime.getRuntime().exec(Game.getInstance().getHonExecutable().getAbsolutePath());
                 }
-            } catch (FileNotFoundException ex) {
-                java.util.logging.Logger.getLogger(ManagerCtrl.class.getName()).log(Level.SEVERE, null, ex);
             } catch (IOException ex) {
+                view.showMessage(L10n.getString("error.gameexecutable"), L10n.getString("error.gameexecutable"), JOptionPane.WARNING_MESSAGE);
+                logger.error("Unable to launch HoN. " + ex.getMessage(), ex);
             }
         }
     }

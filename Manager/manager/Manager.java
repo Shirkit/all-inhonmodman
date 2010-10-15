@@ -1280,7 +1280,7 @@ public class Manager extends Observable {
 
         if (!applyOrder.isEmpty()) {
             if (!outputToFolderTree) {
-                ZIP.createZIP(tempFolder.getAbsolutePath(), targetZip.getAbsolutePath());
+                ZIP.createZIP(tempFolder.getAbsolutePath(), targetZip.getAbsolutePath(), "All-In HonModManager");
             } else {
                 deleteFolderTree();
                 FileUtils.copyFolderToFolder(tempFolder, new File(ManagerOptions.getInstance().getGamePath() + File.separator + "game"));
