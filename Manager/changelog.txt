@@ -93,3 +93,8 @@
 - Mod developers can now use a Insert action after a Delete. Although the developer should use the Replace action in this case, but this shall be allowed from now on.
 - '\' inside editfile's path will be replaced with '/' to avoid mistakes. File separators inside ZIP files need to be represented with '/', but since this can be fixed, it will be.
 - Added ability to navigate through the mod list in using the keyboard (Arrow keys to go up or down, Enter or Space to enable/disable mod).
+
+[b]0.7.2 alpha:[/b]
+- Fixed bug I had generated while searching for strings. Example: 12345678905. If I search for 5, I would stop on the first 5. But on a second search, I was starting the search on the same position again, so it would return the same 5, not the next one.
+- Fixed a pop-up message with wrong reference.
+- Rebuilt the project for relaunch. Hope this will fix issues with some users.

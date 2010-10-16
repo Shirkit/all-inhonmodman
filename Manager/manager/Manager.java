@@ -179,7 +179,11 @@ public class Manager extends Observable {
         if (f.exists()) {
             f.delete();
         }
-        ManagerOptions.getInstance().saveOptions(new File(name));
+        f.createNewFile();
+        f.setExecutable(true);
+        f.setReadable(true);
+        f.setWritable(true);
+        ManagerOptions.getInstance().saveOptions(f);
     }
 
     /**
@@ -917,8 +921,13 @@ public class Manager extends Observable {
         }*/
 
         // Sorting by deps TODO:Need Fix
-        logger.error("Sorting by Dependencies");
+        logger.info("Sorting by Dependencies");
         left = beforeSort(afterSort(depSort(left)));
+        String s = "";
+        for (int i =0; i < left.size(); i++) {
+            s += "\n"+left.get(i).getName() + " | "+ left.get(i).getVersion();
+        }
+        logger.info(("Mods sorted. Order:" + s));
 
         /*
         // Sorting by before after
@@ -1121,7 +1130,7 @@ public class Manager extends Observable {
                                         }
                                     }
                                 } else {
-                                    cursor[0] = afterEdit.toLowerCase().indexOf(find.getContent().toLowerCase(), cursor[0]);
+                                    cursor[0] = afterEdit.toLowerCase().indexOf(find.getContent().toLowerCase(), cursor[0]+1);
                                     if (cursor[0] == -1) {
                                         // couldn't find the string, can't apply
                                         throw new StringNotFoundModActionException(mod.getName(), mod.getVersion(), (Action) find, find.getContent());
@@ -1280,6 +1289,7 @@ public class Manager extends Observable {
 
         if (!applyOrder.isEmpty()) {
             if (!outputToFolderTree) {
+                deleteFolderTree();
                 ZIP.createZIP(tempFolder.getAbsolutePath(), targetZip.getAbsolutePath(), "All-In HonModManager");
             } else {
                 deleteFolderTree();

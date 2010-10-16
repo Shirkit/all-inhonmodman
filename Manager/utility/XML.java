@@ -186,8 +186,10 @@ public class XML {
 
         temp = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + temp;
 
-        FileOutputStream fos = new FileOutputStream(where);
+        FileOutputStream fos = new FileOutputStream(where, false);
         fos.write(temp.getBytes("UTF-8"));
+        fos.flush();
+        fos.close();
     }
 
     /**

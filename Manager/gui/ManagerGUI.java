@@ -986,20 +986,25 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
             // TODO: fix this bug
         }
 
-        if (model.getColumnsWidth() != null) {
-            if (model.getColumnsWidth().size() != tableModList.getColumnModel().getColumnCount()) {
-                // If we change the interface (columns number from one version to another), nothing else will need to be done =]
-                model.setColumnsWidth(null);
-            } else {
-                int i = 0;
-                Iterator<Integer> it = ManagerOptions.getInstance().getColumnsWidth().iterator();
-                while (it.hasNext()) {
-                    Integer integer = it.next();
-                    tableModList.getColumnModel().getColumn(i).setWidth(integer);
-                    tableModList.getColumnModel().getColumn(i).setPreferredWidth(integer);
-                    i++;
+        try {
+            if (model.getColumnsWidth() != null) {
+                if (model.getColumnsWidth().size() != tableModList.getColumnModel().getColumnCount()) {
+                    // If we change the interface (columns number from one version to another), nothing else will need to be done =]
+                    model.setColumnsWidth(null);
+                } else {
+                    int i = 0;
+                    Iterator<Integer> it = ManagerOptions.getInstance().getColumnsWidth().iterator();
+                    while (it.hasNext()) {
+                        Integer integer = it.next();
+                        tableModList.getColumnModel().getColumn(i).setWidth(integer);
+                        tableModList.getColumnModel().getColumn(i).setPreferredWidth(integer);
+                        i++;
+                    }
                 }
             }
+        } catch (NullPointerException e) {
+            // I really don't know why is this throwing NullPointException when there is no managerOptions.xml file, but this will solve for now
+            // TODO: fix this bug
         }
 
         // Restore selected row
