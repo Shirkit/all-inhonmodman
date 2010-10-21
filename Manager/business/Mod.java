@@ -111,7 +111,11 @@ public class Mod {
      * @return the array list of the actions.
      */
     public ArrayList<Action> getActions() {
-        return actions;
+        if (actions != null) {
+            return actions;
+        } else {
+            return actions = new ArrayList<Action>();
+        }
     }
 
     /**
@@ -123,6 +127,9 @@ public class Mod {
     public ArrayList<Action> getActions(String type) {
         Action act;
         ArrayList<Action> typeActions = new ArrayList<Action>();
+        if (actions == null) {
+            actions = new ArrayList<Action>();
+        }
         for (Iterator actionsIter = actions.iterator(); actionsIter.hasNext();) {
             act = (Action) actionsIter.next();
             if (act.getClass() == getTypeActionClass(type)) {

@@ -26,6 +26,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import utility.FileUtils;
+import utility.StdOutErrLog;
 import utility.update.UpdateManager;
 
 /**
@@ -62,6 +63,7 @@ public class ManagerApp extends SingleFrameApplication {
         }
         PropertyConfigurator.configure(props);
         // Load l10n
+        StdOutErrLog.tieSystemErrToLog();
         logger = Logger.getLogger(this.getClass().getPackage().getName());
         logger.info("\n\n------------------------------------------------------------------------------------------------------------------------");
         DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy - HH:mm:ss");
@@ -81,7 +83,11 @@ public class ManagerApp extends SingleFrameApplication {
         ExecutorService pool = Executors.newCachedThreadPool();
         Future<Boolean> hasUpdate = pool.submit(new UpdateManager());
 
-        ctrl = new ManagerCtrl();
+        try {
+            ctrl = new ManagerCtrl();
+        } catch (Exception e) {
+            logger.error("Error while starting the manager. " + e.getClass() + " | " + e.getCause() + " | " + e.getMessage(), e);
+        }
 
         File updaterJar = new File(System.getProperty("user.dir") + File.separator + "Updater.jar");
         if (updaterJar.exists()) {

@@ -33,7 +33,9 @@ public class ZIP {
      * @throws FileNotFoundException if a file is missing. Use the Exception.getMessage(). Or the zip file wasn't found, or the filename wasn't found inside the zip.
      * @throws ZipException if a random ZipException occourred.
      */
-    public static byte[] getFile(File zip, String filename) throws FileNotFoundException, ZipException, IOException {
+    public static byte[] getFile(File zip, String fileName) throws FileNotFoundException, ZipException, IOException {
+        String filename = fileName;
+
         if (!zip.exists()) {
             throw new FileNotFoundException(zip.getName());
         }

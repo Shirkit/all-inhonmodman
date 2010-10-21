@@ -601,6 +601,7 @@ public class ManagerCtrl implements Observer {
 
     class ModTableKeyListener implements KeyListener {
 
+        // Don't change this
         public void keyTyped(KeyEvent e) {
             view.getModListTable().changeSelection(view.getModListTable().getSelectedRow(), 0, false, false);
             if (e.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -608,15 +609,19 @@ public class ManagerCtrl implements Observer {
             }
         }
 
+        // This can be edited
         public void keyPressed(KeyEvent e) {
             view.getModListTable().changeSelection(view.getModListTable().getSelectedRow(), 0, false, false);
             if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                 enableMod(view.getSelectedMod());
                 model.updateNotify();
                 e.consume();
+            } else if (e.getKeyCode() == KeyEvent.VK_DELETE) {
+                deleteSelectedMod();
             }
         }
 
+        // Don't change this
         public void keyReleased(KeyEvent e) {
             view.getModListTable().changeSelection(view.getModListTable().getSelectedRow(), 0, false, false);
             if (e.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -633,10 +638,6 @@ public class ManagerCtrl implements Observer {
             Mod mod = view.getSelectedMod();
             ArrayList<Mod> toUpdate = new ArrayList<Mod>();
             toUpdate.add(mod);
-
-            //view.getProgressBar().setVisible(true);
-            //view.getProgressBar().setMaximum(toUpdate.size());
-            //view.getProgressBar().paint(view.getProgressBar().getGraphics());
             UpdateReturn things = null;
             things = controller.updateMod(toUpdate);
             if (!things.getFailedModList().isEmpty()) {
@@ -647,7 +648,6 @@ public class ManagerCtrl implements Observer {
                 view.showMessage(L10n.getString("message.update.updated").replace("#mod#", things.getUpdatedModList().get(0).getName()).replace("#olderversion#", things.getOlderVersion(mod)).replace("#newversion#", mod.getVersion()), L10n.getString("message.update.title"), JOptionPane.INFORMATION_MESSAGE);
             }
             model.updateNotify();
-            //view.getProgressBar().setValue(0);
         }
     }
 
@@ -667,10 +667,18 @@ public class ManagerCtrl implements Observer {
     class DeleteModListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
+            deleteSelectedMod();
+        }
+    }
+
+    public void deleteSelectedMod() {
             Mod m = view.getSelectedMod();
+        if (JOptionPane.showConfirmDialog(view, L10n.getString("question.deletemod").replace("#mod#", m.getName()), L10n.getString("question.deletemod.title"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == 0) {
+            // Yes
             view.deleteSelectedMod();
             File f = new File(m.getPath());
             if (!f.delete()) {
+                System.out.println(f.getAbsolutePath());
                 view.showMessage("Failed to delete file", "Failed", JOptionPane.ERROR_MESSAGE);
             }
         }
@@ -700,18 +708,22 @@ public class ManagerCtrl implements Observer {
                     //message += mod.getName() + " was updated from " + things.getOlderVersion(mod) + " to " + mod.getVersion() + "\n";
                 }
                 message += "\n\n";
+            } else {
+                message = L10n.getString("message.update.uptodate");
             }
-            it = things.getUpToDateModList().iterator();
-            if (it.hasNext()) {
-                message += L10n.getString("message.update.uptodate") + " \n\n";
-            }
-
+//            it = things.getUpToDateModList().iterator();
+//            if (it.hasNext()) {
+//                message += L10n.getString("message.update.uptodate") + " \n\n";
+//            }
             it = things.getFailedModList().iterator();
             if (it.hasNext()) {
-                message += L10n.getString("message.update.failed") + "\n\n";
+                if (!message.isEmpty()) {
+                    message += "\n\n";
+                }
+                message += L10n.getString("message.update.failed") + "\n";
                 while (it.hasNext()) {
                     Mod mod = it.next();
-                    message += mod.getName() + " (" + things.getException(mod).getLocalizedMessage() + ")\n";
+                    message += "- " + mod.getName() + " (" + things.getException(mod).getLocalizedMessage() + ")\n";
                 }
             }
             view.showMessage(message, L10n.getString("message.update.title"), JOptionPane.INFORMATION_MESSAGE);
@@ -1090,10 +1102,10 @@ public class ManagerCtrl implements Observer {
             logger.error("Error applying mods. A unknown action was found. This message should never be logged.", ex);
             view.showMessage(L10n.getString("error.modcantapply").replace("#mod#", ex.getName()), L10n.getString("error.modcantapply.title"), JOptionPane.ERROR_MESSAGE);
         } catch (SecurityException ex) {
-            logger.error("Error applying mods. Security exception found, couldn't do some operations that were needed.", ex);
+            logger.error("Error applying mods. Security exception found, couldn't do some operations that were needed. " + ex.getClass(), ex);
             view.showMessage("Random error. Please, report it to the software developers", "Random error", JOptionPane.ERROR_MESSAGE);
         } catch (IOException ex) {
-            logger.error("Error applying mods. A random I/O exception was thrown, can't apply.", ex);
+            logger.error("Error applying mods. A random I/O exception was thrown, can't apply. " + ex.getClass(), ex);
             view.showMessage("Random error. Please, report it to the software developers", "Random error", JOptionPane.ERROR_MESSAGE);
         } finally {
             view.getProgressBar().setValue(0);

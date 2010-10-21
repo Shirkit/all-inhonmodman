@@ -114,7 +114,7 @@ public class XML {
 
     public static Mod xmlToMod(String fileString, ShirkitDriver driver) throws FileNotFoundException {
 
-        XStream xstream = new XStream(getDriver());
+        XStream xstream = new XStream(driver);
         xstream = updateAlias(xstream);
         Mod m = (Mod) xstream.fromXML(fileString);
         return removeRequiredMods(m);

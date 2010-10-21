@@ -96,5 +96,17 @@
 
 [b]0.7.2 alpha:[/b]
 - Fixed bug I had generated while searching for strings. Example: 12345678905. If I search for 5, I would stop on the first 5. But on a second search, I was starting the search on the same position again, so it would return the same 5, not the next one.
-- Fixed a pop-up message with wrong reference.
+- Fixed a pop-up message with   wrong reference.
 - Rebuilt the project for relaunch. Hope this will fix issues with some users.
+
+[b]0.7.3 alpha:[/b]
+- Pressing 'Delete' button now delets a mod.
+- Fixed a bug that would turn the into 0KB if you click to 'Add Mod' button and it already exists.
+- Added some more logging.
+- Fixed bug that Manager deletes files from the places you added the mods, not in the game/mods folder.
+- Updated some strings (Thanks to Awan`Afuqya).
+- Fixed bug while using the manager and Mod Options Framework and Movable Frames dummy files. Finally found what was messeing the Manager up. Thanks to MaxGhost and theli's conversation, I found out the problem.
+
+[b]0.7.4 alpha:[/b]
+- Improved logging methods to handle uncatch exceptions. This will make logging avaluation much easier if unknow exceptions are found.
+- Fixed problem with UTF-16. Although no mod developer should use it, since the specification is meant to be UTF-8, the manager can now read UTF-16 without problems.

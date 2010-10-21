@@ -2,6 +2,7 @@ package manager;
 
 import business.ManagerOptions;
 import business.Mod;
+import business.ShirkitDriver;
 import business.actions.*;
 
 import java.util.concurrent.ExecutionException;
@@ -28,6 +29,7 @@ import java.util.Random;
 import com.mallardsoft.tuple.*;
 import com.thoughtworks.xstream.converters.ConversionException;
 import com.thoughtworks.xstream.io.StreamException;
+import java.io.FileInputStream;
 import java.nio.channels.FileLockInterruptionException;
 
 import java.security.InvalidParameterException;
@@ -129,45 +131,47 @@ public class Manager extends Observable {
 
         // Now building the graph
         for (int i = 0; i < mods.size(); i++) {
-            for (int j = 0; j < mods.get(i).getActions().size(); j++) {
-                // ApplyAfter
-                if (mods.get(i).getActions().get(j).getClass() == ActionApplyAfter.class) {
-                    //Pair<String, String> afteri = Tuple.from(((ActionApplyAfter) mods.get(i).getActions().get(j)).getName(),
-                    //        ((ActionApplyAfter) mods.get(i).getActions().get(j)).getVersion());
+            if (mods.get(i).getActions() != null) {
+                for (int j = 0; j < mods.get(i).getActions().size(); j++) {
+                    // ApplyAfter
+                    if (mods.get(i).getActions().get(j).getClass() == ActionApplyAfter.class) {
+                        //Pair<String, String> afteri = Tuple.from(((ActionApplyAfter) mods.get(i).getActions().get(j)).getName(),
+                        //        ((ActionApplyAfter) mods.get(i).getActions().get(j)).getVersion());
 
-                    if (!after.containsKey(mods.get(i))) {
-                        after.put(mods.get(i), new HashMap<String, String>());
+                        if (!after.containsKey(mods.get(i))) {
+                            after.put(mods.get(i), new HashMap<String, String>());
+                        }
+                        after.get(mods.get(i)).put(((ActionApplyAfter) mods.get(i).getActions().get(j)).getName(), ((ActionApplyAfter) mods.get(i).getActions().get(j)).getVersion());
+                        // ApplyBefore
+                    } else if (mods.get(i).getActions().get(j).getClass() == ActionApplyBefore.class) {
+                        //Pair<String, String> beforei = Tuple.from(((ActionApplyBefore) mods.get(i).getActions().get(j)).getName(),
+                        //        ((ActionApplyBefore) mods.get(i).getActions().get(j)).getVersion());
+
+                        if (!before.containsKey(mods.get(i))) {
+                            before.put(mods.get(i), new HashMap<String, String>());
+                        }
+                        before.get(mods.get(i)).put(((ActionApplyBefore) mods.get(i).getActions().get(j)).getName(), ((ActionApplyBefore) mods.get(i).getActions().get(j)).getVersion());
+                        // ApplyIncompatibility
+                    } else if (mods.get(i).getActions().get(j).getClass() == ActionIncompatibility.class) {
+                        //Pair<String, String> coni = Tuple.from(((ActionIncompatibility) mods.get(i).getActions().get(j)).getName(),
+                        //        ((ActionIncompatibility) mods.get(i).getActions().get(j)).getVersion());
+                        //Pair<String, String> myi = Tuple.from(mods.get(i).getName(), mods.get(i).getVersion());
+                        //Set<Pair<String, String>> conSet = new HashSet<Pair<String, String>>();
+
+                        HashMap<String, String> mapping = new HashMap<String, String>();
+                        mapping.put(mods.get(i).getName(), mods.get(i).getVersion());
+                        mapping.put(((ActionIncompatibility) mods.get(i).getActions().get(j)).getName(), ((ActionIncompatibility) mods.get(i).getActions().get(j)).getVersion());
+                        cons.add(mapping);
+                        // ApplyRequirement
+                    } else if (mods.get(i).getActions().get(j).getClass() == ActionRequirement.class) {
+                        //Pair<String, String> depi = Tuple.from(((ActionRequirement) mods.get(i).getActions().get(j)).getName(),
+                        //        ((ActionRequirement) mods.get(i).getActions().get(j)).getVersion());
+
+                        if (!deps.containsKey(mods.get(i))) {
+                            deps.put(mods.get(i), new HashMap<String, String>());
+                        }
+                        deps.get(mods.get(i)).put(((ActionRequirement) mods.get(i).getActions().get(j)).getName(), ((ActionRequirement) mods.get(i).getActions().get(j)).getVersion());
                     }
-                    after.get(mods.get(i)).put(((ActionApplyAfter) mods.get(i).getActions().get(j)).getName(), ((ActionApplyAfter) mods.get(i).getActions().get(j)).getVersion());
-                    // ApplyBefore
-                } else if (mods.get(i).getActions().get(j).getClass() == ActionApplyBefore.class) {
-                    //Pair<String, String> beforei = Tuple.from(((ActionApplyBefore) mods.get(i).getActions().get(j)).getName(),
-                    //        ((ActionApplyBefore) mods.get(i).getActions().get(j)).getVersion());
-
-                    if (!before.containsKey(mods.get(i))) {
-                        before.put(mods.get(i), new HashMap<String, String>());
-                    }
-                    before.get(mods.get(i)).put(((ActionApplyBefore) mods.get(i).getActions().get(j)).getName(), ((ActionApplyBefore) mods.get(i).getActions().get(j)).getVersion());
-                    // ApplyIncompatibility
-                } else if (mods.get(i).getActions().get(j).getClass() == ActionIncompatibility.class) {
-                    //Pair<String, String> coni = Tuple.from(((ActionIncompatibility) mods.get(i).getActions().get(j)).getName(),
-                    //        ((ActionIncompatibility) mods.get(i).getActions().get(j)).getVersion());
-                    //Pair<String, String> myi = Tuple.from(mods.get(i).getName(), mods.get(i).getVersion()); 
-                    //Set<Pair<String, String>> conSet = new HashSet<Pair<String, String>>();
-
-                    HashMap<String, String> mapping = new HashMap<String, String>();
-                    mapping.put(mods.get(i).getName(), mods.get(i).getVersion());
-                    mapping.put(((ActionIncompatibility) mods.get(i).getActions().get(j)).getName(), ((ActionIncompatibility) mods.get(i).getActions().get(j)).getVersion());
-                    cons.add(mapping);
-                    // ApplyRequirement
-                } else if (mods.get(i).getActions().get(j).getClass() == ActionRequirement.class) {
-                    //Pair<String, String> depi = Tuple.from(((ActionRequirement) mods.get(i).getActions().get(j)).getName(),
-                    //        ((ActionRequirement) mods.get(i).getActions().get(j)).getVersion());
-
-                    if (!deps.containsKey(mods.get(i))) {
-                        deps.put(mods.get(i), new HashMap<String, String>());
-                    }
-                    deps.get(mods.get(i)).put(((ActionRequirement) mods.get(i).getActions().get(j)).getName(), ((ActionRequirement) mods.get(i).getActions().get(j)).getVersion());
                 }
             }
         }
@@ -352,6 +356,7 @@ public class Manager extends Observable {
             xml = new String(ZIP.getFile(honmod, Mod.MOD_FILENAME), "UTF-8");
         } catch (ZipException ex) {
             list.add(Tuple.from(honmod.getName(), "zip"));
+            logger.error(ex);
             throw new ModZipException(list);
         }
         Mod m = null;
@@ -361,8 +366,17 @@ public class Manager extends Observable {
             try {
                 m = XML.xmlToMod(xml.substring(1));
             } catch (StreamException ex1) {
-                list.add(Tuple.from(honmod.getName(), "stream"));
-                throw new ModStreamException(list);
+                try {
+                    xml = new String(ZIP.getFile(honmod, Mod.MOD_FILENAME), "UTF-16");
+                    m = XML.xmlToMod(xml, new ShirkitDriver("UTF-16"));
+                } catch (StreamException ex2) {
+                    try {
+                        m = XML.xmlToMod(xml.substring(1), new ShirkitDriver("UTF-16"));
+                    } catch (StreamException ex3) {
+                        list.add(Tuple.from(honmod.getName(), "stream"));
+                        throw new ModStreamException(list);
+                    }
+                }
             }
         }
         m.setPath(honmod.getAbsolutePath());
@@ -387,10 +401,12 @@ public class Manager extends Observable {
         m.setIcon(icon);
         logger.info("Mod file opened. Mod name: " + m.getName());
         m.setId(0);
-        if (copy) {
+        if (copy && !(new File(ManagerOptions.getInstance().getModPath() + File.separator + honmod.getName()).exists())) {
             // Copy the honmod file to mods directory
-            FileUtils.copyFile(honmod, new File(ManagerOptions.getInstance().getModPath() + File.separator + honmod.getName()));
+            File f = new File(ManagerOptions.getInstance().getModPath() + File.separator + honmod.getName());
+            FileUtils.copyFile(honmod, f);
             logger.info("Mod file copied to mods older");
+            m.setPath(f.getAbsolutePath());
         }
         addMod(m);
     }
@@ -924,8 +940,8 @@ public class Manager extends Observable {
         logger.info("Sorting by Dependencies");
         left = beforeSort(afterSort(depSort(left)));
         String s = "";
-        for (int i =0; i < left.size(); i++) {
-            s += "\n"+left.get(i).getName() + " | "+ left.get(i).getVersion();
+        for (int i = 0; i < left.size(); i++) {
+            s += "\n" + left.get(i).getName() + " | " + left.get(i).getVersion();
         }
         logger.info(("Mods sorted. Order:" + s));
 
@@ -1130,7 +1146,7 @@ public class Manager extends Observable {
                                         }
                                     }
                                 } else {
-                                    cursor[0] = afterEdit.toLowerCase().indexOf(find.getContent().toLowerCase(), cursor[0]+1);
+                                    cursor[0] = afterEdit.toLowerCase().indexOf(find.getContent().toLowerCase(), cursor[0] + 1);
                                     if (cursor[0] == -1) {
                                         // couldn't find the string, can't apply
                                         throw new StringNotFoundModActionException(mod.getName(), mod.getVersion(), (Action) find, find.getContent());
