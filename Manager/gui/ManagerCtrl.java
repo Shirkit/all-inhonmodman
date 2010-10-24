@@ -2,7 +2,6 @@ package gui;
 
 import java.awt.event.ComponentEvent;
 import java.util.Observable;
-import java.util.logging.Level;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.TableColumnModelEvent;
 import javax.swing.event.TableColumnModelListener;
@@ -24,7 +23,10 @@ import gui.l10n.L10n;
 import business.ManagerOptions;
 import business.Mod;
 import com.thoughtworks.xstream.io.StreamException;
+import java.awt.Component;
 import java.awt.event.ComponentListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -52,14 +54,20 @@ import java.util.NoSuchElementException;
 import java.util.Observer;
 import java.util.Set;
 import java.util.prefs.Preferences;
+import javax.swing.AbstractButton;
+import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import utility.Game;
 import utility.exception.InvalidModActionParameterException;
@@ -103,7 +111,6 @@ public class ManagerCtrl implements Observer {
         try {
             controller.loadOptions();
         } catch (StreamException e) {
-            e.printStackTrace();
             logger.error("StreamException from loadOptions()", e);
             // Mod options is invalid, must be deleted
         } catch (FileNotFoundException e) {
@@ -131,6 +138,7 @@ public class ManagerCtrl implements Observer {
                 }
             }
         }
+
         view.setVisible(true);
         loadMods();
 
@@ -173,11 +181,134 @@ public class ManagerCtrl implements Observer {
         view.getButtonViewModDetails().addActionListener(new ButtonViewModChangelogListener());
         view.getButtonLaunchHon().addActionListener(new LaunchHonButton());
         view.getModListTable().addKeyListener(new ModTableKeyListener());
+        view.getModListTable().getColumnModel().getColumn(0).setHeaderRenderer(new CheckBoxHeader(new MyItemListener()));
         // Add file drop functionality
         new FileDrop(view, new DropListener());
         // End Add listeners
 
         logger.info("ManagerCtrl started");
+
+    }
+
+    public class CheckBoxHeader extends JCheckBox implements TableCellRenderer, MouseListener {
+
+        protected CheckBoxHeader rendererComponent;
+        protected int column;
+        protected boolean mousePressed = false;
+
+        public CheckBoxHeader(ItemListener itemListener) {
+            rendererComponent = this;
+            rendererComponent.addItemListener(itemListener);
+        }
+
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            if (table != null) {
+                JTableHeader header = table.getTableHeader();
+                if (header != null) {
+                    rendererComponent.setForeground(header.getForeground());
+                    rendererComponent.setBackground(header.getBackground());
+                    rendererComponent.setFont(header.getFont());
+                    header.addMouseListener(rendererComponent);
+                }
+            }
+            setColumn(column);
+            //setBorder(UIManager.getBorder("TableHeader.cellBorder"));
+            rendererComponent.setHorizontalAlignment(SwingConstants.CENTER);
+            return rendererComponent;
+        }
+
+        protected void setColumn(int column) {
+            this.column = column;
+        }
+
+        public int getColumn() {
+            return column;
+        }
+
+        protected void handleClickEvent(MouseEvent e) {
+            if (mousePressed && !totalDisable) {
+                mousePressed = false;
+                JTableHeader header = (JTableHeader) (e.getSource());
+                JTable tableView = header.getTable();
+                TableColumnModel columnModel = tableView.getColumnModel();
+                int viewColumn = columnModel.getColumnIndexAtX(e.getX());
+                int column = tableView.convertColumnIndexToModel(viewColumn);
+
+                boolean isToDisable = true;
+                if (viewColumn == this.column && e.getClickCount() == 1 && column != -1) {
+                    Iterator<Mod> it = ManagerOptions.getInstance().getMods().iterator();
+                    while (it.hasNext()) {
+                        if (!it.next().isEnabled()) {
+                            isToDisable = false;
+                        }
+                    }
+                    for (int k = 0; k < 5; k++) {
+                        for (int i = 0; i < ManagerOptions.getInstance().getMods().size(); i++) {
+                            Mod m = ManagerOptions.getInstance().getMods().get(i);
+                            if (!isToDisable) {
+                                try {
+                                    controller.enableMod(m, ManagerOptions.getInstance().isIgnoreGameVersion());
+                                    //logger.info("Mod '" + m.getName() + "' has been ENABLED");
+                                } catch (Exception ex) {
+                                }
+                            } else {
+                                try {
+                                    controller.disableMod(m);
+                                    //logger.info("Mod '" + m.getName() + "' has been DISABLED");
+                                } catch (Exception ex) {
+                                }
+                            }
+                        }
+                        view.updateModTable();
+                    }
+                }
+                CheckBoxHeader c = new CheckBoxHeader(new MyItemListener());
+                view.getModListTable().getColumnModel().getColumn(0).setHeaderRenderer(c);
+                try {
+                    this.finalize();
+                } catch (Throwable ex) {
+                }
+            }
+        }
+        boolean totalDisable = false;
+
+        @Override
+        protected void finalize() throws Throwable {
+            totalDisable = true;
+            super.finalize();
+        }
+
+        public void mouseClicked(MouseEvent e) {
+            handleClickEvent(e);
+            ((JTableHeader) e.getSource()).repaint();
+        }
+
+        public void mousePressed(MouseEvent e) {
+        }
+
+        public void mouseReleased(MouseEvent e) {
+            mousePressed = true;
+        }
+
+        public void mouseEntered(MouseEvent e) {
+        }
+
+        public void mouseExited(MouseEvent e) {
+        }
+    }
+
+    public class MyItemListener implements ItemListener {
+
+        public void itemStateChanged(ItemEvent e) {
+            Object source = e.getSource();
+            if (source instanceof AbstractButton == false) {
+                return;
+            }
+            boolean checked = e.getStateChange() == ItemEvent.SELECTED;
+            for (int x = 0, y = view.getModListTable().getRowCount(); x < y; x++) {
+                view.getModListTable().setValueAt(new Boolean(checked), x, 0);
+            }
+        }
     }
 
     /**
@@ -219,7 +350,6 @@ public class ManagerCtrl implements Observer {
             view.getPrefsDialog().pack();
         } catch (Exception ex) {
             logger.warn("Unable to change Look and feel: " + ex.getMessage());
-            ex.printStackTrace();
             //TODO: some error message?
         }
     }
@@ -236,12 +366,7 @@ public class ManagerCtrl implements Observer {
     private void loadMods() {
         try {
             ArrayList<ArrayList<Pair<String, String>>> exs = controller.loadMods();
-            try {
-                controller.buildGraphs();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-                logger.error("IOException from buildGraphs()", ex);
-            }
+            controller.buildGraphs();
             Set<Mod> newApplied = new HashSet<Mod>();
             Iterator<Mod> applied = ManagerOptions.getInstance().getAppliedMods().iterator();
             while (applied.hasNext()) {
@@ -672,7 +797,7 @@ public class ManagerCtrl implements Observer {
     }
 
     public void deleteSelectedMod() {
-            Mod m = view.getSelectedMod();
+        Mod m = view.getSelectedMod();
         if (JOptionPane.showConfirmDialog(view, L10n.getString("question.deletemod").replace("#mod#", m.getName()), L10n.getString("question.deletemod.title"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == 0) {
             // Yes
             view.deleteSelectedMod();
@@ -687,6 +812,7 @@ public class ManagerCtrl implements Observer {
     class DownloadModUpdatesListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
+            view.setStatusMessage("Updating mods", true);
             view.getProgressBar().setVisible(true);
             view.getProgressBar().setStringPainted(true);
             ArrayList<Mod> toUpdate = new ArrayList<Mod>();
@@ -696,6 +822,7 @@ public class ManagerCtrl implements Observer {
             }
             view.getProgressBar().setMaximum(toUpdate.size());
             view.getProgressBar().paint(view.getProgressBar().getGraphics());
+            view.paint(view.getGraphics());
             UpdateReturn things = null;
             things = controller.updateMod(toUpdate);
             it = things.getUpdatedModList().iterator();
@@ -726,10 +853,10 @@ public class ManagerCtrl implements Observer {
                     message += "- " + mod.getName() + " (" + things.getException(mod).getLocalizedMessage() + ")\n";
                 }
             }
-            view.showMessage(message, L10n.getString("message.update.title"), JOptionPane.INFORMATION_MESSAGE);
             view.getProgressBar().setValue(0);
             view.getProgressBar().setStringPainted(false);
             view.updateModTable();
+            view.showMessage(message, L10n.getString("message.update.title"), JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
@@ -1080,9 +1207,11 @@ public class ManagerCtrl implements Observer {
                 }
             }
             count = count + 3;
+            view.setStatusMessage("Applying mods", true);
             view.getProgressBar().setStringPainted(true);
             view.getProgressBar().setMaximum(count);
             view.getProgressBar().paint(view.getProgressBar().getGraphics());
+            view.paint(view.getGraphics());
             controller.applyMods(ManagerOptions.getInstance().isDeveloperMode());
             view.showMessage(L10n.getString("message.modsapplied"), L10n.getString("message.modsapplied.title"), JOptionPane.INFORMATION_MESSAGE);
         } catch (FileLockInterruptionException ex) {
@@ -1133,7 +1262,6 @@ public class ManagerCtrl implements Observer {
                 Manager.getInstance().saveOptions();
             } catch (IOException e1) {
                 logger.error("Unable to save options");
-                e1.printStackTrace();
             }
             logger.info("Closing HonModManager...");
             System.exit(0);
@@ -1144,12 +1272,12 @@ public class ManagerCtrl implements Observer {
             boolean hasUnapplied = false;
             while (it.hasNext()) {
                 Mod mod = it.next();
-                if (mod.isEnabled() && !ManagerOptions.getInstance().getAppliedMods().contains(mod)) {
+                if ((mod.isEnabled() && !ManagerOptions.getInstance().getAppliedMods().contains(mod)) || (!mod.isEnabled() && ManagerOptions.getInstance().getAppliedMods().contains(mod))) {
                     hasUnapplied = true;
                 }
             }
             if (hasUnapplied) {
-                int option = JOptionPane.showConfirmDialog(view, L10n.getString("message.unappliedmods"), L10n.getString("message.unappliedmods.title"), JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+                int option = JOptionPane.showConfirmDialog(view, L10n.getString("message.unappliedmods"), L10n.getString("message.unappliedmods.title"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
                 if (option == 0) {
                     // Yes
                     applyMods();

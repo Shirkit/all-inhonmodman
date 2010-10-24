@@ -65,7 +65,7 @@ public class ManagerApp extends SingleFrameApplication {
         // Load l10n
         StdOutErrLog.tieSystemErrToLog();
         logger = Logger.getLogger(this.getClass().getPackage().getName());
-        logger.info("\n\n------------------------------------------------------------------------------------------------------------------------");
+        logger.info("------------------------------------------------------------------------------------------------------------------------");
         DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy - HH:mm:ss");
         Date date = new Date();
         logger.info("HonMod manager is starting.");
@@ -77,7 +77,7 @@ public class ManagerApp extends SingleFrameApplication {
             L10n.load();
         } catch (IOException ex) {
         }
-        logger.info("\n------------------------------------------------------------------------------------------------------------------------\n");
+        logger.info("------------------------------------------------------------------------------------------------------------------------");
 
         // Look for Manager update
         ExecutorService pool = Executors.newCachedThreadPool();
@@ -115,8 +115,8 @@ public class ManagerApp extends SingleFrameApplication {
                         } catch (URISyntaxException ex) {
                         }
                         String updaterPath = System.getProperty("user.dir") + File.separator + "Updater.jar";
-                        Process updater = Runtime.getRuntime().exec("java -jar " + updaterPath + " " + currentJar + " " + ManagerOptions.MANAGER_DOWNLOAD_URL);
-                        System.out.println("java -jar " + updaterPath + " " + currentJar + " " + ManagerOptions.MANAGER_DOWNLOAD_URL);
+                        logger.info("Updating manager. java -jar " + updaterPath + " " + currentJar + " " + ManagerOptions.MANAGER_DOWNLOAD_URL + " " + updaterPath);
+                        Process updater = Runtime.getRuntime().exec("java -jar " + updaterPath + " " + currentJar + " " + ManagerOptions.MANAGER_DOWNLOAD_URL + " " + updaterPath);
                         System.exit(0);
                     } catch (IOException ex) {
                     }

@@ -121,7 +121,7 @@ public class Manager extends Observable {
      * This should be called after adding all the honmod files to build and initialize the arrays
      * @throws IOException
      */
-    public void buildGraphs() throws IOException {
+    public void buildGraphs() {
         // First reset all new added mods from startup
         for (int i = 0; i < ManagerOptions.getInstance().getMods().size(); i++) {
             ManagerOptions.getInstance().getMods().get(i).disable();
@@ -943,7 +943,6 @@ public class Manager extends Observable {
         for (int i = 0; i < left.size(); i++) {
             s += "\n" + left.get(i).getName() + " | " + left.get(i).getVersion();
         }
-        logger.info(("Mods sorted. Order:" + s));
 
         /*
         // Sorting by before after
@@ -1074,6 +1073,7 @@ public class Manager extends Observable {
                     }
                 } else if (action.getClass().equals(ActionEditFile.class)) {
                     ActionEditFile editfile = (ActionEditFile) action;
+                    System.out.println("Editfile=" + editfile.getName());
                     if (!isValidCondition(action)) {
                         // condition isn't valid, can't apply
                         // No need to throw execption, since if condition isn't valid, this action won't be applied
@@ -1121,21 +1121,20 @@ public class Manager extends Observable {
                                 // Find Action
                             } else if (editFileAction.getClass().equals(ActionEditFileFind.class)) {
                                 ActionEditFileFind find = (ActionEditFileFind) editFileAction;
+                                System.out.println("Find" + find.getContent());
                                 cursor = new int[]{cursor[0]};
                                 cursor2 = new int[]{cursor2[0]};
+                                boolean search = true;
                                 if (find.getPosition() != null) {
                                     if (find.isPositionAtEnd()) {
                                         cursor[0] = afterEdit.length();
                                         cursor2[0] = cursor[0];
-                                        isSelected = true;
-                                        lastIsDelete = false;
                                     } else if (find.isPositionAtStart()) {
                                         cursor[0] = 0;
                                         cursor2[0] = 0;
-                                        isSelected = true;
-                                        lastIsDelete = false;
                                     } else {
                                         try {
+                                            search = false;
                                             cursor[0] = cursor[0] + Integer.parseInt(find.getPosition());
                                             cursor2[0] = cursor[0];
                                             isSelected = true;
@@ -1145,7 +1144,9 @@ public class Manager extends Observable {
                                             throw new InvalidModActionParameterException(mod.getName(), mod.getVersion(), (Action) find);
                                         }
                                     }
-                                } else {
+                                }
+                                if (search) {
+                                    System.out.println(afterEdit.substring(cursor[0], cursor2[0]));
                                     cursor[0] = afterEdit.toLowerCase().indexOf(find.getContent().toLowerCase(), cursor[0] + 1);
                                     if (cursor[0] == -1) {
                                         // couldn't find the string, can't apply
@@ -1155,7 +1156,6 @@ public class Manager extends Observable {
                                     isSelected = true;
                                     lastIsDelete = false;
                                 }
-
                                 // FindUp Action
                             } else if (editFileAction.getClass().equals(ActionEditFileFindUp.class)) {
                                 ActionEditFileFindUp findup = (ActionEditFileFindUp) editFileAction;

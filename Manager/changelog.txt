@@ -110,3 +110,7 @@
 [b]0.7.4 alpha:[/b]
 - Improved logging methods to handle uncatch exceptions. This will make logging avaluation much easier if unknow exceptions are found.
 - Fixed problem with UTF-16. Although no mod developer should use it, since the specification is meant to be UTF-8, the manager can now read UTF-16 without problems.
+
+[b]0.7.5 alpha:[/b]
+- Added status message with current mod enabled and message while applying and updating mods, with 3 dots animation.
+- Fixed problem with Auto-Updater.

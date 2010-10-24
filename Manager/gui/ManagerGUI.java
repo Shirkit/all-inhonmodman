@@ -1,7 +1,7 @@
 package gui;
 
-import java.awt.Component;
 import java.util.List;
+import java.util.logging.Level;
 import javax.swing.JButton;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -28,18 +28,16 @@ import javax.swing.UIManager;
 import business.actions.Action;
 import business.actions.ActionRequirement;
 import java.awt.Color;
-import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Date;
 import java.util.Iterator;
-import javax.crypto.Cipher;
 import javax.swing.DefaultListModel;
-import javax.swing.JLabel;
 import javax.swing.JProgressBar;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableCellRenderer;
+import org.jdesktop.application.Application;
+import org.jdesktop.application.Task;
 import utility.BBCode;
 
 /**
@@ -63,6 +61,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         L10n.getString("table.modstatus")
     };
     private Object[][] tableData;
+    boolean animating = false;
 
     /**
      * Creates the main form
@@ -80,6 +79,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         UIManager.put("Synthetica.license.key", "644E94EB-97019D70-E7B56201-11EE0820-82B6C8DC");
 
         initComponents();
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         // Set application icon
         try {
             URL urlImage = this.getClass().getResource("resources/icon.png");
@@ -384,7 +384,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         popupItemMenuDeleteMod.setName("popupItemMenuDeleteMod"); // NOI18N
         rightClickTableMenu.add(popupItemMenuDeleteMod);
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle(L10n.getString("application.title"));
         setMinimumSize(new java.awt.Dimension(900, 650));
         setName("Form"); // NOI18N
@@ -646,7 +646,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         buttonLaunchHon.setName("buttonLaunchHon"); // NOI18N
         buttonLaunchHon.setPreferredSize(new java.awt.Dimension(26, 25));
 
-        labelStatus.setFont(new java.awt.Font("Tahoma", 0, 15));
+        labelStatus.setFont(new java.awt.Font("Tahoma", 0, 15)); // NOI18N
         labelStatus.setText("empty");
         labelStatus.setFocusable(false);
         labelStatus.setName("labelStatus"); // NOI18N
@@ -663,8 +663,8 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonAddMod)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(labelStatus)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(labelStatus, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonLaunchHon, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 391, Short.MAX_VALUE))
                 .addGap(18, 18, 18)
@@ -802,7 +802,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panelModList, javax.swing.GroupLayout.DEFAULT_SIZE, 739, Short.MAX_VALUE)
+            .addComponent(panelModList, javax.swing.GroupLayout.DEFAULT_SIZE, 737, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -810,7 +810,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         );
 
         java.awt.Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
-        setBounds((screenSize.width-757)/2, (screenSize.height-675)/2, 757, 675);
+        setBounds((screenSize.width-755)/2, (screenSize.height-675)/2, 755, 675);
     }// </editor-fold>//GEN-END:initComponents
 
     /**
@@ -947,6 +947,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
      * @param mods list of mods to display
      */
     public void updateModTable() {
+        animating = false;
         // Store how the table is currently sorted
         int enabled = 0, disabled = 0, applied = 0;
         Object o = tableModList.getRowSorter().getSortKeys();
@@ -1022,7 +1023,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         tableModList.getSelectionModel().setSelectionInterval(0, selectedRow);
         // Display details of selected mod
         displayModDetail();
-        setStatusMessage("<html><font color=#009900>" + (enabled + applied) + "</font>/<font color=#0033cc>" + (enabled + disabled + applied) + "</font> " + L10n.getString("status.modsenabled") + "</html>");
+        setStatusMessage("<html><font color=#009900>" + (enabled + applied) + "</font>/<font color=#0033cc>" + (enabled + disabled + applied) + "</font> " + L10n.getString("status.modsenabled") + "</html>", false);
     }
 
     /**
@@ -1148,8 +1149,40 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         buttonEnableMod.setVisible(visible);
     }
 
-    public void setStatusMessage(String status) {
+    public void setStatusMessage(String status, boolean animate) {
+        animating = animate;
         labelStatus.setText(status);
+        if (animate) {
+            Task task = new Task<Void, Void>(Application.getInstance()) {
+
+                private long date;
+                private int dots = 0;
+                private String originalMessage;
+
+                @Override
+                protected Void doInBackground() throws Exception {
+                    Date d = new Date();
+                    date = d.getTime() + 800;
+                    originalMessage = labelStatus.getText();
+                    while (animating) {
+                        if (date <= d.getTime()) {
+                            date = d.getTime() + 800;
+                            if (dots < 3) {
+                                labelStatus.setText(labelStatus.getText() + ".");
+                                dots++;
+                            } else {
+                                labelStatus.setText(originalMessage);
+                                dots = 0;
+                            }
+                            paint(getGraphics());
+                        }
+                        d = new Date();
+                    }
+                    return null;
+                }
+            };
+            task.execute();
+        }
     }
 
     /*
@@ -1457,6 +1490,10 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
             }
             return false;
         }
+    }
+
+    public void setAnimating(boolean animating) {
+        this.animating = animating;
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextArea areaModDesc;
