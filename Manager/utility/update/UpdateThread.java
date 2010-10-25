@@ -18,9 +18,9 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.security.InvalidParameterException;
 import java.util.concurrent.Callable;
-import manager.Manager;
+import controller.Manager;
 import utility.FileUtils;
-import utility.exception.UpdateModException;
+import exceptions.UpdateModException;
 
 /**
  *

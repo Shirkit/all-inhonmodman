@@ -15,7 +15,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import javax.swing.AbstractButton;
-import manager.Manager;
+import controller.Manager;
 import utility.BBCode;
 
 /**

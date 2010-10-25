@@ -14,11 +14,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
- *
+ * This class is used by the XStream to convert a ManagerOptions into a XML file, or the opposite.
  * @author Shirkit
  */
 public class ManagerOptionsConverter implements Converter {
 
+    /**
+     * XStream uses this method to convert an ManagerOptions instance into a XML String.
+     */
     public void marshal(Object o, HierarchicalStreamWriter writer, MarshallingContext mc) {
         ManagerOptions opt = ManagerOptions.getInstance();
         try {
@@ -92,6 +95,9 @@ public class ManagerOptionsConverter implements Converter {
         }
     }
 
+    /**
+     * XStream uses this method to convert a XML String into a  ManagerOptions instance.
+     */
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext uc) {
         ManagerOptions value = ManagerOptions.getInstance();
 

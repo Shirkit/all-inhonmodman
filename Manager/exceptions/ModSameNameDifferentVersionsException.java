@@ -3,26 +3,30 @@
  * and open the template in the editor.
  */
 
-package utility.exception;
+package exceptions;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashSet;
+
+import business.ManagerOptions;
+
 import com.mallardsoft.tuple.*;
 
 /**
- * If duplicate mods are found this exception is thrown.
+ * This exception is thrown when mods enabled with same name but different versions
  * @author Penn
  */
-public class ModDuplicateException extends Exception {
+public class ModSameNameDifferentVersionsException extends Exception {
 
-	private ArrayList<Pair<String, String>> _mods;
+	private HashSet<Pair<String, String>> _mods;
 
     /**
      * @param name of the mod that was enabled.
      * @param version of the mod that was enabled.
      */
-    public ModDuplicateException(ArrayList<Pair<String, String>> mods) {
+    public ModSameNameDifferentVersionsException(HashSet<Pair<String, String>> mods) {
         super();
         _mods = mods;
     }
@@ -30,7 +34,7 @@ public class ModDuplicateException extends Exception {
     /**
      * @return the list of mods that depends on the mod that are not disabled
      */
-    public ArrayList<Pair<String, String>> getMods() {
+    public HashSet<Pair<String, String>> getMods() {
         return _mods;
     }
     

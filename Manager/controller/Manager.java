@@ -1,4 +1,4 @@
-package manager;
+package controller;
 
 import business.ManagerOptions;
 import business.Mod;
@@ -10,7 +10,7 @@ import java.util.concurrent.ExecutionException;
 import utility.OS;
 import utility.XML;
 import utility.ZIP;
-import utility.exception.*;
+import exceptions.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -686,7 +686,7 @@ public class Manager extends Observable {
 
                 // Make sure all dep exist and enabled
                 ArrayList<Mod> allModWithName = ManagerOptions.getInstance().getModsWithName((String) entry.getKey());
-                if (allModWithName == null || allModWithName.isEmpty()) {
+                if (allModWithName.isEmpty()) {
                     modDisabledEx.add(Tuple.from((String) entry.getKey(), (String) entry.getValue()));
                 } else {
                     // Make sure all exist and enabled mods are satisfied
@@ -1073,7 +1073,6 @@ public class Manager extends Observable {
                     }
                 } else if (action.getClass().equals(ActionEditFile.class)) {
                     ActionEditFile editfile = (ActionEditFile) action;
-                    System.out.println("Editfile=" + editfile.getName());
                     if (!isValidCondition(action)) {
                         // condition isn't valid, can't apply
                         // No need to throw execption, since if condition isn't valid, this action won't be applied
@@ -1121,11 +1120,9 @@ public class Manager extends Observable {
                                 // Find Action
                             } else if (editFileAction.getClass().equals(ActionEditFileFind.class)) {
                                 ActionEditFileFind find = (ActionEditFileFind) editFileAction;
-                                System.out.println("Find" + find.getContent());
                                 cursor = new int[]{cursor[0]};
                                 cursor2 = new int[]{cursor2[0]};
-                                boolean search = true;
-                                if (find.getPosition() != null) {
+                                if (find.getContent() == null || find.getContent().isEmpty()) {
                                     if (find.isPositionAtEnd()) {
                                         cursor[0] = afterEdit.length();
                                         cursor2[0] = cursor[0];
@@ -1134,7 +1131,6 @@ public class Manager extends Observable {
                                         cursor2[0] = 0;
                                     } else {
                                         try {
-                                            search = false;
                                             cursor[0] = cursor[0] + Integer.parseInt(find.getPosition());
                                             cursor2[0] = cursor[0];
                                             isSelected = true;
@@ -1144,9 +1140,7 @@ public class Manager extends Observable {
                                             throw new InvalidModActionParameterException(mod.getName(), mod.getVersion(), (Action) find);
                                         }
                                     }
-                                }
-                                if (search) {
-                                    System.out.println(afterEdit.substring(cursor[0], cursor2[0]));
+                                } else {
                                     cursor[0] = afterEdit.toLowerCase().indexOf(find.getContent().toLowerCase(), cursor[0] + 1);
                                     if (cursor[0] == -1) {
                                         // couldn't find the string, can't apply
@@ -1376,7 +1370,7 @@ public class Manager extends Observable {
     /**
      * Compares the singleVersion of a Mod and another expressionVersion. Letters are ignored (they are removed before the test) and commas (,) are replaced by dots (.)
      * @param singleVersion is the base version to be compared of. For example, a Mod's version go in here ('1.3', '3.2.57').
-     * @param expressionVersion generally you put the ApplyAfter, ApplyBefore, ConditionVersion here ('1.35-*').
+     * @param expressionVersion generally you put the ApplyAfter, ApplyBefore, ConditionVersion here ('1.35-*'). This can be a singleVersion like paramether too.
      * @return true if the mods have the same expressionVersion OR the singleVersion is in the range of the passed String expressionVersion. False otherwise.
      * @throws InvalidParameterException if can't compare the versions for some reason (out of format).
      */

@@ -8,7 +8,7 @@ import javax.swing.JOptionPane;
 import gui.l10n.L10n;
 import javax.swing.JPanel;
 import javax.swing.RowSorter.SortKey;
-import manager.Manager;
+import controller.Manager;
 import business.ManagerOptions;
 import business.Mod;
 import java.awt.Toolkit;
@@ -62,6 +62,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     };
     private Object[][] tableData;
     boolean animating = false;
+    public boolean fullyLoaded = false;
 
     /**
      * Creates the main form
@@ -1129,9 +1130,11 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
      * notifyObservers() was called)
      */
     public void update(Observable obs, Object obj) {
-        logger.info("List of mods has changed, updating...");
-        updateModTable();
-        highlightMods();
+        if (fullyLoaded) {
+            logger.info("List of mods has changed, updating...");
+            updateModTable();
+            highlightMods();
+        }
     }
 
     /**

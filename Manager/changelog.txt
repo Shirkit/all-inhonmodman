@@ -113,4 +113,6 @@
 
 [b]0.7.5 alpha:[/b]
 - Added status message with current mod enabled and message while applying and updating mods, with 3 dots animation.
+- Added a checkbox to check all columns in the Table.
 - Fixed problem with Auto-Updater.
+- Fixed bugs while applying mods that uses <find position="end">STRING</find> operations. Notice that the position attribute in this case is useless.

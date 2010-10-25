@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package utility.exception;
+package exceptions;
 
 import business.Mod;
 

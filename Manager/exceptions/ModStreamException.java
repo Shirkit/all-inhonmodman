@@ -3,19 +3,21 @@
  * and open the template in the editor.
  */
 
-package utility.exception;
+package exceptions;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 
+import business.ManagerOptions;
+
 import com.mallardsoft.tuple.*;
 
 /**
- * If a ZIP is corrupted and was tried to load it
- * @author Shirkit
+ * If a mod tried to be disabled but those mods depend on it are not cleared (a.k.a. not disabled), this exception is thrown.
+ * @author Penn
  */
-public class ModZipException extends Exception {
+public class ModStreamException extends Exception {
 
 	private ArrayList<Pair<String, String>> _mods;
 
@@ -23,7 +25,7 @@ public class ModZipException extends Exception {
      * @param name of the mod that was enabled.
      * @param version of the mod that was enabled.
      */
-    public ModZipException(ArrayList<Pair<String, String>> mods) {
+    public ModStreamException(ArrayList<Pair<String, String>> mods) {
         super();
         _mods = mods;
     }

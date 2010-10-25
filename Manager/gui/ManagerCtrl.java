@@ -5,7 +5,7 @@ import java.util.Observable;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.TableColumnModelEvent;
 import javax.swing.event.TableColumnModelListener;
-import manager.Manager;
+import controller.Manager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -33,14 +33,14 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import utility.FileDrop;
 import utility.OS;
-import utility.exception.ModConflictException;
-import utility.exception.ModEnabledException;
-import utility.exception.ModNotEnabledException;
-import utility.exception.ModNotFoundException;
-import utility.exception.ModSameNameDifferentVersionsException;
-import utility.exception.ModStreamException;
-import utility.exception.ModVersionMissmatchException;
-import utility.exception.ModVersionUnsatisfiedException;
+import exceptions.ModConflictException;
+import exceptions.ModEnabledException;
+import exceptions.ModNotEnabledException;
+import exceptions.ModNotFoundException;
+import exceptions.ModSameNameDifferentVersionsException;
+import exceptions.ModStreamException;
+import exceptions.ModVersionMissmatchException;
+import exceptions.ModVersionUnsatisfiedException;
 
 import java.io.IOException;
 import java.nio.channels.FileLockInterruptionException;
@@ -70,12 +70,12 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import utility.Game;
-import utility.exception.InvalidModActionParameterException;
-import utility.exception.ModDuplicateException;
-import utility.exception.ModZipException;
-import utility.exception.NothingSelectedModActionException;
-import utility.exception.StringNotFoundModActionException;
-import utility.exception.UnknowModActionException;
+import exceptions.InvalidModActionParameterException;
+import exceptions.ModDuplicateException;
+import exceptions.ModZipException;
+import exceptions.NothingSelectedModActionException;
+import exceptions.StringNotFoundModActionException;
+import exceptions.UnknowModActionException;
 import utility.update.UpdateReturn;
 
 /**
@@ -186,10 +186,15 @@ public class ManagerCtrl implements Observer {
         new FileDrop(view, new DropListener());
         // End Add listeners
 
+        view.fullyLoaded = true;
+
         logger.info("ManagerCtrl started");
 
     }
 
+    /**
+     * TODO: Improve this class. This is just terrible.
+     */
     public class CheckBoxHeader extends JCheckBox implements TableCellRenderer, MouseListener {
 
         protected CheckBoxHeader rendererComponent;

@@ -120,7 +120,7 @@ public class Mod {
 
     /**
      * Get list of actions of a specified type
-     * 
+     *
      * @param type type of actions to return. See Action.java for action constants
      * @return list of actions of the given type (empty if there are none)
      */
@@ -268,10 +268,16 @@ public class Mod {
         return path;
     }
 
+    /**
+     * @deprecated not used yet.
+     */
     public int getId() {
         return id;
     }
 
+    /**
+     * @deprecated not used yet.
+     */
     public void setId(int id) {
         this.id = id;
     }
@@ -285,7 +291,7 @@ public class Mod {
     }
 
     /**
-     * <b>This should only be called by the Manager.</b><br/>
+     * <b>This should only be called by the controller.</b><br/>
      * Method to enable the current mod
      */
     public void enable() {
@@ -293,7 +299,7 @@ public class Mod {
     }
 
     /**
-     * <b>This should only be called by the Manager.</b><br/>
+     * <b>This should only be called by the controller.</b><br/>
      * Method to disable the current mod
      */
     public void disable() {
@@ -320,7 +326,10 @@ public class Mod {
      * Reurns a String with the content of the mod's Changelog in it.
      */
     public String getChangelog() {
-        return changelog;
+        if (changelog != null) {
+            return changelog;
+        }
+        return "";
     }
 
     public void setChangelog(String changelog) {

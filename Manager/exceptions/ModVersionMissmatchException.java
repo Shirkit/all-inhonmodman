@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package utility.exception;
+package exceptions;
 
 /**
  * If a mod was tried to be enabled, but it's version doesn't matches that HoN's version, this exception is thrown.

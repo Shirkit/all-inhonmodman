@@ -64,6 +64,7 @@ public class ShirkitReader extends AbstractDocumentReader {
             Node childNode = childNodes.item(i);
             if (childNode instanceof Text) {
                 Text text = (Text) childNode;
+                // Avoid empty blocks of text. This is the main difference on this class!
                 if (!text.getData().trim().isEmpty()) {
                     textBuffer.append(text.getData());
                 }

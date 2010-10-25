@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package utility.exception;
+package exceptions;
 
 /**
  * If a unsupported action was found, this exception is thrown. You can retrieve the mod's name and the action's name.
