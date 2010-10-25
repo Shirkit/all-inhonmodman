@@ -37,16 +37,31 @@ public class Game {
             return ManagerOptions.getInstance().getGamePath();
         }
         if (OS.isWindows()) {
+            // Try to find HoN in its usual location:
+            String honFolder = "C:\\Program Files\\Heroes of Newerth\\";
+            if((new File(honFolder)).exists()) {
+                return honFolder;
+            }
+
             // Get the folder from uninstall info in windows registry saved by HoN
             String registryData = WindowsRegistry.getRecord("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\hon", "InstallLocation");
             if (registryData != null && !registryData.isEmpty()) {
                 return registryData;
             }
+            // TODO: the location is also stored in the registry by Notausgang's
+            // Mod manager... but our current registry accessing method can't see
+            // it.
             // We didnt find HoN folder in the registry, try something else?
             return null;
         }
         // Try to find HoN folder in case we are on Linux
         if (OS.isLinux()) {
+            // Try to find HoN in its usual location:
+            String honFolder = "~/.Heroes of Newerth/";
+            File f = new File(honFolder);
+            if(f.exists()) {
+                return f.getAbsolutePath();
+            }
         }
         // Try to find HoN folder in case we are on Mac
         if (OS.isMac()) {
