@@ -47,6 +47,10 @@ public class ManagerOptions extends Observable {
     private boolean autoUpdate;
     private boolean autoEnableDependencies;
     private boolean developerMode;
+
+    // TODO: Save this in the options file.
+    private ViewType viewType = ViewType.DETAILS;
+    
     // Hidden fields from XML
     private ArrayList<Mod> mods;
     private static ManagerOptions instance;
@@ -416,6 +420,23 @@ public class ManagerOptions extends Observable {
         }
 
         return null;
+    }
+
+    /**
+     * @return the viewType
+     */
+    public ViewType getViewType() {
+        return viewType;
+    }
+
+    /**
+     * @param viewType the viewType to set
+     */
+    public void setViewType(ViewType viewType) {
+        this.viewType = viewType;
+    }
+    public enum ViewType {
+        DETAILS, ICONS
     }
 
     /**

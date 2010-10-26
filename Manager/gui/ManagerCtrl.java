@@ -157,7 +157,10 @@ public class ManagerCtrl implements Observer {
         view.itemUnapplyAllModsAddActionListener(new UnapplyAllModsListener());
         view.itemOpenModFolderAddActionListener(new OpenModFolderListener());
         view.itemVisitForumThreadAddActionListener(new VisitForumThreadListener());
+        view.itemViewDetailsAddActionListener(new ViewChangeListener(ManagerOptions.ViewType.DETAILS));
+        view.itemViewIconsAddActionListener(new ViewChangeListener(ManagerOptions.ViewType.ICONS));
         view.itemExitAddActionListener(new ExitListener());
+
         lsl = new ModTableSelectionListener(view.getModListTable());
         view.tableAddListSelectionListener(lsl);
         view.tableAddModelListener(new TableEditListener());
@@ -756,6 +759,24 @@ public class ManagerCtrl implements Observer {
             view.getModListTable().changeSelection(view.getModListTable().getSelectedRow(), 0, false, false);
             if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                 e.consume();
+            }
+        }
+    }
+
+    /**
+     * Listener for changes to the mod list view type preference.
+     */
+    class ViewChangeListener implements ActionListener {
+        ManagerOptions.ViewType viewType;
+
+        public ViewChangeListener(ManagerOptions.ViewType _viewType) {
+            viewType = _viewType;
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            if(model.getViewType() != viewType) {
+                model.setViewType(viewType);
+                view.updateModTable();
             }
         }
     }

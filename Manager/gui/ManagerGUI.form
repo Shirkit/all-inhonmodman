@@ -480,6 +480,53 @@
             </MenuItem>
           </SubComponents>
         </Menu>
+        <Menu class="javax.swing.JMenu" name="jMenu1">
+          <Properties>
+            <Property name="mnemonic" type="int" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+              <Connection code="L10n.getMnemonic(&quot;menu.view&quot;)" type="code"/>
+            </Property>
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+              <Connection code="L10n.getString(&quot;menu.view&quot;)" type="code"/>
+            </Property>
+            <Property name="name" type="java.lang.String" value="jMenu1" noResource="true"/>
+          </Properties>
+          <SubComponents>
+            <MenuItem class="javax.swing.JRadioButtonMenuItem" name="itemViewDetails">
+              <Properties>
+                <Property name="mnemonic" type="int" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                  <Connection code="L10n.getMnemonic(&quot;menu.view.details&quot;)" type="code"/>
+                </Property>
+                <Property name="selected" type="boolean" value="true"/>
+                <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                  <Connection code="L10n.getString(&quot;menu.view.details&quot;)" type="code"/>
+                </Property>
+                <Property name="name" type="java.lang.String" value="itemViewDetails" noResource="true"/>
+              </Properties>
+              <AuxValues>
+                <AuxValue name="JavaCodeGenerator_CreateCodePre" type="java.lang.String" value="ButtonGroup viewModesGroup = new ButtonGroup();"/>
+                <AuxValue name="JavaCodeGenerator_InitCodePre" type="java.lang.String" value="viewModesGroup.add(itemViewDetails);"/>
+              </AuxValues>
+            </MenuItem>
+            <MenuItem class="javax.swing.JRadioButtonMenuItem" name="itemViewIcons">
+              <Properties>
+                <Property name="mnemonic" type="int" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                  <Connection code="L10n.getMnemonic(&quot;menu.view.icons&quot;)" type="code"/>
+                </Property>
+                <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                  <Connection code="L10n.getString(&quot;menu.view.icons&quot;)" type="code"/>
+                </Property>
+                <Property name="name" type="java.lang.String" value="itemViewIcons" noResource="true"/>
+                <Property name="name" type="java.lang.String" value="itemViewIcons" noResource="true"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="itemViewIconsActionPerformed"/>
+              </Events>
+              <AuxValues>
+                <AuxValue name="JavaCodeGenerator_InitCodePre" type="java.lang.String" value="viewModesGroup.add(itemViewIcons);"/>
+              </AuxValues>
+            </MenuItem>
+          </SubComponents>
+        </Menu>
         <Menu class="javax.swing.JMenu" name="menuHelp">
           <Properties>
             <Property name="mnemonic" type="int" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
@@ -565,12 +612,12 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Component id="panelModList" alignment="0" pref="737" max="32767" attributes="0"/>
+          <Component id="panelModList" alignment="0" pref="739" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Component id="panelModList" alignment="0" pref="604" max="32767" attributes="0"/>
+          <Component id="panelModList" alignment="0" pref="616" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
   </Layout>
@@ -601,7 +648,7 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="buttonLaunchHon" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <Component id="jScrollPane1" pref="391" max="32767" attributes="1"/>
+                      <Component id="jScrollPane1" pref="280" max="32767" attributes="1"/>
                   </Group>
                   <EmptySpace type="separate" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="1" max="-2" attributes="0">
@@ -621,9 +668,9 @@
               <Group type="102" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="panelModDetails" pref="546" max="32767" attributes="1"/>
-                      <Component id="jScrollPane1" alignment="0" pref="546" max="32767" attributes="1"/>
-                      <Component id="panelModChangelog" alignment="0" pref="546" max="32767" attributes="0"/>
+                      <Component id="panelModDetails" pref="563" max="32767" attributes="1"/>
+                      <Component id="jScrollPane1" alignment="0" pref="563" max="32767" attributes="1"/>
+                      <Component id="panelModChangelog" alignment="0" pref="563" max="32767" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="1" attributes="0">
@@ -665,14 +712,8 @@
           <SubComponents>
             <Component class="javax.swing.JTable" name="tableModList">
               <Properties>
-                <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-                  <Table columnCount="5" rowCount="0">
-                    <Column editable="true" title="" type="java.lang.Boolean"/>
-                    <Column editable="false" title="Name" type="java.lang.String"/>
-                    <Column editable="false" title="Author" type="java.lang.String"/>
-                    <Column editable="false" title="Version" type="java.lang.String"/>
-                    <Column editable="false" title="Status" type="java.lang.Object"/>
-                  </Table>
+                <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                  <Connection code="new javax.swing.table.DefaultTableModel(&#xa;    new Object [][] {&#xa;&#xa;    },&#xa;    this.columnNames&#xa;) {&#xa;    Class[] types = new Class [] {&#xa;        java.lang.Boolean.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, javax.swing.ImageIcon.class&#xa;    };&#xa;    boolean[] canEdit = new boolean [] {&#xa;        true, false, false, false, false, false, false, false&#xa;    };&#xa;&#xa;    public Class getColumnClass(int columnIndex) {&#xa;        return types[columnIndex];&#xa;    }&#xa;&#xa;    public boolean isCellEditable(int rowIndex, int columnIndex) {&#xa;        return canEdit [columnIndex];&#xa;    }&#xa;}" type="code"/>
                 </Property>
                 <Property name="focusable" type="boolean" value="false"/>
                 <Property name="name" type="java.lang.String" value="tableModList" noResource="true"/>
@@ -713,7 +754,7 @@
           <Properties>
             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
               <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                <TitledBorder title="&lt;C&#xf3;digo do usu&#xe1;rio&gt;">
+                <TitledBorder title="&lt;User Code&gt;">
                   <Connection PropertyName="titleX" code="&quot; &quot;+L10n.getString(&quot;panel.details.label&quot;)+&quot; &quot;" type="code"/>
                 </TitledBorder>
               </Border>
@@ -733,7 +774,7 @@
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="jScrollPane4" alignment="0" pref="414" max="32767" attributes="1"/>
+                          <Component id="jScrollPane4" alignment="0" pref="418" max="32767" attributes="1"/>
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="labelModIcon1" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
@@ -742,7 +783,7 @@
                                   <Component id="labelModName1" alignment="0" min="-2" pref="184" max="-2" attributes="0"/>
                               </Group>
                           </Group>
-                          <Component id="buttonViewModDetails" alignment="0" pref="414" max="32767" attributes="1"/>
+                          <Component id="buttonViewModDetails" alignment="0" pref="418" max="32767" attributes="1"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -760,7 +801,7 @@
                           </Group>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jScrollPane4" pref="417" max="32767" attributes="0"/>
+                      <Component id="jScrollPane4" pref="442" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="buttonViewModDetails" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
@@ -832,7 +873,7 @@
           <Properties>
             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
               <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                <TitledBorder title="&lt;C&#xf3;digo do usu&#xe1;rio&gt;">
+                <TitledBorder title="&lt;User Code&gt;">
                   <Connection PropertyName="titleX" code="&quot; &quot;+L10n.getString(&quot;panel.details.label&quot;)+&quot; &quot;" type="code"/>
                 </TitledBorder>
               </Border>
@@ -861,8 +902,8 @@
                               <Component id="labelModIcon" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="labelModAuthor" pref="218" max="32767" attributes="0"/>
-                                  <Component id="labelModName" alignment="0" pref="218" max="32767" attributes="0"/>
+                                  <Component id="labelModAuthor" pref="223" max="32767" attributes="0"/>
+                                  <Component id="labelModName" alignment="0" pref="223" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
@@ -872,8 +913,8 @@
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="buttonUpdateMod" pref="143" max="32767" attributes="1"/>
-                                  <Component id="buttonViewChagelog" alignment="0" pref="143" max="32767" attributes="1"/>
+                                  <Component id="buttonUpdateMod" pref="148" max="32767" attributes="1"/>
+                                  <Component id="buttonViewChagelog" alignment="0" pref="148" max="32767" attributes="1"/>
                               </Group>
                           </Group>
                           <Component id="panelModDescription" alignment="0" min="-2" max="-2" attributes="1"/>
@@ -962,7 +1003,7 @@
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="1" attributes="0">
-                          <Component id="jScrollPane2" pref="299" max="32767" attributes="0"/>
+                          <Component id="jScrollPane2" pref="330" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="labelRequirements" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
