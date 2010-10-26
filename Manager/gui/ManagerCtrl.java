@@ -76,6 +76,7 @@ import exceptions.ModZipException;
 import exceptions.NothingSelectedModActionException;
 import exceptions.StringNotFoundModActionException;
 import exceptions.UnknowModActionException;
+import javax.swing.JList;
 import utility.update.UpdateReturn;
 
 /**
@@ -163,6 +164,7 @@ public class ManagerCtrl implements Observer {
 
         lsl = new ModTableSelectionListener(view.getModListTable());
         view.tableAddListSelectionListener(lsl);
+        view.iconsListAddListSelectionListener(new ModListSelectionListener(view.getModListList()));
         view.tableAddModelListener(new TableEditListener());
         view.buttonVisitWebsiteAddActionListener(new VisitWebsiteListener());
         view.popupMenuItemVisitWebsiteAddActionListener(new VisitWebsiteListener());
@@ -186,6 +188,7 @@ public class ManagerCtrl implements Observer {
         view.getModListTable().addKeyListener(new ModTableKeyListener());
         view.getModListTable().getColumnModel().getColumn(0).setHeaderRenderer(new CheckBoxHeader(new MyItemListener()));
         // Add file drop functionality
+
         new FileDrop(view, new DropListener());
         // End Add listeners
 
@@ -498,6 +501,28 @@ public class ManagerCtrl implements Observer {
             }
             if (e.getValueIsAdjusting()) {
                 // The mouse button has not yet been released
+            }
+        }
+    }
+
+    /**
+     * Listener for detecting changes of selection in the mods table. This is
+     * used when user selects a row in the table.
+     */
+    class ModListSelectionListener implements ListSelectionListener {
+
+        JList list;
+
+        ModListSelectionListener(JList _list) {
+            this.list = _list;
+        }
+
+        /**
+         * On selection change, display details of the newly selected mod
+         */
+        public void valueChanged(ListSelectionEvent e) {
+            if (e.getSource() == list.getSelectionModel()) {
+                view.displayModDetail();
             }
         }
     }

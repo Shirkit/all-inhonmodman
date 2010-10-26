@@ -1,8 +1,10 @@
 package gui;
 
+import java.awt.Component;
 import java.util.List;
 import java.util.logging.Level;
 import javax.swing.JButton;
+import javax.swing.JList;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import gui.l10n.L10n;
@@ -27,6 +29,7 @@ import org.apache.log4j.Logger;
 import javax.swing.UIManager;
 import business.actions.Action;
 import business.actions.ActionRequirement;
+import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -35,9 +38,13 @@ import java.awt.event.WindowEvent;
 import java.util.Date;
 import java.util.Iterator;
 import javax.swing.ButtonGroup;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.JProgressBar;
+import javax.swing.ListCellRenderer;
+import javax.swing.ListModel;
 import javax.swing.table.TableCellRenderer;
 import org.jdesktop.application.Application;
 import org.jdesktop.application.Task;
@@ -67,9 +74,13 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     boolean animating = false;
     public boolean fullyLoaded = false;
 
+    private static final String DETAILS_VIEW_IDENT = "DETAILS_VIEW_IDENT",
+                            DETAILS_ICON_VIEW_IDENT = "DETAILS_ICON_VIEW_IDENT",
+                            ICONS_VIEW_IDENT = "ICONS_VIEW_IDENT";
+
     /**
      * Creates the main form
-     * @param model model patr of the MVC framework
+     * @param model model part of the MVC framework
      */
     private ManagerGUI() {
         logger.info("Initializing gui");
@@ -172,8 +183,6 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         popupItemMenuDeleteMod = new javax.swing.JMenuItem();
         panelModList = new javax.swing.JPanel();
         progressBar = new javax.swing.JProgressBar(0,100);
-        jScrollPane1 = new javax.swing.JScrollPane();
-        tableModList = new javax.swing.JTable();
         buttonApplyMods = new javax.swing.JButton();
         buttonAddMod = new javax.swing.JButton();
         panelModChangelog = new javax.swing.JPanel();
@@ -199,6 +208,11 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         buttonViewChagelog = new javax.swing.JButton();
         buttonLaunchHon = new javax.swing.JButton();
         labelStatus = new javax.swing.JLabel();
+        modListViewsPanel = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tableModList = new javax.swing.JTable();
+        jScrollPane5 = new javax.swing.JScrollPane();
+        listModList = new javax.swing.JList();
         mainMenu = new javax.swing.JMenuBar();
         menuFile = new javax.swing.JMenu();
         itemApplyMods = new javax.swing.JMenuItem();
@@ -409,36 +423,6 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         progressBar.setStringPainted(true);
         progressBar.setEnabled(false);
         progressBar.setName("progressBar"); // NOI18N
-
-        jScrollPane1.setName("jScrollPane1"); // NOI18N
-
-        tableModList.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            this.columnNames
-        ) {
-            Class[] types = new Class [] {
-                java.lang.Boolean.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, javax.swing.ImageIcon.class
-            };
-            boolean[] canEdit = new boolean [] {
-                true, false, false, false, false, false, false, false
-            };
-
-            public Class getColumnClass(int columnIndex) {
-                return types[columnIndex];
-            }
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
-        tableModList.setFocusable(false);
-        tableModList.setName("tableModList"); // NOI18N
-        tableModList.setRowHeight(22);
-        tableModList.setSelectionBackground(new java.awt.Color(80, 167, 254));
-        tableModList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        jScrollPane1.setViewportView(tableModList);
 
         buttonApplyMods.setText(L10n.getString("button.applymods"));
         buttonApplyMods.setToolTipText(L10n.getString("tooltip.button.apply"));
@@ -657,23 +641,76 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         labelStatus.setFocusable(false);
         labelStatus.setName("labelStatus"); // NOI18N
 
+        modListViewsPanel.setName("modListViewsPanel"); // NOI18N
+        modListViewsPanel.setLayout(new java.awt.CardLayout());
+
+        jScrollPane1.setName("jScrollPane1"); // NOI18N
+
+        tableModList.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            this.columnNames
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Boolean.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, javax.swing.ImageIcon.class
+            };
+            boolean[] canEdit = new boolean [] {
+                true, false, false, false, false, false, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types[columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        tableModList.setFocusable(false);
+        tableModList.setName("tableModList"); // NOI18N
+        tableModList.setRowHeight(22);
+        tableModList.setSelectionBackground(new java.awt.Color(80, 167, 254));
+        tableModList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        jScrollPane1.setViewportView(tableModList);
+
+        modListViewsPanel.add(jScrollPane1, "DETAILS_VIEW_IDENT");
+
+        jScrollPane5.setName("jScrollPane5"); // NOI18N
+
+        listModList.setCellRenderer(new IconsListCellRenderer());
+        listModList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        listModList.setAutoscrolls(false);
+        listModList.setLayoutOrientation(javax.swing.JList.HORIZONTAL_WRAP);
+        listModList.setName("listModList"); // NOI18N
+        listModList.addHierarchyBoundsListener(new java.awt.event.HierarchyBoundsListener() {
+            public void ancestorMoved(java.awt.event.HierarchyEvent evt) {
+            }
+            public void ancestorResized(java.awt.event.HierarchyEvent evt) {
+                listModListAncestorResized(evt);
+            }
+        });
+        jScrollPane5.setViewportView(listModList);
+
+        modListViewsPanel.add(jScrollPane5, "ICONS_VIEW_IDENT");
+
         javax.swing.GroupLayout panelModListLayout = new javax.swing.GroupLayout(panelModList);
         panelModList.setLayout(panelModListLayout);
         panelModListLayout.setHorizontalGroup(
             panelModListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelModListLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(panelModListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(panelModListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panelModListLayout.createSequentialGroup()
                         .addComponent(buttonApplyMods)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonAddMod)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(labelStatus, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(labelStatus, javax.swing.GroupLayout.DEFAULT_SIZE, 214, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonLaunchHon, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 280, Short.MAX_VALUE))
-                .addGap(18, 18, 18)
+                    .addComponent(modListViewsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(panelModListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                     .addComponent(progressBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(panelModListLayout.createSequentialGroup()
@@ -688,8 +725,8 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                 .addContainerGap()
                 .addGroup(panelModListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(panelModDetails, javax.swing.GroupLayout.DEFAULT_SIZE, 563, Short.MAX_VALUE)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 563, Short.MAX_VALUE)
-                    .addComponent(panelModChangelog, javax.swing.GroupLayout.DEFAULT_SIZE, 563, Short.MAX_VALUE))
+                    .addComponent(panelModChangelog, javax.swing.GroupLayout.DEFAULT_SIZE, 563, Short.MAX_VALUE)
+                    .addComponent(modListViewsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 563, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(panelModListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(panelModListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
@@ -791,7 +828,6 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         viewModesGroup.add(itemViewIcons);
         itemViewIcons.setMnemonic(L10n.getMnemonic("menu.view.icons"));
         itemViewIcons.setText(L10n.getString("menu.view.icons"));
-        itemViewIcons.setName("itemViewIcons"); // NOI18N
         itemViewIcons.setName("itemViewIcons"); // NOI18N
         itemViewIcons.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -915,6 +951,10 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         // TODO add your handling code here:
     }//GEN-LAST:event_itemViewIconsActionPerformed
 
+    private void listModListAncestorResized(java.awt.event.HierarchyEvent evt) {//GEN-FIRST:event_listModListAncestorResized
+        listModList.setVisibleRowCount(-1);
+    }//GEN-LAST:event_listModListAncestorResized
+
     /**
      * Display specified message to the user using JOptionPane
      * @param message message to be displayed
@@ -960,19 +1000,27 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     }
 
     public void deleteSelectedMod() {
-        int selectedRow = tableModList.getSelectedRow();
         Mod mod = null;
-        try {
-            mod = (Mod) tableData[selectedRow][5];
-        } catch (IndexOutOfBoundsException e) {
-            if (selectedRow != -1) {
-                logger.error("Cannot delete mod at index " + selectedRow);
+        if(model.getViewType() == ManagerOptions.ViewType.ICONS) {
+             mod = (Mod)listModList.getSelectedValue();
+        }
+        else {
+            int selectedRow = tableModList.getSelectedRow();
+            try {
+                mod = (Mod) tableData[selectedRow][5];
+            } catch (IndexOutOfBoundsException e) {
+                if (selectedRow != -1) {
+                    logger.error("Cannot delete mod at index " + selectedRow);
+                }
+                return;
             }
-            return;
         }
         model.getAppliedMods().remove(mod);
         model.getMods().remove(mod);
-        ((DefaultTableModel) tableModList.getModel()).removeRow(selectedRow);
+
+        if(model.getViewType() == ManagerOptions.ViewType.DETAILS) {
+            ((DefaultTableModel) tableModList.getModel()).removeRow(tableModList.getSelectedRow());
+        }
         updateModTable();
     }
 
@@ -984,102 +1032,118 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     public void updateModTable() {
         animating = false;
         // Store how the table is currently sorted
-        int enabled = 0, disabled = 0, applied = 0;
-        Object o = tableModList.getRowSorter().getSortKeys();
-        ArrayList<Mod> mods = ManagerOptions.getInstance().getMods();
-        // Save current selected row
-        int selectedRow = tableModList.getSelectedRow();
-        if (selectedRow == -1) {
-            selectedRow = 0;
-        }
-        this.tableData = new Object[mods.size()][];
-        // Display all mods
-        for (int i = 0; i < mods.size(); i++) {
-            // new space for mod
-            this.tableData[i] = new Object[6];
-            Mod mod = mods.get(i);
-            this.tableData[i][0] = (Boolean) mod.isEnabled();
-            this.tableData[i][1] = (String) mod.getName();
-            this.tableData[i][2] = (String) mod.getAuthor();
-            this.tableData[i][3] = (String) mod.getVersion();
-            // Storing mod into the data for sorting
-            this.tableData[i][5] = (Mod) mod;
-            if (mod.isEnabled()) {
-                if (ManagerOptions.getInstance().getAppliedMods().contains(mod)) {
-                    this.tableData[i][4] = (String) L10n.getString("table.modstatus.applied");
-                    applied++;
-                } else {
-                    this.tableData[i][4] = (String) L10n.getString("table.modstatus.enabled");
-                    enabled++;
-                }
-            } else {
-                this.tableData[i][4] = (String) L10n.getString("table.modstatus.disabled");
-                disabled++;
-            }
-        }
-        // Update table model
-        DefaultTableModel dtm = (DefaultTableModel) tableModList.getModel();
-        dtm.setDataVector(this.tableData, this.columnNames);
+
         if(model.getViewType() == ManagerOptions.ViewType.ICONS) {
-            Object[] iconsData = new Object[mods.size()];
-            for (int i = 0; i < mods.size(); i++) {
-                Mod mod = mods.get(i);
-                iconsData[i] = (ImageIcon) mod.getIcon();
+            ((CardLayout)modListViewsPanel.getLayout()).show(modListViewsPanel, ICONS_VIEW_IDENT);
+            DefaultListModel modsListModel = new DefaultListModel();
+            ArrayList<Mod> mods = ManagerOptions.getInstance().getMods();
+            for(int i=0; i<mods.size(); ++i) {
+                modsListModel.addElement(mods.get(i));
             }
-            dtm.addColumn("Icons", iconsData);
-            tableModList.setRowHeight(mods.get(0).getIcon().getIconHeight());
+            listModList.setModel(modsListModel);
+            listModList.setLayoutOrientation(JList.HORIZONTAL_WRAP);
+            // This essentially "packs" all of the icons.
+            listModList.setVisibleRowCount(-1);
         }
         else {
-            //TableCellRenderer renderer = tableModList.getCellRenderer(0, 0);
-            // TODO: Make this get the correct height from the table cell
-            // renderers.
-            tableModList.setRowHeight(25);
-        }
-        // Restore the sort
-        tableModList.getRowSorter().setSortKeys((List<? extends SortKey>) o);
-
-        ArrayList<Integer> temp = new ArrayList<Integer>();
-        try {
-            for (int i = 0; i < ManagerOptions.getInstance().getColumnsWidth().size(); i++) {
-                temp.add(new Integer(ManagerOptions.getInstance().getColumnsWidth().get(i)));
+            ((CardLayout)modListViewsPanel.getLayout()).show(modListViewsPanel, DETAILS_VIEW_IDENT);
+            int enabled = 0, disabled = 0, applied = 0;
+            Object o = tableModList.getRowSorter().getSortKeys();
+            ArrayList<Mod> mods = ManagerOptions.getInstance().getMods();
+            // Save current selected row
+            int selectedRow = tableModList.getSelectedRow();
+            if (selectedRow == -1) {
+                selectedRow = 0;
             }
-        } catch (NullPointerException e) {
-            // I really don't know why is this throwing NullPointException when there is no managerOptions.xml file, but this will solve for now
-            // TODO: fix this bug
-        }
-
-        try {
-            if (model.getColumnsWidth() != null) {
-                if (model.getColumnsWidth().size() != tableModList.getColumnModel().getColumnCount()) {
-                    // If we change the interface (columns number from one version to another), nothing else will need to be done =]
-                    model.setColumnsWidth(null);
-                } else {
-                    int i = 0;
-                    Iterator<Integer> it = ManagerOptions.getInstance().getColumnsWidth().iterator();
-                    while (it.hasNext()) {
-                        Integer integer = it.next();
-                        tableModList.getColumnModel().getColumn(i).setWidth(integer);
-                        tableModList.getColumnModel().getColumn(i).setPreferredWidth(integer);
-                        i++;
+            this.tableData = new Object[mods.size()][];
+            // Display all mods
+            for (int i = 0; i < mods.size(); i++) {
+                // new space for mod
+                this.tableData[i] = new Object[6];
+                Mod mod = mods.get(i);
+                this.tableData[i][0] = (Boolean) mod.isEnabled();
+                this.tableData[i][1] = (String) mod.getName();
+                this.tableData[i][2] = (String) mod.getAuthor();
+                this.tableData[i][3] = (String) mod.getVersion();
+                // Storing mod into the data for sorting
+                this.tableData[i][5] = (Mod) mod;
+                if (mod.isEnabled()) {
+                    if (ManagerOptions.getInstance().getAppliedMods().contains(mod)) {
+                        this.tableData[i][4] = (String) L10n.getString("table.modstatus.applied");
+                        applied++;
+                    } else {
+                        this.tableData[i][4] = (String) L10n.getString("table.modstatus.enabled");
+                        enabled++;
                     }
+                } else {
+                    this.tableData[i][4] = (String) L10n.getString("table.modstatus.disabled");
+                    disabled++;
                 }
             }
-        } catch (NullPointerException e) {
-            // I really don't know why is this throwing NullPointException when there is no managerOptions.xml file, but this will solve for now
-            // TODO: fix this bug
-        }
+            // Update table model
+            DefaultTableModel dtm = (DefaultTableModel) tableModList.getModel();
+            dtm.setDataVector(this.tableData, this.columnNames);
+            if(model.getViewType() == ManagerOptions.ViewType.ICONS) {
+                Object[] iconsData = new Object[mods.size()];
+                for (int i = 0; i < mods.size(); i++) {
+                    Mod mod = mods.get(i);
+                    iconsData[i] = (ImageIcon) mod.getIcon();
+                }
+                dtm.addColumn("Icons", iconsData);
+                tableModList.setRowHeight(mods.get(0).getIcon().getIconHeight());
+            }
+            else {
+                //TableCellRenderer renderer = tableModList.getCellRenderer(0, 0);
+                // TODO: Make this get the correct height from the table cell
+                // renderers.
+                tableModList.setRowHeight(25);
+            }
+            // Restore the sort
+            tableModList.getRowSorter().setSortKeys((List<? extends SortKey>) o);
 
-        if(model.getViewType() == ManagerOptions.ViewType.ICONS) {
-            tableModList.getColumnModel().getColumn(5).setWidth(mods.get(0).getIcon().getIconWidth());
-            tableModList.getColumnModel().getColumn(5).setPreferredWidth(mods.get(0).getIcon().getIconWidth());
-        }
+            ArrayList<Integer> temp = new ArrayList<Integer>();
+            try {
+                for (int i = 0; i < ManagerOptions.getInstance().getColumnsWidth().size(); i++) {
+                    temp.add(new Integer(ManagerOptions.getInstance().getColumnsWidth().get(i)));
+                }
+            } catch (NullPointerException e) {
+                // I really don't know why is this throwing NullPointException when there is no managerOptions.xml file, but this will solve for now
+                // TODO: fix this bug
+            }
 
-        // Restore selected row
-        tableModList.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        tableModList.getSelectionModel().setSelectionInterval(0, selectedRow);
-        // Display details of selected mod
-        displayModDetail();
-        setStatusMessage("<html><font color=#009900>" + (enabled + applied) + "</font>/<font color=#0033cc>" + (enabled + disabled + applied) + "</font> " + L10n.getString("status.modsenabled") + "</html>", false);
+            try {
+                if (model.getColumnsWidth() != null) {
+                    if (model.getColumnsWidth().size() != tableModList.getColumnModel().getColumnCount()) {
+                        // If we change the interface (columns number from one version to another), nothing else will need to be done =]
+                        model.setColumnsWidth(null);
+                    } else {
+                        int i = 0;
+                        Iterator<Integer> it = ManagerOptions.getInstance().getColumnsWidth().iterator();
+                        while (it.hasNext()) {
+                            Integer integer = it.next();
+                            tableModList.getColumnModel().getColumn(i).setWidth(integer);
+                            tableModList.getColumnModel().getColumn(i).setPreferredWidth(integer);
+                            i++;
+                        }
+                    }
+                }
+            } catch (NullPointerException e) {
+                // I really don't know why is this throwing NullPointException when there is no managerOptions.xml file, but this will solve for now
+                // TODO: fix this bug
+            }
+
+            if(model.getViewType() == ManagerOptions.ViewType.ICONS) {
+                tableModList.getColumnModel().getColumn(5).setWidth(mods.get(0).getIcon().getIconWidth());
+                tableModList.getColumnModel().getColumn(5).setPreferredWidth(mods.get(0).getIcon().getIconWidth());
+            }
+
+            // Restore selected row
+            tableModList.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+            tableModList.getSelectionModel().setSelectionInterval(0, selectedRow);
+            // Display details of selected mod
+            displayModDetail();
+            setStatusMessage("<html><font color=#009900>" + (enabled + applied) + "</font>/<font color=#0033cc>" + (enabled + disabled + applied) + "</font> " + L10n.getString("status.modsenabled") + "</html>", false);
+        }
     }
 
     /**
@@ -1114,16 +1178,20 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         // Make sure that items in the panel are visible
         setDetailsVisible(true);
         Mod mod = null;
-        int selectedRow = tableModList.getSelectedRow();
-        try {
-            // Older way
-            //mod = Manager.getInstance().getMod(selectedRow);
-            mod = (Mod) tableData[selectedRow][5];
-        } catch (IndexOutOfBoundsException e) {
-            if (selectedRow > 0) {
-                logger.error("Cannot display mod at index " + selectedRow);
+
+        if(model.getViewType() == ManagerOptions.ViewType.ICONS) {
+             mod = (Mod)listModList.getSelectedValue();
+        }
+        else {
+            int selectedRow = tableModList.getSelectedRow();
+            try {
+                mod = (Mod) tableData[selectedRow][5];
+            } catch (IndexOutOfBoundsException e) {
+                if (selectedRow > 0) {
+                    logger.error("Cannot display mod at index " + selectedRow);
+                }
+                return;
             }
-            return;
         }
         labelModName.setText(mod.getName());
         labelModAuthor.setText(mod.getAuthor());
@@ -1269,6 +1337,10 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     public void tableAddListSelectionListener(ListSelectionListener sl) {
         tableModList.getSelectionModel().addListSelectionListener(sl);
         tableModList.getColumnModel().getSelectionModel().addListSelectionListener(sl);
+    }
+
+    public void iconsListAddListSelectionListener(ListSelectionListener sl) {
+        listModList.getSelectionModel().addListSelectionListener(sl);
     }
 
     public void tableAddModelListener(TableModelListener tml) {
@@ -1427,12 +1499,21 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         return this.tableModList;
     }
 
+    public JList getModListList() {
+        return this.listModList;
+    }
+
     public Mod getSelectedMod() {
         Mod mod = null;
-        int selectedRow = tableModList.getSelectedRow();
-        try {
-            mod = (Mod) tableData[selectedRow][5];
-        } catch (IndexOutOfBoundsException e) {
+        if(model.getViewType() == ManagerOptions.ViewType.ICONS) {
+             mod = (Mod)listModList.getSelectedValue();
+        }
+        else {
+            int selectedRow = tableModList.getSelectedRow();
+            try {
+                mod = (Mod) tableData[selectedRow][5];
+            } catch (IndexOutOfBoundsException e) {
+            }
         }
         return mod;
     }
@@ -1528,6 +1609,27 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     }
 
     /**
+     * Class to renderer cells in the Icons View list.
+     */
+    private class IconsListCellRenderer extends DefaultListCellRenderer {
+
+        public IconsListCellRenderer() {
+        }
+
+        @Override
+        public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            JLabel data = (JLabel) super.getListCellRendererComponent(list,
+                                        value, index, isSelected, cellHasFocus);
+            data.setIcon(((Mod)value).getIcon());
+            data.setText(((Mod)value).getName());
+
+            // Grays out the icons
+            data.setEnabled(((Mod)value).isEnabled());
+            return data;
+        }
+    }
+
+    /**
      * Class of items in the Select language combo box on preferences dialog
      */
     private class Language {
@@ -1600,6 +1702,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JPopupMenu.Separator jSeparator2;
     private javax.swing.JPopupMenu.Separator jSeparator3;
@@ -1618,11 +1721,13 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     private javax.swing.JLabel labelModsFolder;
     private javax.swing.JLabel labelRequirements;
     private javax.swing.JLabel labelStatus;
+    private javax.swing.JList listModList;
     private javax.swing.JList listRequirements;
     private javax.swing.JMenuBar mainMenu;
     private javax.swing.JMenu menuFile;
     private javax.swing.JMenu menuHelp;
     private javax.swing.JMenu menuOptions;
+    private javax.swing.JPanel modListViewsPanel;
     private javax.swing.JPanel panelModChangelog;
     private javax.swing.JPanel panelModDescription;
     private javax.swing.JPanel panelModDetails;
