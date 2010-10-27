@@ -77,6 +77,8 @@ import exceptions.NothingSelectedModActionException;
 import exceptions.StringNotFoundModActionException;
 import exceptions.UnknowModActionException;
 import javax.swing.JList;
+import org.jdesktop.application.Application;
+import org.jdesktop.application.Task;
 import utility.update.UpdateReturn;
 
 /**
@@ -184,7 +186,7 @@ public class ManagerCtrl implements Observer {
         view.popupMenuItemViewChangelogAddActionListener(new ButtonViewModChangelogListener());
         view.popupItemMenuDeleteModAddActionListener(new DeleteModListener());
         view.getButtonViewModDetails().addActionListener(new ButtonViewModChangelogListener());
-        view.getButtonLaunchHon().addActionListener(new LaunchHonButton());
+        view.getButtonLaunchHon().addActionListener(new ApplyAndLaunchListener());
         view.getModListList().addKeyListener(new ModListKeyListener());
         view.getModListTable().addKeyListener(new ModTableKeyListener());
         view.getModListTable().getColumnModel().getColumn(0).setHeaderRenderer(new CheckBoxHeader(new MyItemListener()));
@@ -370,7 +372,6 @@ public class ManagerCtrl implements Observer {
         if (o.getClass().equals(Manager.class)) {
             int[] ints = (int[]) arg;
             view.getProgressBar().setValue(ints[0]);
-            view.getProgressBar().update(view.getProgressBar().getGraphics());
         }
 
     }
@@ -695,7 +696,14 @@ public class ManagerCtrl implements Observer {
     class ApplyModsListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
-            applyMods();
+            Task task = new Task<Void, Void>(Application.getInstance()) {
+                @Override
+                protected Void doInBackground() throws Exception {
+                    applyMods();
+                    return null;
+                }
+            };
+            task.execute();
         }
     }
 
@@ -705,16 +713,23 @@ public class ManagerCtrl implements Observer {
     class ApplyAndLaunchListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
-            logger.info("Applying mods and launching HoN...");
-            applyMods();
-            try {
-                Process game = Runtime.getRuntime().exec(Game.getInstance().getHonExecutable().getAbsolutePath());
-            } catch (IOException ex) {
-                view.showMessage(L10n.getString("message.honnotfound"),
-                        L10n.getString("message.honnotfound.title"),
-                        JOptionPane.ERROR_MESSAGE);
-                logger.error("HoN couldn't be launched. Hon path=" + model.getGamePath(), ex);
-            }
+            logger.info("Applying mods and launching HoN...2");
+            Task task = new Task<Void, Void>(Application.getInstance()) {
+                @Override
+                protected Void doInBackground() throws Exception {
+                    applyMods();
+                    try {
+                        Process game = Runtime.getRuntime().exec(Game.getInstance().getHonExecutable().getAbsolutePath());
+                    } catch (IOException ex) {
+                        view.showMessage(L10n.getString("message.honnotfound"),
+                                L10n.getString("message.honnotfound.title"),
+                                JOptionPane.ERROR_MESSAGE);
+                        logger.error("HoN couldn't be launched. Hon path=" + model.getGamePath(), ex);
+                    }
+                    return null;
+                }
+            };
+            task.execute();
         }
     }
 
@@ -1278,6 +1293,7 @@ public class ManagerCtrl implements Observer {
     }
 
     public void applyMods() {
+        view.getButtonApplyMods().setEnabled(false);
         try {
             int count = 0;
             Iterator<Mod> iterator = model.getMods().iterator();
@@ -1320,6 +1336,7 @@ public class ManagerCtrl implements Observer {
             view.getProgressBar().setValue(0);
             view.getProgressBar().setStringPainted(false);
         }
+        view.getButtonApplyMods().setEnabled(true);
     }
 
     /**
@@ -1360,6 +1377,8 @@ public class ManagerCtrl implements Observer {
                 int option = JOptionPane.showConfirmDialog(view, L10n.getString("message.unappliedmods"), L10n.getString("message.unappliedmods.title"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
                 if (option == 0) {
                     // Yes
+                    // This is blocking... so the animations (progress bar and text)
+                    // won't work.  Big TODO
                     applyMods();
                     exit();
                 } else if (option == 1) {

@@ -1286,22 +1286,16 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
 
                 @Override
                 protected Void doInBackground() throws Exception {
-                    Date d = new Date();
-                    date = d.getTime() + 800;
                     originalMessage = labelStatus.getText();
                     while (animating) {
-                        if (date <= d.getTime()) {
-                            date = d.getTime() + 800;
-                            if (dots < 3) {
-                                labelStatus.setText(labelStatus.getText() + ".");
-                                dots++;
-                            } else {
-                                labelStatus.setText(originalMessage);
-                                dots = 0;
-                            }
-                            paint(getGraphics());
+                        if (dots < 3) {
+                            labelStatus.setText(labelStatus.getText() + ".");
+                            dots++;
+                        } else {
+                            labelStatus.setText(originalMessage);
+                            dots = 0;
                         }
-                        d = new Date();
+                        Thread.sleep(700);
                     }
                     return null;
                 }
@@ -1526,6 +1520,10 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
 
     public JButton getButtonLaunchHon() {
         return buttonLaunchHon;
+    }
+
+    public JButton getButtonApplyMods() {
+        return buttonApplyMods;
     }
 
     public String getCLArguments() {
