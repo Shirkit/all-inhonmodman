@@ -71,9 +71,13 @@ public class ZIP {
         if (!zip.exists()) {
             throw new FileNotFoundException(zip.getName());
         }
-        while (filename.charAt(0) == '/') {
+        while (filename.charAt(0) == File.separatorChar) {
             filename = filename.substring(1);
         }
+
+        // Convert back slashes (bad file separators) to the correct one:
+        // (_may_ have problems, but ZipFile only seems to like forward slashes.
+        filename = filename.replace('\\', '/');
 
         ZipFile zipFile = new ZipFile(zip);
         Enumeration entires = zipFile.entries();

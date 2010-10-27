@@ -1249,7 +1249,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
 
     /**
      *  Method used for updating the view (called when the model has changed and
-     * notifyObservers() was called)
+     *  notifyObservers() was called)
      */
     public void update(Observable obs, Object obj) {
         if (fullyLoaded) {

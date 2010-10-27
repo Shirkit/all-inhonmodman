@@ -1278,6 +1278,8 @@ public class Manager extends Observable {
 
         String dest = "";
 
+        // This should probably be fixed for getGamePath() to work for all
+        // platforms, if it doesn't already.
         if (OS.isWindows() || OS.isLinux()) {
             dest = ManagerOptions.getInstance().getGamePath() + File.separator + "game" + File.separator + "resources999.s2z";
         } else if (OS.isMac()) {
