@@ -29,6 +29,7 @@ import java.util.Random;
 import com.mallardsoft.tuple.*;
 import com.thoughtworks.xstream.converters.ConversionException;
 import com.thoughtworks.xstream.io.StreamException;
+import gui.ManagerGUI;
 import java.io.FileInputStream;
 import java.nio.channels.FileLockInterruptionException;
 
@@ -812,7 +813,7 @@ public class Manager extends Observable {
     }
 
     /**
-     * Tries to disable a mod given by it's name. Throws exception if an error occoured.
+     * Tries to disable a mod given by it's name. Throws exception if an error occurred  .
      * @param name of the mod.
      * @throws ModEnabledException if another mod is enabled and requires the given by parameter mod to continue enabled.
      */
@@ -826,7 +827,6 @@ public class Manager extends Observable {
                 // Never thrown
             }
             // disable it
-            //ManagerOptions.getInstance().getAppliedMods().remove(m);
             ManagerOptions.getInstance().getMods().get(ManagerOptions.getInstance().getMods().indexOf(m)).disable();
         }
     }

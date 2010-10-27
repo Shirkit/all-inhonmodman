@@ -185,6 +185,7 @@ public class ManagerCtrl implements Observer {
         view.popupItemMenuDeleteModAddActionListener(new DeleteModListener());
         view.getButtonViewModDetails().addActionListener(new ButtonViewModChangelogListener());
         view.getButtonLaunchHon().addActionListener(new LaunchHonButton());
+        view.getModListList().addKeyListener(new ModListKeyListener());
         view.getModListTable().addKeyListener(new ModTableKeyListener());
         view.getModListTable().getColumnModel().getColumn(0).setHeaderRenderer(new CheckBoxHeader(new MyItemListener()));
         // Add file drop functionality
@@ -782,6 +783,34 @@ public class ManagerCtrl implements Observer {
         // Don't change this
         public void keyReleased(KeyEvent e) {
             view.getModListTable().changeSelection(view.getModListTable().getSelectedRow(), 0, false, false);
+            if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                e.consume();
+            }
+        }
+    }
+
+    class ModListKeyListener implements KeyListener {
+
+        // Don't change this
+        public void keyTyped(KeyEvent e) {
+            if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                e.consume();
+            }
+        }
+
+        // This can be edited
+        public void keyPressed(KeyEvent e) {
+            if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                enableMod(view.getSelectedMod());
+                model.updateNotify();
+                e.consume();
+            } else if (e.getKeyCode() == KeyEvent.VK_DELETE) {
+                deleteSelectedMod();
+            }
+        }
+
+        // Don't change this
+        public void keyReleased(KeyEvent e) {
             if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                 e.consume();
             }

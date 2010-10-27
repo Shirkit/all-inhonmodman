@@ -129,9 +129,11 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         getModListTable().setAutoCreateRowSorter(true);
         getModListTable().getRowSorter().toggleSortOrder(1);
         getModListTable().addMouseListener(new PopupListener());
+        getModListList().addMouseListener(new PopupListener());
         getProgressBar().setStringPainted(false);
 
         getModListTable().setFocusable(true);
+        getModListList().setFocusable(true);
     }
 
     /**
@@ -1031,23 +1033,34 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
      */
     public void updateModTable() {
         animating = false;
+        int enabled = 0, disabled = 0, applied = 0;
         // Store how the table is currently sorted
 
         if(model.getViewType() == ManagerOptions.ViewType.ICONS) {
+            int preserve = listModList.getSelectedIndex();
             ((CardLayout)modListViewsPanel.getLayout()).show(modListViewsPanel, ICONS_VIEW_IDENT);
             DefaultListModel modsListModel = new DefaultListModel();
             ArrayList<Mod> mods = ManagerOptions.getInstance().getMods();
             for(int i=0; i<mods.size(); ++i) {
                 modsListModel.addElement(mods.get(i));
+                if (mods.get(i).isEnabled()) {
+                    if (ManagerOptions.getInstance().getAppliedMods().contains(mods.get(i))) {
+                        applied++;
+                    } else {
+                        enabled++;
+                    }
+                } else {
+                    disabled++;
+                }
             }
             listModList.setModel(modsListModel);
             listModList.setLayoutOrientation(JList.HORIZONTAL_WRAP);
             // This essentially "packs" all of the icons.
             listModList.setVisibleRowCount(-1);
+            listModList.setSelectedIndex(preserve);
         }
         else {
             ((CardLayout)modListViewsPanel.getLayout()).show(modListViewsPanel, DETAILS_VIEW_IDENT);
-            int enabled = 0, disabled = 0, applied = 0;
             Object o = tableModList.getRowSorter().getSortKeys();
             ArrayList<Mod> mods = ManagerOptions.getInstance().getMods();
             // Save current selected row
@@ -1140,17 +1153,17 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
             // Restore selected row
             tableModList.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
             tableModList.getSelectionModel().setSelectionInterval(0, selectedRow);
-            // Display details of selected mod
-            displayModDetail();
-            setStatusMessage("<html><font color=#009900>" + (enabled + applied) + "</font>/<font color=#0033cc>" + (enabled + disabled + applied) + "</font> " + L10n.getString("status.modsenabled") + "</html>", false);
         }
+        // Display details of selected mod
+        displayModDetail();
+        setStatusMessage("<html><font color=#009900>" + (enabled + applied) + "</font>/<font color=#0033cc>" + (enabled + disabled + applied) + "</font> " + L10n.getString("status.modsenabled") + "</html>", false);
     }
 
     /**
      * Highlight the mods that is required to enable before or disable before the current select mod do
      * TODO: next release, right now don't bother
      */
-    public void highlightMods() {
+    public void highlightRequiredMods() {
         int selectedRow = tableModList.getSelectedRow();
         if (selectedRow == -1) {
             return;
@@ -1177,22 +1190,8 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         }
         // Make sure that items in the panel are visible
         setDetailsVisible(true);
-        Mod mod = null;
-
-        if(model.getViewType() == ManagerOptions.ViewType.ICONS) {
-             mod = (Mod)listModList.getSelectedValue();
-        }
-        else {
-            int selectedRow = tableModList.getSelectedRow();
-            try {
-                mod = (Mod) tableData[selectedRow][5];
-            } catch (IndexOutOfBoundsException e) {
-                if (selectedRow > 0) {
-                    logger.error("Cannot display mod at index " + selectedRow);
-                }
-                return;
-            }
-        }
+        Mod mod = getSelectedMod();
+        
         labelModName.setText(mod.getName());
         labelModAuthor.setText(mod.getAuthor());
         areaModDesc.setText(mod.getDescription());
@@ -1256,7 +1255,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         if (fullyLoaded) {
             logger.info("List of mods has changed, updating...");
             updateModTable();
-            highlightMods();
+            highlightRequiredMods();
         }
     }
 
@@ -1515,6 +1514,9 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
             } catch (IndexOutOfBoundsException e) {
             }
         }
+        if(mod == null) {
+            mod = model.getMods().get(0);
+        }
         return mod;
     }
 
@@ -1573,22 +1575,27 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
 
         @Override
         public void mouseReleased(MouseEvent e) {
-            tableModList.setRowSelectionInterval(tableModList.rowAtPoint(e.getPoint()), tableModList.rowAtPoint(e.getPoint()));
+            if(model.getViewType() == ManagerOptions.ViewType.DETAILS) {
+                tableModList.setRowSelectionInterval(tableModList.rowAtPoint(e.getPoint()),
+                                                     tableModList.rowAtPoint(e.getPoint()));
+            }
+            else if(model.getViewType() == ManagerOptions.ViewType.ICONS) {
+                // JList doesn't have a fancy "rowAtPoint" like JTable, so work
+                // through the visible items ourselves.
+                int lim = listModList.getLastVisibleIndex();
+                for(int i=listModList.getFirstVisibleIndex(); i<=lim; ++i) {
+                    if(listModList.getCellBounds(i, i).contains(e.getPoint())) {
+                         listModList.setSelectedIndex(i);
+                        break;
+                    }
+                }
+            }
             showPopup(e);
         }
 
         private void showPopup(MouseEvent e) {
             if (e.isPopupTrigger()) {
-                Mod mod = null;
-                int selectedRow = tableModList.getSelectedRow();
-                try {
-                    mod = (Mod) tableData[selectedRow][5];
-                } catch (IndexOutOfBoundsException ex) {
-                    if (selectedRow != -1) {
-                        logger.error("Cannot display mod at index " + selectedRow);
-                    }
-                    return;
-                }
+                Mod mod = getSelectedMod();
                 if (mod.isEnabled()) {
                     popupItemMenuEnableDisableMod.setText(L10n.getString("button.disablemod"));
                 } else {
