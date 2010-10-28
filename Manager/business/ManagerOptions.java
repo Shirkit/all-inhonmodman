@@ -47,10 +47,8 @@ public class ManagerOptions extends Observable {
     private boolean autoUpdate;
     private boolean autoEnableDependencies;
     private boolean developerMode;
-
     // TODO: Save this in the options file.
     private ViewType viewType = ViewType.DETAILS;
-    
     // Hidden fields from XML
     private ArrayList<Mod> mods;
     private static ManagerOptions instance;
@@ -317,7 +315,10 @@ public class ManagerOptions extends Observable {
      * @return p path to the folder.
      */
     public String getModPath() {
-        return MODS_FOLDER;
+        if (MODS_FOLDER != null) {
+            return MODS_FOLDER;
+        }
+        return "";
     }
 
     /**
@@ -325,7 +326,10 @@ public class ManagerOptions extends Observable {
      * @return  p path to the folder.
      */
     public String getGamePath() {
-        return HON_FOLDER;
+        if (HON_FOLDER != null) {
+            return HON_FOLDER;
+        }
+        return "";
     }
 
     /**
@@ -333,7 +337,10 @@ public class ManagerOptions extends Observable {
      * @return a String with the path. Example: 'C:\Users\User\Documents\ModManager\'. The Manager.jar will be inside that folder.
      */
     public String getManagerPath() {
-        return MANAGER_FOLDER;
+        if (MANAGER_FOLDER != null) {
+            return MANAGER_FOLDER;
+        }
+        return "";
     }
 
     /**
@@ -435,7 +442,9 @@ public class ManagerOptions extends Observable {
     public void setViewType(ViewType viewType) {
         this.viewType = viewType;
     }
+
     public enum ViewType {
+
         DETAILS, ICONS
     }
 
