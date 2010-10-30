@@ -1,12 +1,12 @@
-[b]0.1 alpha:[/b]
+[b]0.1 alpha - 28/07/2010:[/b]
 - First release to public
 
-[b]0.2 alpha:[/b]
+[b]0.2 alpha - 31/07/2010:[/b]
 - Minor fix in checking for manager update version.
 - Updated license for using Synthetica Look and Feel.
 - Major fix while running the Manager for the first time.
 
-[b]0.3 alpha:[/b]
+[b]0.3 alpha - 06/08/2010:[/b]
 - Major fixes in core structure.
 - Added a progress bar (only works with File -> Download Mods Updates currently)
 - Fixed File -> Download Mods Updates function
@@ -18,7 +18,7 @@
 - Logging improved a bit
 - Probally more, but I forgot to log them =\
 
-[b]0.4 alpha:[/b]
+[b]0.4 alpha - 25/08/2010:[/b]
 - Updated compareModsVersion (it will ignore all letters. All commas ',' will be replaced by dots '.' to be inside honmod format)
 - Updated aboutBox to display ModManager changelog
 - Updated ManagerOptions.getVersion() to return the full string, instead of a array of strings, each one with one word. If needed, we create another method for that.
@@ -46,7 +46,7 @@
 - Added a Refresh menu item for mod developers
 - Fixed bug while loading the mods if Mod's Path not set yet
 
-[b]0.5 alpha:[/b]
+[b]0.5 alpha - 04/09/2010:[/b]
 - Fixed bug while trying to apply mods and saying they aren't compatible (and they were, examples in appversion=1 should accept version 1.*)
 - Added a popup menu when right clicking in the table
 - Fixed a few graphical bug while applying a new Look and Feel
@@ -57,7 +57,7 @@
 - Changed behavior on Manager first launch
 - Added auto-update 100% working and functional
 
-[b]0.6 alpha:[/b]
+[b]0.6 alpha - 23/09/2010:[/b]
 - Fixed bug while reading corrupted ZIP files.
 - Updated messages displayed to the users
 - Fixed bug with file encoding (files saved with different encodings where throwing some heavy problems, but we managed to fix that)
@@ -67,7 +67,7 @@
 - Updated messages displayed to the user
 - Progress bar now works when applying mods and while updating them.
 
-[b]0.7 alpha:[/b]
+[b]0.7 alpha - 13/10/2010:[/b]
 - Optmized code for better performance and understanding.
 - Fixed bug while updating mods in Linux and Mac.
 - Added option to auto-update the Manager.
@@ -89,17 +89,17 @@
 - Fixed bug while restarting the manager. It's height, width, x, y and columns width could be wrongly loaded.
 - Some changes in language file (let's hope I don't need change anything else, to start translation).
 
-[b]0.7.1 alpha:[/b]
+[b]0.7.1 alpha - 14/10/2010:[/b]
 - Mod developers can now use a Insert action after a Delete. Although the developer should use the Replace action in this case, but this shall be allowed from now on.
 - '\' inside editfile's path will be replaced with '/' to avoid mistakes. File separators inside ZIP files need to be represented with '/', but since this can be fixed, it will be.
 - Added ability to navigate through the mod list in using the keyboard (Arrow keys to go up or down, Enter or Space to enable/disable mod).
 
-[b]0.7.2 alpha:[/b]
+[b]0.7.2 alpha - 16/10/2010:[/b]
 - Fixed bug I had generated while searching for strings. Example: 12345678905. If I search for 5, I would stop on the first 5. But on a second search, I was starting the search on the same position again, so it would return the same 5, not the next one.
 - Fixed a pop-up message with   wrong reference.
 - Rebuilt the project for relaunch. Hope this will fix issues with some users.
 
-[b]0.7.3 alpha:[/b]
+[b]0.7.3 alpha - 21/10/2010:[/b]
 - Pressing 'Delete' button now delets a mod.
 - Fixed a bug that would turn the into 0KB if you click to 'Add Mod' button and it already exists.
 - Added some more logging.
@@ -107,7 +107,7 @@
 - Updated some strings (Thanks to Awan`Afuqya).
 - Fixed bug while using the manager and Mod Options Framework and Movable Frames dummy files. Finally found what was messeing the Manager up. Thanks to MaxGhost and theli's conversation, I found out the problem.
 
-[b]0.7.4 alpha:[/b]
+[b]0.7.4 alpha - 21/10/2010:[/b]
 - Improved logging methods to handle uncatch exceptions. This will make logging avaluation much easier if unknow exceptions are found.
 - Fixed problem with UTF-16. Although no mod developer should use it, since the specification is meant to be UTF-8, the manager can now read UTF-16 without problems.
 
@@ -116,3 +116,8 @@
 - Added a checkbox to check all columns in the Table.
 - Fixed problem with Auto-Updater.
 - Fixed bugs while applying mods that uses <find position="end">STRING</find> operations. Notice that the position attribute in this case is useless.
+- Fixed varius flickering in Progress Bar, in the Main Window and while starting the Manager.
+- Un-updateable mods can't be updated anymore (thanks to Awan`Afuqya).
+- Added option to import from older ModManager.
+- Added support for showing Error Messages with Details (for future implementation of Developer Mode).
+- Fixed align problem in the Mod Details Panel (the 2 buttons of the right resizing if the Author's name is too big)

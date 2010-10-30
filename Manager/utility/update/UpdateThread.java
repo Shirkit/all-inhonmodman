@@ -51,6 +51,7 @@ public class UpdateThread implements Callable<UpdateThread> {
                     FileOutputStream fos = new FileOutputStream(file, false);
                     FileUtils.copyInputStream(is, fos);
                     is.close();
+                    fos.flush();
                     fos.close();
                 }
             }

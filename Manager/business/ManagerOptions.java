@@ -376,7 +376,6 @@ public class ManagerOptions extends Observable {
             mod.disable();
         }
         this.mods.add(mod);
-        updateNotify();
     }
 
     /**

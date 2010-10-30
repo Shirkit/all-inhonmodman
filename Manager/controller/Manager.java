@@ -29,8 +29,6 @@ import java.util.Random;
 import com.mallardsoft.tuple.*;
 import com.thoughtworks.xstream.converters.ConversionException;
 import com.thoughtworks.xstream.io.StreamException;
-import gui.ManagerGUI;
-import java.io.FileInputStream;
 import java.nio.channels.FileLockInterruptionException;
 
 import java.security.InvalidParameterException;
@@ -85,6 +83,8 @@ public class Manager extends Observable {
         cons = new HashSet<HashMap<String, String>>();
         after = new HashMap<Mod, HashMap<String, String>>();
         before = new HashMap<Mod, HashMap<String, String>>();
+
+        // TODO: change this with ZIP.getAllFolders() method.
         resources0FolderTree = new ArrayList<String>();
         resources0FolderTree.add("buildings");
         resources0FolderTree.add("core" + File.separator + "cursors");
@@ -413,37 +413,22 @@ public class Manager extends Observable {
     }
 
     /**
-     * Open website of the selected mod
-     *
-     * @param modIndex index of the mod in the list of mods
-     * @return 0 on success, -1 if opening websites is not supported on this platform
-     * @throws IndexOutOfBoundsException in case index is not in the mod list
-     */
-    public int openModWebsite(int modIndex) throws IndexOutOfBoundsException {
-        // TODO: This isn't working
-        Mod mod = ManagerOptions.getInstance().getMods().get(modIndex);
-        String url = mod.getWebLink();
-
-        return openWebsite(url);
-    }
-
-    /**
      * Open specified website in the default browser. This method is using java
      * Desktop API and therefore requires Java 1.6. Also, this operation might not
      * be supported on all platforms.
      *
      * @param url url of the website to open
-     * @return 0 on success, -1 in case the operation is not supported on this platform
+     * @return true on success, false in case the operation is not supported on this platform
      */
-    public int openWebsite(String url) {
+    public boolean openWebsite(String url) {
         if (!java.awt.Desktop.isDesktopSupported()) {
             logger.info("Opening websites is not supported");
-            return -1;
+            return false;
         }
         java.awt.Desktop desktop = java.awt.Desktop.getDesktop();
         if (!desktop.isSupported(java.awt.Desktop.Action.BROWSE)) {
             logger.info("Opening websites is not supported");
-            return -1;
+            return false;
         }
 
         try {
@@ -451,10 +436,9 @@ public class Manager extends Observable {
             desktop.browse(uri);
         } catch (Exception e) {
             logger.error("Unable to open website: " + e.getMessage());
-            e.printStackTrace();
-            return -1;
+            return false;
         }
-        return 0;
+        return true;
     }
 
     /**
@@ -500,20 +484,7 @@ public class Manager extends Observable {
      * @return the found Mod or null if isn't found.
      */
     public Mod getMod(String name, String version) {
-        // get the enumration object for ArrayList mods
-        Enumeration e = Collections.enumeration(ManagerOptions.getInstance().getMods());
-
-        // enumerate through the ArrayList to find the mod
-        while (e.hasMoreElements()) {
-            Mod m = (Mod) e.nextElement();
-            if (m.getName().equalsIgnoreCase(name)) {
-                if (compareModsVersions(m.getVersion(), version)) {
-                    return m;
-                }
-            }
-        }
-
-        return null;
+        return ManagerOptions.getInstance().getMod(name, version);
     }
 
     /**
@@ -534,7 +505,7 @@ public class Manager extends Observable {
         while (it.hasNext()) {
             Mod tempMod = it.next();
             temp.add(pool.submit(new UpdateThread(tempMod)));
-            logger.info("Started update on: " + tempMod.getName());
+            logger.info("Started update on: " + tempMod.getName() + " - " + tempMod.getVersion());
         }
         // Transfer from the pool
         HashSet<Future<UpdateThread>> result = new HashSet<Future<UpdateThread>>();
@@ -545,10 +516,10 @@ public class Manager extends Observable {
                 if (!result.contains(ff) && ff.isDone()) {
                     result.add(ff);
                     //logger.info("Finished " + result.size() + " out of " + temp.size() + " URL check");
-                    setChanged();
                     int[] ints = new int[2];
                     ints[0] = result.size();
                     ints[1] = temp.size();
+                    setChanged();
                     notifyObservers(ints);
                 }
             }
@@ -770,16 +741,7 @@ public class Manager extends Observable {
      * @throws IOException if a random I/O Exception happened.
      * @throws IllegalArgumentException if a mod used a invalid parameter to compare the mods version.
      */
-    public void enableMod(Mod m, boolean ignoreGameVersion) throws ModConflictException,
-            ModVersionUnsatisfiedException,
-            ModNotEnabledException,
-            NoSuchElementException,
-            ModVersionMissmatchException,
-            NullPointerException,
-            FileNotFoundException,
-            IllegalArgumentException,
-            IOException,
-            ModSameNameDifferentVersionsException {
+    public void enableMod(Mod m, boolean ignoreGameVersion) throws ModConflictException, ModVersionUnsatisfiedException, ModNotEnabledException, NoSuchElementException, ModVersionMissmatchException, NullPointerException, FileNotFoundException, IllegalArgumentException, IOException, ModSameNameDifferentVersionsException {
         if (!m.isEnabled()) {
             if (!ignoreGameVersion) {
                 if (m.getAppVersion() != null) {
@@ -937,12 +899,7 @@ public class Manager extends Observable {
         }*/
 
         // Sorting by deps TODO:Need Fix
-        logger.info("Sorting by Dependencies");
         left = beforeSort(afterSort(depSort(left)));
-        String s = "";
-        for (int i = 0; i < left.size(); i++) {
-            s += "\n" + left.get(i).getName() + " | " + left.get(i).getVersion();
-        }
 
         /*
         // Sorting by before after
@@ -987,13 +944,7 @@ public class Manager extends Observable {
      * @throws SecurityException if the Manager couldn't do a action because of security business.
      * @throws FileLockInterruptionException if the Manager couldn't open the resources999.s2z file.
      */
-    public void applyMods(boolean outputToFolderTree) throws IOException,
-            UnknowModActionException,
-            NothingSelectedModActionException,
-            StringNotFoundModActionException,
-            InvalidModActionParameterException,
-            SecurityException,
-            FileLockInterruptionException {
+    public void applyMods(boolean outputToFolderTree) throws IOException, UnknowModActionException, NothingSelectedModActionException, StringNotFoundModActionException, InvalidModActionParameterException, SecurityException, FileLockInterruptionException {
         ArrayList<Mod> applyOrder = sortMods();
         File tempFolder = new File(System.getProperty("java.io.tmpdir") + File.separator + "HoN Mod Manager");
         // This generates a temp folder. If it isn't possible, generates a random folder inside the OS's temp folder.
@@ -1363,6 +1314,7 @@ public class Manager extends Observable {
             File folder = new File(ManagerOptions.getInstance().getGamePath() + File.separator + "game" + File.separator + it.next());
             if (folder.exists() && folder.isDirectory()) {
                 if (!FileUtils.deleteDir(folder)) {
+                    // TODO: Need some handling?
                     System.out.println("failed to delete folder");
                 }
             }
@@ -1383,6 +1335,9 @@ public class Manager extends Observable {
         if (expressionVersion == null || expressionVersion.isEmpty()) {
             expressionVersion = "*";
         }
+        if (singleVersion == null || singleVersion.isEmpty()) {
+            singleVersion = "*";
+        }
 
         for (int i = 0; i < expressionVersion.length(); i++) {
             if (Character.isLetter(expressionVersion.charAt(i))) {
@@ -1397,7 +1352,7 @@ public class Manager extends Observable {
         expressionVersion = expressionVersion.replace(",", ".");
         singleVersion = singleVersion.replace(",", ".");
 
-        if (expressionVersion.equals("*-*") || expressionVersion.equals("*") || expressionVersion.equals(singleVersion)) {
+        if (expressionVersion.equals("*-*") || expressionVersion.equals("*") || expressionVersion.equals(singleVersion) || singleVersion.equals("*-*") || singleVersion.equals("*")) {
             result = true;
         } else if (expressionVersion.contains("-")) {
 

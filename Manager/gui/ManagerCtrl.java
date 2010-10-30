@@ -76,9 +76,12 @@ import exceptions.ModZipException;
 import exceptions.NothingSelectedModActionException;
 import exceptions.StringNotFoundModActionException;
 import exceptions.UnknowModActionException;
+import java.io.BufferedReader;
+import java.io.StringReader;
 import javax.swing.JList;
 import org.jdesktop.application.Application;
 import org.jdesktop.application.Task;
+import utility.ZIP;
 import utility.update.UpdateReturn;
 
 /**
@@ -111,15 +114,16 @@ public class ManagerCtrl implements Observer {
         this.controller.addObserver(this);
         this.model.addObserver(this);
 
+        boolean noOptionsFile = false;
+
         try {
             controller.loadOptions();
         } catch (StreamException e) {
             logger.error("StreamException from loadOptions()", e);
             // Mod options is invalid, must be deleted
         } catch (FileNotFoundException e) {
-            if (ManagerOptions.getInstance().getGamePath() == null || ManagerOptions.getInstance().getModPath() == null) {
-                view.showMessage(L10n.getString("error.honmodsfolder"), L10n.getString("error.honmodsfolder.title"), JOptionPane.ERROR_MESSAGE);
-            }
+            noOptionsFile = true;
+
         } catch (IOException e) {
         }
         loadLaf();
@@ -142,7 +146,7 @@ public class ManagerCtrl implements Observer {
             }
         }
 
-        view.setVisible(true);
+
         loadMods();
 
         view.tableRemoveListSelectionListener(lsl);
@@ -187,6 +191,7 @@ public class ManagerCtrl implements Observer {
         view.popupItemMenuDeleteModAddActionListener(new DeleteModListener());
         view.getButtonViewModDetails().addActionListener(new ButtonViewModChangelogListener());
         view.getButtonLaunchHon().addActionListener(new ApplyAndLaunchListener());
+        view.itemImportFromOldModManagerAddActionListener(new ImportModsFromOldModManager());
         view.getModListList().addKeyListener(new ModListKeyListener());
         view.getModListTable().addKeyListener(new ModTableKeyListener());
         view.getModListTable().getColumnModel().getColumn(0).setHeaderRenderer(new CheckBoxHeader(new MyItemListener()));
@@ -196,6 +201,18 @@ public class ManagerCtrl implements Observer {
         // End Add listeners
 
         view.fullyLoaded = true;
+
+        view.setVisible(true);
+
+        if (noOptionsFile) {
+            if (ManagerOptions.getInstance().getGamePath() == null || ManagerOptions.getInstance().getModPath() == null) {
+                view.showMessage(L10n.getString("error.honmodsfolder"), L10n.getString("error.honmodsfolder.title"), JOptionPane.ERROR_MESSAGE);
+            } else {
+                if (JOptionPane.showConfirmDialog(view, "Want to load?", "Load?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == 0) {
+                    importModsFromOldModManager();
+                }
+            }
+        }
 
         logger.info("ManagerCtrl started");
 
@@ -672,7 +689,7 @@ public class ManagerCtrl implements Observer {
 
         public void actionPerformed(ActionEvent ae) {
             // TODO: Check if it's null
-            if (controller.openWebsite(view.getSelectedMod().getWebLink()) == -1) {
+            if (!controller.openWebsite(view.getSelectedMod().getWebLink())) {
                 view.showMessage(L10n.getString("error.websitenotsupported"),
                         L10n.getString("error.websitenotsupported.title"),
                         JOptionPane.ERROR_MESSAGE);
@@ -697,6 +714,7 @@ public class ManagerCtrl implements Observer {
 
         public void actionPerformed(ActionEvent e) {
             Task task = new Task<Void, Void>(Application.getInstance()) {
+
                 @Override
                 protected Void doInBackground() throws Exception {
                     applyMods();
@@ -715,6 +733,7 @@ public class ManagerCtrl implements Observer {
         public void actionPerformed(ActionEvent e) {
             logger.info("Applying mods and launching HoN...2");
             Task task = new Task<Void, Void>(Application.getInstance()) {
+
                 @Override
                 protected Void doInBackground() throws Exception {
                     applyMods();
@@ -836,6 +855,7 @@ public class ManagerCtrl implements Observer {
      * Listener for changes to the mod list view type preference.
      */
     class ViewChangeListener implements ActionListener {
+
         ManagerOptions.ViewType viewType;
 
         public ViewChangeListener(ManagerOptions.ViewType _viewType) {
@@ -843,7 +863,7 @@ public class ManagerCtrl implements Observer {
         }
 
         public void actionPerformed(ActionEvent e) {
-            if(model.getViewType() != viewType) {
+            if (model.getViewType() != viewType) {
                 model.setViewType(viewType);
                 view.updateModTable();
             }
@@ -869,6 +889,61 @@ public class ManagerCtrl implements Observer {
             }
             model.updateNotify();
         }
+    }
+
+    class ImportModsFromOldModManager implements ActionListener {
+
+        public void actionPerformed(ActionEvent e) {
+            importModsFromOldModManager();
+        }
+    }
+
+    public void importModsFromOldModManager() {
+        try {
+            String extractZipComment = ZIP.extractZipComment(model.getGamePath() + File.separator + "game" + File.separator + "resources999.s2z");
+            ArrayList<String> modArray = new ArrayList<String>();
+            ArrayList<String> versionArray = new ArrayList<String>();
+
+            BufferedReader br = new BufferedReader(new StringReader(extractZipComment));
+
+            String str = null;
+            boolean isMod = false;
+            try {
+                while ((str = br.readLine()) != null) {
+                    if (str.length() > 0) {
+                        if (isMod) {
+                            int start = str.indexOf("(") + 2; // Jump the ( AND jump the 'v' [ModManager outputs in this format (v1.2.5) so we need to avoid that v also]
+                            int end = str.indexOf(")");
+                            versionArray.add(str.substring(start, end));
+                            modArray.add(str.substring(0, start - 3).trim()); // -3 because 2 from the add up there, and 1 to avoid the (
+                        } else if (str.contains("Applied Mods:")) {
+                            isMod = true;
+                        }
+                    }
+                }
+            } catch (IOException ex) {
+            }
+
+            for (int i = 0; i < 5; i++) {
+                Iterator<String> mods = modArray.iterator();
+                Iterator<String> versions = versionArray.iterator();
+
+                while (mods.hasNext() && versions.hasNext()) {
+                    String stringMod = mods.next();
+                    String stringVersion = versions.next();
+                    Mod mod = ManagerOptions.getInstance().getMod(stringMod, stringVersion);
+                    try {
+                        controller.enableMod(mod, ManagerOptions.getInstance().isIgnoreGameVersion());
+                        mods.remove();
+                        versions.remove();
+                    } catch (Exception ex) {
+                    }
+                }
+            }
+        } catch (FileNotFoundException ex) {
+        }
+        view.updateModTable();
+
     }
 
     class ButtonViewModChangelogListener implements ActionListener {
@@ -907,51 +982,59 @@ public class ManagerCtrl implements Observer {
     class DownloadModUpdatesListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
-            view.setStatusMessage("Updating mods", true);
-            view.getProgressBar().setVisible(true);
-            view.getProgressBar().setStringPainted(true);
-            ArrayList<Mod> toUpdate = new ArrayList<Mod>();
-            Iterator<Mod> it = ManagerOptions.getInstance().getMods().iterator();
-            while (it.hasNext()) {
-                toUpdate.add(it.next());
-            }
-            view.getProgressBar().setMaximum(toUpdate.size());
-            view.getProgressBar().paint(view.getProgressBar().getGraphics());
-            view.paint(view.getGraphics());
-            UpdateReturn things = null;
-            things = controller.updateMod(toUpdate);
-            it = things.getUpdatedModList().iterator();
-            String message = "";
-            if (it.hasNext()) {
-                message += L10n.getString("message.update.updatedmods") + " \n\n";
-                while (it.hasNext()) {
-                    Mod mod = it.next();
-                    message += L10n.getString("message.update.updated").replace("#mod#", mod.getName()).replace("#olderversion#", things.getOlderVersion(mod)).replace("#newversion#", mod.getVersion()) + "\n";
-                    //message += mod.getName() + " was updated from " + things.getOlderVersion(mod) + " to " + mod.getVersion() + "\n";
+            Task task = new Task<Void, Void>(Application.getInstance()) {
+
+                @Override
+                protected Void doInBackground() throws Exception {
+                    view.setStatusMessage("Updating mods", true);
+                    view.getProgressBar().setVisible(true);
+                    view.getProgressBar().setStringPainted(true);
+                    ArrayList<Mod> toUpdate = new ArrayList<Mod>();
+                    Iterator<Mod> it = ManagerOptions.getInstance().getMods().iterator();
+                    while (it.hasNext()) {
+                        toUpdate.add(it.next());
+                    }
+                    view.getProgressBar().setMaximum(toUpdate.size());
+                    view.getProgressBar().paint(view.getProgressBar().getGraphics());
+                    view.paint(view.getGraphics());
+                    UpdateReturn things = null;
+                    things = controller.updateMod(toUpdate);
+                    it = things.getUpdatedModList().iterator();
+                    String message = "";
+                    if (it.hasNext()) {
+                        message += L10n.getString("message.update.updatedmods") + " \n\n";
+                        while (it.hasNext()) {
+                            Mod mod = it.next();
+                            message += L10n.getString("message.update.updated").replace("#mod#", mod.getName()).replace("#olderversion#", things.getOlderVersion(mod)).replace("#newversion#", mod.getVersion()) + "\n";
+                            //message += mod.getName() + " was updated from " + things.getOlderVersion(mod) + " to " + mod.getVersion() + "\n";
+                        }
+                        message += "\n\n";
+                    } else {
+                        message = L10n.getString("message.update.uptodate");
+                    }
+                    //            it = things.getUpToDateModList().iterator();
+                    //            if (it.hasNext()) {
+                    //                message += L10n.getString("message.update.uptodate") + " \n\n";
+                    //            }
+                    it = things.getFailedModList().iterator();
+                    if (it.hasNext()) {
+                        if (!message.isEmpty()) {
+                            message += "\n\n";
+                        }
+                        message += L10n.getString("message.update.failed") + "\n";
+                        while (it.hasNext()) {
+                            Mod mod = it.next();
+                            message += "- " + mod.getName() + " (" + things.getException(mod).getLocalizedMessage() + ")\n";
+                        }
+                    }
+                    view.getProgressBar().setValue(0);
+                    view.getProgressBar().setStringPainted(false);
+                    view.updateModTable();
+                    view.showMessage(message, L10n.getString("message.update.title"), JOptionPane.INFORMATION_MESSAGE);
+                    return null;
                 }
-                message += "\n\n";
-            } else {
-                message = L10n.getString("message.update.uptodate");
-            }
-//            it = things.getUpToDateModList().iterator();
-//            if (it.hasNext()) {
-//                message += L10n.getString("message.update.uptodate") + " \n\n";
-//            }
-            it = things.getFailedModList().iterator();
-            if (it.hasNext()) {
-                if (!message.isEmpty()) {
-                    message += "\n\n";
-                }
-                message += L10n.getString("message.update.failed") + "\n";
-                while (it.hasNext()) {
-                    Mod mod = it.next();
-                    message += "- " + mod.getName() + " (" + things.getException(mod).getLocalizedMessage() + ")\n";
-                }
-            }
-            view.getProgressBar().setValue(0);
-            view.getProgressBar().setStringPainted(false);
-            view.updateModTable();
-            view.showMessage(message, L10n.getString("message.update.title"), JOptionPane.INFORMATION_MESSAGE);
+            };
+            task.execute();
         }
     }
 
@@ -1294,6 +1377,7 @@ public class ManagerCtrl implements Observer {
 
     public void applyMods() {
         view.getButtonApplyMods().setEnabled(false);
+        view.setEnabled(false);
         try {
             int count = 0;
             Iterator<Mod> iterator = model.getMods().iterator();
@@ -1307,7 +1391,6 @@ public class ManagerCtrl implements Observer {
             view.getProgressBar().setStringPainted(true);
             view.getProgressBar().setMaximum(count);
             view.getProgressBar().paint(view.getProgressBar().getGraphics());
-            view.paint(view.getGraphics());
             controller.applyMods(ManagerOptions.getInstance().isDeveloperMode());
             view.showMessage(L10n.getString("message.modsapplied"), L10n.getString("message.modsapplied.title"), JOptionPane.INFORMATION_MESSAGE);
         } catch (FileLockInterruptionException ex) {
@@ -1337,6 +1420,8 @@ public class ManagerCtrl implements Observer {
             view.getProgressBar().setStringPainted(false);
         }
         view.getButtonApplyMods().setEnabled(true);
+        view.setEnabled(true);
+        view.requestFocus();
     }
 
     /**

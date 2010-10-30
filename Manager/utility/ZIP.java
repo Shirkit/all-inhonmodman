@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
@@ -39,7 +40,7 @@ public class ZIP {
         if (!zip.exists()) {
             throw new FileNotFoundException(zip.getName());
         }
-        while (filename.charAt(0) == '/') {
+        while (filename.charAt(0) == '/' || filename.charAt(0) == '\\') {
             filename = filename.substring(1);
         }
 
@@ -67,17 +68,76 @@ public class ZIP {
         throw new FileNotFoundException(filename);
     }
 
+    public static ArrayList<String> getAllFolders(File zip) throws ZipException, FileNotFoundException, IOException {
+        ArrayList<String> returnValue = new ArrayList<String>();
+
+        if (!zip.exists()) {
+            throw new FileNotFoundException(zip.getName());
+        }
+
+        ZipFile zipFile = new ZipFile(zip);
+        Enumeration entries = zipFile.entries();
+
+        while (entries.hasMoreElements()) {
+            ZipEntry entry = (ZipEntry) entries.nextElement();
+
+            int last = entry.getName().lastIndexOf("/");
+
+            // This isn't working, I don't know why - if (entry.isDirectory()) {
+            if (last != -1) {
+                returnValue.add(entry.getName().substring(0, last));
+            }
+
+        }
+
+        return returnValue;
+    }
+
+    public static boolean fileExists(File zip, String fileName) throws ZipException, IOException {
+        String filename = fileName;
+
+        if (!zip.exists()) {
+            return false;
+        }
+        while (filename.charAt(0) == '/') {
+            filename = filename.substring(1);
+        }
+
+        if (filename.contains("\\")) {
+            filename = filename.replace("\\", "/");
+        }
+
+        ZipFile zipFile = new ZipFile(zip);
+        Enumeration entries = zipFile.entries();
+
+        while (entries.hasMoreElements()) {
+            ZipEntry entry = (ZipEntry) entries.nextElement();
+
+            if (entry.getName().equalsIgnoreCase(filename)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public static long getLastModified(File zip, String filename) throws FileNotFoundException, ZipException, IOException {
         if (!zip.exists()) {
             throw new FileNotFoundException(zip.getName());
         }
-        while (filename.charAt(0) == File.separatorChar) {
+
+        // Changed this to avoid conflict with any kind of slashes
+        while (filename.charAt(0) == '/' || filename.charAt(0) == '\\') {
             filename = filename.substring(1);
         }
 
         // Convert back slashes (bad file separators) to the correct one:
         // (_may_ have problems, but ZipFile only seems to like forward slashes.
-        filename = filename.replace('\\', '/');
+        // Without the if may cause to behave annormally. I've already used without a if and have some random errors.
+        // Since performance ultra performance isn't our goal, and this isn't heavy, I really prefer to leave this way (Shirkit)
+        if (filename.contains("\\")) {
+            filename = filename.replace("\\", "/");
+        }
 
         ZipFile zipFile = new ZipFile(zip);
         Enumeration entires = zipFile.entries();
@@ -153,7 +213,6 @@ public class ZIP {
         zos.close();
     }
 
-
     /**
      *
      * @param source Path to the folder to be compressed.
@@ -222,7 +281,7 @@ public class ZIP {
 
     }
 
-    public static String extractZipComment(String filename) {
+    public static String extractZipComment(String filename) throws FileNotFoundException {
         String retStr = null;
         try {
             File file = new File(filename);
@@ -267,16 +326,18 @@ public class ZIP {
             if (isMagicStart) {
                 // Magic Start found!
                 int commentLen = buffer[i + 20] + buffer[i + 21] * 256;
+
                 // ---- Added this to prevent negative values
                 if (commentLen < 0) {
                     commentLen = commentLen * -1;
                 }
                 // ---- Added this to prevent negative values
+                
                 int realLen = buffLen - i - 22;
-                System.out.println("ZIP comment found at buffer position " + (i + 22) + " with len=" + commentLen + ", good!");
+                //System.out.println("ZIP comment found at buffer position " + (i + 22) + " with len=" + commentLen + ", good!");
                 if (commentLen != realLen) {
-                    System.out.println("WARNING! ZIP comment size mismatch: directory says len is "
-                            + commentLen + ", but file ends after " + realLen + " bytes!");
+                    //System.out.println("WARNING! ZIP comment size mismatch: directory says len is "
+                            //+ commentLen + ", but file ends after " + realLen + " bytes!");
                 }
                 // Old way: String comment = new String (buffer, i+22, Math.min(commentLen, realLen));
                 String comment = new String(buffer, i + 22, realLen);

@@ -1,9 +1,8 @@
 package gui;
 
 import java.awt.Component;
-import java.io.IOException;
+import java.awt.event.ActionEvent;
 import java.util.List;
-import java.util.logging.Level;
 import javax.swing.JButton;
 import javax.swing.JList;
 import javax.swing.JMenuItem;
@@ -47,7 +46,11 @@ import javax.swing.UIManager.LookAndFeelInfo;
 import org.jdesktop.application.Application;
 import org.jdesktop.application.Task;
 import utility.BBCode;
-import de.javasoft.plaf.synthetica.Classes;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import javax.swing.JEditorPane;
+import javax.swing.JScrollPane;
+import javax.swing.JToggleButton;
 
 /**
  * Main form of the ModManager. This class is the 'view' part of the MVC framework
@@ -227,6 +230,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         itemUnapplyAllMods = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JPopupMenu.Separator();
         itemOpenModFolder = new javax.swing.JMenuItem();
+        itemImportFromOldModManager = new javax.swing.JMenuItem();
         jSeparator3 = new javax.swing.JPopupMenu.Separator();
         itemDownloadModUpdates = new javax.swing.JMenuItem();
         jSeparator2 = new javax.swing.JPopupMenu.Separator();
@@ -234,7 +238,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         menuOptions = new javax.swing.JMenu();
         itemOpenPreferences = new javax.swing.JMenuItem();
         itemRefresh = new javax.swing.JMenuItem();
-        jMenu1 = new javax.swing.JMenu();
+        menuView = new javax.swing.JMenu();
         ButtonGroup viewModesGroup = new ButtonGroup();
         itemViewDetails = new javax.swing.JRadioButtonMenuItem();
         itemViewIcons = new javax.swing.JRadioButtonMenuItem();
@@ -496,7 +500,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(labelModAuthor1)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 443, Short.MAX_VALUE)
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 475, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(buttonViewModDetails)
                 .addContainerGap())
@@ -565,7 +569,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         panelModDescriptionLayout.setVerticalGroup(
             panelModDescriptionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelModDescriptionLayout.createSequentialGroup()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 331, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 357, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(labelRequirements)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -601,16 +605,16 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                         .addComponent(labelModIcon)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(panelModDetailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(labelModAuthor, javax.swing.GroupLayout.DEFAULT_SIZE, 219, Short.MAX_VALUE)
-                            .addComponent(labelModName, javax.swing.GroupLayout.DEFAULT_SIZE, 219, Short.MAX_VALUE)))
+                            .addComponent(labelModAuthor, javax.swing.GroupLayout.PREFERRED_SIZE, 219, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(labelModName, javax.swing.GroupLayout.PREFERRED_SIZE, 219, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(panelModDetailsLayout.createSequentialGroup()
                         .addGroup(panelModDetailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addComponent(buttonVisitWebsite, 0, 0, Short.MAX_VALUE)
                             .addComponent(buttonEnableMod, javax.swing.GroupLayout.PREFERRED_SIZE, 123, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(panelModDetailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(buttonUpdateMod, javax.swing.GroupLayout.DEFAULT_SIZE, 144, Short.MAX_VALUE)
-                            .addComponent(buttonViewChagelog, javax.swing.GroupLayout.DEFAULT_SIZE, 144, Short.MAX_VALUE)))
+                            .addComponent(buttonUpdateMod, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(buttonViewChagelog, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addComponent(panelModDescription, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
@@ -713,10 +717,10 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonAddMod)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(labelStatus, javax.swing.GroupLayout.DEFAULT_SIZE, 142, Short.MAX_VALUE)
+                        .addComponent(labelStatus, javax.swing.GroupLayout.DEFAULT_SIZE, 270, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonLaunchHon, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(modListViewsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(modListViewsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 619, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(panelModListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                     .addComponent(progressBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -731,17 +735,17 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
             .addGroup(panelModListLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(panelModListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(panelModDetails, javax.swing.GroupLayout.DEFAULT_SIZE, 567, Short.MAX_VALUE)
-                    .addComponent(panelModChangelog, javax.swing.GroupLayout.DEFAULT_SIZE, 567, Short.MAX_VALUE)
-                    .addComponent(modListViewsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 567, Short.MAX_VALUE))
+                    .addComponent(panelModDetails, javax.swing.GroupLayout.DEFAULT_SIZE, 604, Short.MAX_VALUE)
+                    .addComponent(panelModChangelog, javax.swing.GroupLayout.DEFAULT_SIZE, 604, Short.MAX_VALUE)
+                    .addComponent(modListViewsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 604, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(panelModListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(panelModListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addComponent(buttonApplyMods, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(panelModListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(buttonAddMod, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)
-                            .addComponent(labelStatus))
-                        .addComponent(buttonLaunchHon, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(labelStatus, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(buttonLaunchHon, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(buttonApplyMods, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
@@ -779,6 +783,11 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         itemOpenModFolder.setText(L10n.getString("menu.file.openfolder"));
         itemOpenModFolder.setName("itemOpenModFolder"); // NOI18N
         menuFile.add(itemOpenModFolder);
+
+        itemImportFromOldModManager.setMnemonic(L10n.getMnemonic("menu.file.importoldmodmanager"));
+        itemImportFromOldModManager.setText(L10n.getString("menu.file.importoldmodmanager"));
+        itemImportFromOldModManager.setName("itemImportFromOldModManager"); // NOI18N
+        menuFile.add(itemImportFromOldModManager);
 
         jSeparator3.setName("jSeparator3"); // NOI18N
         menuFile.add(jSeparator3);
@@ -821,16 +830,16 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
 
         mainMenu.add(menuOptions);
 
-        jMenu1.setMnemonic(L10n.getMnemonic("menu.view"));
-        jMenu1.setText(L10n.getString("menu.view"));
-        jMenu1.setName("jMenu1"); // NOI18N
+        menuView.setMnemonic(L10n.getMnemonic("menu.view"));
+        menuView.setText(L10n.getString("menu.view"));
+        menuView.setName("menuView"); // NOI18N
 
         viewModesGroup.add(itemViewDetails);
         itemViewDetails.setMnemonic(L10n.getMnemonic("menu.view.details"));
         itemViewDetails.setSelected(true);
         itemViewDetails.setText(L10n.getString("menu.view.details"));
         itemViewDetails.setName("itemViewDetails"); // NOI18N
-        jMenu1.add(itemViewDetails);
+        menuView.add(itemViewDetails);
 
         viewModesGroup.add(itemViewIcons);
         itemViewIcons.setMnemonic(L10n.getMnemonic("menu.view.icons"));
@@ -841,9 +850,9 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                 itemViewIconsActionPerformed(evt);
             }
         });
-        jMenu1.add(itemViewIcons);
+        menuView.add(itemViewIcons);
 
-        mainMenu.add(jMenu1);
+        mainMenu.add(menuView);
 
         menuHelp.setMnemonic(L10n.getMnemonic("menu.help"));
         menuHelp.setText(L10n.getString("menu.help"));
@@ -876,15 +885,15 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panelModList, javax.swing.GroupLayout.DEFAULT_SIZE, 747, Short.MAX_VALUE)
+            .addComponent(panelModList, javax.swing.GroupLayout.DEFAULT_SIZE, 954, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panelModList, javax.swing.GroupLayout.DEFAULT_SIZE, 620, Short.MAX_VALUE)
+            .addComponent(panelModList, javax.swing.GroupLayout.DEFAULT_SIZE, 662, Short.MAX_VALUE)
         );
 
         java.awt.Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
-        setBounds((screenSize.width-755)/2, (screenSize.height-675)/2, 755, 675);
+        setBounds((screenSize.width-972)/2, (screenSize.height-733)/2, 972, 733);
     }// </editor-fold>//GEN-END:initComponents
 
     /**
@@ -974,6 +983,57 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
 
     public int confirmMessage(String message, String title, int type) {
         return JOptionPane.showConfirmDialog(this, message, title, type, JOptionPane.QUESTION_MESSAGE);
+    }
+
+    public void showDetailedMessage(String message, String title, String details, int type) {
+        final JPanel panel = new JPanel(new BorderLayout(0, 10));
+
+        final JToggleButton buttonDetails = new JToggleButton(L10n.getString("button.showdetails"), false);
+        final JEditorPane detailsText = new JEditorPane();
+        final JScrollPane scrollPane = new JScrollPane(detailsText);
+        detailsText.setText(details);
+
+        Object[] objs = {message, " ", panel};
+
+        final JOptionPane pane = new JOptionPane(objs, type);
+        final JDialog dialog = pane.createDialog(this, title);
+
+        dialog.setResizable(true);
+
+        buttonDetails.setMaximumSize(buttonDetails.getSize());
+
+        panel.add(scrollPane, BorderLayout.PAGE_START);
+        panel.add(buttonDetails, BorderLayout.LINE_END);
+
+        detailsText.setVisible(false);
+        scrollPane.setVisible(false);
+
+        // TODO: Find a way to set a maximum size, and then the scrollpane will enter in action
+        scrollPane.setMaximumSize(new Dimension(9999, 100));
+        panel.setMaximumSize(new Dimension(dialog.getWidth(), 100));
+
+        dialog.pack();
+
+        buttonDetails.addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                if (buttonDetails.isSelected()) {
+                    buttonDetails.setText(L10n.getString("button.hidedetails"));
+                    detailsText.setVisible(true);
+                    scrollPane.setVisible(true);
+                } else {
+                    buttonDetails.setText(L10n.getString("button.showdetails"));
+                    detailsText.setVisible(false);
+                    scrollPane.setVisible(false);
+                }
+                // Double pack is necessary to work, don't know why
+                dialog.pack();
+                panel.revalidate();
+                dialog.pack();
+            }
+        });
+
+        dialog.setVisible(true);
     }
 
     /**
@@ -1204,12 +1264,12 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
             } else {
                 buttonVisitWebsite.setEnabled(true);
             }
-            if (mod.getWebLink() != null) {
+            if (mod.getWebLink() != null && !mod.getWebLink().isEmpty()) {
                 buttonVisitWebsite.setEnabled(true);
             } else {
                 buttonVisitWebsite.setEnabled(false);
             }
-            if (mod.getChangelog() != null) {
+            if (mod.getChangelog() != null && !mod.getChangelog().isEmpty()) {
                 buttonViewChagelog.setEnabled(true);
                 labelModAuthor1.setText(labelModAuthor.getText());
                 labelModName1.setText(labelModName.getText());
@@ -1431,6 +1491,10 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
 
     public void popupItemMenuDeleteModAddActionListener(ActionListener al) {
         popupItemMenuDeleteMod.addActionListener(al);
+    }
+
+    public void itemImportFromOldModManagerAddActionListener(ActionListener al) {
+        itemImportFromOldModManager.addActionListener(al);
     }
 
     public JProgressBar getProgressBar() {
@@ -1700,6 +1764,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     private javax.swing.JMenuItem itemApplyMods;
     private javax.swing.JMenuItem itemDownloadModUpdates;
     private javax.swing.JMenuItem itemExit;
+    private javax.swing.JMenuItem itemImportFromOldModManager;
     private javax.swing.JMenuItem itemOpenModFolder;
     private javax.swing.JMenuItem itemOpenPreferences;
     private javax.swing.JMenuItem itemRefresh;
@@ -1708,7 +1773,6 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     private javax.swing.JRadioButtonMenuItem itemViewIcons;
     private javax.swing.JMenuItem itemVisitForumThread;
     private javax.swing.JEditorPane jEditorPane1;
-    private javax.swing.JMenu jMenu1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
@@ -1738,6 +1802,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     private javax.swing.JMenu menuFile;
     private javax.swing.JMenu menuHelp;
     private javax.swing.JMenu menuOptions;
+    private javax.swing.JMenu menuView;
     private javax.swing.JPanel modListViewsPanel;
     private javax.swing.JPanel panelModChangelog;
     private javax.swing.JPanel panelModDescription;

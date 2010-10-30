@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.1" encoding="UTF-8" ?>
 
 <Form version="1.5" maxVersion="1.7" type="org.netbeans.modules.form.forminfo.JDialogFormInfo">
   <Properties>
@@ -31,19 +31,19 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jScrollPane3" alignment="0" pref="441" max="32767" attributes="0"/>
+                  <Component id="jScrollPane3" alignment="0" pref="465" max="32767" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="labelModIcon" min="-2" max="-2" attributes="0"/>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Component id="appTitleLabel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jScrollPane1" pref="370" max="32767" attributes="0"/>
+                      <Component id="jScrollPane1" pref="394" max="32767" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="1" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="changelogToggleButton" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace pref="155" max="32767" attributes="0"/>
+                              <EmptySpace pref="179" max="32767" attributes="0"/>
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
                               <Group type="103" groupAlignment="1" max="-2" attributes="0">
@@ -54,12 +54,12 @@
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="appVersion" pref="126" max="32767" attributes="0"/>
-                                  <Component id="appHomepage" pref="126" max="32767" attributes="0"/>
-                                  <Component id="appLicense" pref="126" max="32767" attributes="0"/>
-                                  <Component id="appAuthors" pref="126" max="32767" attributes="0"/>
+                                  <Component id="appVersion" pref="183" max="32767" attributes="0"/>
+                                  <Component id="appHomepage" pref="183" max="32767" attributes="0"/>
+                                  <Component id="appLicense" pref="183" max="32767" attributes="0"/>
+                                  <Component id="appAuthors" alignment="0" min="-2" max="-2" attributes="0"/>
                               </Group>
-                              <EmptySpace min="-2" pref="38" max="-2" attributes="0"/>
+                              <EmptySpace min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                       <Component id="closeButton" min="-2" pref="133" max="-2" attributes="1"/>
@@ -228,7 +228,7 @@
           <Connection code="L10n.getString(&quot;about.license&quot;)" type="code"/>
         </Property>
         <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
-          <Color id="Hand Cursor"/>
+          <Color id="Cursor padr&#xe3;o"/>
         </Property>
         <Property name="name" type="java.lang.String" value="appLicense" noResource="true"/>
       </Properties>
@@ -251,7 +251,7 @@
     </Component>
     <Component class="javax.swing.JLabel" name="appAuthors">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Shirkit, Pennsu, Kovo"/>
+        <Property name="text" type="java.lang.String" value="Shirkit, Pennsu, Kovo, Gcommer"/>
         <Property name="name" type="java.lang.String" value="appAuthors" noResource="true"/>
       </Properties>
     </Component>

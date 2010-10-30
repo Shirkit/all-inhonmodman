@@ -36,7 +36,6 @@ import utility.update.UpdateManager;
 public class ManagerApp extends SingleFrameApplication {
 
     Logger logger;
-    ManagerGUI view;    // View
     ManagerCtrl ctrl;   // Controller
     // File with log4j configuration
     private static final String LOGGER_PROPS = "utility/log4j.properties";
@@ -101,7 +100,7 @@ public class ManagerApp extends SingleFrameApplication {
 
         try {
             if (hasUpdate.get().booleanValue()) {
-                if (ManagerOptions.getInstance().isAutoUpdate() || JOptionPane.showConfirmDialog(null, L10n.getString("message.updateavaliabe"), L10n.getString("message.updateavaliabe.title"), JOptionPane.YES_NO_OPTION) == 0) {
+                if (ManagerOptions.getInstance().isAutoUpdate() || JOptionPane.showConfirmDialog(ManagerCtrl.getGUI(), L10n.getString("message.updateavaliabe"), L10n.getString("message.updateavaliabe.title"), JOptionPane.YES_NO_OPTION) == 0) {
                     try {
                         InputStream in = getClass().getResourceAsStream("/Updater");
                         FileOutputStream fos = new FileOutputStream(ManagerOptions.MANAGER_FOLDER + File.separator + "Updater.jar");
@@ -116,7 +115,7 @@ public class ManagerApp extends SingleFrameApplication {
                         }
                         String updaterPath = System.getProperty("user.dir") + File.separator + "Updater.jar";
                         logger.info("Updating manager. java -jar " + updaterPath + " " + currentJar + " " + ManagerOptions.MANAGER_DOWNLOAD_URL + " " + updaterPath);
-                        Process updater = Runtime.getRuntime().exec("java -jar " + updaterPath + " " + currentJar + " " + ManagerOptions.MANAGER_DOWNLOAD_URL + " " + updaterPath);
+                        Runtime.getRuntime().exec("java -jar " + updaterPath + " " + currentJar + " " + ManagerOptions.MANAGER_DOWNLOAD_URL + " " + updaterPath);
                         System.exit(0);
                     } catch (IOException ex) {
                     }
