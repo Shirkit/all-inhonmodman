@@ -1231,10 +1231,13 @@ public class Manager extends Observable {
 
         // This should probably be fixed for getGamePath() to work for all
         // platforms, if it doesn't already.
+        
+        // Penn: getGamePath should work, now users are prompted for inputing correct game path when starting up in the beginning.
+        // Penn: Also are you sure about linux the same as windows?
         if (OS.isWindows() || OS.isLinux()) {
             dest = ManagerOptions.getInstance().getGamePath() + File.separator + "game" + File.separator + "resources999.s2z";
         } else if (OS.isMac()) {
-            dest = System.getProperty("user.home") + File.separator + "Library/Application Support/Heroes of Newerth/game/resources999.s2z";
+            dest = System.getProperty("user.home") + "/Library/Application Support/Heroes of Newerth/game/resources999.s2z";
         }
 
         File targetZip = new File(dest);
@@ -1256,10 +1259,29 @@ public class Manager extends Observable {
                 ZIP.createZIP(tempFolder.getAbsolutePath(), targetZip.getAbsolutePath(), "All-In HonModManager");
             } else {
                 deleteFolderTree();
-                FileUtils.copyFolderToFolder(tempFolder, new File(ManagerOptions.getInstance().getGamePath() + File.separator + "game"));
+                if (OS.isMac()) {
+                	FileUtils.copyFolderToFolder(tempFolder, new File(System.getProperty("user.home") + "/Library/Application Support/Heroes of Newerth/game"));
+                }
+                else if (OS.isWindows()) {
+                	FileUtils.copyFolderToFolder(tempFolder, new File(ManagerOptions.getInstance().getGamePath() + File.separator + "game"));               	
+                }
+                else if (OS.isLinux()) { // Penn: i"m not sure about linux so change it if necessary
+                	FileUtils.copyFolderToFolder(tempFolder, new File(ManagerOptions.getInstance().getGamePath() + File.separator + "game"));               	
+                }
+                
                 Iterator<String> it = resources0FolderTree.iterator();
                 while (it.hasNext()) {
-                    File folder = new File(ManagerOptions.getInstance().getGamePath() + File.separator + "game" + File.separator + it.next());
+                	File folder = null;
+                	if (OS.isMac()) {
+                		folder = new File(System.getProperty("user.home") + "/Library/Application Support/Heroes of Newerth/game" + File.separator + it.next());
+                	}
+                	else if (OS.isWindows()) {
+                		folder = new File(ManagerOptions.getInstance().getGamePath() + File.separator + "game" + File.separator + it.next());
+                	}
+                	else if (OS.isLinux()) { // Penn: i"m not sure about linux so change it if necessary
+                		folder = new File(ManagerOptions.getInstance().getGamePath() + File.separator + "game" + File.separator + it.next());
+                	}
+                    
                     if (folder.exists() && folder.isDirectory()) {
                         File warningFile = new File(folder, "! FILES AND FOLDER HERE WILL BE DELETED ON NEXT APPLY");
                         warningFile.createNewFile();
@@ -1275,6 +1297,7 @@ public class Manager extends Observable {
         setChanged();
         notifyObservers(counted);
         // --------------- Progress bar update
+        
         saveOptions();
     }
 

@@ -349,7 +349,6 @@ public class ManagerOptions extends Observable {
      */
     public void setAppliedMods(Set<Mod> list) {
         applied = list;
-        updateNotify();
     }
 
     /**

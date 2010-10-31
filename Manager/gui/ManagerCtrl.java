@@ -1344,6 +1344,7 @@ public class ManagerCtrl implements Observer {
             view.getProgressBar().paint(view.getProgressBar().getGraphics());
             controller.applyMods(ManagerOptions.getInstance().isDeveloperMode());
             view.showMessage(L10n.getString("message.modsapplied"), L10n.getString("message.modsapplied.title"), JOptionPane.INFORMATION_MESSAGE);
+
         } catch (FileLockInterruptionException ex) {
             logger.error("Error applying mods. Can't write on the resources999.s2z file", ex);
             view.showMessage(L10n.getString("error.resources999").replace("#file#", ManagerOptions.getInstance().getGamePath() + File.separator + "game" + File.separator + "resources999.s2z"), L10n.getString("error.resources999"), JOptionPane.ERROR_MESSAGE);
@@ -1373,6 +1374,7 @@ public class ManagerCtrl implements Observer {
         view.getButtonApplyMods().setEnabled(true);
         view.setEnabled(true);
         view.requestFocus();
+        ManagerOptions.getInstance().updateNotify();
     }
 
     /**
