@@ -13,7 +13,7 @@ import java.util.Enumeration;
 import java.util.List;
 
 /**
- *
+ * Leave this class here for now. I'm doing some tests with it.
  * @author Administrador
  */
 public class Classes {

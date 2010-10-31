@@ -10,7 +10,6 @@ import org.jdesktop.application.Action;
 import business.ManagerOptions;
 import gui.l10n.L10n;
 import java.awt.Dimension;
-import java.awt.Rectangle;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;

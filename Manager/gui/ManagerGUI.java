@@ -1096,7 +1096,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
      * @param mods list of mods to display
      */
     public void updateModTable() {
-        animating = false;
+                    animating = false;
         int enabled = 0, disabled = 0, applied = 0;
         // Store how the table is currently sorted
 
@@ -1142,7 +1142,6 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                 this.tableData[i][2] = (String) mod.getAuthor();
                 this.tableData[i][3] = (String) mod.getVersion();
                 // Storing mod into the data for sorting
-                this.tableData[i][5] = (Mod) mod;
                 if (mod.isEnabled()) {
                     if (ManagerOptions.getInstance().getAppliedMods().contains(mod)) {
                         this.tableData[i][4] = (String) L10n.getString("table.modstatus.applied");
@@ -1155,6 +1154,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                     this.tableData[i][4] = (String) L10n.getString("table.modstatus.disabled");
                     disabled++;
                 }
+                this.tableData[i][5] = (Mod) mod;
             }
             // Update table model
             DefaultTableModel dtm = (DefaultTableModel) tableModList.getModel();
@@ -1219,8 +1219,8 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         // Display details of selected mod
         displayModDetail();
         setStatusMessage("<html><font color=#009900>" + (enabled + applied) + "</font>/<font color=#0033cc>" + (enabled + disabled + applied) + "</font> " + L10n.getString("status.modsenabled") + "</html>", false);
-    }
-
+                }
+        
     /**
      * Highlight the mods that is required to enable before or disable before the current select mod do
      * TODO: next release, right now don't bother
@@ -1340,6 +1340,15 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         buttonEnableMod.setVisible(visible);
         buttonViewChagelog.setVisible(visible);
         jScrollPane3.setVisible(visible);
+    }
+
+    /**
+     * This method calls in all the components the setEanbled method to avoid input on the screen.
+     */
+    public void setInputEnabled(boolean enabled) {
+        tableModList.setEnabled(enabled);
+        panelModList.setEnabled(enabled);
+        mainMenu.setEnabled(enabled);
     }
 
     public void setStatusMessage(String status, boolean animate) {

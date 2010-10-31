@@ -1265,7 +1265,7 @@ public class Manager extends Observable {
                 else if (OS.isWindows()) {
                 	FileUtils.copyFolderToFolder(tempFolder, new File(ManagerOptions.getInstance().getGamePath() + File.separator + "game"));               	
                 }
-                else if (OS.isLinux()) { // Penn: i"m not sure about linux so change it if necessary
+                else if (OS.isLinux()) {
                 	FileUtils.copyFolderToFolder(tempFolder, new File(ManagerOptions.getInstance().getGamePath() + File.separator + "game"));               	
                 }
                 
@@ -1278,7 +1278,7 @@ public class Manager extends Observable {
                 	else if (OS.isWindows()) {
                 		folder = new File(ManagerOptions.getInstance().getGamePath() + File.separator + "game" + File.separator + it.next());
                 	}
-                	else if (OS.isLinux()) { // Penn: i"m not sure about linux so change it if necessary
+                	else if (OS.isLinux()) {
                 		folder = new File(ManagerOptions.getInstance().getGamePath() + File.separator + "game" + File.separator + it.next());
                 	}
                     

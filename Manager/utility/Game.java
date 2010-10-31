@@ -22,34 +22,6 @@ import org.xml.sax.SAXException;
 
 
 /**
- * File filter for JFileChooser. Only displays files ending with
- * .honmod extension
- */
-class HoNFilter extends FileFilter {
-
-    public boolean accept(File f) {
-        if (f.isDirectory()) {
-            return true;
-        }
-        int dotIndex = f.getName().lastIndexOf(".");
-        if (dotIndex == -1) {
-            return false;
-        }
-        String extension = f.getName().substring(dotIndex);
-        if ((extension != null) && (extension.equals(".app") || extension.equals(".honmod"))) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    //The description of this filter
-    public String getDescription() {
-        return L10n.getString("chooser.hondescription");
-    }
-}
-
-/**
  * Attributes and Methods related to the HoN
  * @author Usuário
  */
@@ -59,43 +31,6 @@ public class Game {
     private String version;
     private static Game instance = null;
     private static Logger logger = Logger.getLogger(Game.class.getPackage().getName());
-    
-    public static String dialogHoNFolder() {
-        JFileChooser fc = new JFileChooser();
-        fc.setDialogTitle("Select HoN Game folder");
-        fc.setAcceptAllFileFilterUsed(false);
-        HoNFilter filter = new HoNFilter();
-        fc.setFileFilter(filter);
-        
-        if (OS.isMac()) {
-            fc.setCurrentDirectory(new File("/Applications"));
-        } else {
-            //fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        }
-
-
-        int returnVal = fc.showOpenDialog(null);
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            File directory = fc.getSelectedFile();
-            return directory.getPath();
-        }
-        return null;
-    }
-
-    public static String dialogModFolder() {
-        JFileChooser fc = new JFileChooser();
-        fc.setDialogTitle("Select HoN Mod folder");
-        fc.setAcceptAllFileFilterUsed(false);
-        HoNFilter filter = new HoNFilter();
-        fc.setFileFilter(filter);
-
-        int returnVal = fc.showOpenDialog(null);
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            File directory = fc.getSelectedFile();
-            return directory.getPath();
-        }
-        return null;
-    }
     
     /**
      * Try to find HoN installation folder on different platforms.
@@ -147,7 +82,7 @@ public class Game {
         }
         
         // Let the user guide us.
-        return dialogHoNFolder();
+        return null;
     }
 
     /**
@@ -184,7 +119,7 @@ public class Game {
             return a.exists() ? a.getPath() : null;
         }
         
-        return dialogModFolder();
+        return null;
     }
 
     /**

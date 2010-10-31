@@ -110,7 +110,7 @@ public class ManagerCtrl implements Observer {
     public ManagerCtrl() {
         this.model = ManagerOptions.getInstance();
         this.controller = Manager.getInstance();
-        this.view = ManagerGUI.getInstance();
+        ManagerCtrl.view = ManagerGUI.getInstance();
         this.controller.addObserver(this);
         this.model.addObserver(this);
 
@@ -217,7 +217,7 @@ public class ManagerCtrl implements Observer {
             if (ManagerOptions.getInstance().getGamePath() == null || ManagerOptions.getInstance().getModPath() == null) {
                 view.showMessage(L10n.getString("error.honmodsfolder"), L10n.getString("error.honmodsfolder.title"), JOptionPane.ERROR_MESSAGE);
             } else {
-                if (JOptionPane.showConfirmDialog(view, "If you have used Hon Modman by Notausgang before, do you want to load?", "Load?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == 0) {
+                if (JOptionPane.showConfirmDialog(view, L10n.getString("message.importfromoldmodmanager"), L10n.getString("message.importfromoldmodmanager.title"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == 0) {
                     importModsFromOldModManager();
                 }
             }
@@ -582,6 +582,33 @@ public class ManagerCtrl implements Observer {
         }
     }
 
+     /**
+	      * File filter for JFileChooser. Only displays files ending with
+	      * .honmod extension
+	      */
+	     class HoNFilter extends FileFilter {
+
+	         public boolean accept(File f) {
+	             if (f.isDirectory()) {
+	                 return true;
+	             }
+	             int dotIndex = f.getName().lastIndexOf(".");
+	             if (dotIndex == -1) {
+	                 return false;
+	             }
+	             String extension = f.getName().substring(dotIndex);
+	             if ((extension != null) && (extension.equals(".app"))) {
+	                 return true;
+	             } else {
+	                 return false;
+	             }
+	         }
+
+	         //The description of this filter
+	         public String getDescription() {
+	             return L10n.getString("chooser.hondescription");
+	         }
+	     }
 
     /**
      * Listener for 'Add mod' button. Opens JFileChooser and lets user select
@@ -1067,6 +1094,8 @@ public class ManagerCtrl implements Observer {
             addHonmod(files);
             
             // FIXIT: what does this mean? Never update?
+            // Good question, I don't know either. Never used the Drag'n'Drop but this probally isn't needed
+            //  since when you call the addHonmod in the controller, the model already notifies the GUI
             if (updated) {
                 view.tableRemoveListSelectionListener(lsl);
                 model.updateNotify();
@@ -1173,7 +1202,23 @@ public class ManagerCtrl implements Observer {
     class ChooseFolderHonListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
-            view.setTextFieldHonFolder(Game.findHonFolder());
+            JFileChooser fc = new JFileChooser(); 	             view.setTextFieldHonFolder(Game.findHonFolder());
+	             fc.setAcceptAllFileFilterUsed(false);
+	             if (OS.isMac()) {
+	                 HoNFilter filter = new HoNFilter();
+	                 fc.setFileFilter(filter);
+	                 fc.setCurrentDirectory(new File("/Applications"));
+	             } else {
+	                 fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+	             }
+
+
+	             int returnVal = fc.showOpenDialog(view.getPrefsDialog());
+	             if (returnVal == JFileChooser.APPROVE_OPTION) {
+	                 File directory = fc.getSelectedFile();
+	                 view.setTextFieldHonFolder(directory.getPath());
+	                 logger.info("Hon folder selected: " + directory.getPath());
+	             }
         }
     }
 
@@ -1230,7 +1275,23 @@ public class ManagerCtrl implements Observer {
     class ChooseFolderModsListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
-        	view.setTextFieldModsFolder(Game.findModFolder());
+        	     JFileChooser fc = new JFileChooser(); 	                 
+	             fc.setAcceptAllFileFilterUsed(false);
+	             if (OS.isMac()) {
+	                 HoNFilter filter = new HoNFilter();
+	                 fc.setFileFilter(filter);
+	                 fc.setCurrentDirectory(new File("/Applications"));
+	             } else {
+	                 fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+	             }
+
+
+	             int returnVal = fc.showOpenDialog(view.getPrefsDialog());
+	             if (returnVal == JFileChooser.APPROVE_OPTION) {
+	                 File directory = fc.getSelectedFile();
+	                 view.setTextFieldModsFolder(directory.getPath());
+	                 logger.info("Mods folder selected: " + directory.getPath());
+	             }
         }
     }
     private long date;
@@ -1288,7 +1349,7 @@ public class ManagerCtrl implements Observer {
                             Mod target = ManagerOptions.getInstance().getMod(Tuple.get1(element), Tuple.get2(element));
                             enableMod(target);
                         }
-                        // Enable the mod finally
+                        // Enable the mod (finally
                         enableMod(mod);
                     }
                 } catch (ModVersionMissmatchException e1) {
@@ -1328,7 +1389,7 @@ public class ManagerCtrl implements Observer {
 
     public void applyMods() {
         view.getButtonApplyMods().setEnabled(false);
-        view.setEnabled(false);
+        //view.setInputEnabled(false);
         try {
             int count = 0;
             Iterator<Mod> iterator = model.getMods().iterator();
@@ -1343,8 +1404,8 @@ public class ManagerCtrl implements Observer {
             view.getProgressBar().setMaximum(count);
             view.getProgressBar().paint(view.getProgressBar().getGraphics());
             controller.applyMods(ManagerOptions.getInstance().isDeveloperMode());
+            model.updateNotify();
             view.showMessage(L10n.getString("message.modsapplied"), L10n.getString("message.modsapplied.title"), JOptionPane.INFORMATION_MESSAGE);
-
         } catch (FileLockInterruptionException ex) {
             logger.error("Error applying mods. Can't write on the resources999.s2z file", ex);
             view.showMessage(L10n.getString("error.resources999").replace("#file#", ManagerOptions.getInstance().getGamePath() + File.separator + "game" + File.separator + "resources999.s2z"), L10n.getString("error.resources999"), JOptionPane.ERROR_MESSAGE);
@@ -1372,9 +1433,8 @@ public class ManagerCtrl implements Observer {
             view.getProgressBar().setStringPainted(false);
         }
         view.getButtonApplyMods().setEnabled(true);
-        view.setEnabled(true);
-        view.requestFocus();
-        ManagerOptions.getInstance().updateNotify();
+        //view.setEnabled(true);
+        //view.requestFocus();
     }
 
     /**
