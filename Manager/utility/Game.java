@@ -1,6 +1,9 @@
 package utility;
 
 import business.ManagerOptions;
+
+import gui.l10n.L10n;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -10,9 +13,41 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileFilter;
+
 import org.apache.log4j.Logger;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
+
+
+/**
+ * File filter for JFileChooser. Only displays files ending with
+ * .honmod extension
+ */
+class HoNFilter extends FileFilter {
+
+    public boolean accept(File f) {
+        if (f.isDirectory()) {
+            return true;
+        }
+        int dotIndex = f.getName().lastIndexOf(".");
+        if (dotIndex == -1) {
+            return false;
+        }
+        String extension = f.getName().substring(dotIndex);
+        if ((extension != null) && (extension.equals(".app") || extension.equals(".honmod"))) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    //The description of this filter
+    public String getDescription() {
+        return L10n.getString("chooser.hondescription");
+    }
+}
 
 /**
  * Attributes and Methods related to the HoN
@@ -24,7 +59,44 @@ public class Game {
     private String version;
     private static Game instance = null;
     private static Logger logger = Logger.getLogger(Game.class.getPackage().getName());
+    
+    public static String dialogHoNFolder() {
+        JFileChooser fc = new JFileChooser();
+        fc.setDialogTitle("Select HoN Game folder");
+        fc.setAcceptAllFileFilterUsed(false);
+        HoNFilter filter = new HoNFilter();
+        fc.setFileFilter(filter);
+        
+        if (OS.isMac()) {
+            fc.setCurrentDirectory(new File("/Applications"));
+        } else {
+            //fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        }
 
+
+        int returnVal = fc.showOpenDialog(null);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File directory = fc.getSelectedFile();
+            return directory.getPath();
+        }
+        return null;
+    }
+
+    public static String dialogModFolder() {
+        JFileChooser fc = new JFileChooser();
+        fc.setDialogTitle("Select HoN Mod folder");
+        fc.setAcceptAllFileFilterUsed(false);
+        HoNFilter filter = new HoNFilter();
+        fc.setFileFilter(filter);
+
+        int returnVal = fc.showOpenDialog(null);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File directory = fc.getSelectedFile();
+            return directory.getPath();
+        }
+        return null;
+    }
+    
     /**
      * Try to find HoN installation folder on different platforms.
      *
@@ -52,7 +124,6 @@ public class Game {
             // Mod manager... but our current registry accessing method can't see
             // it.
             // We didnt find HoN folder in the registry, try something else?
-            return null;
         }
         // Try to find HoN folder in case we are on Linux
         if (OS.isLinux()) {
@@ -72,10 +143,11 @@ public class Game {
             }
             else {
             	logger.error("GAME: Mac: " + a.getPath() + " doesn't exist");
-            	return null;
             }
         }
-        return null;
+        
+        // Let the user guide us.
+        return dialogHoNFolder();
     }
 
     /**
@@ -111,7 +183,8 @@ public class Game {
             logger.error("GAME: " + a.getPath());
             return a.exists() ? a.getPath() : null;
         }
-        return null;
+        
+        return dialogModFolder();
     }
 
     /**

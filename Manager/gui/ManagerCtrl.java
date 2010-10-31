@@ -33,6 +33,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import utility.FileDrop;
 import utility.OS;
+import utility.Game;
 import exceptions.ModConflictException;
 import exceptions.ModEnabledException;
 import exceptions.ModNotEnabledException;
@@ -69,7 +70,6 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
-import utility.Game;
 import exceptions.InvalidModActionParameterException;
 import exceptions.ModDuplicateException;
 import exceptions.ModZipException;
@@ -110,12 +110,13 @@ public class ManagerCtrl implements Observer {
     public ManagerCtrl() {
         this.model = ManagerOptions.getInstance();
         this.controller = Manager.getInstance();
-        view = ManagerGUI.getInstance();
+        this.view = ManagerGUI.getInstance();
         this.controller.addObserver(this);
         this.model.addObserver(this);
 
         boolean noOptionsFile = false;
 
+        // Try load options
         try {
             controller.loadOptions();
         } catch (StreamException e) {
@@ -123,13 +124,19 @@ public class ManagerCtrl implements Observer {
             // Mod options is invalid, must be deleted
         } catch (FileNotFoundException e) {
             noOptionsFile = true;
-
         } catch (IOException e) {
         }
+        
+        
+        // Set up look and feel
         loadLaf();
+        
+        // Set up last window position
         if (model.getGuiRectangle() != null) {
             view.setBounds(model.getGuiRectangle());
         }
+        
+        // Load last column width for list view
         if (model.getColumnsWidth() != null) {
             if (model.getColumnsWidth().size() != view.getModListTable().getColumnModel().getColumnCount()) {
                 // If we change the interfaece, nothing else will need to done =]
@@ -146,13 +153,13 @@ public class ManagerCtrl implements Observer {
             }
         }
 
-
+        // Load mods
         loadMods();
 
+        // Update table
         view.tableRemoveListSelectionListener(lsl);
         model.updateNotify();
         view.tableAddListSelectionListener(lsl);
-
         view.updateModTable();
 
         // Add listeners to view components
@@ -195,27 +202,28 @@ public class ManagerCtrl implements Observer {
         view.getModListList().addKeyListener(new ModListKeyListener());
         view.getModListTable().addKeyListener(new ModTableKeyListener());
         view.getModListTable().getColumnModel().getColumn(0).setHeaderRenderer(new CheckBoxHeader(new MyItemListener()));
+        
         // Add file drop functionality
-
         new FileDrop(view, new DropListener());
-        // End Add listeners
 
         view.fullyLoaded = true;
 
+        // Display window
         view.setVisible(true);
 
+        // Load mods from resource file
+        // FIXIT: want to move it before displaying main window?
         if (noOptionsFile) {
             if (ManagerOptions.getInstance().getGamePath() == null || ManagerOptions.getInstance().getModPath() == null) {
                 view.showMessage(L10n.getString("error.honmodsfolder"), L10n.getString("error.honmodsfolder.title"), JOptionPane.ERROR_MESSAGE);
             } else {
-                if (JOptionPane.showConfirmDialog(view, "Want to load?", "Load?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == 0) {
+                if (JOptionPane.showConfirmDialog(view, "If you have used Hon Modman by Notausgang before, do you want to load?", "Load?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == 0) {
                     importModsFromOldModManager();
                 }
             }
         }
 
-        logger.info("ManagerCtrl started");
-
+        logger.info("ManagerCtrl finished initialization.");
     }
 
     /**
@@ -356,7 +364,7 @@ public class ManagerCtrl implements Observer {
         String lafClass = ManagerOptions.getInstance().getLaf();
         try {
             if (lafClass.equals("default") || lafClass.isEmpty()) {
-                logger.info("Changing LaF to Default");
+                logger.info("Setting LaF to Default");
                 if (OS.isWindows()) {
                     try {
                         UIManager.setLookAndFeel("com.jgoodies.looks.plastic.PlasticXPLookAndFeel");
@@ -574,33 +582,6 @@ public class ManagerCtrl implements Observer {
         }
     }
 
-    /**
-     * File filter for JFileChooser. Only displays files ending with
-     * .honmod extension
-     */
-    class HoNFilter extends FileFilter {
-
-        public boolean accept(File f) {
-            if (f.isDirectory()) {
-                return true;
-            }
-            int dotIndex = f.getName().lastIndexOf(".");
-            if (dotIndex == -1) {
-                return false;
-            }
-            String extension = f.getName().substring(dotIndex);
-            if ((extension != null) && (extension.equals(".app"))) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-        //The description of this filter
-        public String getDescription() {
-            return L10n.getString("chooser.hondescription");
-        }
-    }
 
     /**
      * Listener for 'Add mod' button. Opens JFileChooser and lets user select
@@ -1084,6 +1065,8 @@ public class ManagerCtrl implements Observer {
             boolean updated = false;
             logger.info("Files dropped: " + files.length);
             addHonmod(files);
+            
+            // FIXIT: what does this mean? Never update?
             if (updated) {
                 view.tableRemoveListSelectionListener(lsl);
                 model.updateNotify();
@@ -1190,23 +1173,7 @@ public class ManagerCtrl implements Observer {
     class ChooseFolderHonListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
-            JFileChooser fc = new JFileChooser();
-            fc.setAcceptAllFileFilterUsed(false);
-            if (OS.isMac()) {
-                HoNFilter filter = new HoNFilter();
-                fc.setFileFilter(filter);
-                fc.setCurrentDirectory(new File("/Applications"));
-            } else {
-                fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-            }
-
-
-            int returnVal = fc.showOpenDialog(view.getPrefsDialog());
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-                File directory = fc.getSelectedFile();
-                view.setTextFieldHonFolder(directory.getPath());
-                logger.info("Hon folder selected: " + directory.getPath());
-            }
+            view.setTextFieldHonFolder(Game.findHonFolder());
         }
     }
 
@@ -1263,23 +1230,7 @@ public class ManagerCtrl implements Observer {
     class ChooseFolderModsListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
-            JFileChooser fc = new JFileChooser();
-            fc.setAcceptAllFileFilterUsed(false);
-            if (OS.isMac()) {
-                HoNFilter filter = new HoNFilter();
-                fc.setFileFilter(filter);
-                fc.setCurrentDirectory(new File("/Applications"));
-            } else {
-                fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-            }
-
-
-            int returnVal = fc.showOpenDialog(view.getPrefsDialog());
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-                File directory = fc.getSelectedFile();
-                view.setTextFieldModsFolder(directory.getPath());
-                logger.info("Mods folder selected: " + directory.getPath());
-            }
+        	view.setTextFieldModsFolder(Game.findModFolder());
         }
     }
     private long date;
