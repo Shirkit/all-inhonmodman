@@ -145,6 +145,9 @@
             </Property>
             <Property name="name" type="java.lang.String" value="comboBoxLafs" noResource="true"/>
           </Properties>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new javax.swing.JComboBox() {&#xa; public void addItem(Object anObject) {&#xa;        int size = ((DefaultComboBoxModel) dataModel).getSize();&#xa;        Object obj;&#xa;        boolean added = false;&#xa;        for (int i=0; i&lt;size; i++) {&#xa;            obj = dataModel.getElementAt(i);&#xa;            int compare = anObject.toString().compareToIgnoreCase(obj.toString());&#xa;            if (compare &lt;= 0) { // if anObject less than or equal obj&#xa;                super.insertItemAt(anObject, i);&#xa;                added = true;&#xa;                break;&#xa;            }&#xa;        }&#xa; &#xa;        if (!added) {&#xa;            super.addItem(anObject);&#xa;        }&#xa;    }&#xa;&#xa;}"/>
+          </AuxValues>
         </Component>
         <Component class="javax.swing.JButton" name="buttonApplyLaf">
           <Properties>
@@ -186,6 +189,9 @@
             </Property>
             <Property name="name" type="java.lang.String" value="comboBoxChooseLanguage" noResource="true"/>
           </Properties>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new javax.swing.JComboBox(){&#xa; public void addItem(Object anObject) {&#xa;        int size = ((DefaultComboBoxModel) dataModel).getSize();&#xa;        Object obj;&#xa;        boolean added = false;&#xa;        for (int i=0; i&lt;size; i++) {&#xa;            obj = dataModel.getElementAt(i);&#xa;            int compare = anObject.toString().compareToIgnoreCase(obj.toString());&#xa;            if (compare &lt;= 0) { // if anObject less than or equal obj&#xa;                super.insertItemAt(anObject, i);&#xa;                added = true;&#xa;                break;&#xa;            }&#xa;        }&#xa; &#xa;        if (!added) {&#xa;            super.addItem(anObject);&#xa;        }&#xa;    }&#xa;&#xa;}"/>
+          </AuxValues>
         </Component>
         <Component class="javax.swing.JLabel" name="labelCLArguments">
           <Properties>

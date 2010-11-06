@@ -32,6 +32,10 @@ public class XML {
         return new ShirkitDriver("UTF-8");
     }
 
+    public static ShirkitDriver getAlternativeDriver() {
+        return new ShirkitDriver("UTF-16");
+    }
+
     /**
      * Save the XML in the passed parameter of the passed Mod.
      * @param what Mod to be saved.
@@ -130,7 +134,26 @@ public class XML {
 
         XStream xstream = new XStream(getDriver());
         xstream = updateAlias(xstream);
-        Mod m = (Mod) xstream.fromXML(fileString);
+        Mod m = null;
+        try {
+            m = (Mod) xstream.fromXML(fileString);
+        } catch (StreamException e) {
+            // Remove BOM
+            try {
+                m = (Mod) xstream.fromXML(fileString.substring(1));
+            } catch (StreamException ex) {
+                // Load another driver
+                xstream = new XStream(getAlternativeDriver());
+                try {
+                    // Try with another driver
+                    m = (Mod) xstream.fromXML(fileString);
+                } catch (StreamException ex1) {
+                    // Remove BOM
+                    m = (Mod) xstream.fromXML(fileString.substring(1));
+                }
+            }
+        }
+
         return removeRequiredMods(m);
 
     }

@@ -111,13 +111,20 @@
 - Improved logging methods to handle uncatch exceptions. This will make logging avaluation much easier if unknow exceptions are found.
 - Fixed problem with UTF-16. Although no mod developer should use it, since the specification is meant to be UTF-8, the manager can now read UTF-16 without problems.
 
-[b]0.7.5 alpha:[/b]
+[b]0.8 alpha:[/b]
 - Added status message with current mod enabled and message while applying and updating mods, with 3 dots animation.
-- Added a checkbox to check all columns in the Table.
 - Fixed problem with Auto-Updater.
 - Fixed bugs while applying mods that uses <find position="end">STRING</find> operations. Notice that the position attribute in this case is useless.
 - Fixed varius flickering in Progress Bar, in the Main Window and while starting the Manager. (some still continue =\)
 - Un-updateable mods can't be updated anymore (thanks to Awan`Afuqya).
 - Added option to import from older ModManager.
 - Added support for showing Error Messages with Details (for future implementation of Developer Mode).
+- Added back Yes/No/Cancel option while trying to close the Manager with unsaved actions.
 - Fixed align problem in the Mod Details Panel (the 2 buttons of the right resizing if the Author's name is too big)
+
+[b]0.8.1 alpha:[/b]
+- Fixed problem while updating UTF-16 mods.
+- ComboBoxes are now sorted.
+- Un-updateable mods can't be updated anymore.
+- Double-click enabling/disabling a mod only works if it's the left button.
+- Applying and Launching HoN now closes if not under developer mode, and only closes if the applying was successful.

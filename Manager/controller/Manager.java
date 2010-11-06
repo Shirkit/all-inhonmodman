@@ -360,25 +360,26 @@ public class Manager extends Observable {
             logger.error(ex);
             throw new ModZipException(list);
         }
+        // TODO: Move this to the XML class, Create removeBoom and loadUTF-16 methods
         Mod m = null;
         try {
             m = XML.xmlToMod(xml);
         } catch (StreamException ex) {
-            try {
-                m = XML.xmlToMod(xml.substring(1));
+            /*try {
+            m = XML.xmlToMod(xml.substring(1));
             } catch (StreamException ex1) {
-                try {
-                    xml = new String(ZIP.getFile(honmod, Mod.MOD_FILENAME), "UTF-16");
-                    m = XML.xmlToMod(xml, new ShirkitDriver("UTF-16"));
-                } catch (StreamException ex2) {
-                    try {
-                        m = XML.xmlToMod(xml.substring(1), new ShirkitDriver("UTF-16"));
-                    } catch (StreamException ex3) {
-                        list.add(Tuple.from(honmod.getName(), "stream"));
-                        throw new ModStreamException(list);
-                    }
-                }
-            }
+            try {
+            xml = new String(ZIP.getFile(honmod, Mod.MOD_FILENAME), "UTF-16");
+            m = XML.xmlToMod(xml, new ShirkitDriver("UTF-16"));
+            } catch (StreamException ex2) {
+            try {
+            m = XML.xmlToMod(xml.substring(1), new ShirkitDriver("UTF-16"));
+            } catch (StreamException ex3) {*/
+            list.add(Tuple.from(honmod.getName(), "stream"));
+            throw new ModStreamException(list);
+            //   }
+            //     }
+            //}
         }
         m.setPath(honmod.getAbsolutePath());
         if (getMod(m.getName(), m.getVersion()) != null) {
@@ -1231,7 +1232,7 @@ public class Manager extends Observable {
 
         // This should probably be fixed for getGamePath() to work for all
         // platforms, if it doesn't already.
-        
+
         // Penn: getGamePath should work, now users are prompted for inputing correct game path when starting up in the beginning.
         // Penn: Also are you sure about linux the same as windows?
         if (OS.isWindows() || OS.isLinux()) {
@@ -1255,33 +1256,28 @@ public class Manager extends Observable {
 
         if (!applyOrder.isEmpty()) {
             if (!outputToFolderTree) {
-                deleteFolderTree();
                 ZIP.createZIP(tempFolder.getAbsolutePath(), targetZip.getAbsolutePath(), "All-In HonModManager");
             } else {
                 deleteFolderTree();
                 if (OS.isMac()) {
-                	FileUtils.copyFolderToFolder(tempFolder, new File(System.getProperty("user.home") + "/Library/Application Support/Heroes of Newerth/game"));
+                    FileUtils.copyFolderToFolder(tempFolder, new File(System.getProperty("user.home") + "/Library/Application Support/Heroes of Newerth/game"));
+                } else if (OS.isWindows()) {
+                    FileUtils.copyFolderToFolder(tempFolder, new File(ManagerOptions.getInstance().getGamePath() + File.separator + "game"));
+                } else if (OS.isLinux()) {
+                    FileUtils.copyFolderToFolder(tempFolder, new File(ManagerOptions.getInstance().getGamePath() + File.separator + "game"));
                 }
-                else if (OS.isWindows()) {
-                	FileUtils.copyFolderToFolder(tempFolder, new File(ManagerOptions.getInstance().getGamePath() + File.separator + "game"));               	
-                }
-                else if (OS.isLinux()) {
-                	FileUtils.copyFolderToFolder(tempFolder, new File(ManagerOptions.getInstance().getGamePath() + File.separator + "game"));               	
-                }
-                
+
                 Iterator<String> it = resources0FolderTree.iterator();
                 while (it.hasNext()) {
-                	File folder = null;
-                	if (OS.isMac()) {
-                		folder = new File(System.getProperty("user.home") + "/Library/Application Support/Heroes of Newerth/game" + File.separator + it.next());
-                	}
-                	else if (OS.isWindows()) {
-                		folder = new File(ManagerOptions.getInstance().getGamePath() + File.separator + "game" + File.separator + it.next());
-                	}
-                	else if (OS.isLinux()) {
-                		folder = new File(ManagerOptions.getInstance().getGamePath() + File.separator + "game" + File.separator + it.next());
-                	}
-                    
+                    File folder = null;
+                    if (OS.isMac()) {
+                        folder = new File(System.getProperty("user.home") + "/Library/Application Support/Heroes of Newerth/game" + File.separator + it.next());
+                    } else if (OS.isWindows()) {
+                        folder = new File(ManagerOptions.getInstance().getGamePath() + File.separator + "game" + File.separator + it.next());
+                    } else if (OS.isLinux()) {
+                        folder = new File(ManagerOptions.getInstance().getGamePath() + File.separator + "game" + File.separator + it.next());
+                    }
+
                     if (folder.exists() && folder.isDirectory()) {
                         File warningFile = new File(folder, "! FILES AND FOLDER HERE WILL BE DELETED ON NEXT APPLY");
                         warningFile.createNewFile();
@@ -1297,7 +1293,7 @@ public class Manager extends Observable {
         setChanged();
         notifyObservers(counted);
         // --------------- Progress bar update
-        
+
         saveOptions();
     }
 

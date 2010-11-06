@@ -126,16 +126,16 @@ public class ManagerCtrl implements Observer {
             noOptionsFile = true;
         } catch (IOException e) {
         }
-        
-        
+
+
         // Set up look and feel
         loadLaf();
-        
+
         // Set up last window position
         if (model.getGuiRectangle() != null) {
             view.setBounds(model.getGuiRectangle());
         }
-        
+
         // Load last column width for list view
         if (model.getColumnsWidth() != null) {
             if (model.getColumnsWidth().size() != view.getModListTable().getColumnModel().getColumnCount()) {
@@ -201,8 +201,8 @@ public class ManagerCtrl implements Observer {
         view.itemImportFromOldModManagerAddActionListener(new ImportModsFromOldModManager());
         view.getModListList().addKeyListener(new ModListKeyListener());
         view.getModListTable().addKeyListener(new ModTableKeyListener());
-        view.getModListTable().getColumnModel().getColumn(0).setHeaderRenderer(new CheckBoxHeader(new MyItemListener()));
-        
+        //view.getModListTable().getColumnModel().getColumn(0).setHeaderRenderer(new CheckBoxHeader(new MyItemListener()));
+
         // Add file drop functionality
         new FileDrop(view, new DropListener());
 
@@ -214,8 +214,9 @@ public class ManagerCtrl implements Observer {
         // Load mods from resource file
         // FIXIT: want to move it before displaying main window?
         if (noOptionsFile) {
-            if (ManagerOptions.getInstance().getGamePath() == null || ManagerOptions.getInstance().getModPath() == null) {
+            if (model.getGamePath() == null || model.getModPath() == null || model.getGamePath().isEmpty() || model.getModPath().isEmpty()) {
                 view.showMessage(L10n.getString("error.honmodsfolder"), L10n.getString("error.honmodsfolder.title"), JOptionPane.ERROR_MESSAGE);
+                view.getItemOpenPreferences().doClick();
             } else {
                 if (JOptionPane.showConfirmDialog(view, L10n.getString("message.importfromoldmodmanager"), L10n.getString("message.importfromoldmodmanager.title"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == 0) {
                     importModsFromOldModManager();
@@ -582,33 +583,33 @@ public class ManagerCtrl implements Observer {
         }
     }
 
-     /**
-	      * File filter for JFileChooser. Only displays files ending with
-	      * .honmod extension
-	      */
-	     class HoNFilter extends FileFilter {
+    /**
+     * File filter for JFileChooser. Only displays files ending with
+     * .honmod extension
+     */
+    class HoNFilter extends FileFilter {
 
-	         public boolean accept(File f) {
-	             if (f.isDirectory()) {
-	                 return true;
-	             }
-	             int dotIndex = f.getName().lastIndexOf(".");
-	             if (dotIndex == -1) {
-	                 return false;
-	             }
-	             String extension = f.getName().substring(dotIndex);
-	             if ((extension != null) && (extension.equals(".app"))) {
-	                 return true;
-	             } else {
-	                 return false;
-	             }
-	         }
+        public boolean accept(File f) {
+            if (f.isDirectory()) {
+                return true;
+            }
+            int dotIndex = f.getName().lastIndexOf(".");
+            if (dotIndex == -1) {
+                return false;
+            }
+            String extension = f.getName().substring(dotIndex);
+            if ((extension != null) && (extension.equals(".app"))) {
+                return true;
+            } else {
+                return false;
+            }
+        }
 
-	         //The description of this filter
-	         public String getDescription() {
-	             return L10n.getString("chooser.hondescription");
-	         }
-	     }
+        //The description of this filter
+        public String getDescription() {
+            return L10n.getString("chooser.hondescription");
+        }
+    }
 
     /**
      * Listener for 'Add mod' button. Opens JFileChooser and lets user select
@@ -744,14 +745,18 @@ public class ManagerCtrl implements Observer {
 
                 @Override
                 protected Void doInBackground() throws Exception {
-                    applyMods();
-                    try {
-                        Process game = Runtime.getRuntime().exec(Game.getInstance().getHonExecutable().getAbsolutePath());
-                    } catch (IOException ex) {
-                        view.showMessage(L10n.getString("message.honnotfound"),
-                                L10n.getString("message.honnotfound.title"),
-                                JOptionPane.ERROR_MESSAGE);
-                        logger.error("HoN couldn't be launched. Hon path=" + model.getGamePath(), ex);
+                    if (applyMods()) {
+                        try {
+                            Process game = Runtime.getRuntime().exec(Game.getInstance().getHonExecutable().getAbsolutePath());
+                        } catch (IOException ex) {
+                            view.showMessage(L10n.getString("message.honnotfound"),
+                                    L10n.getString("message.honnotfound.title"),
+                                    JOptionPane.ERROR_MESSAGE);
+                            logger.error("HoN couldn't be launched. Hon path=" + model.getGamePath(), ex);
+                        }
+                        if (!model.isDeveloperMode()) {
+                            exit();
+                        }
                     }
                     return null;
                 }
@@ -1049,7 +1054,8 @@ public class ManagerCtrl implements Observer {
     class MouseEnableModListener implements MouseListener {
 
         public void mouseClicked(MouseEvent e) {
-            if (e.getClickCount() == 2) {
+            // Only if it's the main button!
+            if (e.getClickCount() == 2 && e.getButton() == 1) {
                 enableMod(view.getSelectedMod());
                 model.updateNotify();
             }
@@ -1092,7 +1098,7 @@ public class ManagerCtrl implements Observer {
             boolean updated = false;
             logger.info("Files dropped: " + files.length);
             addHonmod(files);
-            
+
             // FIXIT: what does this mean? Never update?
             // Good question, I don't know either. Never used the Drag'n'Drop but this probally isn't needed
             //  since when you call the addHonmod in the controller, the model already notifies the GUI
@@ -1202,23 +1208,24 @@ public class ManagerCtrl implements Observer {
     class ChooseFolderHonListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
-            JFileChooser fc = new JFileChooser(); 	             view.setTextFieldHonFolder(Game.findHonFolder());
-	             fc.setAcceptAllFileFilterUsed(false);
-	             if (OS.isMac()) {
-	                 HoNFilter filter = new HoNFilter();
-	                 fc.setFileFilter(filter);
-	                 fc.setCurrentDirectory(new File("/Applications"));
-	             } else {
-	                 fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-	             }
+            JFileChooser fc = new JFileChooser();
+            view.setTextFieldHonFolder(Game.findHonFolder());
+            fc.setAcceptAllFileFilterUsed(false);
+            if (OS.isMac()) {
+                HoNFilter filter = new HoNFilter();
+                fc.setFileFilter(filter);
+                fc.setCurrentDirectory(new File("/Applications"));
+            } else {
+                fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            }
 
 
-	             int returnVal = fc.showOpenDialog(view.getPrefsDialog());
-	             if (returnVal == JFileChooser.APPROVE_OPTION) {
-	                 File directory = fc.getSelectedFile();
-	                 view.setTextFieldHonFolder(directory.getPath());
-	                 logger.info("Hon folder selected: " + directory.getPath());
-	             }
+            int returnVal = fc.showOpenDialog(view.getPrefsDialog());
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                File directory = fc.getSelectedFile();
+                view.setTextFieldHonFolder(directory.getPath());
+                logger.info("Hon folder selected: " + directory.getPath());
+            }
         }
     }
 
@@ -1275,23 +1282,23 @@ public class ManagerCtrl implements Observer {
     class ChooseFolderModsListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
-        	     JFileChooser fc = new JFileChooser(); 	                 
-	             fc.setAcceptAllFileFilterUsed(false);
-	             if (OS.isMac()) {
-	                 HoNFilter filter = new HoNFilter();
-	                 fc.setFileFilter(filter);
-	                 fc.setCurrentDirectory(new File("/Applications"));
-	             } else {
-	                 fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-	             }
+            JFileChooser fc = new JFileChooser();
+            fc.setAcceptAllFileFilterUsed(false);
+            if (OS.isMac()) {
+                HoNFilter filter = new HoNFilter();
+                fc.setFileFilter(filter);
+                fc.setCurrentDirectory(new File("/Applications"));
+            } else {
+                fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            }
 
 
-	             int returnVal = fc.showOpenDialog(view.getPrefsDialog());
-	             if (returnVal == JFileChooser.APPROVE_OPTION) {
-	                 File directory = fc.getSelectedFile();
-	                 view.setTextFieldModsFolder(directory.getPath());
-	                 logger.info("Mods folder selected: " + directory.getPath());
-	             }
+            int returnVal = fc.showOpenDialog(view.getPrefsDialog());
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                File directory = fc.getSelectedFile();
+                view.setTextFieldModsFolder(directory.getPath());
+                logger.info("Mods folder selected: " + directory.getPath());
+            }
         }
     }
     private long date;
@@ -1387,7 +1394,8 @@ public class ManagerCtrl implements Observer {
         }
     }
 
-    public void applyMods() {
+    public boolean applyMods() {
+        boolean sucess = false;
         view.getButtonApplyMods().setEnabled(false);
         //view.setInputEnabled(false);
         try {
@@ -1405,6 +1413,7 @@ public class ManagerCtrl implements Observer {
             view.getProgressBar().paint(view.getProgressBar().getGraphics());
             controller.applyMods(ManagerOptions.getInstance().isDeveloperMode());
             model.updateNotify();
+            sucess = true;
             view.showMessage(L10n.getString("message.modsapplied"), L10n.getString("message.modsapplied.title"), JOptionPane.INFORMATION_MESSAGE);
         } catch (FileLockInterruptionException ex) {
             logger.error("Error applying mods. Can't write on the resources999.s2z file", ex);
@@ -1435,6 +1444,7 @@ public class ManagerCtrl implements Observer {
         view.getButtonApplyMods().setEnabled(true);
         //view.setEnabled(true);
         //view.requestFocus();
+        return sucess;
     }
 
     /**
@@ -1452,16 +1462,6 @@ public class ManagerCtrl implements Observer {
      */
     class ExitListener implements ActionListener {
 
-        public void exit() {
-            try {
-                Manager.getInstance().saveOptions();
-            } catch (IOException e1) {
-                logger.error("Unable to save options");
-            }
-            logger.info("Closing HonModManager...");
-            System.exit(0);
-        }
-
         public void actionPerformed(ActionEvent e) {
             Iterator<Mod> it = ManagerOptions.getInstance().getMods().iterator();
             boolean hasUnapplied = false;
@@ -1472,13 +1472,14 @@ public class ManagerCtrl implements Observer {
                 }
             }
             if (hasUnapplied) {
-                int option = JOptionPane.showConfirmDialog(view, L10n.getString("message.unappliedmods"), L10n.getString("message.unappliedmods.title"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+                int option = JOptionPane.showConfirmDialog(view, L10n.getString("message.unappliedmods"), L10n.getString("message.unappliedmods.title"), JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
                 if (option == 0) {
                     // Yes
                     // This is blocking... so the animations (progress bar and text)
                     // won't work.  Big TODO
-                    applyMods();
-                    exit();
+                    if (applyMods()) {
+                        exit();
+                    }
                 } else if (option == 1) {
                     // no
                     exit();
@@ -1489,5 +1490,15 @@ public class ManagerCtrl implements Observer {
                 exit();
             }
         }
+    }
+
+    public void exit() {
+        try {
+            Manager.getInstance().saveOptions();
+        } catch (IOException e1) {
+            logger.error("Unable to save options");
+        }
+        logger.info("Closing HonModManager...");
+        System.exit(0);
     }
 }

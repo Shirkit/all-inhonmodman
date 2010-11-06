@@ -48,6 +48,7 @@ import org.jdesktop.application.Task;
 import utility.BBCode;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JEditorPane;
 import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
@@ -118,6 +119,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         comboBoxLafs.addItem(new LaF("JGoodies Plastic", "com.jgoodies.looks.plastic.PlasticLookAndFeel"));
         comboBoxLafs.addItem(new LaF("JGoodies Plastic3D", "com.jgoodies.looks.plastic.Plastic3DLookAndFeel"));
         comboBoxLafs.addItem(new LaF("JGoodies Windows", "com.jgoodies.looks.windows.WindowsLookAndFeel"));
+
         // Components on the Mod details panel are not visible by default
         setDetailsVisible(false);
         // This thing here is working along with formComponentShown to solve the fucking bug of not showing the correct size when running the app
@@ -129,7 +131,6 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
             @Override
             public void windowClosing(WindowEvent e) {
                 itemExit.doClick();
-                System.exit(0);
             }
         });
         // Disallow changing columns order and allow sorting
@@ -169,12 +170,52 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         labelHonFolder = new javax.swing.JLabel();
         textFieldHonFolder = new javax.swing.JTextField();
         buttonHonFolder = new javax.swing.JButton();
-        comboBoxLafs = new javax.swing.JComboBox();
+        comboBoxLafs = new javax.swing.JComboBox() {
+            public void addItem(Object anObject) {
+                int size = ((DefaultComboBoxModel) dataModel).getSize();
+                Object obj;
+                boolean added = false;
+                for (int i=0; i<size; i++) {
+                    obj = dataModel.getElementAt(i);
+                    int compare = anObject.toString().compareToIgnoreCase(obj.toString());
+                    if (compare <= 0) { // if anObject less than or equal obj
+                        super.insertItemAt(anObject, i);
+                        added = true;
+                        break;
+                    }
+                }
+
+                if (!added) {
+                    super.addItem(anObject);
+                }
+            }
+
+        };
         buttonApplyLaf = new javax.swing.JButton();
         buttonCancel = new javax.swing.JButton();
         buttonOk = new javax.swing.JButton();
         labelChooseLanguage = new javax.swing.JLabel();
-        comboBoxChooseLanguage = new javax.swing.JComboBox();
+        comboBoxChooseLanguage = new javax.swing.JComboBox(){
+            public void addItem(Object anObject) {
+                int size = ((DefaultComboBoxModel) dataModel).getSize();
+                Object obj;
+                boolean added = false;
+                for (int i=0; i<size; i++) {
+                    obj = dataModel.getElementAt(i);
+                    int compare = anObject.toString().compareToIgnoreCase(obj.toString());
+                    if (compare <= 0) { // if anObject less than or equal obj
+                        super.insertItemAt(anObject, i);
+                        added = true;
+                        break;
+                    }
+                }
+
+                if (!added) {
+                    super.addItem(anObject);
+                }
+            }
+
+        };
         labelCLArguments = new javax.swing.JLabel();
         textFieldCLArguments = new javax.swing.JTextField();
         labelChangeLanguageImplication = new javax.swing.JLabel();
@@ -1260,9 +1301,9 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
             areaModDesc.setText(mod.getDescription());
             //labelVisitWebsite.setToolTipText(mod.getWebLink());
             if (mod.getUpdateCheckUrl() == null) {
-                buttonVisitWebsite.setEnabled(false);
+                buttonUpdateMod.setEnabled(false);
             } else {
-                buttonVisitWebsite.setEnabled(true);
+                buttonUpdateMod.setEnabled(true);
             }
             if (mod.getWebLink() != null && !mod.getWebLink().isEmpty()) {
                 buttonVisitWebsite.setEnabled(true);
@@ -1557,6 +1598,10 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         return panelModDetails;
     }
 
+    public JMenuItem getItemOpenPreferences() {
+        return itemOpenPreferences;
+    }
+
     public JPanel getPanelModChangelog() {
         return panelModChangelog;
     }
@@ -1609,7 +1654,6 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     public String getCLArguments() {
         return textFieldCLArguments.getText();
     }
-    private long date = 0;
 
     /**
      * Class of items in the Select LaF combo box on preferences dialog
