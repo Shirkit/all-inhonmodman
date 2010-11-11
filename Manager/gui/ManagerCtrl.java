@@ -403,6 +403,7 @@ public class ManagerCtrl implements Observer {
     }
 
     private void loadMods() {
+        view.setInputEnabled(false);
         try {
             ArrayList<ArrayList<Pair<String, String>>> exs = controller.loadMods();
             controller.buildGraphs();
@@ -505,6 +506,7 @@ public class ManagerCtrl implements Observer {
             logger.error("IOException from loadMods()", ex);
             view.showMessage(L10n.getString("error.loadmodfiles"), L10n.getString("error.loadmodfiles.title"), JOptionPane.ERROR_MESSAGE);
         }
+        view.setInputEnabled(true);
     }
 
     /**
@@ -570,7 +572,7 @@ public class ManagerCtrl implements Observer {
                 return false;
             }
             String extension = f.getName().substring(dotIndex);
-            if ((extension != null) && (extension.equals(".honmod"))) {
+            if ((extension != null) && ((extension.equals(".honmod")) || (extension.equals(".zip")))) {
                 return true;
             } else {
                 return false;
@@ -771,6 +773,7 @@ public class ManagerCtrl implements Observer {
     class UnapplyAllModsListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
+            view.setInputEnabled(false);
             logger.info("Unapplying all mods...");
             // TODO: Test & implement
             try {
@@ -782,6 +785,7 @@ public class ManagerCtrl implements Observer {
                 // TODO Auto-generated catch block
                 e1.printStackTrace();
             }
+            view.setInputEnabled(true);
             model.updateNotify();
             view.showMessage(L10n.getString("message.modsunapplied"),
                     L10n.getString("message.modsunapplied.title"),
@@ -887,6 +891,7 @@ public class ManagerCtrl implements Observer {
 
         public void actionPerformed(ActionEvent e) {
             //view.getProgressBar().setStringPainted(true);
+            view.setInputEnabled(false);
             logger.info("Ctrl: " + e.getActionCommand() + " is called to update");
             Mod mod = view.getSelectedMod();
             ArrayList<Mod> toUpdate = new ArrayList<Mod>();
@@ -900,6 +905,7 @@ public class ManagerCtrl implements Observer {
             } else {
                 view.showMessage(L10n.getString("message.update.updated").replace("#mod#", things.getUpdatedModList().get(0).getName()).replace("#olderversion#", things.getOlderVersion(mod)).replace("#newversion#", mod.getVersion()), L10n.getString("message.update.title"), JOptionPane.INFORMATION_MESSAGE);
             }
+            view.setInputEnabled(true);
             model.updateNotify();
         }
     }
@@ -999,6 +1005,7 @@ public class ManagerCtrl implements Observer {
 
                 @Override
                 protected Void doInBackground() throws Exception {
+                    view.setInputEnabled(false);
                     view.setStatusMessage("Updating mods", true);
                     view.getProgressBar().setVisible(true);
                     view.getProgressBar().setStringPainted(true);
@@ -1044,6 +1051,7 @@ public class ManagerCtrl implements Observer {
                     view.getProgressBar().setStringPainted(false);
                     view.updateModTable();
                     view.showMessage(message, L10n.getString("message.update.title"), JOptionPane.INFORMATION_MESSAGE);
+                    view.setInputEnabled(true);
                     return null;
                 }
             };
@@ -1095,18 +1103,15 @@ public class ManagerCtrl implements Observer {
     class DropListener implements FileDrop.Listener {
 
         public void filesDropped(java.io.File[] files) {
-            boolean updated = false;
             logger.info("Files dropped: " + files.length);
             addHonmod(files);
 
             // FIXIT: what does this mean? Never update?
             // Good question, I don't know either. Never used the Drag'n'Drop but this probally isn't needed
             //  since when you call the addHonmod in the controller, the model already notifies the GUI
-            if (updated) {
-                view.tableRemoveListSelectionListener(lsl);
-                model.updateNotify();
-                view.tableAddListSelectionListener(lsl);
-            }
+            view.tableRemoveListSelectionListener(lsl);
+            model.updateNotify();
+            view.tableAddListSelectionListener(lsl);
         }
     }
 
@@ -1219,7 +1224,11 @@ public class ManagerCtrl implements Observer {
                 fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             }
 
-
+            if (OS.isLinux() || OS.isWindows()) {
+                if (model.getGamePath() != null && !model.getGamePath().isEmpty()) {
+                    fc.setCurrentDirectory(new File(model.getGamePath()));
+                }
+            }
             int returnVal = fc.showOpenDialog(view.getPrefsDialog());
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 File directory = fc.getSelectedFile();
@@ -1293,6 +1302,13 @@ public class ManagerCtrl implements Observer {
             }
 
 
+            if (OS.isLinux() || OS.isWindows()) {
+                if (model.getModPath() != null && !model.getModPath().isEmpty()) {
+                    fc.setCurrentDirectory(new File(model.getModPath()));
+                } else if (model.getGamePath() != null && !model.getGamePath().isEmpty()) {
+                    fc.setCurrentDirectory(new File(model.getGamePath()));
+                }
+            }
             int returnVal = fc.showOpenDialog(view.getPrefsDialog());
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 File directory = fc.getSelectedFile();
@@ -1396,8 +1412,7 @@ public class ManagerCtrl implements Observer {
 
     public boolean applyMods() {
         boolean sucess = false;
-        view.getButtonApplyMods().setEnabled(false);
-        //view.setInputEnabled(false);
+        view.setInputEnabled(false);
         try {
             int count = 0;
             Iterator<Mod> iterator = model.getMods().iterator();
@@ -1441,7 +1456,7 @@ public class ManagerCtrl implements Observer {
             view.getProgressBar().setValue(0);
             view.getProgressBar().setStringPainted(false);
         }
-        view.getButtonApplyMods().setEnabled(true);
+        view.setInputEnabled(true);
         //view.setEnabled(true);
         //view.requestFocus();
         return sucess;

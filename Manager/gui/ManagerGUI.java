@@ -1137,7 +1137,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
      * @param mods list of mods to display
      */
     public void updateModTable() {
-                    animating = false;
+        animating = false;
         int enabled = 0, disabled = 0, applied = 0;
         // Store how the table is currently sorted
 
@@ -1260,8 +1260,8 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         // Display details of selected mod
         displayModDetail();
         setStatusMessage("<html><font color=#009900>" + (enabled + applied) + "</font>/<font color=#0033cc>" + (enabled + disabled + applied) + "</font> " + L10n.getString("status.modsenabled") + "</html>", false);
-                }
-        
+    }
+
     /**
      * Highlight the mods that is required to enable before or disable before the current select mod do
      * TODO: next release, right now don't bother
@@ -1278,79 +1278,81 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
      * Display details of the selected mod in the right panel
      */
     public void displayModDetail() {
-        panelModChangelog.setVisible(false);
-        panelModDetails.setVisible(true);
-        // Update for the sorting (this is really overhead)
-        for (int i = 0; i < tableModList.getRowCount(); i++) {
-            String modName = (String) getModListTable().getValueAt(i, 1);
-            for (int k = 0; k < tableData.length; k++) {
-                if (((String) tableData[k][1]).equals(modName)) {
-                    Object[] o = tableData[k];
-                    tableData[k] = tableData[i];
-                    tableData[i] = (Object[]) o;
-                }
-            }
-        }
-        // Make sure that items in the panel are visible
-        setDetailsVisible(true);
-        Mod mod = getSelectedMod();
-
-        if (mod != null) {
-            labelModName.setText(mod.getName());
-            labelModAuthor.setText(mod.getAuthor());
-            areaModDesc.setText(mod.getDescription());
-            //labelVisitWebsite.setToolTipText(mod.getWebLink());
-            if (mod.getUpdateCheckUrl() == null) {
-                buttonUpdateMod.setEnabled(false);
-            } else {
-                buttonUpdateMod.setEnabled(true);
-            }
-            if (mod.getWebLink() != null && !mod.getWebLink().isEmpty()) {
-                buttonVisitWebsite.setEnabled(true);
-            } else {
-                buttonVisitWebsite.setEnabled(false);
-            }
-            if (mod.getChangelog() != null && !mod.getChangelog().isEmpty()) {
-                buttonViewChagelog.setEnabled(true);
-                labelModAuthor1.setText(labelModAuthor.getText());
-                labelModName1.setText(labelModName.getText());
-                labelModIcon1.setIcon(labelModIcon.getIcon());
-                jEditorPane1.setText(BBCode.bbCodeToHtml(mod.getChangelog()));
-            } else {
-                buttonViewChagelog.setEnabled(false);
-            }
-            buttonViewChagelog.setActionCommand("display changelog");
-            buttonViewModDetails.setActionCommand("hide changelog");
-            labelModIcon.setIcon(mod.getIcon());
-            buttonUpdateMod.setActionCommand(mod.getName());
-            buttonEnableMod.setActionCommand(mod.getName());
-            if (mod.isEnabled()) {
-                buttonEnableMod.setForeground(Color.RED);
-                buttonEnableMod.setText(L10n.getString("button.disablemod"));
-                //labelModStatus.setText(L10n.getString("label.modstatus.enabled"));
-            } else {
-                buttonEnableMod.setForeground(new Color(0, 175, 0));
-                buttonEnableMod.setText(L10n.getString("button.enablemod"));
-                //labelModStatus.setText(L10n.getString("label.modstatus.disabled"));
-            }
-            // Display mod incompatibility
-            ArrayList<Action> reqs = new ArrayList<Action>();
-            reqs.addAll(mod.getActions(Action.REQUIREMENT));
-            DefaultListModel dlm = new DefaultListModel();
-            String elem;
-            for (Iterator actIter = reqs.iterator(); actIter.hasNext();) {
-                Action act = (Action) actIter.next();
-                if (act.getClass() == ActionRequirement.class) {
-                    elem = ((ActionRequirement) act).getName();
-                    if (((ActionRequirement) act).getVersion() != null) {
-                        elem += " (ver. " + ((ActionRequirement) act).getVersion() + ")";
+        if (tableModList.isEnabled()) {
+            panelModChangelog.setVisible(false);
+            panelModDetails.setVisible(true);
+            // Update for the sorting (this is really overhead)
+            for (int i = 0; i < tableModList.getRowCount(); i++) {
+                String modName = (String) getModListTable().getValueAt(i, 1);
+                for (int k = 0; k < tableData.length; k++) {
+                    if (((String) tableData[k][1]).equals(modName)) {
+                        Object[] o = tableData[k];
+                        tableData[k] = tableData[i];
+                        tableData[i] = (Object[]) o;
                     }
-                    dlm.addElement(elem);
                 }
             }
-            listRequirements.setModel(dlm);
-        } else {
-            setDetailsVisible(false);
+            // Make sure that items in the panel are visible
+            setDetailsVisible(true);
+            Mod mod = getSelectedMod();
+
+            if (mod != null) {
+                labelModName.setText(mod.getName());
+                labelModAuthor.setText(mod.getAuthor());
+                areaModDesc.setText(mod.getDescription());
+                //labelVisitWebsite.setToolTipText(mod.getWebLink());
+                if (mod.getUpdateCheckUrl() == null) {
+                    buttonUpdateMod.setEnabled(false);
+                } else {
+                    buttonUpdateMod.setEnabled(true);
+                }
+                if (mod.getWebLink() != null && !mod.getWebLink().isEmpty()) {
+                    buttonVisitWebsite.setEnabled(true);
+                } else {
+                    buttonVisitWebsite.setEnabled(false);
+                }
+                if (mod.getChangelog() != null && !mod.getChangelog().isEmpty()) {
+                    buttonViewChagelog.setEnabled(true);
+                    labelModAuthor1.setText(labelModAuthor.getText());
+                    labelModName1.setText(labelModName.getText());
+                    labelModIcon1.setIcon(labelModIcon.getIcon());
+                    jEditorPane1.setText(BBCode.bbCodeToHtml(mod.getChangelog()));
+                } else {
+                    buttonViewChagelog.setEnabled(false);
+                }
+                buttonViewChagelog.setActionCommand("display changelog");
+                buttonViewModDetails.setActionCommand("hide changelog");
+                labelModIcon.setIcon(mod.getIcon());
+                buttonUpdateMod.setActionCommand(mod.getName());
+                buttonEnableMod.setActionCommand(mod.getName());
+                if (mod.isEnabled()) {
+                    buttonEnableMod.setForeground(Color.RED);
+                    buttonEnableMod.setText(L10n.getString("button.disablemod"));
+                    //labelModStatus.setText(L10n.getString("label.modstatus.enabled"));
+                } else {
+                    buttonEnableMod.setForeground(new Color(0, 175, 0));
+                    buttonEnableMod.setText(L10n.getString("button.enablemod"));
+                    //labelModStatus.setText(L10n.getString("label.modstatus.disabled"));
+                }
+                // Display mod incompatibility
+                ArrayList<Action> reqs = new ArrayList<Action>();
+                reqs.addAll(mod.getActions(Action.REQUIREMENT));
+                DefaultListModel dlm = new DefaultListModel();
+                String elem;
+                for (Iterator actIter = reqs.iterator(); actIter.hasNext();) {
+                    Action act = (Action) actIter.next();
+                    if (act.getClass() == ActionRequirement.class) {
+                        elem = ((ActionRequirement) act).getName();
+                        if (((ActionRequirement) act).getVersion() != null) {
+                            elem += " (ver. " + ((ActionRequirement) act).getVersion() + ")";
+                        }
+                        dlm.addElement(elem);
+                    }
+                }
+                listRequirements.setModel(dlm);
+            } else {
+                setDetailsVisible(false);
+            }
         }
     }
 
@@ -1390,6 +1392,17 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         tableModList.setEnabled(enabled);
         panelModList.setEnabled(enabled);
         mainMenu.setEnabled(enabled);
+        buttonAddMod.setEnabled(enabled);
+        buttonApplyMods.setEnabled(enabled);
+        buttonEnableMod.setEnabled(enabled);
+        buttonLaunchHon.setEnabled(enabled);
+        buttonUpdateMod.setEnabled(enabled);
+        buttonViewChagelog.setEnabled(enabled);
+        buttonViewModDetails.setEnabled(enabled);
+        buttonVisitWebsite.setEnabled(enabled);
+        if (enabled && fullyLoaded) {
+            displayModDetail();
+        }
     }
 
     public void setStatusMessage(String status, boolean animate) {

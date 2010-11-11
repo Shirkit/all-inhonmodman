@@ -289,7 +289,7 @@ public class Manager extends Observable {
                 String fileName = file.getName();
                 if ((!file.isDirectory())
                         && /* Filter out directories */ (!fileName.startsWith("."))
-                        && /* Filter out hidden files and current dir */ (fileName.endsWith(".honmod"))) /* Filter only .honmod files */ {
+                        && /* Filter out hidden files and current dir */ ((fileName.endsWith(".honmod")) || (fileName.endsWith(".zip")))) /* Filter only .honmod files */ {
                     return true;
                 } else {
                     return false;
@@ -380,6 +380,10 @@ public class Manager extends Observable {
             //   }
             //     }
             //}
+        }
+        if (honmod.getName().endsWith(".zip")) {
+            honmod.setWritable(true);
+            honmod.renameTo(new File(honmod.getParentFile(), honmod.getName().replace(".zip", ".honmod")));
         }
         m.setPath(honmod.getAbsolutePath());
         if (getMod(m.getName(), m.getVersion()) != null) {

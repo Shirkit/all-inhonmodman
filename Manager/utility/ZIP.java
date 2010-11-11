@@ -58,11 +58,13 @@ public class ZIP {
             if (entry.getName().equalsIgnoreCase(filename)) {
                 FileUtils.copyInputStream(zipFile.getInputStream(entry), output = new ByteArrayOutputStream());
                 result = output.toByteArray();
+                zipFile.close();
                 output.close();
                 return result;
             }
         }
 
+        zipFile.close();
         throw new FileNotFoundException(filename);
     }
 
@@ -330,12 +332,12 @@ public class ZIP {
                     commentLen = commentLen * -1;
                 }
                 // ---- Added this to prevent negative values
-                
+
                 int realLen = buffLen - i - 22;
                 //System.out.println("ZIP comment found at buffer position " + (i + 22) + " with len=" + commentLen + ", good!");
                 if (commentLen != realLen) {
                     //System.out.println("WARNING! ZIP comment size mismatch: directory says len is "
-                            //+ commentLen + ", but file ends after " + realLen + " bytes!");
+                    //+ commentLen + ", but file ends after " + realLen + " bytes!");
                 }
                 // Old way: String comment = new String (buffer, i+22, Math.min(commentLen, realLen));
                 String comment = new String(buffer, i + 22, realLen);

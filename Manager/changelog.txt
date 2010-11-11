@@ -128,3 +128,7 @@
 - Un-updateable mods can't be updated anymore.
 - Double-click enabling/disabling a mod only works if it's the left button.
 - Applying and Launching HoN now closes if not under developer mode, and only closes if the applying was successful.
+- Fixed bug while drag'n'drop files. Now, you can even delete the original file, since a copy is made to the mods folder.
+- All inputs are blocked while updating/applying mods. This will prevent a possible inconsisty of data while doing such operations, and prevent users from crashing the Manager.
+- Mods saved as '.zip' will also be loaded and it's extensions will be automatically renamed.
+- Fixed problem that didn't let a user delete a mod after adding it.
