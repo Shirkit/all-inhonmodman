@@ -2,6 +2,7 @@ package gui;
 
 import java.awt.event.ComponentEvent;
 import java.util.Observable;
+import java.util.logging.Level;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.TableColumnModelEvent;
 import javax.swing.event.TableColumnModelListener;
@@ -641,7 +642,11 @@ public class ManagerCtrl implements Observer {
         }
     }
 
+    // TODO: Use this/
+    boolean newModsAdded = false;
+
     private void addHonmod(File[] files) {
+        newModsAdded = true;
         for (int i = 0; i < files.length; i++) {
             if (files[i] != null && (files[i].getName().endsWith(".honmod") || (files[i].getName().endsWith(".zip")))) {
                 try {
@@ -824,7 +829,9 @@ public class ManagerCtrl implements Observer {
             view.getModListTable().changeSelection(view.getModListTable().getSelectedRow(), 0, false, false);
             if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                 enableMod(view.getSelectedMod());
+                view.tableRemoveListSelectionListener(lsl);
                 model.updateNotify();
+                view.tableAddListSelectionListener(lsl);
                 e.consume();
             } else if (e.getKeyCode() == KeyEvent.VK_DELETE) {
                 deleteSelectedMod();
@@ -853,7 +860,9 @@ public class ManagerCtrl implements Observer {
         public void keyPressed(KeyEvent e) {
             if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                 enableMod(view.getSelectedMod());
+                view.tableRemoveListSelectionListener(lsl);
                 model.updateNotify();
+                view.tableAddListSelectionListener(lsl);
                 e.consume();
             } else if (e.getKeyCode() == KeyEvent.VK_DELETE) {
                 deleteSelectedMod();
@@ -906,7 +915,9 @@ public class ManagerCtrl implements Observer {
                 view.showMessage(L10n.getString("message.update.updated").replace("#mod#", things.getUpdatedModList().get(0).getName()).replace("#olderversion#", things.getOlderVersion(mod)).replace("#newversion#", mod.getVersion()), L10n.getString("message.update.title"), JOptionPane.INFORMATION_MESSAGE);
             }
             view.setInputEnabled(true);
+            view.tableRemoveListSelectionListener(lsl);
             model.updateNotify();
+            view.tableAddListSelectionListener(lsl);
         }
     }
 
@@ -961,7 +972,9 @@ public class ManagerCtrl implements Observer {
             }
         } catch (FileNotFoundException ex) {
         }
-        view.updateModTable();
+        view.tableRemoveListSelectionListener(lsl);
+        model.updateNotify();
+        view.tableAddListSelectionListener(lsl);
 
     }
 
@@ -1063,9 +1076,11 @@ public class ManagerCtrl implements Observer {
 
         public void mouseClicked(MouseEvent e) {
             // Only if it's the main button!
-            if (e.getClickCount() == 2 && e.getButton() == 1) {
+            if (view.getModListTable().isEnabled() && e.getClickCount() == 2 && e.getButton() == 1) {
                 enableMod(view.getSelectedMod());
+                view.tableRemoveListSelectionListener(lsl);
                 model.updateNotify();
+                view.tableAddListSelectionListener(lsl);
             }
         }
 
@@ -1088,12 +1103,14 @@ public class ManagerCtrl implements Observer {
     class EnableModListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
-            Mod mod = view.getSelectedMod();
-            enableMod(mod);
-            // Update GUI
-            view.tableRemoveListSelectionListener(lsl);
-            model.updateNotify();
-            view.tableAddListSelectionListener(lsl);
+            if (view.getModListTable().isEnabled()) {
+                Mod mod = view.getSelectedMod();
+                enableMod(mod);
+                // Update GUI
+                view.tableRemoveListSelectionListener(lsl);
+                model.updateNotify();
+                view.tableAddListSelectionListener(lsl);
+            }
         }
     }
 
@@ -1178,7 +1195,9 @@ public class ManagerCtrl implements Observer {
             view.getPrefsDialog().setVisible(false);
             if (!oldModsFolder.equals(ManagerOptions.getInstance().getModPath())) {
                 loadMods();
+                view.tableRemoveListSelectionListener(lsl);
                 model.updateNotify();
+                view.tableAddListSelectionListener(lsl);
             }
         }
     }
@@ -1187,7 +1206,9 @@ public class ManagerCtrl implements Observer {
 
         public void actionPerformed(ActionEvent e) {
             loadMods();
+            view.tableRemoveListSelectionListener(lsl);
             model.updateNotify();
+            view.tableAddListSelectionListener(lsl);
         }
     }
 
@@ -1427,7 +1448,9 @@ public class ManagerCtrl implements Observer {
             view.getProgressBar().setMaximum(count);
             view.getProgressBar().paint(view.getProgressBar().getGraphics());
             controller.applyMods(ManagerOptions.getInstance().isDeveloperMode());
+            view.tableRemoveListSelectionListener(lsl);
             model.updateNotify();
+            view.tableAddListSelectionListener(lsl);
             sucess = true;
             view.showMessage(L10n.getString("message.modsapplied"), L10n.getString("message.modsapplied.title"), JOptionPane.INFORMATION_MESSAGE);
         } catch (FileLockInterruptionException ex) {

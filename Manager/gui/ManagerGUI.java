@@ -2,7 +2,10 @@ package gui;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
+import java.util.logging.Level;
 import javax.swing.JButton;
 import javax.swing.JList;
 import javax.swing.JMenuItem;
@@ -52,6 +55,7 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JEditorPane;
 import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
+import utility.Game;
 
 /**
  * Main form of the ModManager. This class is the 'view' part of the MVC framework
@@ -688,7 +692,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         buttonLaunchHon.setName("buttonLaunchHon"); // NOI18N
         buttonLaunchHon.setPreferredSize(new java.awt.Dimension(26, 25));
 
-        labelStatus.setFont(new java.awt.Font("Tahoma", 0, 15));
+        labelStatus.setFont(new java.awt.Font("Tahoma", 0, 15)); // NOI18N
         labelStatus.setText("empty");
         labelStatus.setFocusable(false);
         labelStatus.setName("labelStatus"); // NOI18N
@@ -1259,7 +1263,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         }
         // Display details of selected mod
         displayModDetail();
-        setStatusMessage("<html><font color=#009900>" + (enabled + applied) + "</font>/<font color=#0033cc>" + (enabled + disabled + applied) + "</font> " + L10n.getString("status.modsenabled") + "</html>", false);
+        //setStatusMessage("<html><font color=#009900>" + (enabled + applied) + "</font>/<font color=#0033cc>" + (enabled + disabled + applied) + "</font> " + L10n.getString("status.modsenabled") + "</html>", false);
     }
 
     /**
@@ -1278,6 +1282,13 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
      * Display details of the selected mod in the right panel
      */
     public void displayModDetail() {
+
+            try {
+                setStatusMessage("<html><font color=#009900>" + (model.getAppliedMods().size()) + "</font>/<font color=#0033cc>" + (model.getMods().size()) + "</font> " + L10n.getString("status.modsenabled") + " - Version: " + Game.getInstance().getVersion() + "</html>", false);
+            } catch (Exception ex) {
+                setStatusMessage("<html><font color=#009900>" + (model.getAppliedMods().size()) + "</font>/<font color=#0033cc>" + (model.getMods().size()) + "</font> " + L10n.getString("status.modsenabled") + "</html>", false);
+            }
+        
         if (tableModList.isEnabled()) {
             panelModChangelog.setVisible(false);
             panelModDetails.setVisible(true);
@@ -1400,6 +1411,19 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         buttonViewChagelog.setEnabled(enabled);
         buttonViewModDetails.setEnabled(enabled);
         buttonVisitWebsite.setEnabled(enabled);
+        itemAbout.setEnabled(enabled);
+        itemApplyAndLaunch.setEnabled(enabled);
+        itemApplyMods.setEnabled(enabled);
+        itemDownloadModUpdates.setEnabled(enabled);
+        itemExit.setEnabled(enabled);
+        itemImportFromOldModManager.setEnabled(enabled);
+        itemOpenModFolder.setEnabled(enabled);
+        itemOpenPreferences.setEnabled(enabled);
+        itemRefresh.setEnabled(enabled);
+        itemUnapplyAllMods.setEnabled(enabled);
+        itemViewDetails.setEnabled(enabled);
+        itemViewIcons.setEnabled(enabled);
+        itemVisitForumThread.setEnabled(enabled);
         if (enabled && fullyLoaded) {
             displayModDetail();
         }
@@ -1728,7 +1752,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         }
 
         private void showPopup(MouseEvent e) {
-            if (e.isPopupTrigger()) {
+            if (getModListTable().isEnabled() && e.isPopupTrigger()) {
                 Mod mod = getSelectedMod();
                 if (mod.isEnabled()) {
                     popupItemMenuEnableDisableMod.setText(L10n.getString("button.disablemod"));

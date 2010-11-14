@@ -462,6 +462,5 @@ public class ManagerOptions extends Observable {
         } else {
             this.mods = new ArrayList<Mod>();
         }
-        updateNotify();
     }
 }
