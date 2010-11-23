@@ -91,7 +91,6 @@ public class Game {
      * @return folder of the mods or null
      */
     public static String findModFolder() {
-        //TODO: finish this function for windows and linux
         // Try to find HoN folder in case we are on Windows
         if (OS.isWindows()) {
             String gameFolder = findHonFolder();

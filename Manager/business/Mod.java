@@ -5,10 +5,12 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
+import java.awt.Image;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
 
 /**
  * @author Shirkit
@@ -21,6 +23,8 @@ public class Mod {
     public static final String MOD_FILENAME = "mod.xml";
     public static final String ICON_FILENAME = "icon.png";
     public static final String CHANGELOG_FILENAME = "changelog.txt";
+    public static final int ICON_WIDTH = 48;
+    public static final int ICON_HEIGHT = 48;
     // Attributes with Alias
     @XStreamAlias("name")
     @XStreamAsAttribute
@@ -68,6 +72,8 @@ public class Mod {
     private boolean enabled;
     @XStreamOmitField
     private Icon icon;
+    @XStreamOmitField
+    private Icon resizedIcon;
     @XStreamOmitField
     private String changelog;
 
@@ -291,6 +297,14 @@ public class Mod {
     }
 
     /**
+     * Method to enable or disable a mod.
+     * @param _enabled true to enable this mod, false to disable it.
+     */
+    public void setEnabled(boolean _enabled) {
+        enabled = _enabled;
+    }
+
+    /**
      * <b>This should only be called by the controller.</b><br/>
      * Method to enable the current mod
      */
@@ -312,6 +326,15 @@ public class Mod {
      */
     public void setIcon(Icon icon) {
         this.icon = icon;
+        this.resizedIcon = icon;
+        if( icon.getIconHeight() != ICON_HEIGHT
+         || icon.getIconWidth() != ICON_WIDTH ) {
+            resizedIcon = new ImageIcon(
+               ((ImageIcon)icon).getImage().getScaledInstance( ICON_WIDTH,
+                                                               ICON_HEIGHT,
+                                                               Image.SCALE_SMOOTH )
+                                   );
+        }
     }
 
     /**
@@ -323,7 +346,15 @@ public class Mod {
     }
 
     /**
-     * Reurns a String with the content of the mod's Changelog in it.
+     * Returns icon of a mod at the regular size; ICON_WIDTH v ICON_HEIGHT
+     * @return the normalized icon for this mod
+     */
+    public Icon getSizedIcon() {
+        return resizedIcon;
+    }
+
+    /**
+     * Returns a String with the content of the mod's Changelog in it.
      */
     public String getChangelog() {
         if (changelog != null) {
@@ -343,6 +374,10 @@ public class Mod {
     @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
     public boolean equals(Object o) {
         Mod compare = (Mod) o;
+
+        if(o == null) {
+            return false;
+        }
 
         if (compare.getName().equals(this.getName()) && compare.getVersion().equals(this.getVersion())) {
             return true;

@@ -443,7 +443,7 @@ public class ManagerOptions extends Observable {
 
     public enum ViewType {
 
-        DETAILS, ICONS
+        DETAILS, ICONS, TEST, TEST2
     }
 
     /**
