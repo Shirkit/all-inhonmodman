@@ -2,7 +2,6 @@ package gui;
 
 import java.awt.event.ComponentEvent;
 import java.util.Observable;
-import java.util.logging.Level;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.TableColumnModelEvent;
 import javax.swing.event.TableColumnModelListener;
@@ -1361,6 +1360,7 @@ public class ManagerCtrl implements Observer {
                 controller.disableMod(mod);
                 logger.info("Mod '" + mod.getName() + "' has been DISABLED");
             } catch (ModEnabledException ex) {
+                // TODO: Add auto-disable dependencies for at least 2 levels.
                 view.showMessage(L10n.getString("error.modenabled").replace("#mod#", mod.getName()).replace("#mod2#", ex.toString()),
                         L10n.getString("error.modenabled.title"),
                         JOptionPane.WARNING_MESSAGE);

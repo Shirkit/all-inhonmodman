@@ -133,3 +133,10 @@
 - Mods saved as '.zip' will also be loaded and it's extensions will be automatically renamed.
 - Fixed problem that didn't let a user delete a mod after adding it.
 - Added hon version in status message.
+
+[b]0.8.2 alpha:[/b]
+- Fixed a bug while updating manager on all operational systems. Thanks to lennart_s for the help!
+- Fixed displaying a <strong>delete</strong> while trying to deleting a mod.
+- Added a new logging method to capture all unhandled problems. This should make easier to find uncommon bugs and unknow problems. This file will be called HonModManager_Fatal.log
+- Logging file cannot be larger then 200KB.
+- Only one instance of the manager will be allowed to run at the same time. This will prevent some problems with resources999.s2z being lock by another Manager.

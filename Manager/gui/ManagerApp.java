@@ -17,7 +17,9 @@ import org.apache.log4j.PropertyConfigurator;
 import gui.l10n.L10n;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.RandomAccessFile;
 import java.net.URISyntaxException;
+import java.nio.channels.FileLock;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -26,6 +28,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import utility.FileUtils;
+import utility.OS;
 import utility.StdOutErrLog;
 import utility.update.UpdateManager;
 
@@ -47,6 +50,9 @@ public class ManagerApp extends SingleFrameApplication {
     @Override
     protected void startup() {
         // Checking java version
+        if(!lockInstance("Manager.lock")) {
+            System.exit(0);
+        }
         if (System.getProperty("java.version").startsWith("1.5") || System.getProperty("java.version").startsWith("1.4")) {
             JOptionPane.showMessageDialog(null, "Please update your JRE environment to the latest version.", "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -110,7 +116,9 @@ public class ManagerApp extends SingleFrameApplication {
                         String currentJar = "";
                         try {
                             currentJar = (ManagerApp.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
-                            currentJar = currentJar.replaceFirst("/", "");
+                            if ((OS.isWindows() && currentJar.startsWith("/")) || (currentJar.startsWith("//") && !OS.isWindows())) {
+                                currentJar = currentJar.replaceFirst("/", "");
+                            }
                         } catch (URISyntaxException ex) {
                         }
                         String updaterPath = System.getProperty("user.dir") + File.separator + "Updater.jar";
@@ -159,5 +167,36 @@ public class ManagerApp extends SingleFrameApplication {
      */
     public static void main(String[] args) throws FileNotFoundException, IOException {
         launch(ManagerApp.class, args);
+    }
+
+    /**
+     *  Method to prevent multiple instances of the Manager running.
+     * @param lockFile path a file. This should be constant.
+     * @return true is there is no other instance running, false otehrwise.
+     */
+    private static boolean lockInstance(final String lockFile) {
+        try {
+            final File file = new File(lockFile);
+            final RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw");
+            final FileLock fileLock = randomAccessFile.getChannel().tryLock();
+            if (fileLock != null) {
+                Runtime.getRuntime().addShutdownHook(new Thread() {
+
+                    public void run() {
+                        try {
+                            fileLock.release();
+                            randomAccessFile.close();
+                            file.delete();
+                        } catch (Exception e) {
+                            //log.error("Unable to remove lock file: " + lockFile, e);
+                        }
+                    }
+                });
+                return true;
+            }
+        } catch (Exception e) {
+            //log.error("Unable to create and/or lock file: " + lockFile, e);
+        }
+        return false;
     }
 }

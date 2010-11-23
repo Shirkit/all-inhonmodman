@@ -2,7 +2,6 @@ package controller;
 
 import business.ManagerOptions;
 import business.Mod;
-import business.ShirkitDriver;
 import business.actions.*;
 
 import java.util.concurrent.ExecutionException;
@@ -464,7 +463,6 @@ public class Manager extends Observable {
             desktop.open(new File(ManagerOptions.getInstance().getModPath()));
         } catch (Exception e) {
             logger.error("Unable to open local folder: " + e.getMessage());
-            e.printStackTrace();
             return -1;
         }
         return 0;
@@ -1247,6 +1245,8 @@ public class Manager extends Observable {
 
         File targetZip = new File(dest);
         if (targetZip.exists()) {
+            targetZip.setReadable(true);
+            targetZip.setWritable(true);
             if (!targetZip.delete()) {
                 throw new FileLockInterruptionException();
             }

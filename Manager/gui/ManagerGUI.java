@@ -2,10 +2,7 @@ package gui;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.List;
-import java.util.logging.Level;
 import javax.swing.JButton;
 import javax.swing.JList;
 import javax.swing.JMenuItem;
@@ -51,11 +48,19 @@ import org.jdesktop.application.Task;
 import utility.BBCode;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.color.ColorSpace;
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorConvertOp;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import javax.imageio.ImageIO;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JEditorPane;
 import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import utility.Game;
+import utility.ZIP;
 
 /**
  * Main form of the ModManager. This class is the 'view' part of the MVC framework
@@ -1283,12 +1288,12 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
      */
     public void displayModDetail() {
 
-            try {
-                setStatusMessage("<html><font color=#009900>" + (model.getAppliedMods().size()) + "</font>/<font color=#0033cc>" + (model.getMods().size()) + "</font> " + L10n.getString("status.modsenabled") + " - Version: " + Game.getInstance().getVersion() + "</html>", false);
-            } catch (Exception ex) {
-                setStatusMessage("<html><font color=#009900>" + (model.getAppliedMods().size()) + "</font>/<font color=#0033cc>" + (model.getMods().size()) + "</font> " + L10n.getString("status.modsenabled") + "</html>", false);
-            }
-        
+        try {
+            setStatusMessage("<html><font color=#009900>" + (model.getAppliedMods().size()) + "</font>/<font color=#0033cc>" + (model.getMods().size()) + "</font> " + L10n.getString("status.modsenabled") + " - Version: " + Game.getInstance().getVersion() + "</html>", false);
+        } catch (Exception ex) {
+            setStatusMessage("<html><font color=#009900>" + (model.getAppliedMods().size()) + "</font>/<font color=#0033cc>" + (model.getMods().size()) + "</font> " + L10n.getString("status.modsenabled") + "</html>", false);
+        }
+
         if (tableModList.isEnabled()) {
             panelModChangelog.setVisible(false);
             panelModDetails.setVisible(true);
@@ -1759,9 +1764,14 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                 } else {
                     popupItemMenuEnableDisableMod.setText(L10n.getString("button.enablemod"));
                 }
-                popupItemMenuUpdateMod.setActionCommand(mod.getName());
+                if (mod.getUpdateCheckUrl() == null || mod.getUpdateDownloadUrl() == null || mod.getUpdateCheckUrl().isEmpty() || mod.getUpdateDownloadUrl().isEmpty()) {
+                    popupItemMenuUpdateMod.setEnabled(false);
+                } else {
+                    popupItemMenuUpdateMod.setEnabled(true);
+                    popupItemMenuUpdateMod.setActionCommand(mod.getName());
+                }
                 popupItemMenuEnableDisableMod.setActionCommand(mod.getName());
-                if (mod.getChangelog() == null) {
+                if (mod.getChangelog() == null || mod.getChangelog().isEmpty()) {
                     popupItemMenuViewChangelog.setEnabled(false);
                 } else {
                     popupItemMenuViewChangelog.setEnabled(true);
@@ -1785,11 +1795,37 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
             JLabel data = (JLabel) super.getListCellRendererComponent(list,
                     value, index, isSelected, cellHasFocus);
-            data.setIcon(((Mod) value).getIcon());
-            data.setText(((Mod) value).getName());
+            Mod m = (Mod) value;
+            data.setText(m.getName());
+            data.setEnabled(m.isEnabled());
+            data.setIcon(m.getIcon());
 
+            /*try {
+                BufferedImage image = ImageIO.read(new ByteArrayInputStream(ZIP.getFile(new File(m.getPath()), Mod.ICON_FILENAME)));
+
+                BufferedImage image2;
+                if (!m.isEnabled()) {
+                    ColorSpace cs = ColorSpace.getInstance(ColorSpace.CS_GRAY);
+                    ColorConvertOp op = new ColorConvertOp(cs, null);
+                    image = op.filter(image, null);
+                    image2 = ImageIO.read(getClass().getClassLoader().getResource("gui/resources/disabled.png"));
+                } else if (model.getAppliedMods().contains(m)) {
+                    image2 = ImageIO.read(getClass().getClassLoader().getResource("gui/resources/applied.png"));
+                } else {
+                    image2 = ImageIO.read(getClass().getClassLoader().getResource("gui/resources/enabled.png"));
+                }
+                BufferedImage iamgefinal = new BufferedImage(48, 48, BufferedImage.TYPE_3BYTE_BGR);
+                Graphics2D graphics = iamgefinal.createGraphics();
+                graphics.drawImage(image, null, 0, 0);
+                graphics.drawImage(image2, null, 0, 0);
+                data.setIcon(new ImageIcon(iamgefinal));
+            } catch (Exception ex) {
+                // TODO: do the same when icon.png wasn't found
+                System.err.println(m.getName());
+                ex.printStackTrace();
+                data.setIcon(m.getIcon());
+            }*/
             // Grays out the icons
-            data.setEnabled(((Mod) value).isEnabled());
             return data;
         }
     }
