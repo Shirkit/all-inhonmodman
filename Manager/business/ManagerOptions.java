@@ -47,6 +47,8 @@ public class ManagerOptions extends Observable {
     private boolean autoUpdate;
     private boolean autoEnableDependencies;
     private boolean developerMode;
+    private boolean colorCheckboxInTable;
+    private boolean showIconsInTable;
     // TODO: Save this in the options file.
     private ViewType viewType = ViewType.DETAILS;
     // Hidden fields from XML
@@ -81,6 +83,8 @@ public class ManagerOptions extends Observable {
         autoUpdate = false;
         autoEnableDependencies = false;
         developerMode = false;
+        colorCheckboxInTable = true;
+        showIconsInTable = true;
         guiRectangle = null;
         columnsWidth = new ArrayList<Integer>();
     }
@@ -462,5 +466,33 @@ public class ManagerOptions extends Observable {
         } else {
             this.mods = new ArrayList<Mod>();
         }
+    }
+
+    /**
+     * @return the colorCheckboxInTable
+     */
+    public boolean getCheckboxesInTableColored() {
+        return colorCheckboxInTable;
+    }
+
+    /**
+     * @param colorCheckboxInTable the colorCheckboxInTable to set
+     */
+    public void setColorCheckboxesInTable(boolean colorCheckboxInTable) {
+        this.colorCheckboxInTable = colorCheckboxInTable;
+    }
+
+    /**
+     * @return the showIconsInTable
+     */
+    public boolean iconsShownInTable() {
+        return showIconsInTable;
+    }
+
+    /**
+     * @param showIconsInTable the showIconsInTable to set
+     */
+    public void setShowIconsInTable(boolean showIconsInTable) {
+        this.showIconsInTable = showIconsInTable;
     }
 }

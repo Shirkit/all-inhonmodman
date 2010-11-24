@@ -2,7 +2,6 @@ package gui;
 
 import business.ManagerOptions;
 import business.Mod;
-import controller.Manager;
 import gui.views.DetailsView;
 import gui.views.IconsView;
 import gui.views.ModsTableView;
@@ -13,7 +12,6 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.event.ListSelectionEvent;
@@ -32,7 +30,6 @@ import javax.swing.event.ListSelectionListener;
  *  - (I'm sure there are many more, but I haven't listed them yet.)
  */
 public final class ModsTable extends JPanel {
-    private final static Logger logger = Logger.getLogger(Manager.class.getPackage().getName());
     private final static int TABLE_HEIGHT = 619, TABLE_WIDTH = 619;
 
     public enum ViewType {
@@ -66,7 +63,6 @@ public final class ModsTable extends JPanel {
         }
 
         setViewMode(_viewMode);
-
         setPreferredSize(new Dimension(TABLE_WIDTH, TABLE_HEIGHT));
     }
 

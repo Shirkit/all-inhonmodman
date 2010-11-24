@@ -27,12 +27,17 @@ import javax.swing.table.DefaultTableModel;
 public class DetailsView extends ModsTableView {
 
     private static final int DEFAULT_ROW_HEIGHT = 16;
+    /*
     private static final String[] COLUMN_NAMES = {"",
                                 L10n.getString("table.modname"),
                                 L10n.getString("table.modauthor"),
                                 L10n.getString("table.modversion"),
                                 L10n.getString("table.modstatus"),
                                 L10n.getString("table.icons")};
+     * TODO: The above is obviously better, but using L10n messes with the gui builder...
+     */
+    private static final String[] COLUMN_NAMES = {"",
+                                "Name","Author","Version","Status","Icons"};
     private static final Class[] COLUMN_TYPES = new Class [] {
         java.lang.Boolean.class, java.lang.String.class, java.lang.String.class,
         java.lang.String.class, java.lang.String.class, javax.swing.ImageIcon.class
@@ -43,18 +48,51 @@ public class DetailsView extends ModsTableView {
     private boolean[] columnShown = new boolean [] {
         true, true, true, true, true, true
     };
+    private boolean colorCheckboxes;
 
     public DetailsView(ArrayList<Mod> _modsList) {
         super(_modsList);
 
         component = new JTable(new DetailsViewTableModel());
-        ((JTable)component).setDefaultRenderer(Boolean.class, new ColorCodedBooleanTabelCellRenderer());
+
+        refreshOptions();
+        
         ((JTable)component).addMouseListener(new PopupListener());
         ((JTable)component).getTableHeader().addMouseListener(new ColumnHeaderMouseAdapter());
 
         ((JTable)component).getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         ((JTable)component).setAutoCreateRowSorter(true);
-        ((JTable)component).setRowHeight(Mod.ICON_HEIGHT);
+    }
+
+    /**
+     * Saves options to ManagerOptions
+     */
+    private void saveOptions() {
+        ManagerOptions options = ManagerOptions.getInstance();
+        options.setShowIconsInTable(columnShown[5]);
+        options.setColorCheckboxesInTable(colorCheckboxes);
+    }
+
+    /**
+     * Gets options from ManagerOptions and changes the table accordingly.
+     */
+    private void refreshOptions() {
+        ManagerOptions options = ManagerOptions.getInstance();
+        JTable table = (JTable) getComponent();
+        columnShown[5] = options.iconsShownInTable();
+        colorCheckboxes = options.getCheckboxesInTableColored();
+
+        if(columnShown[5]){
+            table.setRowHeight(Mod.ICON_HEIGHT);
+        } else {
+            table.setRowHeight(DEFAULT_ROW_HEIGHT);
+        }
+
+        if(colorCheckboxes) {
+            table.setDefaultRenderer(Boolean.class, new ColorCodedBooleanTabelCellRenderer());
+        } else {
+            table.setDefaultRenderer(Boolean.class, (new JTable()).getDefaultRenderer(Boolean.class));
+        }
     }
 
     @Override
@@ -172,23 +210,36 @@ public class DetailsView extends ModsTableView {
             super();
             
             columnOptions = new JPopupMenu();
-            
-            JMenuItem icons = new JCheckBoxMenuItem( L10n.getString("table.icons") );
+
+            // TODO: Using L10n is better, but it messes up the gui builder >_>
+            JMenuItem color = new JCheckBoxMenuItem( "Color Checkboxes" ); //L10n.getString("table.options.colorcheckboxes") );
+            color.setSelected(colorCheckboxes);
+            color.addItemListener(new ItemListener() {
+                public void itemStateChanged(ItemEvent e) {
+                    colorCheckboxes = e.getStateChange() == ItemEvent.SELECTED;
+
+                    saveOptions();
+                    refreshOptions();
+
+                    getComponent().repaint();
+                }
+            });
+
+            JMenuItem icons = new JCheckBoxMenuItem( "Icons" ); //L10n.getString("table.options.showicons") );
             icons.setSelected(columnShown[5]);
             icons.addItemListener(new ItemListener() {
                 public void itemStateChanged(ItemEvent e) {
                     columnShown[5] = e.getStateChange() == ItemEvent.SELECTED;
 
-                    if(columnShown[5]) {
-                        ((JTable)getComponent()).setRowHeight(Mod.ICON_HEIGHT);
-                    } else {
-                        ((JTable)getComponent()).setRowHeight(DEFAULT_ROW_HEIGHT);
-                    }
+                    saveOptions();
+                    refreshOptions();
 
                     ((DefaultTableModel)((JTable)getComponent()).getModel()).fireTableStructureChanged();
                 }
             });
 
+            columnOptions.add(color);
+            columnOptions.addSeparator();
             columnOptions.add(icons);
         }
 
