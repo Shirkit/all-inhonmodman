@@ -967,13 +967,13 @@ public class ManagerCtrl implements Observer {
     }
 
     public void deleteSelectedMod() {
+        // TODO: Log this
         Mod m = view.getModsTable().getSelectedMod();
         if (JOptionPane.showConfirmDialog(view, L10n.getString("question.deletemod").replace("#mod#", m.getName()), L10n.getString("question.deletemod.title"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == 0) {
             // Yes
             view.deleteSelectedMod();
             File f = new File(m.getPath());
             if (!f.delete()) {
-                System.out.println(f.getAbsolutePath());
                 view.showMessage("Failed to delete file", "Failed", JOptionPane.ERROR_MESSAGE);
             }
         }

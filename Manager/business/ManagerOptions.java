@@ -178,6 +178,9 @@ public class ManagerOptions extends Observable {
         if (temp.getColumnsWidth() != null) {
             instance.setColumnsWidth(temp.getColumnsWidth());
         }
+        if (temp.getViewType() != null) {
+            instance.setViewType(temp.getViewType());
+        }
         instance.setIgnoreGameVersion(temp.isIgnoreGameVersion());
         instance.setAutoUpdate(temp.isAutoUpdate());
         instance.setDeveloperMode(temp.isDeveloperMode());

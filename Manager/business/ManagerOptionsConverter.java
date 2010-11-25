@@ -72,6 +72,10 @@ public class ManagerOptionsConverter implements Converter {
             writer.addAttribute("developermode", Boolean.toString(opt.isDeveloperMode()));
         } catch (NullPointerException ex) {
         }
+        try {
+            writer.addAttribute("viewtype", opt.getViewType().toString());
+        } catch (NullPointerException ex) {
+        }
         if (opt.getColumnsWidth() != null) {
             Iterator<Integer> it = opt.getColumnsWidth().iterator();
             int i = 0;
@@ -101,14 +105,42 @@ public class ManagerOptionsConverter implements Converter {
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext uc) {
         ManagerOptions value = ManagerOptions.getInstance();
 
-        value.setModPath(reader.getAttribute("modsfolder"));
-        value.setGamePath(reader.getAttribute("honfolder"));
-        value.setCLArgs(reader.getAttribute("clargs"));
-        value.setLanguage(reader.getAttribute("lang"));
-        value.setLaf(reader.getAttribute("laf"));
-        value.setIgnoreGameVersion(Boolean.parseBoolean(reader.getAttribute("ignoregameversion")));
-        value.setAutoUpdate(Boolean.parseBoolean(reader.getAttribute("autoupdate")));
-        value.setDeveloperMode(Boolean.parseBoolean(reader.getAttribute("developermode")));
+        try {
+            value.setModPath(reader.getAttribute("modsfolder"));
+        } catch (Exception e) {
+        }
+        try {
+            value.setGamePath(reader.getAttribute("honfolder"));
+        } catch (Exception e) {
+        }
+        try {
+            value.setCLArgs(reader.getAttribute("clargs"));
+        } catch (Exception e) {
+        }
+        try {
+            value.setLanguage(reader.getAttribute("lang"));
+        } catch (Exception e) {
+        }
+        try {
+            value.setLaf(reader.getAttribute("laf"));
+        } catch (Exception e) {
+        }
+        try {
+            value.setIgnoreGameVersion(Boolean.parseBoolean(reader.getAttribute("ignoregameversion")));
+        } catch (Exception e) {
+        }
+        try {
+            value.setAutoUpdate(Boolean.parseBoolean(reader.getAttribute("autoupdate")));
+        } catch (Exception e) {
+        }
+        try {
+            value.setDeveloperMode(Boolean.parseBoolean(reader.getAttribute("developermode")));
+        } catch (Exception e) {
+        }
+        try {
+            value.setViewType(ManagerOptions.ViewType.valueOf(reader.getAttribute("viewtype")));
+        } catch (Exception e) {
+        }
         int x = -9999999, y = -9999999, height = -9999999, width = -9999999;
         String s = reader.getAttribute("x");
         if (s != null) {
