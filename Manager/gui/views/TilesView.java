@@ -13,8 +13,8 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 
 /**
- *
- * @author George
+ * A tiles view, with the text beneath the icon.
+ * @author Gcommer
  */
 public class TilesView extends IconsView {
     public TilesView(ArrayList<Mod> _modsList) {

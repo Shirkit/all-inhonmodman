@@ -1,5 +1,6 @@
 package gui;
 
+import gui.ManagerCtrl.ViewChangeListener;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import javax.swing.JButton;
@@ -286,6 +287,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         ButtonGroup viewModesGroup = new ButtonGroup();
         itemViewDetails = new javax.swing.JRadioButtonMenuItem();
         itemViewIcons = new javax.swing.JRadioButtonMenuItem();
+        itemViewDetailedIcons = new javax.swing.JRadioButtonMenuItem();
         itemViewTiles = new javax.swing.JRadioButtonMenuItem();
         menuHelp = new javax.swing.JMenu();
         itemVisitForumThread = new javax.swing.JMenuItem();
@@ -847,6 +849,11 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         });
         menuView.add(itemViewIcons);
 
+        viewModesGroup.add(itemViewDetailedIcons);
+        itemViewDetailedIcons.setMnemonic(L10n.getMnemonic("menu.view.detailedicons"));
+        itemViewDetailedIcons.setText(L10n.getString("menu.view.detailedicons"));
+        menuView.add(itemViewDetailedIcons);
+
         viewModesGroup.add(itemViewTiles);
         itemViewTiles.setMnemonic(L10n.getMnemonic("menu.view.tiles"));
         itemViewTiles.setSelected(false);
@@ -1390,6 +1397,10 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         itemViewIcons.addActionListener(al);
     }
 
+    void itemViewDetailedIconsAddActionListener(ActionListener al) {
+        itemViewDetailedIcons.addActionListener(al);
+    }
+
     public void itemViewTilesAddActionListener(ActionListener al) {
         itemViewTiles.addActionListener(al);
     }
@@ -1653,6 +1664,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     private javax.swing.JMenuItem itemOpenPreferences;
     private javax.swing.JMenuItem itemRefresh;
     private javax.swing.JMenuItem itemUnapplyAllMods;
+    private javax.swing.JRadioButtonMenuItem itemViewDetailedIcons;
     private javax.swing.JRadioButtonMenuItem itemViewDetails;
     private javax.swing.JRadioButtonMenuItem itemViewIcons;
     private javax.swing.JRadioButtonMenuItem itemViewTiles;

@@ -167,6 +167,7 @@ public class ManagerCtrl implements Observer {
         view.itemViewDetailsAddActionListener(new ViewChangeListener(ModsTable.ViewType.DETAILS));
         view.itemViewIconsAddActionListener(new ViewChangeListener(ModsTable.ViewType.ICONS));
         view.itemViewTilesAddActionListener(new ViewChangeListener(ModsTable.ViewType.TILES));
+        view.itemViewDetailedIconsAddActionListener(new ViewChangeListener(ModsTable.ViewType.DETAILED_ICONS));
         view.itemExitAddActionListener(new ExitListener());
 
         view.buttonVisitWebsiteAddActionListener(new VisitWebsiteListener());

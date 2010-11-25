@@ -65,9 +65,6 @@ public class IconsView extends ModsTableView {
 
             setIcon(mod.getSizedIcon());
             // We display this mod in <HTML> to allow the text to wrap.
-            // TODO: Using html, we can display multiple rows of data.  We
-            //   should make a DetailedIconsView or something that shows the
-            //   mod version and author under the mod name.
             setText("<HTML><CENTER>"+mod.getName()+"</CENTER></HTML>");
             // Grays out the icon
             // TODO: Extend this for more informative icons - should probably

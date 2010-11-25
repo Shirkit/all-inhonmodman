@@ -2,6 +2,7 @@ package gui;
 
 import business.ManagerOptions;
 import business.Mod;
+import gui.views.DetailedIconsView;
 import gui.views.DetailsView;
 import gui.views.IconsView;
 import gui.views.ModsTableView;
@@ -21,6 +22,12 @@ import javax.swing.event.ListSelectionListener;
  * A JPanel that displays a list of mods and allows them to be displayed in
  * multiple ways.
  *
+ * To add a new view, all you have to do is:
+ *  1. extend ModsTableView (or an already existing view)
+ *  2. add an entry to the ViewType enum for it
+ *  3. add it to the views HashMap in the ModsTable constructor
+ *  4. add it to the view selection menu in the GUI
+ *
  * @author Gcommer
  *
  * TODO:
@@ -35,6 +42,7 @@ public final class ModsTable extends JPanel {
     public enum ViewType {
         DETAILS,
         ICONS,
+        DETAILED_ICONS,
         TILES
     };
 
@@ -47,10 +55,11 @@ public final class ModsTable extends JPanel {
 
         setModsList(_mods);
 
-        views = new HashMap(3);
+        views = new HashMap(4);
         views.put( ViewType.DETAILS, new DetailsView( getModsList() ) );
-        views.put( ViewType.ICONS, new IconsView( getModsList() ) );
         views.put( ViewType.TILES, new TilesView( getModsList() ) );
+        views.put( ViewType.ICONS, new IconsView( getModsList() ) );
+        views.put( ViewType.DETAILED_ICONS, new DetailedIconsView( getModsList() ) );
 
         setLayout(cardLayout);
         ModsTableView view;
