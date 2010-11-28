@@ -6,6 +6,7 @@ import gui.views.DetailedIconsView;
 import gui.views.DetailsView;
 import gui.views.IconsView;
 import gui.views.ModsTableView;
+import gui.views.TableViewMouseListener;
 import gui.views.TilesView;
 import java.awt.CardLayout;
 import java.awt.Dimension;

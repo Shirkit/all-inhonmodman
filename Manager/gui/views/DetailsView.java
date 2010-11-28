@@ -53,15 +53,14 @@ public class DetailsView extends ModsTableView {
     public DetailsView(ArrayList<Mod> _modsList) {
         super(_modsList);
 
-        component = new JTable(new DetailsViewTableModel());
-
-        refreshOptions();
+        JTable comp = new JTable(new DetailsViewTableModel());
         
-        ((JTable)component).addMouseListener(new PopupListener());
-        ((JTable)component).getTableHeader().addMouseListener(new ColumnHeaderMouseAdapter());
+        comp.getTableHeader().addMouseListener(new ColumnHeaderMouseAdapter());
+        comp.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        comp.setAutoCreateRowSorter(true);
 
-        ((JTable)component).getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        ((JTable)component).setAutoCreateRowSorter(true);
+        setComponent(comp);
+        refreshOptions();
     }
 
     /**
@@ -102,7 +101,7 @@ public class DetailsView extends ModsTableView {
 
     @Override
     public Mod getModAt(Point p) {
-        int index = ((JTable)component).rowAtPoint(p);
+        int index = ((JTable)getComponent()).rowAtPoint(p);
         if(index == -1) {
             throw new IndexOutOfBoundsException("DetailsView: Mouse not over a mod.");
         }
@@ -142,7 +141,7 @@ public class DetailsView extends ModsTableView {
             public int getColumnCount() { return COLUMN_NAMES.length - (columnShown[5]? 0:1); }
 
             @Override
-            public int getRowCount() { return modsList.size(); }
+            public int getRowCount() { return getModsList().size(); }
 
             @Override
             public String getColumnName(int col) { return COLUMN_NAMES[col]; }
@@ -167,7 +166,7 @@ public class DetailsView extends ModsTableView {
 
             @Override
             public Object getValueAt(int row, int col) {
-                Mod mod = modsList.get(row);
+                Mod mod = getModsList().get(row);
                 switch(col) {
                     case 0:
                         return (Boolean)mod.isEnabled();
@@ -245,8 +244,8 @@ public class DetailsView extends ModsTableView {
 
         @Override
         public void mouseReleased(MouseEvent e) {
-            if(e.isPopupTrigger()) {
-                columnOptions.show(((JTable)component).getTableHeader(), e.getX(), e.getY());
+            if(e.isPopupTrigger()) { // Show the popup menu.
+                columnOptions.show(((JTable)getComponent()).getTableHeader(), e.getX(), e.getY());
             }
         }
     }

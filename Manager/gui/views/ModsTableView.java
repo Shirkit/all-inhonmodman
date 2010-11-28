@@ -17,7 +17,12 @@ import javax.swing.event.ListSelectionListener;
  */
 public abstract class ModsTableView {
 
-    public ModsTableView(ArrayList<Mod> _modsList) { modsList = _modsList; }
+    public ModsTableView(ArrayList<Mod> _modsList) {
+        modsList = _modsList;
+        if(getComponent() != null) {
+            getComponent().addMouseListener(new TableViewMouseListener());
+        }
+    }
 
     /**
      * @return the modsList
@@ -46,8 +51,9 @@ public abstract class ModsTableView {
     /**
      * @param component the component to set
      */
-    public void setComponent(JComponent component) {
+    protected void setComponent(JComponent component) {
         this.component = component;
+        this.component.addMouseListener(new TableViewMouseListener());
     }
 
     public abstract Mod getModAt(int x, int y);
@@ -59,6 +65,6 @@ public abstract class ModsTableView {
     public abstract void selectNextMod();
     public abstract void selectPrevMod();
 
-    protected ArrayList<Mod> modsList;
-    protected JComponent component;
+    private ArrayList<Mod> modsList;
+    private JComponent component;
 }

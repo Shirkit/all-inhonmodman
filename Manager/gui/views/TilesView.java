@@ -19,9 +19,11 @@ import javax.swing.JList;
 public class TilesView extends IconsView {
     public TilesView(ArrayList<Mod> _modsList) {
         super(_modsList);
-        ((JList)component).setFixedCellWidth((Mod.ICON_WIDTH*5)/3);
-        ((JList)component).setFixedCellHeight(2*Mod.ICON_HEIGHT);
-        ((JList)component).setVisibleRowCount(-1);
+
+        JList comp = (JList) getComponent();
+        comp.setFixedCellWidth((Mod.ICON_WIDTH*5)/3);
+        comp.setFixedCellHeight(2*Mod.ICON_HEIGHT);
+        comp.setVisibleRowCount(-1);
     }
 
     @Override

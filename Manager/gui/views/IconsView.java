@@ -19,12 +19,13 @@ public class IconsView extends ModsTableView {
     public IconsView(ArrayList<Mod> _modsList) {
         super(_modsList);
 
-        component = new JList(new ModsListModel());
-        ((JList)component).setCellRenderer(new IconsListCellRenderer());
-        ((JList)component).addMouseListener(new PopupListener());
-        ((JList)component).setLayoutOrientation(JList.HORIZONTAL_WRAP);
-        ((JList)component).setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        ((JList)component).setVisibleRowCount(-1);
+        JList comp = new JList(new ModsListModel());
+        comp.setCellRenderer(new IconsListCellRenderer());
+        comp.setLayoutOrientation(JList.HORIZONTAL_WRAP);
+        comp.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        comp.setVisibleRowCount(-1);
+
+        setComponent(comp);
     }
 
     @Override
