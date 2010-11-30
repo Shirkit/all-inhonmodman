@@ -2,6 +2,7 @@ package controller;
 
 import business.ManagerOptions;
 import business.Mod;
+import business.ModList;
 import business.actions.*;
 
 import java.util.concurrent.ExecutionException;
@@ -1633,5 +1634,30 @@ public class Manager extends Observable {
         }
 
         return valid;
+    }
+
+    public void exportMods(File destination) {
+        if (destination.exists()) {
+            destination.setWritable(true);
+            destination.setReadable(true);
+            destination.delete();
+        }
+
+        Iterator<Mod> mods = ManagerOptions.getInstance().getAppliedMods().iterator();
+        ArrayList<String> modname = new ArrayList<String>();
+        ArrayList<String> url = new ArrayList<String>();
+        while (mods.hasNext()) {
+            Mod m = mods.next();
+            if (m.getUpdateDownloadUrl() != null && !m.getUpdateDownloadUrl().isEmpty()) {
+                modname.add(m.getName());
+                url.add(m.getUpdateDownloadUrl());
+            }
+        }
+        String[][] list = new String[modname.size()][2];
+        for (int i = 0; i < modname.size(); i++) {
+            list[i][0] = modname.get(i);
+            list[i][1] = url.get(i);
+        }
+        ModList modlist = new ModList(list);
     }
 }

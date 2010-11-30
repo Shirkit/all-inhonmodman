@@ -2,6 +2,7 @@ package utility;
 
 import business.ManagerOptions;
 import business.Mod;
+import business.ModList;
 import business.ShirkitDriver;
 import business.actions.*;
 import com.thoughtworks.xstream.XStream;
@@ -213,6 +214,25 @@ public class XML {
         fos.write(temp.getBytes("UTF-8"));
         fos.flush();
         fos.close();
+    }
+
+    public static void modListToXml(File destination, ModList modlist) throws IOException {
+        XStream xstream = new XStream(getDriver());
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        Writer writer = new OutputStreamWriter(outputStream, "UTF-8");
+        xstream.toXML(modlist, writer);
+        String temp = outputStream.toString("UTF-8");
+
+        temp = replaceInvalidHtmlChars(temp);
+
+        temp = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + temp;
+
+        FileOutputStream fos = new FileOutputStream(destination, false);
+        fos.write(temp.getBytes("UTF-8"));
+        fos.flush();
+        fos.close();
+
     }
 
     /**
