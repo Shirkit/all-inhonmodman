@@ -140,3 +140,7 @@
 - Added a new logging method to capture all unhandled problems. This should make easier to find uncommon bugs and unknow problems. This file will be called HonModManager_Fatal.log
 - Logging file cannot be larger then 200KB.
 - Only one instance of the manager will be allowed to run at the same time. This will prevent some problems with resources999.s2z being lock by another Manager.
+- Mods display interface completely remade.  It will be the same outside, but more stable and easier to add to.
+- Two new view modes added: "Tiles View" and "Detailed Icons View"
+- Mods can now be enabled or disabled by double clicking them
+- Icons can now be displayed in "Details View"

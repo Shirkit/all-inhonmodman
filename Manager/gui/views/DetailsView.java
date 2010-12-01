@@ -26,7 +26,7 @@ import javax.swing.table.DefaultTableModel;
  */
 public class DetailsView extends ModsTableView {
 
-    private static final int DEFAULT_ROW_HEIGHT = 16;
+    private static final int DEFAULT_ROW_HEIGHT = 25;
     /*
     private static final String[] COLUMN_NAMES = {"",
                                 L10n.getString("table.modname"),
