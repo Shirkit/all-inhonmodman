@@ -56,16 +56,22 @@ public class UpdateThread implements Callable<UpdateThread> {
                 }
             }
         } catch (MalformedURLException ex) {
+            file = null;
             throw new UpdateModException(mod, ex);
         } catch (ConnectException ex) {
+            file = null;
             throw new UpdateModException(mod, ex);
         } catch (NullPointerException ex) {
+            file = null;
             throw new UpdateModException(mod, ex);
         } catch (InvalidParameterException ex) {
+            file = null;
             throw new UpdateModException(mod, ex);
         } catch (FileNotFoundException ex) {
+            file = null;
             throw new UpdateModException(mod, ex);
         } catch (IOException ex) {
+            file = null;
             throw new UpdateModException(mod, ex);
         }
         return this;

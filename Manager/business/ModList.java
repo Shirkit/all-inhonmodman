@@ -18,6 +18,12 @@ public class ModList {
 
     @XStreamImplicit
     String[][] list;
+    final String listVersion = "1.0";
+    /* Version 1.0
+     * [][0] = Mod name
+     * [][1] = File download url
+     */
+
 
     public ModList(String[][] list) {
         setList(list);
@@ -29,5 +35,9 @@ public class ModList {
 
     public String[][] getList() {
         return list;
+    }
+
+    public String getListVersion() {
+        return listVersion;
     }
 }

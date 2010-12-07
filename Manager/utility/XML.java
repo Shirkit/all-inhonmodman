@@ -232,7 +232,12 @@ public class XML {
         fos.write(temp.getBytes("UTF-8"));
         fos.flush();
         fos.close();
+    }
 
+    public static ModList xmlToModList(File file) throws FileNotFoundException {
+        XStream xstream = new XStream(getDriver());
+        xstream = updateAlias(xstream);
+        return (ModList) xstream.fromXML(new FileInputStream(file));
     }
 
     /**

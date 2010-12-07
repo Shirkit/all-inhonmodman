@@ -144,3 +144,4 @@
 - Two new view modes added: "Tiles View" and "Detailed Icons View"
 - Mods can now be enabled or disabled by double clicking them
 - Icons can now be displayed in "Details View"
+- Fixed an error that could corrupt mods while updating.

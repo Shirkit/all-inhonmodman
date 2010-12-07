@@ -6,6 +6,7 @@ import business.ModList;
 import business.actions.*;
 
 import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
 
 import utility.OS;
 import utility.XML;
@@ -49,6 +50,7 @@ import javax.swing.JFileChooser;
 import utility.FileUtils;
 
 import utility.Game;
+import utility.update.DownloadThread;
 import utility.update.UpdateReturn;
 import utility.update.UpdateThread;
 
@@ -501,6 +503,13 @@ public class Manager extends Observable {
      * @throws ModNotEnabledException 
      */
     public UpdateReturn updateMod(ArrayList<Mod> mods) {
+
+
+
+
+
+
+
         // Prepare the pool
         ExecutorService pool = Executors.newCachedThreadPool();
         Iterator<Mod> it = mods.iterator();
@@ -1636,7 +1645,7 @@ public class Manager extends Observable {
         return valid;
     }
 
-    public void exportMods(File destination) {
+    public void exportMods(File destination) throws IOException {
         if (destination.exists()) {
             destination.setWritable(true);
             destination.setReadable(true);
@@ -1659,5 +1668,98 @@ public class Manager extends Observable {
             list[i][1] = url.get(i);
         }
         ModList modlist = new ModList(list);
+        XML.modListToXml(destination, modlist);
+    }
+
+    public void importModList(File xmlFile) throws FileNotFoundException {
+        if (xmlFile.exists()) {
+            xmlFile.setReadable(true);
+        }
+        ModList importedList = XML.xmlToModList(xmlFile);
+
+        ArrayList<String> modname = new ArrayList<String>();
+        try {
+            int i = 0;
+            while (true) {
+                modname.add(importedList.getList()[i][0]);
+                i++;
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+        }
+        ArrayList<String> modurl = new ArrayList<String>();
+        try {
+            int i = 0;
+            while (true) {
+                modurl.add(importedList.getList()[i][1]);
+                i++;
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+        }
+        Iterator<String> names = modname.iterator();
+        Iterator<String> urls = modurl.iterator();
+
+        // Prepare the pool
+        ExecutorService pool = Executors.newCachedThreadPool();
+        HashSet<Future<DownloadThread>> temp = new HashSet<Future<DownloadThread>>();
+        // Submit to the pool
+        while (urls.hasNext()) {
+            temp.add(pool.submit(new DownloadThread(urls.next())));
+            logger.info("Started download on: " + names.next());
+        }
+
+        // Transfer the pool
+        HashSet<Future<DownloadThread>> result = new HashSet<Future<DownloadThread>>();
+        while (temp.size() != result.size()) {
+            Iterator<Future<DownloadThread>> ite = temp.iterator();
+            while (ite.hasNext()) {
+                Future<DownloadThread> ff = ite.next();
+                if (!result.contains(ff) && ff.isDone()) {
+                    result.add(ff);
+                    //logger.info("Finished " + result.size() + " out of " + temp.size() + " URL check");
+                    //int[] ints = new int[2];
+                    //ints[0] = result.size();
+                    //ints[1] = temp.size();
+                    //setChanged();
+                    //notifyObservers(ints);
+                }
+            }
+        }
+
+        Iterator<Future<DownloadThread>> ite = result.iterator();
+        //UpdateReturn returnValue = new UpdateReturn();
+        while (ite.hasNext()) {
+            Future<DownloadThread> ff = ite.next();
+            try {
+                DownloadThread mod = (DownloadThread) ff.get();
+                File file = mod.getFile();
+                if (file != null) {
+                    try {
+                        addHonmod(file, true);
+                        //returnValue.addUpdated(mod.getMod(), olderVersion);
+                        //logger.info(mod.getMod().getName() + "was updated to " + newMod.getVersion() + " from " + olderVersion);
+                    } catch (ModNotFoundException ex) {
+                    } catch (ModStreamException ex) {
+                    } catch (ModZipException ex) {
+                    } catch (ModDuplicateException ex) {
+                    }
+                } else {
+                    //logger.info(mod.getMod().getName() + " is up-to-date");
+                    //returnValue.addUpToDate(mod.getMod());
+                }
+            } catch (SecurityException ex) {
+                //logger.info("Couldn't write on the file.");
+            } catch (InterruptedException ex) {
+                // Nothing can get here
+            } catch (ExecutionException ex) {
+                //UpdateModException ex2 = (UpdateModException) ex.getCause();
+                //logger.info("Failed to update: " + ex2.getMod().getName() + " - " + ex2.getCause().getClass() + " - " + ex2.getCause().getMessage());
+                //returnValue.addModFailed(ex2.getMod(), (Exception) ex2.getCause());
+            } catch (FileNotFoundException ex) {
+                // Can't get here
+            } catch (IOException ex) {
+                //logger.error("Random I/O Exception happened", ex);
+                // Random IO Exception
+            }
+        }
     }
 }
