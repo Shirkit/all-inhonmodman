@@ -212,6 +212,7 @@ public class Manager extends Observable {
      * Not using it currently
      * check update the path of the Hon or Mod folder according to the string passed in
      * and prompt the user for input if the designate functions have failed.
+     * @deprecated no sense on this method.
      */
     public String check(String name) {
         String path = "";
@@ -361,27 +362,17 @@ public class Manager extends Observable {
             list.add(Tuple.from(honmod.getName(), "zip"));
             logger.error(ex);
             throw new ModZipException(list);
+        } catch (FileNotFoundException ex) {
+            list.add(Tuple.from(honmod.getName(), "zip"));
+            logger.error(ex);
+            throw new ModZipException(list);
         }
-        // TODO: Move this to the XML class, Create removeBoom and loadUTF-16 methods
         Mod m = null;
         try {
             m = XML.xmlToMod(xml);
         } catch (StreamException ex) {
-            /*try {
-            m = XML.xmlToMod(xml.substring(1));
-            } catch (StreamException ex1) {
-            try {
-            xml = new String(ZIP.getFile(honmod, Mod.MOD_FILENAME), "UTF-16");
-            m = XML.xmlToMod(xml, new ShirkitDriver("UTF-16"));
-            } catch (StreamException ex2) {
-            try {
-            m = XML.xmlToMod(xml.substring(1), new ShirkitDriver("UTF-16"));
-            } catch (StreamException ex3) {*/
             list.add(Tuple.from(honmod.getName(), "stream"));
             throw new ModStreamException(list);
-            //   }
-            //     }
-            //}
         }
         if (honmod.getName().endsWith(".zip")) {
             honmod.setWritable(true);
@@ -412,6 +403,7 @@ public class Manager extends Observable {
         if (copy && !(new File(ManagerOptions.getInstance().getModPath() + File.separator + honmod.getName()).exists())) {
             // Copy the honmod file to mods directory
             File f = new File(ManagerOptions.getInstance().getModPath() + File.separator + honmod.getName());
+            f.mkdirs();
             FileUtils.copyFile(honmod, f);
             logger.info("Mod file copied to mods older");
             m.setPath(f.getAbsolutePath());

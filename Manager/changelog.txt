@@ -145,3 +145,7 @@
 - Mods can now be enabled or disabled by double clicking them
 - Icons can now be displayed in "Details View"
 - Fixed an error that could corrupt mods while updating.
+- Cleaned up the code.
+- Added a way to avoid folder inconsistency.
+- Improved importation from older ModManager resources999.s2z
+- Fixed un-caught exceptions.

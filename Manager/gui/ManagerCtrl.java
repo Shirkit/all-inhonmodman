@@ -492,7 +492,6 @@ public class ManagerCtrl implements Observer {
             }
 
         } catch (IOException ex) {
-            ex.printStackTrace();
             logger.error("IOException from loadMods()", ex);
             view.showMessage(L10n.getString("error.loadmodfiles"), L10n.getString("error.loadmodfiles.title"), JOptionPane.ERROR_MESSAGE);
         }
@@ -762,15 +761,10 @@ public class ManagerCtrl implements Observer {
         public void actionPerformed(ActionEvent e) {
             view.setInputEnabled(false);
             logger.info("Unapplying all mods...");
-            // TODO: Test & implement
             try {
                 controller.unapplyMods();
             } catch (SecurityException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
             } catch (IOException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
             }
             view.setInputEnabled(true);
             model.updateNotify();
@@ -941,7 +935,8 @@ public class ManagerCtrl implements Observer {
                     }
                 }
             }
-        } catch (FileNotFoundException ex) {
+        } catch (Exception ex) {
+            // TODO: Tell the user couldn't load.
         }
         view.getModsTable().redraw();
     }
@@ -1120,6 +1115,13 @@ public class ManagerCtrl implements Observer {
     class PrefsOkListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
+            File f = new File(view.getTextFieldModsFolder());
+            if (!f.exists()) {
+                if (!f.mkdirs()) {
+                    view.showMessage(L10n.getString("error.honmodsfolder"), L10n.getString("error.honmodsfolder.title"), JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+            }
             String oldModsFolder = ManagerOptions.getInstance().getModPath();
             logger.info("Hon folder set to: " + view.getSelectedHonFolder());
             logger.info("Mods folder set to: " + view.getTextFieldModsFolder());
@@ -1135,14 +1137,8 @@ public class ManagerCtrl implements Observer {
             try {
                 controller.saveOptions();
             } catch (FileNotFoundException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
             } catch (UnsupportedEncodingException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
             } catch (IOException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
             }
 
             // Hide dialog

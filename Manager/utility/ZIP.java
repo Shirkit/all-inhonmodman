@@ -295,7 +295,7 @@ public class ZIP {
              *
              * You can safely increase the buffer size if you like
              */
-            byte[] buffer = new byte[Math.min(fileLen, 8192)];
+            byte[] buffer = new byte[Math.min(fileLen, 81920)];
             int len;
 
             in.skip(fileLen - buffer.length);
