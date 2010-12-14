@@ -402,9 +402,9 @@ public class Manager extends Observable {
         m.setId(0);
         if (copy && !(new File(ManagerOptions.getInstance().getModPath() + File.separator + honmod.getName()).exists())) {
             // Copy the honmod file to mods directory
-            File f = new File(ManagerOptions.getInstance().getModPath() + File.separator + honmod.getName());
+            File f = new File(ManagerOptions.getInstance().getModPath());
             f.mkdirs();
-            FileUtils.copyFile(honmod, f);
+            FileUtils.copyFile(honmod, new File(f, honmod.getName()));
             logger.info("Mod file copied to mods older");
             m.setPath(f.getAbsolutePath());
         }

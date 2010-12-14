@@ -149,3 +149,7 @@
 - Added a way to avoid folder inconsistency.
 - Improved importation from older ModManager resources999.s2z
 - Fixed un-caught exceptions.
+
+[b]0.9 beta:[/b]
+- Fixed bug while adding a honmod (was creating a folder by mistake, my fault)
+- Implemented to remember the chosen viewtype

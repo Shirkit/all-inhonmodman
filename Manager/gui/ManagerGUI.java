@@ -40,6 +40,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JEditorPane;
+import javax.swing.JMenuBar;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
@@ -1351,6 +1352,22 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
 
     public JMenuItem getItemRefreshManager() {
         return itemRefresh;
+    }
+
+    public JMenuItem getItemViewDetailedIcons() {
+        return itemViewDetailedIcons;
+    }
+
+    public JMenuItem getItemViewDetails() {
+        return itemViewDetails;
+    }
+
+    public JMenuItem getItemViewIcons() {
+        return itemViewIcons;
+    }
+
+    public JMenuItem getItemViewTiles() {
+        return itemViewTiles;
     }
 
     public void buttonEnableModAddActionListener(ActionListener al) {

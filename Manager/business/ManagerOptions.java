@@ -50,7 +50,7 @@ public class ManagerOptions extends Observable {
     private boolean colorCheckboxInTable;
     private boolean showIconsInTable;
     // TODO: Save this in the options file.
-    private ViewType viewType = ViewType.DETAILS;
+    private ViewType viewType;
     // Hidden fields from XML
     private ArrayList<Mod> mods;
     private static ManagerOptions instance;
@@ -87,6 +87,7 @@ public class ManagerOptions extends Observable {
         showIconsInTable = true;
         guiRectangle = null;
         columnsWidth = new ArrayList<Integer>();
+        viewType = ViewType.DETAILS;
     }
 
     /**
@@ -450,7 +451,7 @@ public class ManagerOptions extends Observable {
 
     public enum ViewType {
 
-        DETAILS, ICONS, TEST, TEST2
+        DETAILS, ICONS, DETAILED_ICONS, TILES
     }
 
     /**

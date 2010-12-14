@@ -195,6 +195,17 @@ public class ManagerCtrl implements Observer {
         // Add file drop functionality
         new FileDrop(view, new DropListener());
 
+        if (model.getViewType().equals(ManagerOptions.ViewType.DETAILED_ICONS)) {
+            //view.getModsTable().setViewMode(ModsTable.ViewType.DETAILED_ICONS);
+            view.getItemViewDetailedIcons().doClick();
+        } else if (model.getViewType().equals(ManagerOptions.ViewType.DETAILS)) {
+            view.getItemViewDetails().doClick();
+        } else if (model.getViewType().equals(ManagerOptions.ViewType.ICONS)) {
+            view.getItemViewIcons().doClick();
+        } else if (model.getViewType().equals(ManagerOptions.ViewType.TILES)) {
+            view.getItemViewTiles().doClick();
+        }
+
         view.fullyLoaded = true;
 
         // Display window
@@ -859,6 +870,15 @@ public class ManagerCtrl implements Observer {
         public void actionPerformed(ActionEvent e) {
             if (view.getModsTable().getViewMode() != viewType) {
                 view.getModsTable().setViewMode(viewType);
+                if (viewType.equals(viewType.DETAILED_ICONS)) {
+                    model.setViewType(ManagerOptions.ViewType.DETAILED_ICONS);
+                } else if (viewType.equals(viewType.DETAILS)) {
+                    model.setViewType(ManagerOptions.ViewType.DETAILS);
+                } else if (viewType.equals(viewType.ICONS)) {
+                    model.setViewType(ManagerOptions.ViewType.ICONS);
+                } else if (viewType.equals(viewType.TILES)) {
+                    model.setViewType(ManagerOptions.ViewType.TILES);
+                }
             }
         }
     }
