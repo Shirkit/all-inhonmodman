@@ -983,7 +983,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     }//GEN-LAST:event_itemViewIconsActionPerformed
 
     private void itemViewDetailsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemViewDetailsActionPerformed
-        showMessage("Deactivated", "Deactivated", JOptionPane.OK_OPTION);
+        
     }//GEN-LAST:event_itemViewDetailsActionPerformed
 
     /**
