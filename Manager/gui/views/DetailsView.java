@@ -166,6 +166,7 @@ public class DetailsView extends ModsTableView {
 
             @Override
             public Object getValueAt(int row, int col) {
+                if (row < getModsList().size()) {
                 Mod mod = getModsList().get(row);
                 switch(col) {
                     case 0:
@@ -190,6 +191,7 @@ public class DetailsView extends ModsTableView {
                         if(columnShown[5]) {
                             return mod.getSizedIcon();
                         }
+                }
                 }
                 return null;
             }

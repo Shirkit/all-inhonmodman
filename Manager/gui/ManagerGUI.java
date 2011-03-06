@@ -658,7 +658,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                     .addGroup(panelModDetailsLayout.createSequentialGroup()
                         .addGroup(panelModDetailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addComponent(buttonVisitWebsite, 0, 0, Short.MAX_VALUE)
-                            .addComponent(buttonEnableMod, javax.swing.GroupLayout.DEFAULT_SIZE, 123, Short.MAX_VALUE))
+                            .addComponent(buttonEnableMod, javax.swing.GroupLayout.PREFERRED_SIZE, 123, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(panelModDetailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(buttonUpdateMod, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -717,7 +717,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                         .addComponent(labelStatus, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonLaunchHon, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(modsTable, javax.swing.GroupLayout.DEFAULT_SIZE, 280, Short.MAX_VALUE))
+                    .addComponent(modsTable, javax.swing.GroupLayout.DEFAULT_SIZE, 352, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(panelModListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                     .addComponent(progressBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -744,7 +744,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                                 .addComponent(labelStatus, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(buttonApplyMods, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(buttonLaunchHon, javax.swing.GroupLayout.DEFAULT_SIZE, 29, Short.MAX_VALUE))
+                    .addComponent(buttonLaunchHon, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
@@ -834,13 +834,18 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
 
         viewModesGroup.add(itemViewDetails);
         itemViewDetails.setMnemonic(L10n.getMnemonic("menu.view.details"));
-        itemViewDetails.setSelected(true);
         itemViewDetails.setText(L10n.getString("menu.view.details"));
         itemViewDetails.setName("itemViewDetails"); // NOI18N
+        itemViewDetails.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                itemViewDetailsActionPerformed(evt);
+            }
+        });
         menuView.add(itemViewDetails);
 
         viewModesGroup.add(itemViewIcons);
         itemViewIcons.setMnemonic(L10n.getMnemonic("menu.view.icons"));
+        itemViewIcons.setSelected(true);
         itemViewIcons.setText(L10n.getString("menu.view.icons"));
         itemViewIcons.setName("itemViewIcons"); // NOI18N
         itemViewIcons.addActionListener(new java.awt.event.ActionListener() {
@@ -976,6 +981,10 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     private void itemViewIconsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemViewIconsActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_itemViewIconsActionPerformed
+
+    private void itemViewDetailsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemViewDetailsActionPerformed
+        showMessage("Deactivated", "Deactivated", JOptionPane.OK_OPTION);
+    }//GEN-LAST:event_itemViewDetailsActionPerformed
 
     /**
      * Display specified message to the user using JOptionPane
@@ -1309,6 +1318,8 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         itemViewDetails.setEnabled(enabled);
         itemViewIcons.setEnabled(enabled);
         itemVisitForumThread.setEnabled(enabled);
+        itemViewDetailedIcons.setEnabled(enabled);
+        itemViewTiles.setEnabled(enabled);
         modsTable.setEnabled(enabled);
         if (enabled && fullyLoaded) {
             displayModDetail();

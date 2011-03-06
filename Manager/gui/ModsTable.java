@@ -185,12 +185,12 @@ public final class ModsTable extends JPanel {
 
                 try {
                     setSelectedMod( view.getSelectedMod() );
+                ManagerGUI.getInstance().displayModDetail(getSelectedMod());
                 } catch (Exception ex) {
                     // Due to the JTable in DetailsView, we ocassionally get an
                     // exception because the indexes don't work properly when
                     // the table is sorting; but it still works correctly overall.
                 }
-                ManagerGUI.getInstance().displayModDetail(getSelectedMod());
             }
         }
     }

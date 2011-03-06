@@ -6,6 +6,7 @@
 package gui.views;
 
 import business.Mod;
+import gui.ManagerCtrl;
 import gui.ManagerGUI;
 import gui.ModsTable;
 import java.awt.event.MouseAdapter;
@@ -45,7 +46,7 @@ public class TableViewMouseListener extends MouseAdapter {
 
             view.getRightClickTableMenu().show(e.getComponent(), e.getX(), e.getY());
         } else if(e.getClickCount() == 2) { // Double click - toggle current mod
-            mod.setEnabled(!mod.isEnabled());
+            ManagerCtrl.getInstance().enableMod(mod);
             modsTable.redraw();
         }
     }

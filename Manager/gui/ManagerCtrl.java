@@ -77,6 +77,7 @@ import exceptions.NothingSelectedModActionException;
 import exceptions.StringNotFoundModActionException;
 import exceptions.UnknowModActionException;
 import gui.views.DetailsView;
+import gui.views.IconsView;
 import java.io.BufferedReader;
 import java.io.StringReader;
 import javax.swing.JList;
@@ -101,6 +102,7 @@ public class ManagerCtrl implements Observer {
     static ManagerGUI view;
     ListSelectionListener lsl;
     private Preferences prefs;
+    private static ManagerCtrl instance = null;
 
     /**
      * Initialize event listeners.
@@ -164,7 +166,7 @@ public class ManagerCtrl implements Observer {
         view.itemUnapplyAllModsAddActionListener(new UnapplyAllModsListener());
         view.itemOpenModFolderAddActionListener(new OpenModFolderListener());
         view.itemVisitForumThreadAddActionListener(new VisitForumThreadListener());
-        view.itemViewDetailsAddActionListener(new ViewChangeListener(ModsTable.ViewType.DETAILS));
+        //view.itemViewDetailsAddActionListener(new ViewChangeListener(ModsTable.ViewType.DETAILS));
         view.itemViewIconsAddActionListener(new ViewChangeListener(ModsTable.ViewType.ICONS));
         view.itemViewTilesAddActionListener(new ViewChangeListener(ModsTable.ViewType.TILES));
         view.itemViewDetailedIconsAddActionListener(new ViewChangeListener(ModsTable.ViewType.DETAILED_ICONS));
@@ -224,7 +226,14 @@ public class ManagerCtrl implements Observer {
             }
         }
 
+        view.getModsTable().setViewMode(ModsTable.ViewType.ICONS);
+
+        ManagerCtrl.instance = this;
         logger.info("ManagerCtrl finished initialization.");
+    }
+
+    public static ManagerCtrl getInstance() {
+        return instance;
     }
 
     /**
@@ -631,6 +640,7 @@ public class ManagerCtrl implements Observer {
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 File[] files = fc.getSelectedFiles();
                 addHonmod(files);
+                loadMods();
                 view.getModsTable().redraw();
             }
         }
@@ -1069,7 +1079,7 @@ public class ManagerCtrl implements Observer {
         public void mouseReleased(MouseEvent e) {}
         public void mouseEntered(MouseEvent e) {}
         public void mouseExited(MouseEvent e) {}
-    }
+}
 
     /**
      * Listener for 'Enable/disable mod' button on mod details panel
@@ -1317,7 +1327,7 @@ public class ManagerCtrl implements Observer {
         }
     }
 
-    private void enableMod(Mod mod) {
+    public void enableMod(Mod mod) {
         if (mod.isEnabled()) {
             try {
                 controller.disableMod(mod);

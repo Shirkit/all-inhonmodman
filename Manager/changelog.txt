@@ -151,5 +151,11 @@
 - Fixed un-caught exceptions.
 
 [b]0.9 beta:[/b]
-- Fixed bug while adding a honmod (was creating a folder by mistake, my fault)
-- Implemented to remember the chosen viewtype
+- Fixed bug on the "apply and launch hon" mini-button rezising.
+- Fixed bug while exiting "Developer Mode".
+- Fixed bug while copying mods to the mods folder (it was generating a xyz.honmod FOLDER).
+- Fixed bug while updating mods with slow connections (30% of the mods fail to connect).
+- Fixed bugs while applying mods. Blank editfile Actions like the new Bang! UI Tweak was crashing the manager. Findall with Insert in some specific mods was leading into bad actions, fixed that too (Manager's fault).
+- Fixed bug while Drag'n'Drop mods.
+- Disabled Details View (until I found out a solution for that, it will remain disabled).
+- Fixed un-caught exceptions.

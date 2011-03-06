@@ -402,6 +402,7 @@ public class Manager extends Observable {
         m.setId(0);
         if (copy && !(new File(ManagerOptions.getInstance().getModPath() + File.separator + honmod.getName()).exists())) {
             // Copy the honmod file to mods directory
+            logger.info("Mod file copied to mods folder");
             File f = new File(ManagerOptions.getInstance().getModPath());
             f.mkdirs();
             FileUtils.copyFile(honmod, new File(f, honmod.getName()));
@@ -495,13 +496,6 @@ public class Manager extends Observable {
      * @throws ModNotEnabledException 
      */
     public UpdateReturn updateMod(ArrayList<Mod> mods) {
-
-
-
-
-
-
-
         // Prepare the pool
         ExecutorService pool = Executors.newCachedThreadPool();
         Iterator<Mod> it = mods.iterator();
@@ -600,9 +594,13 @@ public class Manager extends Observable {
             } catch (InterruptedException ex) {
                 // Nothing can get here
             } catch (ExecutionException ex) {
+                try {
                 UpdateModException ex2 = (UpdateModException) ex.getCause();
                 logger.info("Failed to update: " + ex2.getMod().getName() + " - " + ex2.getCause().getClass() + " - " + ex2.getCause().getMessage());
                 returnValue.addModFailed(ex2.getMod(), (Exception) ex2.getCause());
+                } catch (ClassCastException ex3) {
+                    logger.info(ex.getCause());
+                }
             } catch (FileNotFoundException ex) {
                 // Can't get here
             } catch (IOException ex) {
@@ -1053,146 +1051,151 @@ public class Manager extends Observable {
                             String path = ManagerOptions.getInstance().getGamePath() + File.separator + "game" + File.separator + "resources0.s2z";
                             afterEdit = new String(ZIP.getFile(new File(path), editfile.getName()), "UTF-8");
                         }
-                        for (int k = 0; k < editfile.getActions().size(); k++) {
-                            ActionEditFileActions editFileAction = editfile.getActions().get(k);
+                        if (editfile.getActions() != null && editfile.getActions().size() > 0) {
+                            for (int k = 0; k < editfile.getActions().size(); k++) {
+                                ActionEditFileActions editFileAction = editfile.getActions().get(k);
 
-                            // Delete Action
-                            if (editFileAction.getClass().equals(ActionEditFileDelete.class)) {
-                                if (isSelected) {
-                                    for (int i = 0; i < cursor.length; i++) {
-                                        afterEdit = afterEdit.substring(0, cursor[i]) + afterEdit.substring(cursor2[i]);
-                                        cursor2[i] = cursor[i];
-                                        for (int l = i + 1; k < cursor.length; k++) {
-                                            cursor[l] = cursor[l] - (cursor2[l] - cursor[l]);
-                                            cursor2[l] = cursor2[l] - (cursor2[l] - cursor[l]);
+                                // Delete Action
+                                if (editFileAction.getClass().equals(ActionEditFileDelete.class)) {
+                                    if (isSelected) {
+                                        for (int i = 0; i < cursor.length; i++) {
+                                            afterEdit = afterEdit.substring(0, cursor[i]) + afterEdit.substring(cursor2[i]);
+                                            cursor2[i] = cursor[i];
+                                            for (int l = i + 1; k < cursor.length; k++) {
+                                                cursor[l] = cursor[l] - (cursor2[l] - cursor[l]);
+                                                cursor2[l] = cursor2[l] - (cursor2[l] - cursor[l]);
+                                            }
+                                            isSelected = false;
+                                            lastIsDelete = true;
                                         }
-                                        isSelected = false;
-                                        lastIsDelete = true;
-                                    }
-                                } else {
-                                    ActionEditFileDelete delete = (ActionEditFileDelete) editFileAction;
-                                    throw new NothingSelectedModActionException(mod.getName(), mod.getVersion(), (Action) delete);
-                                }
-                                // Find Action
-                            } else if (editFileAction.getClass().equals(ActionEditFileFind.class)) {
-                                ActionEditFileFind find = (ActionEditFileFind) editFileAction;
-                                cursor = new int[]{cursor[0]};
-                                cursor2 = new int[]{cursor2[0]};
-                                if (find.getContent() == null || find.getContent().isEmpty()) {
-                                    if (find.isPositionAtEnd()) {
-                                        cursor[0] = afterEdit.length();
-                                        cursor2[0] = cursor[0];
-                                    } else if (find.isPositionAtStart()) {
-                                        cursor[0] = 0;
-                                        cursor2[0] = 0;
                                     } else {
-                                        try {
-                                            cursor[0] = cursor[0] + Integer.parseInt(find.getPosition());
-                                            cursor2[0] = cursor[0];
-                                            isSelected = true;
-                                            lastIsDelete = false;
-                                        } catch (NumberFormatException e) {
-                                            // it isn't a valid number or word, can't apply
-                                            throw new InvalidModActionParameterException(mod.getName(), mod.getVersion(), (Action) find);
-                                        }
+                                        ActionEditFileDelete delete = (ActionEditFileDelete) editFileAction;
+                                        throw new NothingSelectedModActionException(mod.getName(), mod.getVersion(), (Action) delete);
                                     }
-                                } else {
-                                    cursor[0] = afterEdit.toLowerCase().indexOf(find.getContent().toLowerCase(), cursor[0] + 1);
+                                    // Find Action
+                                } else if (editFileAction.getClass().equals(ActionEditFileFind.class)) {
+                                    ActionEditFileFind find = (ActionEditFileFind) editFileAction;
+                                    cursor = new int[]{cursor[0]};
+                                    cursor2 = new int[]{cursor2[0]};
+                                    if (find.getContent() == null || find.getContent().isEmpty()) {
+                                        if (find.isPositionAtEnd()) {
+                                            cursor[0] = afterEdit.length();
+                                            cursor2[0] = cursor[0];
+                                        } else if (find.isPositionAtStart()) {
+                                            cursor[0] = 0;
+                                            cursor2[0] = 0;
+                                        } else {
+                                            try {
+                                                cursor[0] = cursor[0] + Integer.parseInt(find.getPosition());
+                                                cursor2[0] = cursor[0];
+                                                isSelected = true;
+                                                lastIsDelete = false;
+                                            } catch (NumberFormatException e) {
+                                                // it isn't a valid number or word, can't apply
+                                                throw new InvalidModActionParameterException(mod.getName(), mod.getVersion(), (Action) find);
+                                            }
+                                        }
+                                    } else {
+                                        cursor[0] = afterEdit.toLowerCase().indexOf(find.getContent().toLowerCase(), cursor2[0]);
+                                        if (cursor[0] == -1) {
+                                            // couldn't find the string, can't apply
+                                            throw new StringNotFoundModActionException(mod.getName(), mod.getVersion(), (Action) find, find.getContent());
+                                        }
+                                        cursor2[0] = cursor[0] + find.getContent().length();
+                                        isSelected = true;
+                                        lastIsDelete = false;
+                                    }
+                                    // FindUp Action
+                                } else if (editFileAction.getClass().equals(ActionEditFileFindUp.class)) {
+                                    ActionEditFileFindUp findup = (ActionEditFileFindUp) editFileAction;
+                                    cursor = new int[1];
+                                    cursor2 = new int[1];
+                                    cursor[0] = afterEdit.toLowerCase().lastIndexOf(findup.getContent().toLowerCase(), cursor[0]);
                                     if (cursor[0] == -1) {
                                         // couldn't find the string, can't apply
-                                        throw new StringNotFoundModActionException(mod.getName(), mod.getVersion(), (Action) find, find.getContent());
+                                        throw new StringNotFoundModActionException(mod.getName(), mod.getVersion(), (Action) findup, findup.getContent());
                                     }
-                                    cursor2[0] = cursor[0] + find.getContent().length();
+                                    cursor2[0] = cursor[0] + findup.getContent().length();
                                     isSelected = true;
                                     lastIsDelete = false;
-                                }
-                                // FindUp Action
-                            } else if (editFileAction.getClass().equals(ActionEditFileFindUp.class)) {
-                                ActionEditFileFindUp findup = (ActionEditFileFindUp) editFileAction;
-                                cursor = new int[1];
-                                cursor2 = new int[1];
-                                cursor[0] = afterEdit.toLowerCase().lastIndexOf(findup.getContent().toLowerCase(), cursor[0]);
-                                if (cursor[0] == -1) {
-                                    // couldn't find the string, can't apply
-                                    throw new StringNotFoundModActionException(mod.getName(), mod.getVersion(), (Action) findup, findup.getContent());
-                                }
-                                cursor2[0] = cursor[0] + findup.getContent().length();
-                                isSelected = true;
-                                lastIsDelete = false;
-                                // FindAll Action
-                            } else if (editFileAction.getClass().equals(ActionEditFileFindAll.class)) {
-                                ActionEditFileFindAll findall = (ActionEditFileFindAll) editFileAction;
-                                // Preparation
-                                ArrayList<Integer> firstPosition = new ArrayList<Integer>();
-                                ArrayList<Integer> lastPosition = new ArrayList<Integer>();
-                                int index = -1;
-                                int lastIndex = 0;
-                                while ((index = afterEdit.toLowerCase().indexOf(findall.getContent().toLowerCase(), lastIndex)) != -1) {
-                                    firstPosition.add(index);
-                                    lastPosition.add(index + findall.getContent().length());
-                                    lastIndex = index + findall.getContent().length();
-                                }
-                                if (firstPosition.isEmpty()) {
-                                    // no string was found, can't apply
-                                    throw new StringNotFoundModActionException(mod.getName(), mod.getVersion(), (Action) findall, findall.getContent());
-                                }
-                                // Insert into the array
-                                cursor = new int[firstPosition.size()];
-                                cursor2 = new int[firstPosition.size()];
-                                for (int i = 0; i < cursor.length; i++) {
-                                    cursor[i] = firstPosition.get(i);
-                                    cursor2[i] = lastPosition.get(i);
-                                }
-                                isSelected = true;
-                                lastIsDelete = false;
-                                // Insert Action
-                            } else if (editFileAction.getClass().equals(ActionEditFileInsert.class)) {
-                                ActionEditFileInsert insert = (ActionEditFileInsert) editFileAction;
-                                if (isSelected || (!isSelected && lastIsDelete)) {
-                                    for (int i = 0; i < cursor.length; i++) {
-                                        if (insert.isPositionAfter()) {
-                                            afterEdit = afterEdit.substring(0, cursor2[i]) + insert.getContent() + afterEdit.substring(cursor2[i]);
-                                            for (int l = i + 1; k < cursor.length; k++) {
-                                                cursor[l] = cursor[l] + insert.getContent().length();
-                                                cursor2[l] = cursor2[l] + insert.getContent().length();
-                                            }
-                                        } else if (insert.isPositionBefore()) {
-                                            afterEdit = afterEdit.substring(0, cursor[i]) + insert.getContent() + afterEdit.substring(cursor[i]);
-                                            cursor[i] = cursor2[i];
-                                            cursor2[i] = cursor[i] + insert.getContent().length();
-                                            for (int l = i + 1; k < cursor.length; k++) {
-                                                cursor[l] = cursor[l] + insert.getContent().length();
-                                                cursor2[l] = cursor2[l] + insert.getContent().length();
-                                            }
-                                        } else {
-                                            // position is invalid, can't apply
-                                            throw new InvalidModActionParameterException(mod.getName(), mod.getVersion(), (Action) insert);
-                                        }
+                                    // FindAll Action
+                                } else if (editFileAction.getClass().equals(ActionEditFileFindAll.class)) {
+                                    ActionEditFileFindAll findall = (ActionEditFileFindAll) editFileAction;
+                                    // Preparation
+                                    ArrayList<Integer> firstPosition = new ArrayList<Integer>();
+                                    ArrayList<Integer> lastPosition = new ArrayList<Integer>();
+                                    int index = -1;
+                                    int lastIndex = 0;
+                                    while ((index = afterEdit.toLowerCase().indexOf(findall.getContent().toLowerCase(), lastIndex)) != -1) {
+                                        firstPosition.add(index);
+                                        lastPosition.add(index + findall.getContent().length());
+                                        lastIndex = index + findall.getContent().length();
                                     }
-                                } else {
-                                    // the guy didn't select anything yet, can't apply
-                                    throw new NothingSelectedModActionException(mod.getName(), mod.getVersion(), (Action) insert);
-                                }
-
-                                // Replace Action
-                            } else if (editFileAction.getClass().equals(ActionEditFileReplace.class)) {
-                                ActionEditFileReplace replace = (ActionEditFileReplace) editFileAction;
-                                if (isSelected) {
-                                    for (int i = 0; i < cursor.length; i++) {
-                                        afterEdit = afterEdit.substring(0, cursor[i]) + replace.getContent() + afterEdit.substring(cursor2[i]);
-                                        for (int l = i + 1; k < cursor.length; k++) {
-                                            cursor[l] = cursor[l] + replace.getContent().length();
-                                            cursor2[l] = cursor2[l] + replace.getContent().length();
-                                        }
+                                    if (firstPosition.isEmpty()) {
+                                        // no string was found, can't apply
+                                        throw new StringNotFoundModActionException(mod.getName(), mod.getVersion(), (Action) findall, findall.getContent());
                                     }
-                                    isSelected = false;
+                                    // Insert into the array
+                                    cursor = new int[firstPosition.size()];
+                                    cursor2 = new int[firstPosition.size()];
+                                    for (int i = 0; i < cursor.length; i++) {
+                                        cursor[i] = firstPosition.get(i);
+                                        cursor2[i] = lastPosition.get(i);
+                                    }
+                                    isSelected = true;
                                     lastIsDelete = false;
+                                    // Insert Action
+                                } else if (editFileAction.getClass().equals(ActionEditFileInsert.class)) {
+                                    ActionEditFileInsert insert = (ActionEditFileInsert) editFileAction;
+                                    if (isSelected || (!isSelected && lastIsDelete)) {
+                                        for (int i = 0; i < cursor.length; i++) {
+                                            if (insert.isPositionAfter()) {
+                                                afterEdit = afterEdit.substring(0, cursor2[i]) + insert.getContent() + afterEdit.substring(cursor2[i]);
+                                                cursor[i] = cursor2[i];
+                                                cursor[i] = cursor2[i] + insert.getContent().length();
+                                                for (int l = i + 1; k < cursor.length; k++) {
+                                                    cursor[l] = cursor[l] + insert.getContent().length();
+                                                    cursor2[l] = cursor2[l] + insert.getContent().length();
+                                                }
+                                            } else if (insert.isPositionBefore()) {
+                                                afterEdit = afterEdit.substring(0, cursor[i]) + insert.getContent() + afterEdit.substring(cursor[i]);
+                                                //cursor[i] = cursor2[i];
+                                                cursor2[i] = cursor[i] + insert.getContent().length();
+                                                for (int l = i + 1; k < cursor.length; k++) {
+                                                    cursor[l] = cursor[l] + insert.getContent().length();
+                                                    cursor2[l] = cursor2[l] + insert.getContent().length();
+                                                }
+                                            } else {
+                                                // position is invalid, can't apply
+                                                throw new InvalidModActionParameterException(mod.getName(), mod.getVersion(), (Action) insert);
+                                            }
+                                        }
+                                    } else {
+                                        // the guy didn't select anything yet, can't apply
+                                        throw new NothingSelectedModActionException(mod.getName(), mod.getVersion(), (Action) insert);
+                                    }
+
+                                    // Replace Action
+                                } else if (editFileAction.getClass().equals(ActionEditFileReplace.class)) {
+                                    ActionEditFileReplace replace = (ActionEditFileReplace) editFileAction;
+                                    if (isSelected) {
+                                        for (int i = 0; i < cursor.length; i++) {
+                                            afterEdit = afterEdit.substring(0, cursor[i]) + replace.getContent() + afterEdit.substring(cursor2[i]);
+                                            cursor2[i] = cursor[i] + replace.getContent().length();
+                                            for (int l = i + 1; k < cursor.length; k++) {
+                                                cursor[l] = cursor[l] + replace.getContent().length();
+                                                cursor2[l] = cursor2[l] + replace.getContent().length();
+                                            }
+                                        }
+                                        isSelected = false;
+                                        lastIsDelete = false;
+                                    } else {
+                                        throw new NothingSelectedModActionException(mod.getName(), mod.getVersion(), (Action) replace);
+                                    }
                                 } else {
-                                    throw new NothingSelectedModActionException(mod.getName(), mod.getVersion(), (Action) replace);
+                                    // Unknow action, can't apply
+                                    throw new UnknowModActionException(editFileAction.getClass().getName(), mod.getName());
                                 }
-                            } else {
-                                // Unknow action, can't apply
-                                throw new UnknowModActionException(editFileAction.getClass().getName(), mod.getName());
                             }
                         }
                         File temp = new File(tempFolder.getAbsolutePath() + File.separator + editfile.getName());

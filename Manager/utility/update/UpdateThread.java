@@ -71,8 +71,44 @@ public class UpdateThread implements Callable<UpdateThread> {
             file = null;
             throw new UpdateModException(mod, ex);
         } catch (IOException ex) {
-            file = null;
-            throw new UpdateModException(mod, ex);
+            // If timeout (and other errors, but that's ok) happens, just try again, this may fix problems for slow connections.
+            try {
+                if (mod.getUpdateCheckUrl() != null && mod.getUpdateDownloadUrl() != null) {
+                    URL url = new URL(mod.getUpdateCheckUrl().trim());
+                    URLConnection connection = url.openConnection();
+                    connection.setConnectTimeout(5000);
+                    BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                    String str = in.readLine();
+                    in.close();
+                    if (str != null && !str.toLowerCase().trim().contains("error") && !Manager.getInstance().compareModsVersions(mod.getVersion(), str)) {
+                        InputStream is = new URL(mod.getUpdateDownloadUrl().trim()).openStream();
+                        file = new File(System.getProperty("java.io.tmpdir") + File.separator + new File(mod.getPath()).getName());
+                        FileOutputStream fos = new FileOutputStream(file, false);
+                        FileUtils.copyInputStream(is, fos);
+                        is.close();
+                        fos.flush();
+                        fos.close();
+                    }
+                }
+            } catch (MalformedURLException ex2) {
+                file = null;
+                throw new UpdateModException(mod, ex2);
+            } catch (ConnectException ex2) {
+                file = null;
+                throw new UpdateModException(mod, ex2);
+            } catch (NullPointerException ex2) {
+                file = null;
+                throw new UpdateModException(mod, ex2);
+            } catch (InvalidParameterException ex2) {
+                file = null;
+                throw new UpdateModException(mod, ex2);
+            } catch (FileNotFoundException ex2) {
+                file = null;
+                throw new UpdateModException(mod, ex2);
+            } catch (IOException ex2) {
+                file = null;
+                throw new UpdateModException(mod, ex2);
+            }
         }
         return this;
     }
