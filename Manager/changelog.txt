@@ -159,3 +159,11 @@
 - Fixed bug while Drag'n'Drop mods.
 - Disabled Details View (until I found out a solution for that, it will remain disabled).
 - Fixed un-caught exceptions.
+
+[b]0.9.1 beta:[/b]
+- Fixed bug with <findup> action.
+- Added mod to remind people when a new patch comes out to apply and update their mods again (thanks to Notausgang for the source!).
+- Fixed problem while updating the manager (thanks to Tisser! I totally forgot to put " between the arguments, leading to problems if the path had a blank space).
+- Changed timeout of the updater from 2500 to 3000 miliseconds.
+- Changed the way the Mod Manager uses the OS temporary folder. Now it'll group up the folder in %TEMP%\Hon ModManager\%RANDOM INTEGER%, instead of %TEMP%\%RANDOM INTEGER%, making it easier to delete ModManager temporary files.
+- Fixed bug with <insert position="after"> action.

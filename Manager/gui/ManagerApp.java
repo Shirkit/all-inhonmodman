@@ -4,6 +4,7 @@
 package gui;
 
 import business.ManagerOptions;
+import controller.Manager;
 import java.util.concurrent.ExecutionException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -79,7 +80,12 @@ public class ManagerApp extends SingleFrameApplication {
         logger.info("HonMod manager version: " + ManagerOptions.getInstance().getVersion());
         logger.info("Running on: " + System.getProperty("os.name") + "|" + System.getProperty("os.version") + "|" + System.getProperty("os.arch"));
         try {
-            L10n.load();
+            Manager.getInstance().loadOptions();
+            if (ManagerOptions.getInstance().getLanguage() != null && !ManagerOptions.getInstance().getLanguage().isEmpty()) {
+                L10n.load(ManagerOptions.getInstance().getLanguage());
+            } else {
+                L10n.load();
+            }
         } catch (IOException ex) {
         }
         logger.info("------------------------------------------------------------------------------------------------------------------------");
@@ -123,7 +129,7 @@ public class ManagerApp extends SingleFrameApplication {
                         }
                         String updaterPath = System.getProperty("user.dir") + File.separator + "Updater.jar";
                         logger.info("Updating manager. java -jar " + updaterPath + " " + currentJar + " " + ManagerOptions.MANAGER_DOWNLOAD_URL + " " + updaterPath);
-                        Runtime.getRuntime().exec("java -jar " + updaterPath + " " + currentJar + " " + ManagerOptions.MANAGER_DOWNLOAD_URL + " " + updaterPath);
+                        Runtime.getRuntime().exec("java -jar \"" + updaterPath + "\" \"" + currentJar + "\" \"" + ManagerOptions.MANAGER_DOWNLOAD_URL + "\" \"" + updaterPath + "\"");
                         System.exit(0);
                     } catch (IOException ex) {
                     }

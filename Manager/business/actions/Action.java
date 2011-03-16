@@ -73,4 +73,4 @@ public class Action {
     public void setType(String type) {
         this.type = type;
     }
-}
+    }

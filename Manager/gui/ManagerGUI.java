@@ -89,7 +89,8 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         }
         // Set model of the language combo box. This will not be localized
         comboBoxChooseLanguage.addItem(new Language("English", "en"));
-        //comboBoxChooseLanguage.addItem(new Language("Slovak", "sk"));
+        comboBoxChooseLanguage.addItem(new Language("Português (Brasil)", "pt-br"));
+        comboBoxChooseLanguage.addItem(new Language("Slovak", "sk"));
         // Set model of the LaF combobox. This will not be localized
         //comboBoxLafs.addItem(new LaF("Default", UIManager.getSystemLookAndFeelClassName()));
         //comboBoxLafs.addItem(new LaF("Metal", UIManager.getCrossPlatformLookAndFeelClassName()));

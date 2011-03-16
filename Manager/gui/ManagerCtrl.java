@@ -1416,7 +1416,7 @@ public class ManagerCtrl implements Observer {
                 }
             }
             count = count + 3;
-            view.setStatusMessage("Applying mods", true);
+            view.setStatusMessage(L10n.getString("status.applyingmods"), true);
             view.getProgressBar().setStringPainted(true);
             view.getProgressBar().setMaximum(count);
             view.getProgressBar().paint(view.getProgressBar().getGraphics());

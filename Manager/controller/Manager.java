@@ -3,6 +3,7 @@ package controller;
 import business.ManagerOptions;
 import business.Mod;
 import business.ModList;
+import business.ModsOutOfDateReminder;
 import business.actions.*;
 
 import java.util.concurrent.ExecutionException;
@@ -35,6 +36,7 @@ import java.nio.channels.FileLockInterruptionException;
 import java.security.InvalidParameterException;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Observable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -334,6 +336,16 @@ public class Manager extends Observable {
                 zip.addAll(e.getMods());
             }
         }
+        try {
+            // Load the reminder and enable it by default. If the user chosen to disable it, future methods will overide this and disable it.
+            Mod moodr = ModsOutOfDateReminder.getMod();
+            moodr.setIcon(new javax.swing.ImageIcon(getClass().getResource("/gui/resources/icon.png")));
+            moodr.setChangelog(null);
+            moodr.setPath(null);
+            addMod(moodr);
+            enableMod(moodr, true);
+        } catch (Exception e) {
+        }
         problems.add(stream);
         problems.add(notfound);
         problems.add(zip);
@@ -595,9 +607,9 @@ public class Manager extends Observable {
                 // Nothing can get here
             } catch (ExecutionException ex) {
                 try {
-                UpdateModException ex2 = (UpdateModException) ex.getCause();
-                logger.info("Failed to update: " + ex2.getMod().getName() + " - " + ex2.getCause().getClass() + " - " + ex2.getCause().getMessage());
-                returnValue.addModFailed(ex2.getMod(), (Exception) ex2.getCause());
+                    UpdateModException ex2 = (UpdateModException) ex.getCause();
+                    logger.info("Failed to update: " + ex2.getMod().getName() + " - " + ex2.getCause().getClass() + " - " + ex2.getCause().getMessage());
+                    returnValue.addModFailed(ex2.getMod(), (Exception) ex2.getCause());
                 } catch (ClassCastException ex3) {
                     logger.info(ex.getCause());
                 }
@@ -937,7 +949,7 @@ public class Manager extends Observable {
 
     /**
      * Tries to apply the currently enabled mods. They can be found in the Model class.
-     * @param outputToFile If true, the Manager will output the current mods to a folder tree in the HoN/game folder puting the files inside. If not, it will generate the resources999.s2z file. This sould be true for 'Developer Mode'.
+     * @param outputToFolderTree If true, the Manager will output the current mods to a folder tree in the HoN/game folder puting the files inside. If not, it will generate the resources999.s2z file. This sould be true for 'Developer Mode'.
      * @throws IOException if a random I/O error happened.
      * @throws UnknowModActionException if a unkown Action was found. Actions that aren't know by the program can't be applied.
      * @throws NothingSelectedModActionException if a action tried to do a action that involves a string, but no string was selected.
@@ -949,21 +961,27 @@ public class Manager extends Observable {
      */
     public void applyMods(boolean outputToFolderTree) throws IOException, UnknowModActionException, NothingSelectedModActionException, StringNotFoundModActionException, InvalidModActionParameterException, SecurityException, FileLockInterruptionException {
         ArrayList<Mod> applyOrder = sortMods();
-        File tempFolder = new File(System.getProperty("java.io.tmpdir") + File.separator + "HoN Mod Manager");
+        Random r = new Random();
         // This generates a temp folder. If it isn't possible, generates a random folder inside the OS's temp folder.
+        File tempFolder = new File(System.getProperty("java.io.tmpdir") + File.separator + "HoN Mod Manager" + File.separator + r.nextLong());
         if (tempFolder.exists()) {
             if (!tempFolder.delete()) {
-                Random r = new Random();
-                tempFolder = new File(System.getProperty("java.io.tmpdir") + File.separator + r.nextLong());
+                tempFolder = new File(System.getProperty("java.io.tmpdir") + File.separator + "HoN Mod Manager" + File.separator + r.nextLong());
                 if (tempFolder.exists()) {
                     if (!tempFolder.delete()) {
-                        throw new SecurityException();
+                        tempFolder = new File(System.getProperty("java.io.tmpdir") + File.separator + "HoN Mod Manager" + File.separator + r.nextLong());
+                        if (tempFolder.exists()) {
+                            if (!tempFolder.delete()) {
+                                throw new SecurityException();
+                            }
+                        }
                     }
                 }
             }
         }
         logger.info("Started mod applying. Folder=" + tempFolder.getAbsolutePath());
         tempFolder.mkdirs();
+        tempFolder.deleteOnExit();
         Enumeration<Mod> list = Collections.enumeration(applyOrder);
         int counted[] = new int[1];
         while (list.hasMoreElements()) {
@@ -1108,9 +1126,9 @@ public class Manager extends Observable {
                                     // FindUp Action
                                 } else if (editFileAction.getClass().equals(ActionEditFileFindUp.class)) {
                                     ActionEditFileFindUp findup = (ActionEditFileFindUp) editFileAction;
-                                    cursor = new int[1];
-                                    cursor2 = new int[1];
-                                    cursor[0] = afterEdit.toLowerCase().lastIndexOf(findup.getContent().toLowerCase(), cursor[0]);
+                                    cursor = new int[]{cursor[0]};
+                                    cursor2 = new int[]{cursor2[0]};
+                                    cursor[0] = afterEdit.toLowerCase().lastIndexOf(findup.getContent().toLowerCase(), cursor2[0]);
                                     if (cursor[0] == -1) {
                                         // couldn't find the string, can't apply
                                         throw new StringNotFoundModActionException(mod.getName(), mod.getVersion(), (Action) findup, findup.getContent());
@@ -1152,7 +1170,7 @@ public class Manager extends Observable {
                                             if (insert.isPositionAfter()) {
                                                 afterEdit = afterEdit.substring(0, cursor2[i]) + insert.getContent() + afterEdit.substring(cursor2[i]);
                                                 cursor[i] = cursor2[i];
-                                                cursor[i] = cursor2[i] + insert.getContent().length();
+                                                cursor2[i] = cursor2[i] + insert.getContent().length();
                                                 for (int l = i + 1; k < cursor.length; k++) {
                                                     cursor[l] = cursor[l] + insert.getContent().length();
                                                     cursor2[l] = cursor2[l] + insert.getContent().length();

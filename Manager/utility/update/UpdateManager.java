@@ -21,7 +21,7 @@ public class UpdateManager implements Callable<Boolean> {
         try {
             URL url = new URL(ManagerOptions.getInstance().getUpdateCheckUrl().trim());
             URLConnection connection = url.openConnection();
-            connection.setConnectTimeout(2500);
+            connection.setConnectTimeout(3000);
             BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             String str = in.readLine();
             in.close();
@@ -30,7 +30,7 @@ public class UpdateManager implements Callable<Boolean> {
             }
             return new Boolean(true);
         } catch (Exception e) {
-            return new Boolean(false);
+                    return new Boolean(false);
+                }
+            }
         }
-    }
-}
