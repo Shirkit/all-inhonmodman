@@ -55,6 +55,7 @@ public class ManagerOptions extends Observable {
     private ArrayList<Mod> mods;
     private static ManagerOptions instance;
     private static Manager controller;
+    private boolean noOptionsFile;
     Logger logger;
     // Constants
     public static final String MANAGER_VERSION_FILE = "version.txt";
@@ -88,6 +89,7 @@ public class ManagerOptions extends Observable {
         guiRectangle = null;
         columnsWidth = new ArrayList<Integer>();
         viewType = ViewType.DETAILS;
+        noOptionsFile = true;
     }
 
     /**
@@ -150,6 +152,7 @@ public class ManagerOptions extends Observable {
 
     /**
      * Loads the options from a valid XML file. The path is indicated by the current running folder plus the <b>OPTIONS_FILENAME</b> constant. Load into the same instance, to avoid inconsisty.
+     * This method should only be called by the Manager Controller class.
      * @throws FileNotFoundException this exception is thrown if the file contaning the options wasn't found.
      * @throws StreamException this exception is thrown if the file is not valid (a user changed, the file is corrupt etc).
      */
@@ -385,6 +388,11 @@ public class ManagerOptions extends Observable {
         this.mods.add(mod);
     }
 
+    public void removeMod(Mod mod) {
+        applied.remove(mod);
+        mods.remove(mod);
+    }
+
     /**
      * Retrives an ArrayList of mods that are equal to the <b>name</b> passed by parameter. This will be check with <b>String.equalIgnoreCase()</b> method.
      * @param name name of the mod.
@@ -498,5 +506,13 @@ public class ManagerOptions extends Observable {
      */
     public void setShowIconsInTable(boolean showIconsInTable) {
         this.showIconsInTable = showIconsInTable;
+    }
+
+    public boolean getNoOptionsFile() {
+        return noOptionsFile;
+    }
+
+    public void setNoOptionsFile(boolean noOptionsFile) {
+        this.noOptionsFile = noOptionsFile;
     }
 }

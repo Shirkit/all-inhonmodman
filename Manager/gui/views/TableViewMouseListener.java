@@ -47,6 +47,7 @@ public class TableViewMouseListener extends MouseAdapter {
             view.getRightClickTableMenu().show(e.getComponent(), e.getX(), e.getY());
         } else if(e.getClickCount() == 2) { // Double click - toggle current mod
             ManagerCtrl.getInstance().enableMod(mod);
+            view.displayModDetail(mod);
             modsTable.redraw();
         }
     }

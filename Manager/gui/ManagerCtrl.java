@@ -22,7 +22,6 @@ import com.mallardsoft.tuple.Tuple;
 import gui.l10n.L10n;
 import business.ManagerOptions;
 import business.Mod;
-import com.thoughtworks.xstream.io.StreamException;
 import java.awt.Component;
 import java.awt.event.ComponentListener;
 import java.awt.event.ItemEvent;
@@ -69,7 +68,6 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
-import javax.swing.table.TableModel;
 import exceptions.InvalidModActionParameterException;
 import exceptions.ModDuplicateException;
 import exceptions.ModZipException;
@@ -77,7 +75,6 @@ import exceptions.NothingSelectedModActionException;
 import exceptions.StringNotFoundModActionException;
 import exceptions.UnknowModActionException;
 import gui.views.DetailsView;
-import gui.views.IconsView;
 import java.io.BufferedReader;
 import java.io.StringReader;
 import javax.swing.JList;
@@ -117,20 +114,6 @@ public class ManagerCtrl implements Observer {
         this.controller.addObserver(this);
         this.model.addObserver(this);
 
-        boolean noOptionsFile = false;
-
-        // Try load options
-        try {
-            controller.loadOptions();
-        } catch (StreamException e) {
-            logger.error("StreamException from loadOptions()", e);
-            // Mod options is invalid, must be deleted
-        } catch (FileNotFoundException e) {
-            noOptionsFile = true;
-        } catch (IOException e) {
-        }
-
-
         // Set up look and feel
         loadLaf();
 
@@ -139,19 +122,19 @@ public class ManagerCtrl implements Observer {
             view.setBounds(model.getGuiRectangle());
         }
 
+        // ----- DetailsView bug Disable ------
         // Load last column width for list view
-        DetailsView detailsView = (DetailsView) view.getModsTable().getView(ModsTable.ViewType.DETAILS);
+        /*DetailsView detailsView = (DetailsView) view.getModsTable().getView(ModsTable.ViewType.DETAILS);
         if (model.getColumnsWidth() != null) {
-            int i = 0;
-            Iterator<Integer> it = model.getColumnsWidth().iterator();
-            while (it.hasNext()) {
-                int width = it.next();
-                detailsView.setColumnWidth(i, width);
-                ++i;
-            }
+        int i = 0;
+        Iterator<Integer> it = model.getColumnsWidth().iterator();
+        while (it.hasNext()) {
+        int width = it.next();
+        detailsView.setColumnWidth(i, width);
+        ++i;
         }
+        }*/
 
-        // Load mods
         loadMods();
 
         // Update table
@@ -182,7 +165,8 @@ public class ManagerCtrl implements Observer {
         view.popupMenuItemUpdateModAddActionListener(new UpdateModListener());
         view.buttonModsFolderAddActionListener(new ChooseFolderModsListener());
         view.itemDownloadModUpdates(new DownloadModUpdatesListener());
-        ((JTable)detailsView.getComponent()).getColumnModel().addColumnModelListener(new Columns2Listener());
+        // DetailsView bug Disable
+        //((JTable) detailsView.getComponent()).getColumnModel().addColumnModelListener(new Columns2Listener());
         view.addComponentListener(new ComponentEventListener());
         view.getItemRefreshManager().addActionListener(new RefreshManagerListener());
         view.getButtonViewChagelog().addActionListener(new ButtonViewModChangelogListener());
@@ -197,6 +181,7 @@ public class ManagerCtrl implements Observer {
         // Add file drop functionality
         new FileDrop(view, new DropListener());
 
+        // Load the user's chosen view
         if (model.getViewType().equals(ManagerOptions.ViewType.DETAILED_ICONS)) {
             //view.getModsTable().setViewMode(ModsTable.ViewType.DETAILED_ICONS);
             view.getItemViewDetailedIcons().doClick();
@@ -208,14 +193,13 @@ public class ManagerCtrl implements Observer {
             view.getItemViewTiles().doClick();
         }
 
-        view.fullyLoaded = true;
-
         // Display window
+        view.fullyLoaded = true;
         view.setVisible(true);
 
         // Load mods from resource file
         // FIXIT: want to move it before displaying main window?
-        if (noOptionsFile) {
+        if (model.getNoOptionsFile()) {
             if (model.getGamePath() == null || model.getModPath() == null || model.getGamePath().isEmpty() || model.getModPath().isEmpty()) {
                 view.showMessage(L10n.getString("error.honmodsfolder"), L10n.getString("error.honmodsfolder.title"), JOptionPane.ERROR_MESSAGE);
                 view.getItemOpenPreferences().doClick();
@@ -225,8 +209,6 @@ public class ManagerCtrl implements Observer {
                 }
             }
         }
-
-        view.getModsTable().setViewMode(ModsTable.ViewType.ICONS);
 
         ManagerCtrl.instance = this;
         logger.info("ManagerCtrl finished initialization.");
@@ -238,6 +220,7 @@ public class ManagerCtrl implements Observer {
 
     /**
      * TODO: Improve this class. This is just terrible.
+     * @deprecated not currently used.
      */
     public class CheckBoxHeader extends JCheckBox implements TableCellRenderer, MouseListener {
 
@@ -345,6 +328,9 @@ public class ManagerCtrl implements Observer {
         }
     }
 
+    /**
+     * @deprecated not currently used.
+     */
     public class CheckBoxHeaderItemListener implements ItemListener {
 
         public void itemStateChanged(ItemEvent e) {
@@ -354,8 +340,8 @@ public class ManagerCtrl implements Observer {
             }
             boolean checked = e.getStateChange() == ItemEvent.SELECTED;
             Iterator it = model.getMods().iterator();
-            while(it.hasNext()) {
-                ((Mod)it.next()).setEnabled(false);
+            while (it.hasNext()) {
+                ((Mod) it.next()).setEnabled(false);
             }
             view.getModsTable().redraw();
         }
@@ -365,6 +351,7 @@ public class ManagerCtrl implements Observer {
      * This method is used to get the running instance of the ManagerGUI class.
      * @return the instance.
      * @see get()
+     * @deprecated currently not used.
      */
     public static ManagerGUI getGUI() {
         return view;
@@ -393,7 +380,7 @@ public class ManagerCtrl implements Observer {
                 logger.info("Changing LaF to " + lafClass);
                 UIManager.setLookAndFeel(lafClass);
             }
-            // Update UI
+            // Update UI. Probally not all those methods should be called, but Swing is so complex, that this combo fix all the problems.
             SwingUtilities.updateComponentTreeUI(view);
             SwingUtilities.updateComponentTreeUI(view.getPrefsDialog());
             view.pack();
@@ -404,6 +391,9 @@ public class ManagerCtrl implements Observer {
         }
     }
 
+    /**
+     * This method is called when the mods are being applied, to update the status bar fill percentage.
+     */
     public void update(Observable o, Object arg) {
         if (o.getClass().equals(Manager.class)) {
             int[] ints = (int[]) arg;
@@ -628,16 +618,22 @@ public class ManagerCtrl implements Observer {
      */
     class AddModListener implements ActionListener {
 
-        File currentDir = new File(".");
+        private String lastfolder = null;
 
         public void actionPerformed(ActionEvent e) {
-            JFileChooser fc = new JFileChooser(currentDir);
+            JFileChooser fc = new JFileChooser(new File("."));
+            if (lastfolder == null) {
+                fc.setCurrentDirectory(new File("."));
+            } else {
+                fc.setCurrentDirectory(new File(lastfolder));
+            }
             fc.setAcceptAllFileFilterUsed(false);
             fc.setMultiSelectionEnabled(true);
             ModFilter filter = new ModFilter();
             fc.setFileFilter(filter);
             int returnVal = fc.showOpenDialog(view);
             if (returnVal == JFileChooser.APPROVE_OPTION) {
+                lastfolder = fc.getSelectedFiles()[0].getParent();
                 File[] files = fc.getSelectedFiles();
                 addHonmod(files);
                 loadMods();
@@ -646,11 +642,7 @@ public class ManagerCtrl implements Observer {
         }
     }
 
-    // TODO: Use this/
-    boolean newModsAdded = false;
-
     private void addHonmod(File[] files) {
-        newModsAdded = true;
         for (int i = 0; i < files.length; i++) {
             if (files[i] != null && (files[i].getName().endsWith(".honmod") || (files[i].getName().endsWith(".zip")))) {
                 try {
@@ -690,12 +682,9 @@ public class ManagerCtrl implements Observer {
             if ((row == -1) || (column == -1)) {
                 return;
             }
-            TableModel tableModel = (TableModel) e.getSource();
             Mod mod = view.getSelectedMod();
             enableMod(mod);
 
-
-            // Again, save and restore ListSelectionListener
             view.getModsTable().redraw();
         }
     }
@@ -995,7 +984,7 @@ public class ManagerCtrl implements Observer {
         // TODO: Log this
         Mod m = view.getModsTable().getSelectedMod();
         if (JOptionPane.showConfirmDialog(view, L10n.getString("question.deletemod").replace("#mod#", m.getName()), L10n.getString("question.deletemod.title"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == 0) {
-            // Yes
+            // Pressed Yes
             view.deleteSelectedMod();
             File f = new File(m.getPath());
             if (!f.delete()) {
@@ -1075,11 +1064,18 @@ public class ManagerCtrl implements Observer {
             }
         }
 
-        public void mousePressed(MouseEvent e) {}
-        public void mouseReleased(MouseEvent e) {}
-        public void mouseEntered(MouseEvent e) {}
-        public void mouseExited(MouseEvent e) {}
-}
+        public void mousePressed(MouseEvent e) {
+        }
+
+        public void mouseReleased(MouseEvent e) {
+        }
+
+        public void mouseEntered(MouseEvent e) {
+        }
+
+        public void mouseExited(MouseEvent e) {
+        }
+    }
 
     /**
      * Listener for 'Enable/disable mod' button on mod details panel
@@ -1107,6 +1103,7 @@ public class ManagerCtrl implements Observer {
         public void filesDropped(java.io.File[] files) {
             logger.info("Files dropped: " + files.length);
             addHonmod(files);
+            controller.buildGraphs();
             view.getModsTable().redraw();
         }
     }
@@ -1184,7 +1181,7 @@ public class ManagerCtrl implements Observer {
 
         public void actionPerformed(ActionEvent e) {
             loadMods();
-             view.getModsTable().redraw();
+            view.getModsTable().redraw();
         }
     }
 
@@ -1237,9 +1234,14 @@ public class ManagerCtrl implements Observer {
 
     class Columns2Listener implements TableColumnModelListener {
 
-        public void columnAdded(TableColumnModelEvent e) { }
-        public void columnRemoved(TableColumnModelEvent e) { }
-        public void columnSelectionChanged(ListSelectionEvent e) { }
+        public void columnAdded(TableColumnModelEvent e) {
+        }
+
+        public void columnRemoved(TableColumnModelEvent e) {
+        }
+
+        public void columnSelectionChanged(ListSelectionEvent e) {
+        }
 
         public void columnMoved(TableColumnModelEvent e) {
             saveColumnChanges();
@@ -1252,7 +1254,7 @@ public class ManagerCtrl implements Observer {
         private void saveColumnChanges() {
             ArrayList<Integer> temp = new ArrayList<Integer>();
             DetailsView detailsView = (DetailsView) view.getModsTable().getView(ModsTable.ViewType.DETAILS);
-            int lim = ((JTable)detailsView.getComponent()).getColumnCount();
+            int lim = ((JTable) detailsView.getComponent()).getColumnCount();
             for (int i = 0; i < lim; i++) {
                 temp.add(detailsView.getColumnWidth(i));
             }
@@ -1333,7 +1335,7 @@ public class ManagerCtrl implements Observer {
                 controller.disableMod(mod);
                 logger.info("Mod '" + mod.getName() + "' has been DISABLED");
             } catch (ModEnabledException ex) {
-                 // TODO: Add auto-disable dependencies for at least 2 levels.
+                // TODO: Add auto-disable dependencies for at least 2 levels.
                 view.showMessage(L10n.getString("error.modenabled").replace("#mod#", mod.getName()).replace("#mod2#", ex.toString()),
                         L10n.getString("error.modenabled.title"),
                         JOptionPane.WARNING_MESSAGE);

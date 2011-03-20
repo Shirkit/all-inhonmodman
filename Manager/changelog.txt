@@ -111,7 +111,7 @@
 - Improved logging methods to handle uncatch exceptions. This will make logging avaluation much easier if unknow exceptions are found.
 - Fixed problem with UTF-16. Although no mod developer should use it, since the specification is meant to be UTF-8, the manager can now read UTF-16 without problems.
 
-[b]0.8 alpha:[/b]
+[b]0.8 alpha - 06/11/2010:[/b]
 - Added status message with current mod enabled and message while applying and updating mods, with 3 dots animation.
 - Fixed problem with Auto-Updater.
 - Fixed bugs while applying mods that uses <find position="end">STRING</find> operations. Notice that the position attribute in this case is useless.
@@ -122,7 +122,7 @@
 - Added back Yes/No/Cancel option while trying to close the Manager with unsaved actions.
 - Fixed align problem in the Mod Details Panel (the 2 buttons of the right resizing if the Author's name is too big)
 
-[b]0.8.1 alpha:[/b]
+[b]0.8.1 alpha - 14/11/2010:[/b]
 - Fixed problem while updating UTF-16 mods.
 - ComboBoxes are now sorted.
 - Un-updateable mods can't be updated anymore.
@@ -134,7 +134,7 @@
 - Fixed problem that didn't let a user delete a mod after adding it.
 - Added hon version in status message.
 
-[b]0.8.2 alpha:[/b]
+[b]0.8.2 alpha - 10/12/2010:[/b]
 - Fixed a bug while updating manager on all operational systems. Thanks to lennart_s for the help!
 - Fixed displaying a <strong>delete</strong> while trying to deleting a mod.
 - Added a new logging method to capture all unhandled problems. This should make easier to find uncommon bugs and unknow problems. This file will be called HonModManager_Fatal.log
@@ -150,7 +150,7 @@
 - Improved importation from older ModManager resources999.s2z
 - Fixed un-caught exceptions.
 
-[b]0.9 beta:[/b]
+[b]0.9 beta - 05/03/2011:[/b]
 - Fixed bug on the "apply and launch hon" mini-button rezising.
 - Fixed bug while exiting "Developer Mode".
 - Fixed bug while copying mods to the mods folder (it was generating a xyz.honmod FOLDER).
@@ -160,10 +160,20 @@
 - Disabled Details View (until I found out a solution for that, it will remain disabled).
 - Fixed un-caught exceptions.
 
-[b]0.9.1 beta:[/b]
+[b]0.9.1 beta - 15/03/2011:[/b]
 - Fixed bug with <findup> action.
 - Added mod to remind people when a new patch comes out to apply and update their mods again (thanks to Notausgang for the source!).
 - Fixed problem while updating the manager (thanks to Tisser! I totally forgot to put " between the arguments, leading to problems if the path had a blank space).
 - Changed timeout of the updater from 2500 to 3000 miliseconds.
 - Changed the way the Mod Manager uses the OS temporary folder. Now it'll group up the folder in %TEMP%\Hon ModManager\%RANDOM INTEGER%, instead of %TEMP%\%RANDOM INTEGER%, making it easier to delete ModManager temporary files.
 - Fixed bug with <insert position="after"> action.
+
+[b]0.9.2 beta - 19/03/2011:[/b]
+- Fixed bug involving loading user's chosen language.
+- Started translations. All job around it is done. People who wants to help translation, just talk to Shirkit.
+- Fixed bug involving the DetailsView infinite loop affecting other views. That view is completly bugged for now, I'm trying to fix this.
+- Fixed bug while double-cliking not updating the Enable/Disable Mod button.
+- Fixed bug with <findall> operation followed by a <delete> action.
+- Added comment to resources999.s2z file. Now, if you lost the managerOptions.xml but the resources999.s2z is untouched, you can just import the mods from the file!
+- After adding a mod through "Add Mod" button, next time you press it again, it will start from the folder of the file previously selected. If the Manager closes, the folder will be the location of the Manager.jar file.
+- Fixed bug after adding mods (through any way) and the current view and the other views didn't update to show the added mods.

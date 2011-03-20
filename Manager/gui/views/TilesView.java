@@ -6,9 +6,7 @@
 package gui.views;
 
 import business.Mod;
-import java.awt.Component;
 import java.util.ArrayList;
-import javax.swing.DefaultListCellRenderer;
 import javax.swing.JLabel;
 import javax.swing.JList;
 

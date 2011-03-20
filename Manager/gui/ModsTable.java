@@ -3,10 +3,8 @@ package gui;
 import business.ManagerOptions;
 import business.Mod;
 import gui.views.DetailedIconsView;
-import gui.views.DetailsView;
 import gui.views.IconsView;
 import gui.views.ModsTableView;
-import gui.views.TableViewMouseListener;
 import gui.views.TilesView;
 import java.awt.CardLayout;
 import java.awt.Dimension;
@@ -48,7 +46,7 @@ public final class ModsTable extends JPanel {
     };
 
     public ModsTable() {
-        this(ManagerOptions.getInstance().getMods(), ViewType.DETAILS);
+        this(ManagerOptions.getInstance().getMods(), ViewType.ICONS);
     }
 
     public ModsTable(ArrayList<Mod> _mods, ViewType _viewMode) {
@@ -57,7 +55,8 @@ public final class ModsTable extends JPanel {
         setModsList(_mods);
 
         views = new HashMap(4);
-        views.put( ViewType.DETAILS, new DetailsView( getModsList() ) );
+        // DetailsView bug Disable
+        //views.put( ViewType.DETAILS, new DetailsView( getModsList() ) );
         views.put( ViewType.TILES, new TilesView( getModsList() ) );
         views.put( ViewType.ICONS, new IconsView( getModsList() ) );
         views.put( ViewType.DETAILED_ICONS, new DetailedIconsView( getModsList() ) );
@@ -129,6 +128,7 @@ public final class ModsTable extends JPanel {
         // This fixes an issue where mods wouldn't be displayed because the
         // interface wasn't repainted after being initialized with the modslist
         // size at 0.
+        getCurrentView().setModsList(ManagerOptions.getInstance().getMods());
         getCurrentView().getComponent().repaint();
     }
 
@@ -200,6 +200,7 @@ public final class ModsTable extends JPanel {
     }
 
     public void redraw() {
+        getCurrentView().setModsList(ManagerOptions.getInstance().getMods());
         getCurrentView().getComponent().repaint();
     }
 

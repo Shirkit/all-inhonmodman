@@ -7,7 +7,6 @@ import business.ModsOutOfDateReminder;
 import business.actions.*;
 
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
 
 import utility.OS;
 import utility.XML;
@@ -36,7 +35,6 @@ import java.nio.channels.FileLockInterruptionException;
 import java.security.InvalidParameterException;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Observable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -252,6 +250,7 @@ public class Manager extends Observable {
     public void loadOptions() throws StreamException, FileNotFoundException {
         try {
             ManagerOptions.getInstance().loadOptions();
+            ManagerOptions.getInstance().setNoOptionsFile(false);
             logger.info("Options loaded.");
         } catch (FileNotFoundException e) {
             // Put a logger here
@@ -1078,10 +1077,11 @@ public class Manager extends Observable {
                                     if (isSelected) {
                                         for (int i = 0; i < cursor.length; i++) {
                                             afterEdit = afterEdit.substring(0, cursor[i]) + afterEdit.substring(cursor2[i]);
+                                            int lenght = cursor2[i] - cursor[i];
                                             cursor2[i] = cursor[i];
-                                            for (int l = i + 1; k < cursor.length; k++) {
-                                                cursor[l] = cursor[l] - (cursor2[l] - cursor[l]);
-                                                cursor2[l] = cursor2[l] - (cursor2[l] - cursor[l]);
+                                            for (int l = i + 1; l < cursor.length; l++) {
+                                                cursor[l] = cursor[l] - (lenght);
+                                                cursor2[l] = cursor2[l] - (lenght);
                                             }
                                             isSelected = false;
                                             lastIsDelete = true;
@@ -1283,7 +1283,12 @@ public class Manager extends Observable {
 
         if (!applyOrder.isEmpty()) {
             if (!outputToFolderTree) {
-                ZIP.createZIP(tempFolder.getAbsolutePath(), targetZip.getAbsolutePath(), "All-In HonModManager");
+                String comment = "All-In Hon ModManager Output\n\nGame Version:" + Game.getInstance().getVersion() + "\n\nApplied Mods:";
+                for (Iterator<Mod> it = applyOrder.iterator(); it.hasNext();) {
+                    Mod mod = it.next();
+                    comment += "\n" + mod.getName() + " (v" + mod.getVersion() + ")";
+                }
+                ZIP.createZIP(tempFolder.getAbsolutePath(), targetZip.getAbsolutePath(), comment);
             } else {
                 deleteFolderTree();
                 if (OS.isMac()) {
@@ -1306,7 +1311,7 @@ public class Manager extends Observable {
                     }
 
                     if (folder.exists() && folder.isDirectory()) {
-                        File warningFile = new File(folder, "! FILES AND FOLDER HERE WILL BE DELETED ON NEXT APPLY");
+                        File warningFile = new File(folder, "! FILES AND FOLDERS HERE WILL BE DELETED ON NEXT APPLY");
                         warningFile.createNewFile();
                     }
                 }
@@ -1361,7 +1366,6 @@ public class Manager extends Observable {
             if (folder.exists() && folder.isDirectory()) {
                 if (!FileUtils.deleteDir(folder)) {
                     // TODO: Need some handling?
-                    System.out.println("failed to delete folder");
                 }
             }
         }

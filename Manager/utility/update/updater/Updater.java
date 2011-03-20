@@ -37,6 +37,7 @@ import javax.swing.JProgressBar;
 
 /**
  * This is just a copy of the Updater class for saving it inside our project. You must build this class outside and pack into jar for predicted behavior.
+ * Get the .jar file, remove it's extension (new name will be "Updater") and when packing the Manager.jar, put it in the root folder.
  * You must call it with the 2 string arguments: [1] = Path to the current Manager Jar. [2] = URL to download the new manager.
  * @author Shirkit
  */

@@ -15,7 +15,7 @@ public class BBCode {
 
     public static String bbCodeToHtml(String text) {
 
-        String temp = text.replace("\n","<br>");
+        String temp = text.replace("\n", "<br>");
         Map<String, String> bbMap = new HashMap<String, String>();
         bbMap.put("\\[b\\](.+?)\\[/b\\]", "<strong>$1</strong>");
         bbMap.put("\\[i\\](.+?)\\[/i\\]", "<span style='font-style:italic;'>$1</span>");
@@ -45,8 +45,60 @@ public class BBCode {
         //bbMap.put("\\[video\\](.+?)\\[/video\\]", "<video src='$1' />");
 
         for (Map.Entry entry : bbMap.entrySet()) {
-            temp = temp.replaceAll("(?i)"+entry.getKey().toString(), entry.getValue().toString());
+            temp = temp.replaceAll("(?i)" + entry.getKey().toString(), entry.getValue().toString());
         }
         return temp;
+    }
+
+    public static String honCodeToBBCode(String text) {
+        String temp = text;
+        int i = text.indexOf("^");
+        Map<String, String> map = new HashMap<String, String>();
+        map.put("w", "[color=white]");
+        map.put("r", "[color=red]");
+        map.put("t", "[color=teal]");
+        map.put("y", "[color=yellow]");
+        boolean tagOpenned = false;
+        while (i != -1) {
+            // Search for next element after ^
+            String temp2 = "" + temp.charAt(i + 1);
+            // Check if it's a letter in the map
+            String temp3 = map.get(temp2);
+            if (temp3 != null) {
+                if (tagOpenned) {
+                    temp = temp.substring(0, i) + "[/color]" + temp3 + temp.substring(i + 1);
+                } else {
+                    temp = temp.substring(0, i) + temp3 + temp.substring(i + 1);
+                    tagOpenned = true;
+                }
+            } else {
+                // Check for sequence of 3 numbers
+                if (Character.isDigit(temp.charAt(i + 1)) && Character.isDigit(temp.charAt(i + 2)) && Character.isDigit(temp.charAt(i + 3))) {
+                    float fx = (((int) temp.charAt(i + 1)) * 15) / 9;
+                    float fy = (((int) temp.charAt(i + 2)) * 15) / 9;
+                    float fz = (((int) temp.charAt(i + 3)) * 15) / 9;
+                    int x = (int) fx;
+                    int y = (int) fy;
+                    int z = (int) fz;
+                    if (tagOpenned) {
+                        temp = temp.substring(0, i) + "[/color][color=#" + x + "" + y + "" + z + "]" + temp.substring(i + 4);
+                        System.out.println(temp);
+                    } else {
+                        temp = temp.substring(0, i) + "[color=#" + x + "" + y + "" + z + "]" + temp.substring(i + 4);
+                        System.out.println(temp);
+                        tagOpenned = true;
+                    }
+                }
+            }
+            i = temp.indexOf("^", i + 1);
+        }
+        if (tagOpenned) {
+            temp = temp + "[/color]";
+        }
+        return temp;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(honCodeToBBCode("a ^153roi"));
     }
 }

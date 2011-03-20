@@ -4,6 +4,7 @@
 package gui;
 
 import business.ManagerOptions;
+import com.thoughtworks.xstream.io.StreamException;
 import controller.Manager;
 import java.util.concurrent.ExecutionException;
 import java.io.FileNotFoundException;
@@ -50,15 +51,21 @@ public class ManagerApp extends SingleFrameApplication {
      */
     @Override
     protected void startup() {
-        // Checking java version
-        if(!lockInstance("Manager.lock")) {
+        // Check for lock file.
+        if (!lockInstance("Manager.lock")) {
+            JOptionPane.showMessageDialog(null, "Another instance of the Manager is already running.", "Error", JOptionPane.ERROR_MESSAGE);
             System.exit(0);
         }
+        // Checking java version
         if (System.getProperty("java.version").startsWith("1.5") || System.getProperty("java.version").startsWith("1.4")) {
             JOptionPane.showMessageDialog(null, "Please update your JRE environment to the latest version.", "Error", JOptionPane.ERROR_MESSAGE);
         }
 
-        // Initiate log4j logger
+        // Look for Manager update
+        ExecutorService pool = Executors.newCachedThreadPool();
+        Future<Boolean> hasUpdate = pool.submit(new UpdateManager());
+
+        // Initiate log4j logger and the fatal logger
         ClassLoader cl = this.getClass().getClassLoader();
         InputStream is = cl.getResourceAsStream(LOGGER_PROPS);
         Properties props = new Properties();
@@ -68,8 +75,8 @@ public class ManagerApp extends SingleFrameApplication {
             JOptionPane.showMessageDialog(null, "Cannot initialize logging system", "Error", JOptionPane.ERROR_MESSAGE);
         }
         PropertyConfigurator.configure(props);
-        // Load l10n
         StdOutErrLog.tieSystemErrToLog();
+        // Log procedure operations
         logger = Logger.getLogger(this.getClass().getPackage().getName());
         logger.info("------------------------------------------------------------------------------------------------------------------------");
         DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy - HH:mm:ss");
@@ -80,7 +87,16 @@ public class ManagerApp extends SingleFrameApplication {
         logger.info("HonMod manager version: " + ManagerOptions.getInstance().getVersion());
         logger.info("Running on: " + System.getProperty("os.name") + "|" + System.getProperty("os.version") + "|" + System.getProperty("os.arch"));
         try {
-            Manager.getInstance().loadOptions();
+            // Try load options. They must be loaded now for language loading
+            try {
+                Manager.getInstance().loadOptions();
+            } catch (StreamException e) {
+                logger.error("StreamException from loadOptions()", e);
+                // Mod options is invalid, just ignore and it will be deleted.
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+            // Load language, if any
             if (ManagerOptions.getInstance().getLanguage() != null && !ManagerOptions.getInstance().getLanguage().isEmpty()) {
                 L10n.load(ManagerOptions.getInstance().getLanguage());
             } else {
@@ -90,16 +106,16 @@ public class ManagerApp extends SingleFrameApplication {
         }
         logger.info("------------------------------------------------------------------------------------------------------------------------");
 
-        // Look for Manager update
-        ExecutorService pool = Executors.newCachedThreadPool();
-        Future<Boolean> hasUpdate = pool.submit(new UpdateManager());
-
+        // Load the interface
         try {
             ctrl = new ManagerCtrl();
         } catch (Exception e) {
             logger.error("Error while starting the manager. " + e.getClass() + " | " + e.getCause() + " | " + e.getMessage(), e);
+            JOptionPane.showMessageDialog(null, " Critical error while starting the manager. " + e.getClass() + " | " + e.getCause() + " | " + e.getMessage(), "Critical Error", JOptionPane.ERROR_MESSAGE);
+            System.exit(0);
         }
 
+        // Look for Updater.jar file, and try to delete it. If this file is found, it means the last run was an update. We could do some update actions here.
         File updaterJar = new File(System.getProperty("user.dir") + File.separator + "Updater.jar");
         if (updaterJar.exists()) {
             if (!updaterJar.delete()) {
@@ -107,12 +123,13 @@ public class ManagerApp extends SingleFrameApplication {
             }
         }
 
+        // Wait until the searching for the update is done. This can delay the start of the manager, this should be changed to fire a thread.
         while (!hasUpdate.isDone()) {
         }
 
         try {
             if (hasUpdate.get().booleanValue()) {
-                if (ManagerOptions.getInstance().isAutoUpdate() || JOptionPane.showConfirmDialog(ManagerCtrl.getGUI(), L10n.getString("message.updateavaliabe"), L10n.getString("message.updateavaliabe.title"), JOptionPane.YES_NO_OPTION) == 0) {
+                if (ManagerOptions.getInstance().isAutoUpdate() || JOptionPane.showConfirmDialog(ManagerGUI.getInstance(), L10n.getString("message.updateavaliabe"), L10n.getString("message.updateavaliabe.title"), JOptionPane.YES_NO_OPTION) == 0) {
                     try {
                         InputStream in = getClass().getResourceAsStream("/Updater");
                         FileOutputStream fos = new FileOutputStream(ManagerOptions.MANAGER_FOLDER + File.separator + "Updater.jar");

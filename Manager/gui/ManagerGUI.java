@@ -1,6 +1,5 @@
 package gui;
 
-import gui.ManagerCtrl.ViewChangeListener;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import javax.swing.JButton;
@@ -40,7 +39,6 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JEditorPane;
-import javax.swing.JMenuBar;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
@@ -1085,8 +1083,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     //TODO: Fix this for all views (icons, tiles and table).
     public void deleteSelectedMod() {
         Mod mod = ManagerGUI.getInstance().getModsTable().getSelectedMod();
-        model.getAppliedMods().remove(mod);
-        model.getMods().remove(mod);
+        model.removeMod(mod);
         updateModTable();
     }
 

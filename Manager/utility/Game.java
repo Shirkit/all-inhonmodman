@@ -1,20 +1,13 @@
 package utility;
 
 import business.ManagerOptions;
-
-import gui.l10n.L10n;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import javax.imageio.stream.FileImageInputStream;
-import javax.swing.JFileChooser;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-
-import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileFilter;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.*;
