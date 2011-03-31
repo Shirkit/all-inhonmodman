@@ -4,6 +4,7 @@
  */
 package business;
 
+import utility.xml.converters.ManagerOptionsConverter;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
 import com.thoughtworks.xstream.io.StreamException;
@@ -49,8 +50,11 @@ public class ManagerOptions extends Observable {
     private boolean developerMode;
     private boolean colorCheckboxInTable;
     private boolean showIconsInTable;
-    // TODO: Save this in the options file.
+    private String lastHonVersion;
     private ViewType viewType;
+    // TODO: Save this in the options file.
+    private ArrayList<ModList> profiles;
+    private ModList currentProfile;
     // Hidden fields from XML
     private ArrayList<Mod> mods;
     private static ManagerOptions instance;
@@ -58,7 +62,7 @@ public class ManagerOptions extends Observable {
     private boolean noOptionsFile;
     Logger logger;
     // Constants
-    public static final String MANAGER_VERSION_FILE = "version.txt";
+    public static final String MANAGER_VERSION_FILE = "resources/version.txt";
     public static final String MANAGER_FOLDER = new File(".").getAbsolutePath();
     public static final String OPTIONS_FILENAME = "managerOptions.xml";
     public static final String MANAGER_CHECK_UPDATE = "http://dl.dropbox.com/u/10303236/version.txt";
@@ -80,7 +84,7 @@ public class ManagerOptions extends Observable {
         mods = new ArrayList<Mod>();
         controller = Manager.getInstance();
         logger = Logger.getLogger(this.getClass().getPackage().getName());
-        ignoreGameVersion = false;
+        ignoreGameVersion = true;
         autoUpdate = false;
         autoEnableDependencies = false;
         developerMode = false;
@@ -90,6 +94,8 @@ public class ManagerOptions extends Observable {
         columnsWidth = new ArrayList<Integer>();
         viewType = ViewType.DETAILS;
         noOptionsFile = true;
+        profiles = new ArrayList<ModList>();
+        currentProfile = null;
     }
 
     /**
@@ -184,6 +190,9 @@ public class ManagerOptions extends Observable {
         }
         if (temp.getViewType() != null) {
             instance.setViewType(temp.getViewType());
+        }
+        if (temp.getProfiles() != null) {
+            instance.setProfiles(temp.getProfiles());
         }
         instance.setIgnoreGameVersion(temp.isIgnoreGameVersion());
         instance.setAutoUpdate(temp.isAutoUpdate());
@@ -297,7 +306,6 @@ public class ManagerOptions extends Observable {
             pattern = in.readLine();
         } catch (IOException ex) {
         }
-        //BufferedReader in = new BufferedReader(new FileReader(MANAGER_VERSION));
         return pattern;
     }
 
@@ -514,5 +522,41 @@ public class ManagerOptions extends Observable {
 
     public void setNoOptionsFile(boolean noOptionsFile) {
         this.noOptionsFile = noOptionsFile;
+    }
+
+    public void setLastHonVersion(String lastHonVersion) {
+        this.lastHonVersion = lastHonVersion;
+    }
+
+    public String getLastHonVersion() {
+        return lastHonVersion;
+    }
+
+    /**
+     * This method should only be used by the ManagerOptions class and it's converter.
+     */
+    public ArrayList<ModList> getProfiles() {
+        return profiles;
+    }
+
+    /**
+     * This method should only be used by the ManagerOptions class and it's converter.
+     */
+    public void setProfiles(ArrayList<ModList> profiles) {
+        this.profiles = profiles;
+    }
+
+    public void addProfile(ModList profile) {
+        this.profiles.add(profile);
+    }
+
+    public ModList getCurrentProfile() {
+        return currentProfile;
+    }
+
+    public void setCurrentProfile(ModList currentProfile) {
+        this.currentProfile = currentProfile;
+        setChanged();
+        notifyObservers("profile");
     }
 }

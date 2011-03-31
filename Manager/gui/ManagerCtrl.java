@@ -22,6 +22,7 @@ import com.mallardsoft.tuple.Tuple;
 import gui.l10n.L10n;
 import business.ManagerOptions;
 import business.Mod;
+import business.ModList;
 import java.awt.Component;
 import java.awt.event.ComponentListener;
 import java.awt.event.ItemEvent;
@@ -124,18 +125,22 @@ public class ManagerCtrl implements Observer {
 
         // ----- DetailsView bug Disable ------
         // Load last column width for list view
-        /*DetailsView detailsView = (DetailsView) view.getModsTable().getView(ModsTable.ViewType.DETAILS);
+        DetailsView detailsView = (DetailsView) view.getModsTable().getView(ModsTable.ViewType.DETAILS);
         if (model.getColumnsWidth() != null) {
-        int i = 0;
-        Iterator<Integer> it = model.getColumnsWidth().iterator();
-        while (it.hasNext()) {
-        int width = it.next();
-        detailsView.setColumnWidth(i, width);
-        ++i;
+            int i = 0;
+            Iterator<Integer> it = model.getColumnsWidth().iterator();
+            while (it.hasNext()) {
+                int width = it.next();
+                detailsView.setColumnWidth(i, width);
+                ++i;
+            }
         }
-        }*/
 
         loadMods();
+
+        if (model.getAppliedMods().isEmpty()) {
+            importModsFromOldModManager();
+        }
 
         // Update table
         view.getModsTable().getCurrentView().getComponent().repaint();
@@ -149,11 +154,13 @@ public class ManagerCtrl implements Observer {
         view.itemUnapplyAllModsAddActionListener(new UnapplyAllModsListener());
         view.itemOpenModFolderAddActionListener(new OpenModFolderListener());
         view.itemVisitForumThreadAddActionListener(new VisitForumThreadListener());
-        //view.itemViewDetailsAddActionListener(new ViewChangeListener(ModsTable.ViewType.DETAILS));
+        // ----- DetailsView bug Disable ------
+        view.itemViewDetailsAddActionListener(new ViewChangeListener(ModsTable.ViewType.DETAILS));
         view.itemViewIconsAddActionListener(new ViewChangeListener(ModsTable.ViewType.ICONS));
         view.itemViewTilesAddActionListener(new ViewChangeListener(ModsTable.ViewType.TILES));
         view.itemViewDetailedIconsAddActionListener(new ViewChangeListener(ModsTable.ViewType.DETAILED_ICONS));
         view.itemExitAddActionListener(new ExitListener());
+        view.itemAddProfileAddActionListener(new AddProfileListener());
 
         view.buttonVisitWebsiteAddActionListener(new VisitWebsiteListener());
         view.popupMenuItemVisitWebsiteAddActionListener(new VisitWebsiteListener());
@@ -183,7 +190,6 @@ public class ManagerCtrl implements Observer {
 
         // Load the user's chosen view
         if (model.getViewType().equals(ManagerOptions.ViewType.DETAILED_ICONS)) {
-            //view.getModsTable().setViewMode(ModsTable.ViewType.DETAILED_ICONS);
             view.getItemViewDetailedIcons().doClick();
         } else if (model.getViewType().equals(ManagerOptions.ViewType.DETAILS)) {
             view.getItemViewDetails().doClick();
@@ -196,9 +202,68 @@ public class ManagerCtrl implements Observer {
         // Display window
         view.fullyLoaded = true;
         view.setVisible(true);
+        try {
+            if (model.getLastHonVersion() != null && !model.getLastHonVersion().isEmpty() && !Game.getInstance().getVersion().equals(model.getLastHonVersion())) {
+                if (JOptionPane.showConfirmDialog(view, L10n.getString("message.update.suggest"), L10n.getString("message.update.suggest.title"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE) == 0) {
+                    Task task = new Task<Void, Void>(Application.getInstance()) {
 
-        // Load mods from resource file
-        // FIXIT: want to move it before displaying main window?
+                        @Override
+                        protected Void doInBackground() throws Exception {
+                            view.setInputEnabled(false);
+                            view.setStatusMessage("Updating mods", true);
+                            view.getProgressBar().setVisible(true);
+                            view.getProgressBar().setStringPainted(true);
+                            ArrayList<Mod> toUpdate = new ArrayList<Mod>();
+                            Iterator<Mod> it = model.getMods().iterator();
+                            while (it.hasNext()) {
+                                toUpdate.add(it.next());
+                            }
+                            view.getProgressBar().setMaximum(toUpdate.size());
+                            view.getProgressBar().paint(view.getProgressBar().getGraphics());
+                            view.paint(view.getGraphics());
+                            UpdateReturn things = null;
+                            things = controller.updateMod(toUpdate);
+                            it = things.getUpdatedModList().iterator();
+                            String message = "";
+                            if (it.hasNext()) {
+                                message += L10n.getString("message.update.updatedmods") + " \n\n";
+                                while (it.hasNext()) {
+                                    Mod mod = it.next();
+                                    message += L10n.getString("message.update.updated").replace("#mod#", mod.getName()).replace("#olderversion#", things.getOlderVersion(mod)).replace("#newversion#", mod.getVersion()) + "\n";
+                                }
+                                message += "\n\n";
+                            } else {
+                                message = L10n.getString("message.update.uptodate");
+                            }
+                            it = things.getFailedModList().iterator();
+                            if (it.hasNext()) {
+                                if (!message.isEmpty()) {
+                                    message += "\n\n";
+                                }
+                                message += L10n.getString("message.update.failed") + "\n";
+                                while (it.hasNext()) {
+                                    Mod mod = it.next();
+                                    message += "- " + mod.getName() + " (" + things.getException(mod).getLocalizedMessage() + ")\n";
+                                }
+                            }
+                            view.getProgressBar().setValue(0);
+                            view.getProgressBar().setStringPainted(false);
+                            view.updateModTable();
+                            view.showMessage(message, L10n.getString("message.update.title"), JOptionPane.INFORMATION_MESSAGE);
+                            view.setInputEnabled(true);
+                            return null;
+                        }
+                    };
+                    task.execute();
+                }
+            }
+        } catch (Exception ex) {
+        }
+        try {
+            model.setLastHonVersion(Game.getInstance().getVersion());
+        } catch (Exception ex) {
+        }
+
         if (model.getNoOptionsFile()) {
             if (model.getGamePath() == null || model.getModPath() == null || model.getGamePath().isEmpty() || model.getModPath().isEmpty()) {
                 view.showMessage(L10n.getString("error.honmodsfolder"), L10n.getString("error.honmodsfolder.title"), JOptionPane.ERROR_MESSAGE);
@@ -359,7 +424,7 @@ public class ManagerCtrl implements Observer {
 
     public void loadLaf() {
         // Get selected LaF and apply it
-        String lafClass = ManagerOptions.getInstance().getLaf();
+        String lafClass = model.getLaf();
         try {
             if (lafClass.equals("default") || lafClass.isEmpty()) {
                 logger.info("Setting LaF to Default");
@@ -408,10 +473,10 @@ public class ManagerCtrl implements Observer {
             ArrayList<ArrayList<Pair<String, String>>> exs = controller.loadMods();
             controller.buildGraphs();
             Set<Mod> newApplied = new HashSet<Mod>();
-            Iterator<Mod> applied = ManagerOptions.getInstance().getAppliedMods().iterator();
+            Iterator<Mod> applied = model.getAppliedMods().iterator();
             while (applied.hasNext()) {
                 Mod appliedMod = applied.next();
-                Iterator<Mod> mods = ManagerOptions.getInstance().getMods().iterator();
+                Iterator<Mod> mods = model.getMods().iterator();
                 while (mods.hasNext()) {
                     Mod mod = mods.next();
                     if (appliedMod.equals(mod)) {
@@ -420,7 +485,7 @@ public class ManagerCtrl implements Observer {
                     }
                 }
             }
-            ManagerOptions.getInstance().setAppliedMods(newApplied);
+            model.setAppliedMods(newApplied);
             if (!exs.isEmpty()) {
                 Enumeration en = Collections.enumeration(exs);
                 String stream = "";
@@ -465,7 +530,7 @@ public class ManagerCtrl implements Observer {
                         if (Tuple.get2(item).equalsIgnoreCase("duplicate")) {
                             logger.error("ModDuplicateException: mod:" + Tuple.get1(item));
                             if (!foundMod) {
-                                Iterator<Mod> it = ManagerOptions.getInstance().getMods().iterator();
+                                Iterator<Mod> it = model.getMods().iterator();
                                 while (it.hasNext() && !foundMod) {
                                     Mod mod = it.next();
                                     if (new File(mod.getPath()).getName().equals(Tuple.get1(item))) {
@@ -945,9 +1010,9 @@ public class ManagerCtrl implements Observer {
                 while (mods.hasNext() && versions.hasNext()) {
                     String stringMod = mods.next();
                     String stringVersion = versions.next();
-                    Mod mod = ManagerOptions.getInstance().getMod(stringMod, stringVersion);
+                    Mod mod = model.getMod(stringMod, stringVersion);
                     try {
-                        controller.enableMod(mod, ManagerOptions.getInstance().isIgnoreGameVersion());
+                        controller.enableMod(mod, model.isIgnoreGameVersion());
                         mods.remove();
                         versions.remove();
                     } catch (Exception ex) {
@@ -1005,7 +1070,7 @@ public class ManagerCtrl implements Observer {
                     view.getProgressBar().setVisible(true);
                     view.getProgressBar().setStringPainted(true);
                     ArrayList<Mod> toUpdate = new ArrayList<Mod>();
-                    Iterator<Mod> it = ManagerOptions.getInstance().getMods().iterator();
+                    Iterator<Mod> it = model.getMods().iterator();
                     while (it.hasNext()) {
                         toUpdate.add(it.next());
                     }
@@ -1136,6 +1201,25 @@ public class ManagerCtrl implements Observer {
         }
     }
 
+    class AddProfileListener implements ActionListener {
+
+        public void actionPerformed(ActionEvent e) {
+            ModList profile = new ModList();
+            String name = JOptionPane.showInputDialog(view, "What will be the name of this profile?");
+            profile.setName(name);
+            Iterator<Mod> it = model.getMods().iterator();
+            while (it.hasNext()) {
+                Mod mod = it.next();
+                if (mod.isEnabled()) {
+                    profile.addMod(mod);
+                }
+            }
+            model.addProfile(profile);
+            new ProfileMenu(profile, view.getMenuProfiles());
+        }
+
+    }
+
     /**
      * Listener for 'Ok' button on the preferences dialog
      */
@@ -1149,20 +1233,26 @@ public class ManagerCtrl implements Observer {
                     return;
                 }
             }
-            String oldModsFolder = ManagerOptions.getInstance().getModPath();
-            logger.info("Hon folder set to: " + view.getSelectedHonFolder());
-            logger.info("Mods folder set to: " + view.getTextFieldModsFolder());
-            ManagerOptions.getInstance().setGamePath(view.getSelectedHonFolder());
-            ManagerOptions.getInstance().setCLArgs(view.getCLArguments());
-            ManagerOptions.getInstance().setLaf(view.getSelectedLafClass());
-            ManagerOptions.getInstance().setLanguage(view.getSelectedLanguage());
-            ManagerOptions.getInstance().setModPath(view.getTextFieldModsFolder());
-            ManagerOptions.getInstance().setIgnoreGameVersion(view.getIgnoreGameVersion());
-            ManagerOptions.getInstance().setAutoUpdate(view.getAutoUpdate());
-            ManagerOptions.getInstance().setDeveloperMode(view.getDeveloperMode());
+            String oldModsFolder = model.getModPath();
+            model.setGamePath(view.getSelectedHonFolder());
+            model.setCLArgs(view.getCLArguments());
+            model.setLaf(view.getSelectedLafClass());
+            model.setLanguage(view.getSelectedLanguage());
+            model.setModPath(view.getTextFieldModsFolder());
+            model.setIgnoreGameVersion(view.getIgnoreGameVersion());
+            model.setAutoUpdate(view.getAutoUpdate());
+            model.setDeveloperMode(view.getDeveloperMode());
 
             try {
                 controller.saveOptions();
+                logger.info("---- Options Saved ----");
+                logger.info("HoN Folder=" + model.getGamePath());
+                logger.info("Mods Folder=" + model.getModPath());
+                logger.info("LaF=" + model.getLaf());
+                logger.info("Language=" + model.getLanguage());
+                logger.info("CL=" + model.getCLArgs());
+                logger.info("AutoUpdate=" + model.isAutoUpdate() + " - IgnoreGameVersion=" + model.isIgnoreGameVersion() + " - DeveloperMode=" + model.isDeveloperMode());
+                logger.info("----");
             } catch (FileNotFoundException e1) {
             } catch (UnsupportedEncodingException e1) {
             } catch (IOException e1) {
@@ -1170,8 +1260,9 @@ public class ManagerCtrl implements Observer {
 
             // Hide dialog
             view.getPrefsDialog().setVisible(false);
-            if (!oldModsFolder.equals(ManagerOptions.getInstance().getModPath())) {
+            if (!oldModsFolder.equals(model.getModPath())) {
                 loadMods();
+                view.updateModTable();
                 view.getModsTable().redraw();
             }
         }
@@ -1258,7 +1349,7 @@ public class ManagerCtrl implements Observer {
             for (int i = 0; i < lim; i++) {
                 temp.add(detailsView.getColumnWidth(i));
             }
-            ManagerOptions.getInstance().setColumnsWidth(temp);
+            model.setColumnsWidth(temp);
             wantToSaveOptions();
         }
     }
@@ -1266,12 +1357,12 @@ public class ManagerCtrl implements Observer {
     class ComponentEventListener implements ComponentListener {
 
         public void componentResized(ComponentEvent e) {
-            ManagerOptions.getInstance().setGuiRectangle(view.getBounds());
+            model.setGuiRectangle(view.getBounds());
             wantToSaveOptions();
         }
 
         public void componentMoved(ComponentEvent e) {
-            ManagerOptions.getInstance().setGuiRectangle(view.getBounds());
+            model.setGuiRectangle(view.getBounds());
             wantToSaveOptions();
 
         }
@@ -1345,7 +1436,7 @@ public class ManagerCtrl implements Observer {
             try {
                 String gameVersion = Game.getInstance().getVersion();
                 try {
-                    controller.enableMod(mod, ManagerOptions.getInstance().isIgnoreGameVersion());
+                    controller.enableMod(mod, model.isIgnoreGameVersion());
                     logger.info("Mod '" + mod.getName() + "' has been ENABLED");
                 } catch (NoSuchElementException e1) {
                     view.showMessage(L10n.getString("error.modnotfound"),
@@ -1365,11 +1456,12 @@ public class ManagerCtrl implements Observer {
                         Iterator it = enableMods.iterator();
                         while (it.hasNext()) {
                             Pair<String, String> element = (Pair<String, String>) it.next();
-                            Mod target = ManagerOptions.getInstance().getMod(Tuple.get1(element), Tuple.get2(element));
+                            Mod target = model.getMod(Tuple.get1(element), Tuple.get2(element));
                             enableMod(target);
                         }
                         // Enable the mod (finally
                         enableMod(mod);
+                        view.getModsTable().redraw();
                     }
                 } catch (ModVersionMissmatchException e1) {
                     view.showMessage(L10n.getString("error.modversionmissmatch").replace("#mod#", mod.getName()),
@@ -1422,13 +1514,13 @@ public class ManagerCtrl implements Observer {
             view.getProgressBar().setStringPainted(true);
             view.getProgressBar().setMaximum(count);
             view.getProgressBar().paint(view.getProgressBar().getGraphics());
-            controller.applyMods(ManagerOptions.getInstance().isDeveloperMode());
+            controller.applyMods(model.isDeveloperMode());
             view.getModsTable().redraw();
             sucess = true;
             view.showMessage(L10n.getString("message.modsapplied"), L10n.getString("message.modsapplied.title"), JOptionPane.INFORMATION_MESSAGE);
         } catch (FileLockInterruptionException ex) {
             logger.error("Error applying mods. Can't write on the resources999.s2z file", ex);
-            view.showMessage(L10n.getString("error.resources999").replace("#file#", ManagerOptions.getInstance().getGamePath() + File.separator + "game" + File.separator + "resources999.s2z"), L10n.getString("error.resources999"), JOptionPane.ERROR_MESSAGE);
+            view.showMessage(L10n.getString("error.resources999").replace("#file#", model.getGamePath() + File.separator + "game" + File.separator + "resources999.s2z"), L10n.getString("error.resources999"), JOptionPane.ERROR_MESSAGE);
         } catch (NothingSelectedModActionException ex) {
             logger.error("Error applying mods. Nothing was selected and a operation that needs something to be selected was called. Mod=" + ex.getName() + " | Version=" + ex.getVersion() + " | ActionClass=" + ex.getAction().getClass(), ex);
             view.showMessage(L10n.getString("error.modcantapply").replace("#mod#", ex.getName()), L10n.getString("error.modcantapply.title"), JOptionPane.ERROR_MESSAGE);
@@ -1455,6 +1547,10 @@ public class ManagerCtrl implements Observer {
         view.setInputEnabled(true);
         //view.setEnabled(true);
         //view.requestFocus();
+        try {
+            controller.exportMods(new File("C:\\mods.xml"));
+        } catch (IOException ex) {
+        }
         return sucess;
     }
 
@@ -1474,11 +1570,11 @@ public class ManagerCtrl implements Observer {
     class ExitListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
-            Iterator<Mod> it = ManagerOptions.getInstance().getMods().iterator();
+            Iterator<Mod> it = model.getMods().iterator();
             boolean hasUnapplied = false;
             while (it.hasNext()) {
                 Mod mod = it.next();
-                if ((mod.isEnabled() && !ManagerOptions.getInstance().getAppliedMods().contains(mod)) || (!mod.isEnabled() && ManagerOptions.getInstance().getAppliedMods().contains(mod))) {
+                if ((mod.isEnabled() && !model.getAppliedMods().contains(mod)) || (!mod.isEnabled() && model.getAppliedMods().contains(mod))) {
                     hasUnapplied = true;
                 }
             }
@@ -1511,5 +1607,6 @@ public class ManagerCtrl implements Observer {
         }
         logger.info("Closing HonModManager...");
         System.exit(0);
+        throw new RuntimeException();
     }
 }

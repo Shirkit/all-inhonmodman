@@ -3,8 +3,8 @@ package utility;
 import business.ManagerOptions;
 import business.Mod;
 import business.ModList;
-import business.ShirkitDriver;
-import business.actions.*;
+import utility.xml.ShirkitDriver;
+import business.modactions.*;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.StreamException;
 import com.thoughtworks.xstream.mapper.CannotResolveClassException;
@@ -18,6 +18,7 @@ import java.io.ObjectInputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -217,6 +218,7 @@ public class XML {
 
     public static void modListToXml(File destination, ModList modlist) throws IOException {
         XStream xstream = new XStream(getDriver());
+        updateAlias(xstream);
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Writer writer = new OutputStreamWriter(outputStream, "UTF-8");
@@ -236,7 +238,27 @@ public class XML {
     public static ModList xmlToModList(File file) throws FileNotFoundException {
         XStream xstream = new XStream(getDriver());
         xstream = updateAlias(xstream);
-        return (ModList) xstream.fromXML(new FileInputStream(file));
+
+        ArrayList<Mod> mods = new ArrayList<Mod>();
+        try {
+            ObjectInputStream in = xstream.createObjectInputStream(new FileInputStream(file.getAbsolutePath()));
+            while (true) {
+                try {
+                    Object o = in.readObject();
+                    if (o.getClass().equals(Mod.class)) {
+                        mods.add((Mod) o);
+                    }
+                } catch (CannotResolveClassException e) {
+                } catch (ClassNotFoundException e) {
+                }
+            }
+
+        } catch (IOException ex) {
+        }
+        ModList temp = (ModList) xstream.fromXML(new FileInputStream(file));
+        temp.setModList(mods);
+
+        return temp;
     }
 
     /**
@@ -261,6 +283,7 @@ public class XML {
         xstream.processAnnotations(ActionIncompatibility.class);
         xstream.processAnnotations(ActionRequirement.class);
         xstream.processAnnotations(ManagerOptions.class);
+        xstream.processAnnotations(ModList.class);
 
         xstream.aliasField("find", ActionEditFileFind.class, "seek");
         xstream.aliasField("find", ActionEditFileFind.class, "search");

@@ -26,10 +26,17 @@ public class DownloadThread implements Callable<DownloadThread> {
 
     File file;
     String url;
+    String modName;
+    String path;
 
-    public DownloadThread(String url) {
-        this.url = url;
+    private DownloadThread() {
+    }
+
+    public DownloadThread(String url, String modName, String path) {
+        this.url = url.replaceAll(" ", "%20");
         this.file = null;
+        this.modName = modName;
+        this.path = path;
     }
 
     public DownloadThread call() throws UpdateModException {
@@ -37,32 +44,46 @@ public class DownloadThread implements Callable<DownloadThread> {
             if (url != null) {
                 URL urls = new URL(this.url);
                 URLConnection connection = urls.openConnection();
-                connection.setConnectTimeout(5000);
+                connection.setConnectTimeout(7500);
                 InputStream is = urls.openStream();
-                String filename = this.url.substring(this.url.lastIndexOf("/"));
+                String filename = null;
+                if (path == null || path.isEmpty()) {
+                    String pattern = "[^a-z,A-Z,0-9, ,.]";
+                    filename = this.url.substring(this.url.lastIndexOf("/") + 1).replace("%20", " ");
+                    filename = filename.replaceAll(pattern, "");
+                } else {
+                    filename = path;
+                }
+                FileOutputStream fos = null;
                 file = new File(System.getProperty("java.io.tmpdir") + File.separator + filename);
-                FileOutputStream fos = new FileOutputStream(file, false);
+                fos = new FileOutputStream(file, false);
                 FileUtils.copyInputStream(is, fos);
                 is.close();
                 fos.flush();
                 fos.close();
             }
         } catch (MalformedURLException ex) {
+            System.out.println(ex);
             file = null;
             throw new UpdateModException(null, ex);
         } catch (ConnectException ex) {
+            System.out.println(ex);
             file = null;
             throw new UpdateModException(null, ex);
         } catch (NullPointerException ex) {
+            System.out.println(ex);
             file = null;
             throw new UpdateModException(null, ex);
         } catch (InvalidParameterException ex) {
+            System.out.println(ex);
             file = null;
             throw new UpdateModException(null, ex);
         } catch (FileNotFoundException ex) {
+            System.out.println(ex);
             file = null;
             throw new UpdateModException(null, ex);
         } catch (IOException ex) {
+            System.out.println(ex);
             file = null;
             throw new UpdateModException(null, ex);
         }
@@ -71,5 +92,9 @@ public class DownloadThread implements Callable<DownloadThread> {
 
     public File getFile() {
         return file;
+    }
+
+    public String getModName() {
+        return modName;
     }
 }

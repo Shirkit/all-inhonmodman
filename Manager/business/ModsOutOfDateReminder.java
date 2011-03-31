@@ -12,13 +12,17 @@ import utility.Game;
 import utility.XML;
 
 /**
- *
+ * This class represents the mod to remind people when they update HoN but don't re-apply the mods.
  * @author Shirkit
  */
 public class ModsOutOfDateReminder {
 
     private static Mod mod = null;
 
+    /**
+     * This method loads a mod XML from the resoucers folder, located inside the Manager applicattion, retrieves it and generate a mod instance.
+     * @return an instance of a the Mods Out of Date Reminder.
+     */
     public static Mod getMod() {
         ModsOutOfDateReminder instance = new ModsOutOfDateReminder();
         try {

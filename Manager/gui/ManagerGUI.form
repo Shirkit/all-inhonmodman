@@ -33,36 +33,40 @@
                           </Group>
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                              <Component id="labelChooseLookAndFeel" alignment="0" max="32767" attributes="0"/>
-                              <Component id="labelChooseLanguage" alignment="0" max="32767" attributes="0"/>
-                              <Component id="labelHonFolder" alignment="0" max="32767" attributes="0"/>
-                              <Component id="labelModsFolder" alignment="0" max="32767" attributes="0"/>
-                              <Component id="labelCLArguments" alignment="0" pref="121" max="32767" attributes="1"/>
-                              <Component id="checkBoxIgnoreGameVersion" alignment="0" max="32767" attributes="1"/>
-                              <Component id="checkBoxAutoUpdate" alignment="0" max="32767" attributes="1"/>
-                              <Component id="checkBoxDeveloperMode" alignment="0" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="1" attributes="0">
-                              <Component id="textFieldHonFolder" alignment="1" pref="354" max="32767" attributes="0"/>
-                              <Component id="comboBoxChooseLanguage" alignment="0" pref="354" max="32767" attributes="1"/>
-                              <Component id="textFieldModsFolder" pref="354" max="32767" attributes="0"/>
-                              <Component id="comboBoxLafs" alignment="0" pref="354" max="32767" attributes="0"/>
-                              <Component id="textFieldCLArguments" alignment="0" pref="354" max="32767" attributes="0"/>
-                          </Group>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="1" attributes="0">
-                              <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                  <Component id="buttonModsFolder" alignment="1" max="32767" attributes="1"/>
-                                  <Component id="buttonHonFolder" alignment="1" max="32767" attributes="1"/>
+                          <EmptySpace min="-2" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Group type="102" alignment="0" attributes="0">
+                                  <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                                      <Component id="labelChooseLookAndFeel" alignment="0" max="32767" attributes="0"/>
+                                      <Component id="labelChooseLanguage" alignment="0" max="32767" attributes="0"/>
+                                      <Component id="labelHonFolder" alignment="0" max="32767" attributes="0"/>
+                                      <Component id="labelModsFolder" alignment="0" max="32767" attributes="0"/>
+                                      <Component id="labelCLArguments" alignment="0" pref="121" max="32767" attributes="1"/>
+                                  </Group>
+                                  <EmptySpace min="-2" max="-2" attributes="0"/>
+                                  <Group type="103" groupAlignment="1" attributes="0">
+                                      <Component id="textFieldHonFolder" alignment="1" pref="368" max="32767" attributes="0"/>
+                                      <Component id="comboBoxChooseLanguage" alignment="0" pref="368" max="32767" attributes="1"/>
+                                      <Component id="textFieldModsFolder" pref="368" max="32767" attributes="0"/>
+                                      <Component id="comboBoxLafs" alignment="0" pref="368" max="32767" attributes="0"/>
+                                      <Component id="textFieldCLArguments" alignment="0" pref="368" max="32767" attributes="0"/>
+                                  </Group>
+                                  <EmptySpace min="-2" max="-2" attributes="0"/>
+                                  <Group type="103" groupAlignment="1" attributes="0">
+                                      <Component id="buttonModsFolder" alignment="1" pref="167" max="32767" attributes="2"/>
+                                      <Component id="buttonHonFolder" alignment="1" pref="167" max="32767" attributes="2"/>
+                                      <Component id="buttonApplyLaf" alignment="1" pref="167" max="32767" attributes="2"/>
+                                  </Group>
                               </Group>
-                              <Component id="buttonApplyLaf" alignment="1" max="32767" attributes="1"/>
+                              <Group type="103" alignment="0" groupAlignment="1" max="-2" attributes="0">
+                                  <Component id="checkBoxDeveloperMode" alignment="0" max="32767" attributes="1"/>
+                                  <Component id="checkBoxAutoUpdate" alignment="0" max="32767" attributes="1"/>
+                                  <Component id="checkBoxIgnoreGameVersion" alignment="0" pref="179" max="32767" attributes="1"/>
+                              </Group>
                           </Group>
                       </Group>
                   </Group>
-                  <EmptySpace max="-2" attributes="0"/>
+                  <EmptySpace min="-2" max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -97,13 +101,13 @@
                       <Component id="labelChooseLanguage" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="comboBoxChooseLanguage" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace type="separate" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="20" max="-2" attributes="0"/>
                   <Component id="checkBoxIgnoreGameVersion" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                  <EmptySpace type="unrelated" min="-2" max="-2" attributes="0"/>
                   <Component id="checkBoxAutoUpdate" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                  <EmptySpace type="unrelated" min="-2" max="-2" attributes="0"/>
                   <Component id="checkBoxDeveloperMode" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace pref="55" max="32767" attributes="0"/>
+                  <EmptySpace pref="29" max="32767" attributes="0"/>
                   <Component id="labelChangeLanguageImplication" min="-2" max="-2" attributes="0"/>
                   <EmptySpace min="7" pref="7" max="7" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
@@ -619,6 +623,28 @@
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="itemAboutActionPerformed"/>
               </Events>
+            </MenuItem>
+          </SubComponents>
+        </Menu>
+        <Menu class="javax.swing.JMenu" name="menuProfiles">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Profiles"/>
+            <Property name="name" type="java.lang.String" value="menuProfiles" noResource="true"/>
+          </Properties>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_InitCodePre" type="java.lang.String" value="menuProfiles.setVisible(false);"/>
+          </AuxValues>
+          <SubComponents>
+            <MenuItem class="javax.swing.JMenuItem" name="itemAddProfile">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Add Profile"/>
+                <Property name="name" type="java.lang.String" value="itemAddProfile" noResource="true"/>
+              </Properties>
+            </MenuItem>
+            <MenuItem class="javax.swing.JPopupMenu$Separator" name="jSeparator5">
+              <Properties>
+                <Property name="name" type="java.lang.String" value="jSeparator5" noResource="true"/>
+              </Properties>
             </MenuItem>
           </SubComponents>
         </Menu>

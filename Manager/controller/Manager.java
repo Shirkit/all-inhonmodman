@@ -4,7 +4,7 @@ import business.ManagerOptions;
 import business.Mod;
 import business.ModList;
 import business.ModsOutOfDateReminder;
-import business.actions.*;
+import business.modactions.*;
 
 import java.util.concurrent.ExecutionException;
 
@@ -204,6 +204,13 @@ public class Manager extends Observable {
         logger.info("Options saved. Path=" + ManagerOptions.getInstance().getManagerPath() + File.separator + ManagerOptions.getInstance().getOptionsName());
     }
 
+    /**
+     * This method saves the ManagerOptions attributes in a file but without adding a logging info. The file is located in the same folder of the Manager.
+     * This method's existence is just for not spam the saving Column size change thing. If the user begins to change the colum's Widht, it was spamming infinite Saving log stuff.
+     * The filename can be get in the ManagerOptions.
+     * @throws IOException if a random I/O exception happened.
+     *
+     */
     public void saveOptionsNoLog() throws IOException {
         doSaveOptions();
     }
@@ -253,7 +260,6 @@ public class Manager extends Observable {
             ManagerOptions.getInstance().setNoOptionsFile(false);
             logger.info("Options loaded.");
         } catch (FileNotFoundException e) {
-            // Put a logger here
             logger.error("Failed loading options file.", e);
             ManagerOptions.getInstance().setGamePath(Game.findHonFolder());
             logger.info("HoN folder set to=" + ManagerOptions.getInstance().getGamePath());
@@ -403,7 +409,7 @@ public class Manager extends Observable {
         }
         String changelog = null;
         try {
-            changelog = new String(ZIP.getFile(honmod, "changelog.txt"));
+            changelog = new String(ZIP.getFile(honmod, Mod.CHANGELOG_FILENAME));
         } catch (IOException e) {
             changelog = null;
         }
@@ -481,14 +487,14 @@ public class Manager extends Observable {
      * @param index index of the mod in the list of mods
      * @return mod at the given index
      * @throws IndexOutOfBoundsException in case index does not exist in the list of mods
-     * @deprecated This method doesn't make sense.
+     * @deprecated This method doesn't make sense and it should be avoided.
      */
     public Mod getMod(int index) throws IndexOutOfBoundsException {
         return (Mod) ManagerOptions.getInstance().getMods().get(index);
     }
 
     /**
-     * This function returns the mod from the arraylist mods given it's name.
+     * This function returns the mod from the arraylist mods given it's name and version.
      * @param name of the mod.
      * @param version Version or a version expression of the mod. Examples: "1.1", "1.1-1.5", "*-1.6" or "*". A null string or no lenght will be assumed as any version.
      * @return the found Mod or null if isn't found.
@@ -511,13 +517,13 @@ public class Manager extends Observable {
         ExecutorService pool = Executors.newCachedThreadPool();
         Iterator<Mod> it = mods.iterator();
         HashSet<Future<UpdateThread>> temp = new HashSet<Future<UpdateThread>>();
-        // Submit to the pool
+        // Submit to the pool and fires the threads
         while (it.hasNext()) {
             Mod tempMod = it.next();
             temp.add(pool.submit(new UpdateThread(tempMod)));
             logger.info("Started update on: " + tempMod.getName() + " - " + tempMod.getVersion());
         }
-        // Transfer from the pool
+        // Transfer from the pool to a result array
         HashSet<Future<UpdateThread>> result = new HashSet<Future<UpdateThread>>();
         while (temp.size() != result.size()) {
             Iterator<Future<UpdateThread>> ite = temp.iterator();
@@ -538,10 +544,13 @@ public class Manager extends Observable {
         Iterator<Future<UpdateThread>> ite = result.iterator();
         UpdateReturn returnValue = new UpdateReturn();
         while (ite.hasNext()) {
+            // Retrieve the UpdateThread
             Future<UpdateThread> ff = ite.next();
             try {
+                // Get the mod
                 UpdateThread mod = (UpdateThread) ff.get();
                 File file = mod.getFile();
+                // If file == null, then it means that it didn't needed to download anything, and the mods is up-to-date.
                 if (file != null) {
                     new File(mod.getMod().getPath()).setWritable(true);
                     FileUtils.copyFile(file, mod.getMod().getPath());
@@ -1171,7 +1180,7 @@ public class Manager extends Observable {
                                                 afterEdit = afterEdit.substring(0, cursor2[i]) + insert.getContent() + afterEdit.substring(cursor2[i]);
                                                 cursor[i] = cursor2[i];
                                                 cursor2[i] = cursor2[i] + insert.getContent().length();
-                                                for (int l = i + 1; k < cursor.length; k++) {
+                                                for (int l = i + 1; l < cursor.length; l++) {
                                                     cursor[l] = cursor[l] + insert.getContent().length();
                                                     cursor2[l] = cursor2[l] + insert.getContent().length();
                                                 }
@@ -1179,7 +1188,7 @@ public class Manager extends Observable {
                                                 afterEdit = afterEdit.substring(0, cursor[i]) + insert.getContent() + afterEdit.substring(cursor[i]);
                                                 //cursor[i] = cursor2[i];
                                                 cursor2[i] = cursor[i] + insert.getContent().length();
-                                                for (int l = i + 1; k < cursor.length; k++) {
+                                                for (int l = i + 1; l < cursor.length; l++) {
                                                     cursor[l] = cursor[l] + insert.getContent().length();
                                                     cursor2[l] = cursor2[l] + insert.getContent().length();
                                                 }
@@ -1199,10 +1208,11 @@ public class Manager extends Observable {
                                     if (isSelected) {
                                         for (int i = 0; i < cursor.length; i++) {
                                             afterEdit = afterEdit.substring(0, cursor[i]) + replace.getContent() + afterEdit.substring(cursor2[i]);
+                                            int difference = replace.getContent().length() - (cursor2[i] - cursor[i]);
                                             cursor2[i] = cursor[i] + replace.getContent().length();
-                                            for (int l = i + 1; k < cursor.length; k++) {
-                                                cursor[l] = cursor[l] + replace.getContent().length();
-                                                cursor2[l] = cursor2[l] + replace.getContent().length();
+                                            for (int l = i + 1; l < cursor.length; l++) {
+                                                cursor[l] = cursor[l] + difference;
+                                                cursor2[l] = cursor2[l] + difference;
                                             }
                                         }
                                         isSelected = false;
@@ -1454,21 +1464,21 @@ public class Manager extends Observable {
             String token = st.nextToken();
             if (token.equalsIgnoreCase("\'")) {
                 String mod = token;
-                do {
+                while (st.hasMoreTokens()) {
                     String next = st.nextToken();
                     if (next.equalsIgnoreCase("\'")) {
                         mod += next;
                         break;
                     }
                     mod += next;
-                } while (st.hasMoreTokens());
+                }
 
                 return mod;
             } else if (token.equalsIgnoreCase("(")) {
                 String cond = "";
                 boolean done = false;
                 int level = 0;
-                do {
+                while (!done && st.hasMoreTokens()) {
                     String next = st.nextToken();
                     if (next.equalsIgnoreCase("(")) {
                         level++;
@@ -1481,21 +1491,21 @@ public class Manager extends Observable {
                     }
 
                     cond += next;
-                } while (!done && st.hasMoreTokens());
+                }
 
                 return cond;
             } else if (token.equalsIgnoreCase(" ")) {
                 continue;
             } else {
                 String ret = "";
-                do {
+                while (st.hasMoreTokens()) {
                     ret += token;
                     try {
                         token = st.nextToken();
                     } catch (Exception e) {
                         break;
                     }
-                } while (st.hasMoreTokens());
+                }
                 return ret;
             }
         }
@@ -1593,13 +1603,13 @@ public class Manager extends Observable {
 
             if (token.equalsIgnoreCase("\'")) {
                 String mod = "";
-                do {
+                while (st.hasMoreTokens()) {
                     String next = st.nextToken();
                     if (next.equalsIgnoreCase("\'")) {
                         break;
                     }
                     mod += next;
-                } while (st.hasMoreTokens());
+                }
 
                 try {
                     String version = "";
@@ -1624,7 +1634,7 @@ public class Manager extends Observable {
                 String cond = "";
                 boolean done = false;
                 int level = 0;
-                do {
+                while (!done && st.hasMoreTokens()) {
                     String next = st.nextToken();
                     if (next.equalsIgnoreCase("(")) {
                         level++;
@@ -1637,7 +1647,7 @@ public class Manager extends Observable {
                     }
 
                     cond += next;
-                } while (!done && st.hasMoreTokens());
+                }
 
                 return isValidCondition(cond);
             } else if (token.equalsIgnoreCase(")")) {
@@ -1669,23 +1679,24 @@ public class Manager extends Observable {
             destination.delete();
         }
 
+        File tempFolder = FileUtils.generateTempFolder();
+        ModList modlist = new ModList();
         Iterator<Mod> mods = ManagerOptions.getInstance().getAppliedMods().iterator();
-        ArrayList<String> modname = new ArrayList<String>();
-        ArrayList<String> url = new ArrayList<String>();
+
         while (mods.hasNext()) {
             Mod m = mods.next();
             if (m.getUpdateDownloadUrl() != null && !m.getUpdateDownloadUrl().isEmpty()) {
-                modname.add(m.getName());
-                url.add(m.getUpdateDownloadUrl());
+                modlist.addMod(m);
+            } else if (m.getPath() != null && !m.getPath().isEmpty()) {
+                Mod mod = new Mod();
+                mod.copy(m);
+                mod.setPath("%ZIP%/" + new File(mod.getPath()).getName());
+                modlist.addMod(mod);
+                FileUtils.copyFile(new File(m.getPath()), new File(tempFolder, new File(m.getPath()).getName()));
             }
         }
-        String[][] list = new String[modname.size()][2];
-        for (int i = 0; i < modname.size(); i++) {
-            list[i][0] = modname.get(i);
-            list[i][1] = url.get(i);
-        }
-        ModList modlist = new ModList(list);
-        XML.modListToXml(destination, modlist);
+        XML.modListToXml(new File(tempFolder, ModList.MODLIST_FILENAME), modlist);
+        ZIP.createZIP(tempFolder.getAbsolutePath(), destination.getAbsolutePath());
     }
 
     public void importModList(File xmlFile) throws FileNotFoundException {
@@ -1694,34 +1705,20 @@ public class Manager extends Observable {
         }
         ModList importedList = XML.xmlToModList(xmlFile);
 
-        ArrayList<String> modname = new ArrayList<String>();
-        try {
-            int i = 0;
-            while (true) {
-                modname.add(importedList.getList()[i][0]);
-                i++;
-            }
-        } catch (ArrayIndexOutOfBoundsException e) {
-        }
-        ArrayList<String> modurl = new ArrayList<String>();
-        try {
-            int i = 0;
-            while (true) {
-                modurl.add(importedList.getList()[i][1]);
-                i++;
-            }
-        } catch (ArrayIndexOutOfBoundsException e) {
-        }
-        Iterator<String> names = modname.iterator();
-        Iterator<String> urls = modurl.iterator();
-
         // Prepare the pool
         ExecutorService pool = Executors.newCachedThreadPool();
         HashSet<Future<DownloadThread>> temp = new HashSet<Future<DownloadThread>>();
+        Iterator<Mod> modsIterator = importedList.getModList();
         // Submit to the pool
-        while (urls.hasNext()) {
-            temp.add(pool.submit(new DownloadThread(urls.next())));
-            logger.info("Started download on: " + names.next());
+        while (modsIterator.hasNext()) {
+            Mod m = modsIterator.next();
+            if (ManagerOptions.getInstance().getMod(m.getName(), "*") == null) {
+                if (!m.getPath().startsWith("%ZIP%")) {
+                    temp.add(pool.submit(new DownloadThread(m.getUpdateDownloadUrl(), m.getName(), m.getPath())));
+                    logger.info("Started download on: " + m.getName());
+                } else {
+                }
+            }
         }
 
         // Transfer the pool

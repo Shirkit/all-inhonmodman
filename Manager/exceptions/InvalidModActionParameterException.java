@@ -4,7 +4,7 @@
  */
 package exceptions;
 
-import business.actions.Action;
+import business.modactions.Action;
 
 /**
  * If a mod tried to do some action, but the parameter of that action is invalid (null and was required, it had to be a number and found a word, it had to be a specific word and found another), this exception is thrown.

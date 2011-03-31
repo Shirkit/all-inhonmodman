@@ -69,11 +69,7 @@ public class Game {
             	logger.info("GAME: Mac: " + a.getPath() + " exists");
             	return a.getAbsolutePath();
             }
-            else {
-            	logger.error("GAME: Mac: " + a.getPath() + " doesn't exist");
-            }
-        }
-        
+        }        
         // Let the user guide us.
         return null;
     }

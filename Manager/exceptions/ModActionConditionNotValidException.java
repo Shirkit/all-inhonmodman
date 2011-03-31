@@ -4,7 +4,7 @@
  */
 package exceptions;
 
-import business.actions.Action;
+import business.modactions.Action;
 
 /**
  * @deprecated 

@@ -2,6 +2,8 @@ package gui.views;
 
 import business.ManagerOptions;
 import business.Mod;
+import gui.ManagerCtrl;
+import gui.ManagerGUI;
 import gui.l10n.L10n;
 import java.awt.Color;
 import java.awt.Component;
@@ -105,7 +107,7 @@ public class DetailsView extends ModsTableView {
         if(index == -1) {
             throw new IndexOutOfBoundsException("DetailsView: Mouse not over a mod.");
         }
-        return ManagerOptions.getInstance().getMods().get(index);
+        return getModsList().get(index);
     }
 
     protected class ColorCodedBooleanTabelCellRenderer extends
@@ -151,7 +153,7 @@ public class DetailsView extends ModsTableView {
                 if( isCellEditable( row, col ) && !getModsList().isEmpty() ) {
                     Mod mod = getModsList().get(row);
                     if( col == 0 && value instanceof java.lang.Boolean ) {
-                        mod.setEnabled( (Boolean)value );
+                        ManagerCtrl.getInstance().enableMod(mod);
 
                         // TODO: The line below would be better, but throws an
                         // IndexOutOfBoundsException with sorters enabled. Java bug?
@@ -159,7 +161,9 @@ public class DetailsView extends ModsTableView {
                         // Instead, we have to just let out a blanket data-changed
                         // event.  I haven't observed any performance issues with this,
                         // however with a large number of mods it may cause problems.
-                        fireTableDataChanged();
+                        // From Shirkit: The line above causes after enabling the mod to clear the mod selection and disabling it causes no strange behavior.
+                        //fireTableDataChanged();
+                        setSelectedMod(mod);
                     }
                 }
             }
@@ -283,8 +287,9 @@ public class DetailsView extends ModsTableView {
      */
     @Override
     public void setSelectedMod(Mod mod) {
-        int index = ManagerOptions.getInstance().getMods().indexOf(mod);
+        int index = getModsList().indexOf(mod);
         ((JTable)getComponent()).getSelectionModel().setSelectionInterval(0, index);
+        ManagerGUI.getInstance().displayModDetail(mod);
     }
 
     /**

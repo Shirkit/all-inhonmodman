@@ -1,4 +1,3 @@
-
 package gui.l10n;
 
 import java.io.IOException;
@@ -16,22 +15,21 @@ import business.ManagerOptions;
  * Gets proper text strings from the resources according to the default or 
  * set locale.
  */
-public class L10n
-{
+public class L10n {
     // This is where property files with translations are
-    private static final String RESOURCE_NAME="gui.l10n.HonModMan";
+
+    private static final String RESOURCE_NAME = "gui.l10n.HonModMan";
     private static final String DEFAULT_LOCALE = "en";
     private static ResourceBundle resource;
     private static Preferences prefs;
     private static Logger logger = Logger.getLogger(L10n.class.getPackage().getName());
     private static Locale currentLocale;
     private static String languageLocale;
-    
+
     /** Creates a new instance of L10n */
-    public L10n()
-    {
+    public L10n() {
     }
-    
+
     /** 
      * Loads l10n resources
      *
@@ -42,15 +40,15 @@ public class L10n
      */
     public static void load() throws IOException {
         prefs = Preferences.userNodeForPackage(L10n.class);
-        languageLocale = prefs.get(ManagerOptions.PREFS_LOCALE,"DUMMY_DEFAULT");
+        languageLocale = prefs.get(ManagerOptions.PREFS_LOCALE, "DUMMY_DEFAULT");
         load(languageLocale);
     }
-    
-    public static void load(String locale) throws IOException {        
+
+    public static void load(String locale) throws IOException {
         Locale loc;
         if (locale.equals("DUMMY_DEFAULT")) {
             loc = Locale.getDefault();
-            logger.info("Using default locale "+loc.toString());
+            logger.info("Using default locale " + loc.toString());
         } else { // parse the string of format language_country_variant
             String[] s = locale.split("_");
             switch (s.length) {
@@ -58,22 +56,28 @@ public class L10n
                     loc = new Locale(s[0]);
                     break;
                 case 2:
-                    loc = new Locale(s[0],s[1]);
+                    loc = new Locale(s[0], s[1]);
                     break;
                 case 3:
-                    loc = new Locale(s[0],s[1],s[2]);
+                    loc = new Locale(s[0], s[1], s[2]);
                     break;
                 default: //this should never happen
                     loc = Locale.getDefault();
                     logger.error("Problem parsing stored language preference. Falling into default locale.");
             }
-            if (s.length >= 1 && s.length <= 3)
-                logger.info("Using user stored locale "+locale);
+            if (s.length >= 1 && s.length <= 3) {
+                logger.info("Using user stored locale " + locale);
+            }
         }
-        resource = ResourceBundle.getBundle(RESOURCE_NAME, loc);
+        // resource = new PropertyResourceBundle(new FileInputStream(ManagerOptions.MANAGER_FOLDER + File.separator + "HonModMan.properties"));
+        try {
+            resource = Utf8ResourceBundle.getBundle(RESOURCE_NAME, loc);
+        } catch (Exception e) {
+            load(DEFAULT_LOCALE);
+        }
         currentLocale = loc;
     }
-    
+
     /**
      * Gets string for the given key
      *
@@ -85,17 +89,18 @@ public class L10n
      */
     public static String getString(String key) {
 
-    	try {
-    		StringBuffer sb = new StringBuffer(resource.getString(key));
-    		int i = sb.indexOf("&");
-    		if (i>=0)
-    			sb.deleteCharAt(i);
-    		return sb.toString();
-    	} catch( MissingResourceException e ) {
-    		logger.warn("The key \"" + key + "\" is not defined in the property file!");
-    		return key; // nothing else we can do...
-    	}
-    }  
+        try {
+            StringBuffer sb = new StringBuffer(resource.getString(key));
+            int i = sb.indexOf("&");
+            if (i >= 0) {
+                sb.deleteCharAt(i);
+            }
+            return sb.toString();
+        } catch (MissingResourceException e) {
+            logger.warn("The key \"" + key + "\" is not defined in the property file!");
+            return key; // nothing else we can do...
+        }
+    }
 
     /**
      * Returns mnemonic for the given key.
@@ -109,13 +114,16 @@ public class L10n
         try {
             StringBuffer sb = new StringBuffer(resource.getString(key));
             int i = sb.indexOf("&");
-            if (i < 0)
+            if (i < 0) {
                 return -1;
-            if (i+1 == sb.length())
+            }
+            if (i + 1 == sb.length()) {
                 return -1;
-            Character c = sb.charAt(i+1);
-            if (i>=0)
+            }
+            Character c = sb.charAt(i + 1);
+            if (i >= 0) {
                 sb.deleteCharAt(i);
+            }
             // return Character.toUpperCase(c);
             return c;
         } catch (MissingResourceException e) {
@@ -123,7 +131,7 @@ public class L10n
             return 0;
         }
     }
-    
+
     /**
      * Returns current locale.
      *
@@ -132,14 +140,14 @@ public class L10n
     public static Locale getCurrentLocale() {
         return (Locale) currentLocale.clone();
     }
-    
+
     /**
      * Returns string representing current locale.
      *
      * @return String denoting the current locale.
      */
     public static String getLanguageLocale() {
-    	return languageLocale;
+        return languageLocale;
     }
 
     public static String getDefaultLocale() {

@@ -41,10 +41,7 @@
                   </Group>
                   <Group type="102" alignment="1" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="changelogToggleButton" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace pref="179" max="32767" attributes="0"/>
-                          </Group>
+                          <Component id="changelogToggleButton" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
                               <Group type="103" groupAlignment="1" max="-2" attributes="0">
                                   <Component id="appAuthorsLabel" alignment="1" max="32767" attributes="1"/>
@@ -59,9 +56,9 @@
                                   <Component id="appLicense" pref="183" max="32767" attributes="0"/>
                                   <Component id="appAuthors" alignment="0" min="-2" max="-2" attributes="0"/>
                               </Group>
-                              <EmptySpace min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
+                      <EmptySpace max="-2" attributes="0"/>
                       <Component id="closeButton" min="-2" pref="133" max="-2" attributes="1"/>
                   </Group>
               </Group>

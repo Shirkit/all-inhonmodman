@@ -154,21 +154,20 @@ public class ZIP {
     }
 
     /**
-     * This is the main method. It unzips the .honmod file.
-     * @param honmod the file .honmod to be extracted.
+     * This is the main method. It unzips a zuo file.
+     * @param zip the file .honmod to be extracted.
      * @param folder the folder to where the .honmod file will be extracted.
      * @return folder with the files extracted.
      * @throws IOException if an I/O error has occurred
-     * @throws FileNotFoundException if a file is missing. Use the Exception.getMessage(). Possible values:
-     * <br/><b>honmod</b>
+     * @throws FileNotFoundException if a file is missing. Use the Exception.getMessage().
      */
-    public static File openZIP(File honmod, String folder) throws FileNotFoundException, IOException, ZipException {
+    public static File openZIP(File zip, String folder) throws FileNotFoundException, IOException, ZipException {
 
-        if (!honmod.exists()) {
-            throw new FileNotFoundException("honmod");
+        if (!zip.exists()) {
+            throw new FileNotFoundException(zip.getAbsolutePath());
         }
 
-        ZipFile zipFile = new ZipFile(honmod.getAbsolutePath());
+        ZipFile zipFile = new ZipFile(zip.getAbsolutePath());
         Enumeration entries = zipFile.entries();
 
         // creating the temp folder

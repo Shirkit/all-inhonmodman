@@ -4,6 +4,7 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import javax.swing.JButton;
 import javax.swing.JList;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import gui.l10n.L10n;
@@ -21,8 +22,8 @@ import javax.swing.JDialog;
 import javax.swing.table.DefaultTableModel;
 import org.apache.log4j.Logger;
 import javax.swing.UIManager;
-import business.actions.Action;
-import business.actions.ActionRequirement;
+import business.modactions.Action;
+import business.modactions.ActionRequirement;
 import java.awt.Color;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -42,6 +43,7 @@ import javax.swing.JEditorPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
+import javax.swing.ToolTipManager;
 import utility.Game;
 
 /**
@@ -65,6 +67,9 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
      * @param model model part of the MVC framework
      */
     private ManagerGUI() {
+        ToolTipManager tip = ToolTipManager.sharedInstance();
+        tip.setInitialDelay(20);
+        tip.setDismissDelay(10000);
         logger.info("Initializing gui");
         this.model = ManagerOptions.getInstance();
         this.controller = Manager.getInstance();
@@ -87,8 +92,10 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         }
         // Set model of the language combo box. This will not be localized
         comboBoxChooseLanguage.addItem(new Language("English", "en"));
-        comboBoxChooseLanguage.addItem(new Language("Português (Brasil)", "pt-br"));
-        comboBoxChooseLanguage.addItem(new Language("Slovak", "sk"));
+        //comboBoxChooseLanguage.addItem(new Language("German", "de"));
+        //comboBoxChooseLanguage.addItem(new Language("Português (Brasil)", "pt_br"));
+        //comboBoxChooseLanguage.addItem(new Language("Russian", "ru"));
+        comboBoxChooseLanguage.addItem(new Language("~Strings Code Table", "strings"));
         // Set model of the LaF combobox. This will not be localized
         //comboBoxLafs.addItem(new LaF("Default", UIManager.getSystemLookAndFeelClassName()));
         //comboBoxLafs.addItem(new LaF("Metal", UIManager.getCrossPlatformLookAndFeelClassName()));
@@ -114,17 +121,17 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                 itemExit.doClick();
             }
         });
-        
+
         getProgressBar().setStringPainted(false);
         updateModTable();
     }
-
     /**
      * This method is used to get the running instance of the ManagerGUI class.
      * @return the instance.
      * @see get()
      */
     private static boolean instanceCreated = false;
+
     public static ManagerGUI getInstance() {
         // Using just "instance == null" leads to issues when code called from
         // the constructor calls this method.  So, I've replaced it with a
@@ -141,14 +148,14 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
      * @param mod the mod to prepare the popup for.
      */
     public void preparePopupMenu(Mod mod) {
-        if ( mod.isEnabled() ) {
+        if (mod.isEnabled()) {
             popupItemMenuEnableDisableMod.setText(L10n.getString("button.disablemod"));
         } else {
             popupItemMenuEnableDisableMod.setText(L10n.getString("button.enablemod"));
         }
-        
-        if ( mod.getUpdateCheckUrl() == null || mod.getUpdateDownloadUrl() == null
-          || mod.getUpdateCheckUrl().isEmpty() || mod.getUpdateDownloadUrl().isEmpty() ) {
+
+        if (mod.getUpdateCheckUrl() == null || mod.getUpdateDownloadUrl() == null
+                || mod.getUpdateCheckUrl().isEmpty() || mod.getUpdateDownloadUrl().isEmpty()) {
             popupItemMenuUpdateMod.setEnabled(false);
         } else {
             popupItemMenuUpdateMod.setEnabled(true);
@@ -157,7 +164,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
 
         popupItemMenuEnableDisableMod.setActionCommand(mod.getName());
 
-        if ( mod.getChangelog() == null || mod.getChangelog().isEmpty() ) {
+        if (mod.getChangelog() == null || mod.getChangelog().isEmpty()) {
             popupItemMenuViewChangelog.setEnabled(false);
         } else {
             popupItemMenuViewChangelog.setEnabled(true);
@@ -293,6 +300,9 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         itemVisitForumThread = new javax.swing.JMenuItem();
         jSeparator4 = new javax.swing.JPopupMenu.Separator();
         itemAbout = new javax.swing.JMenuItem();
+        menuProfiles = new javax.swing.JMenu();
+        itemAddProfile = new javax.swing.JMenuItem();
+        jSeparator5 = new javax.swing.JPopupMenu.Separator();
 
         dialogOptions.setTitle(L10n.getString("prefs.dialog.title"));
         dialogOptions.setMinimumSize(new java.awt.Dimension(550, 300));
@@ -377,28 +387,30 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                                 .addComponent(buttonCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGroup(dialogOptionsLayout.createSequentialGroup()
                         .addContainerGap()
-                        .addGroup(dialogOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(labelChooseLookAndFeel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(labelChooseLanguage, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(labelHonFolder, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(labelModsFolder, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(labelCLArguments, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 121, Short.MAX_VALUE)
-                            .addComponent(checkBoxIgnoreGameVersion, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(checkBoxAutoUpdate, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(checkBoxDeveloperMode, javax.swing.GroupLayout.Alignment.LEADING))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(dialogOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(textFieldHonFolder, javax.swing.GroupLayout.DEFAULT_SIZE, 354, Short.MAX_VALUE)
-                            .addComponent(comboBoxChooseLanguage, javax.swing.GroupLayout.Alignment.LEADING, 0, 354, Short.MAX_VALUE)
-                            .addComponent(textFieldModsFolder, javax.swing.GroupLayout.DEFAULT_SIZE, 354, Short.MAX_VALUE)
-                            .addComponent(comboBoxLafs, javax.swing.GroupLayout.Alignment.LEADING, 0, 354, Short.MAX_VALUE)
-                            .addComponent(textFieldCLArguments, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 354, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(dialogOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(dialogOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(buttonModsFolder, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(buttonHonFolder, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addComponent(buttonApplyLaf, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                        .addGroup(dialogOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(dialogOptionsLayout.createSequentialGroup()
+                                .addGroup(dialogOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                    .addComponent(labelChooseLookAndFeel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(labelChooseLanguage, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(labelHonFolder, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(labelModsFolder, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(labelCLArguments, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 121, Short.MAX_VALUE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(dialogOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(textFieldHonFolder, javax.swing.GroupLayout.DEFAULT_SIZE, 368, Short.MAX_VALUE)
+                                    .addComponent(comboBoxChooseLanguage, javax.swing.GroupLayout.Alignment.LEADING, 0, 368, Short.MAX_VALUE)
+                                    .addComponent(textFieldModsFolder, javax.swing.GroupLayout.DEFAULT_SIZE, 368, Short.MAX_VALUE)
+                                    .addComponent(comboBoxLafs, javax.swing.GroupLayout.Alignment.LEADING, 0, 368, Short.MAX_VALUE)
+                                    .addComponent(textFieldCLArguments, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 368, Short.MAX_VALUE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(dialogOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(buttonModsFolder, javax.swing.GroupLayout.DEFAULT_SIZE, 167, Short.MAX_VALUE)
+                                    .addComponent(buttonHonFolder, javax.swing.GroupLayout.DEFAULT_SIZE, 167, Short.MAX_VALUE)
+                                    .addComponent(buttonApplyLaf, javax.swing.GroupLayout.DEFAULT_SIZE, 167, Short.MAX_VALUE)))
+                            .addGroup(dialogOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(checkBoxDeveloperMode, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(checkBoxAutoUpdate, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(checkBoxIgnoreGameVersion, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 179, Short.MAX_VALUE)))))
                 .addContainerGap())
         );
         dialogOptionsLayout.setVerticalGroup(
@@ -427,13 +439,13 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                 .addGroup(dialogOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(labelChooseLanguage)
                     .addComponent(comboBoxChooseLanguage, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
+                .addGap(20, 20, 20)
                 .addComponent(checkBoxIgnoreGameVersion)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(checkBoxAutoUpdate)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(checkBoxDeveloperMode)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 55, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 29, Short.MAX_VALUE)
                 .addComponent(labelChangeLanguageImplication)
                 .addGap(7, 7, 7)
                 .addGroup(dialogOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -527,14 +539,14 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
             .addGroup(panelModChangelogLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(panelModChangelogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 418, Short.MAX_VALUE)
+                    .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 414, Short.MAX_VALUE)
                     .addGroup(panelModChangelogLayout.createSequentialGroup()
                         .addComponent(labelModIcon1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(panelModChangelogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(labelModAuthor1, javax.swing.GroupLayout.PREFERRED_SIZE, 184, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(labelModName1, javax.swing.GroupLayout.PREFERRED_SIZE, 184, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(buttonViewModDetails, javax.swing.GroupLayout.DEFAULT_SIZE, 418, Short.MAX_VALUE))
+                    .addComponent(buttonViewModDetails, javax.swing.GroupLayout.DEFAULT_SIZE, 414, Short.MAX_VALUE))
                 .addContainerGap())
         );
         panelModChangelogLayout.setVerticalGroup(
@@ -547,7 +559,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(labelModAuthor1)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 496, Short.MAX_VALUE)
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 472, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(buttonViewModDetails)
                 .addContainerGap())
@@ -616,7 +628,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         panelModDescriptionLayout.setVerticalGroup(
             panelModDescriptionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelModDescriptionLayout.createSequentialGroup()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 384, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 354, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(labelRequirements)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -716,7 +728,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                         .addComponent(labelStatus, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonLaunchHon, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(modsTable, javax.swing.GroupLayout.DEFAULT_SIZE, 352, Short.MAX_VALUE))
+                    .addComponent(modsTable, javax.swing.GroupLayout.DEFAULT_SIZE, 391, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(panelModListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                     .addComponent(progressBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -731,9 +743,9 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
             .addGroup(panelModListLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(panelModListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(modsTable, javax.swing.GroupLayout.DEFAULT_SIZE, 617, Short.MAX_VALUE)
-                    .addComponent(panelModDetails, javax.swing.GroupLayout.DEFAULT_SIZE, 617, Short.MAX_VALUE)
-                    .addComponent(panelModChangelog, javax.swing.GroupLayout.DEFAULT_SIZE, 617, Short.MAX_VALUE))
+                    .addComponent(modsTable, javax.swing.GroupLayout.DEFAULT_SIZE, 601, Short.MAX_VALUE)
+                    .addComponent(panelModDetails, javax.swing.GroupLayout.DEFAULT_SIZE, 601, Short.MAX_VALUE)
+                    .addComponent(panelModChangelog, javax.swing.GroupLayout.DEFAULT_SIZE, 601, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(panelModListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panelModListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -893,17 +905,30 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
 
         mainMenu.add(menuHelp);
 
+        menuProfiles.setVisible(false);
+        menuProfiles.setText("Profiles");
+        menuProfiles.setName("menuProfiles"); // NOI18N
+
+        itemAddProfile.setText("Add Profile");
+        itemAddProfile.setName("itemAddProfile"); // NOI18N
+        menuProfiles.add(itemAddProfile);
+
+        jSeparator5.setName("jSeparator5"); // NOI18N
+        menuProfiles.add(jSeparator5);
+
+        mainMenu.add(menuProfiles);
+
         setJMenuBar(mainMenu);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panelModList, javax.swing.GroupLayout.DEFAULT_SIZE, 956, Short.MAX_VALUE)
+            .addComponent(panelModList, javax.swing.GroupLayout.DEFAULT_SIZE, 954, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panelModList, javax.swing.GroupLayout.DEFAULT_SIZE, 674, Short.MAX_VALUE)
+            .addComponent(panelModList, javax.swing.GroupLayout.DEFAULT_SIZE, 662, Short.MAX_VALUE)
         );
 
         java.awt.Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
@@ -982,7 +1007,6 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     }//GEN-LAST:event_itemViewIconsActionPerformed
 
     private void itemViewDetailsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemViewDetailsActionPerformed
-        
     }//GEN-LAST:event_itemViewDetailsActionPerformed
 
     /**
@@ -1113,7 +1137,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         } catch (Exception ex) {
             setStatusMessage("<html><font color=#009900>" + (model.getAppliedMods().size()) + "</font>/<font color=#0033cc>" + (model.getMods().size()) + "</font> " + L10n.getString("status.modsenabled") + "</html>", false);
         }
-        
+
         if (modsTable.isEnabled()) {
             panelModChangelog.setVisible(false);
             panelModDetails.setVisible(true);
@@ -1181,8 +1205,6 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         }
     }
 
-
-
     /**
      * Display details of the given mod in the right panel
      * @param mod the mod to display in the details panel.
@@ -1197,7 +1219,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         if (getModsTable().isEnabled()) {
             panelModChangelog.setVisible(false);
             panelModDetails.setVisible(true);
-            
+
             // Make sure that items in the panel are visible
             setDetailsVisible(true);
 
@@ -1257,7 +1279,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         } else {
             setDetailsVisible(false);
         }
-        
+
     }
 
     /**
@@ -1329,6 +1351,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         labelStatus.setText(status);
         if (animate) {
             Task task = new Task<Void, Void>(Application.getInstance()) {
+
                 private int dots = 0;
                 private String originalMessage;
 
@@ -1355,6 +1378,14 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     /*
      * The following methods add listeners to the UI components
      */
+    public void itemAddProfileAddActionListener(ActionListener al) {
+        itemAddProfile.addActionListener(al);
+    }
+
+    public JMenu getMenuProfiles() {
+        return menuProfiles;
+    }
+
     public void buttonAddModAddActionListener(ActionListener al) {
         buttonAddMod.addActionListener(al);
     }
@@ -1611,7 +1642,8 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
      */
     private class IconsListCellRenderer extends DefaultListCellRenderer {
 
-        public IconsListCellRenderer() {}
+        public IconsListCellRenderer() {
+        }
 
         @Override
         public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
@@ -1682,6 +1714,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     private javax.swing.JComboBox comboBoxLafs;
     private javax.swing.JDialog dialogOptions;
     private javax.swing.JMenuItem itemAbout;
+    private javax.swing.JMenuItem itemAddProfile;
     private javax.swing.JMenuItem itemApplyAndLaunch;
     private javax.swing.JMenuItem itemApplyMods;
     private javax.swing.JMenuItem itemDownloadModUpdates;
@@ -1704,6 +1737,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     private javax.swing.JPopupMenu.Separator jSeparator2;
     private javax.swing.JPopupMenu.Separator jSeparator3;
     private javax.swing.JPopupMenu.Separator jSeparator4;
+    private javax.swing.JPopupMenu.Separator jSeparator5;
     private javax.swing.JLabel labelCLArguments;
     private javax.swing.JLabel labelChangeLanguageImplication;
     private javax.swing.JLabel labelChooseLanguage;
@@ -1723,6 +1757,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     private javax.swing.JMenu menuFile;
     private javax.swing.JMenu menuHelp;
     private javax.swing.JMenu menuOptions;
+    private javax.swing.JMenu menuProfiles;
     private javax.swing.JMenu menuView;
     private gui.ModsTable modsTable;
     private javax.swing.JPanel panelModChangelog;

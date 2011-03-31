@@ -1,6 +1,6 @@
 package business;
 
-import business.actions.*;
+import business.modactions.*;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
@@ -65,6 +65,8 @@ public class Mod {
     /**
      * Absolute path of the .honmod file
      */
+    @XStreamAlias("path")
+    @XStreamAsAttribute
     private String path;
     @XStreamOmitField
     private int id;
@@ -83,10 +85,31 @@ public class Mod {
     public Mod() {
     }
 
+    /**
+     * This constructor should only be called by ManagerOptionsConverter.
+     * @param name
+     * @param version
+     * @param author
+     */
     public Mod(String name, String version, String author) {
         this.version = version;
         this.name = name;
         this.author = author;
+    }
+
+    /**
+     * This methoud should only be called by ModListConverter.
+     * @param name
+     * @param version
+     * @param author
+     * @param updateDownloadUrl
+     */
+    public Mod(String name, String version, String author, String updateDownloadUrl, String path) {
+        this.name = name;
+        this.version = version;
+        this.author = author;
+        this.updatedownloadurl = updateDownloadUrl;
+        this.path = path;
     }
 
     /**
@@ -105,11 +128,14 @@ public class Mod {
         this.mmversion = mod.getMmVersion();
         this.name = mod.getName();
         this.updatecheckurl = mod.getUpdateCheckUrl();
+        this.updatedownloadurl = mod.getUpdateDownloadUrl();
         this.version = mod.getVersion();
         this.weblink = mod.getWebLink();
         this.path = mod.getPath();
         this.enabled = mod.isEnabled();
         this.changelog = mod.getChangelog();
+        this.resizedIcon = mod.getSizedIcon();
+        this.icon = mod.getIcon();
     }
 
     /**

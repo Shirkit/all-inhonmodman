@@ -5,7 +5,7 @@
 
 package exceptions;
 
-import business.actions.Action;
+import business.modactions.Action;
 
 /**
  * If a mod tried to do an action that required something to be selected, and nothing was, this exception is thrown.

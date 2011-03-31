@@ -245,7 +245,7 @@ public class ManagerAboutBox extends javax.swing.JDialog {
             this.setBounds(this.getX(), this.getY(), this.getWidth(), this.getHeight() + 300);
             changelogEditorPane.setPreferredSize(new Dimension(changelogEditorPane.getWidth(), changelogEditorPane.getHeight() + 300));
             if (changelogEditorPane.getText() == null || changelogEditorPane.getText().isEmpty()) {
-                URL version = getClass().getClassLoader().getResource("changelog.txt");
+                URL version = getClass().getClassLoader().getResource("resources/changelog.txt");
                 BufferedReader in;
                 String str = "";
                 try {

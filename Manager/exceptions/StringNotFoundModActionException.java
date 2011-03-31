@@ -4,7 +4,7 @@
  */
 package exceptions;
 
-import business.actions.Action;
+import business.modactions.Action;
 
 /**
  * If a mod tries to find a String, and it isn't found, this exception is thrown.

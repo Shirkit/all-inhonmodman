@@ -3,6 +3,7 @@ package gui;
 import business.ManagerOptions;
 import business.Mod;
 import gui.views.DetailedIconsView;
+import gui.views.DetailsView;
 import gui.views.IconsView;
 import gui.views.ModsTableView;
 import gui.views.TilesView;
@@ -36,9 +37,11 @@ import javax.swing.event.ListSelectionListener;
  *  - (I'm sure there are many more, but I haven't listed them yet.)
  */
 public final class ModsTable extends JPanel {
+
     private final static int TABLE_HEIGHT = 619, TABLE_WIDTH = 619;
 
     public enum ViewType {
+
         DETAILS,
         ICONS,
         DETAILED_ICONS,
@@ -56,19 +59,19 @@ public final class ModsTable extends JPanel {
 
         views = new HashMap(4);
         // DetailsView bug Disable
-        //views.put( ViewType.DETAILS, new DetailsView( getModsList() ) );
-        views.put( ViewType.TILES, new TilesView( getModsList() ) );
-        views.put( ViewType.ICONS, new IconsView( getModsList() ) );
-        views.put( ViewType.DETAILED_ICONS, new DetailedIconsView( getModsList() ) );
+        views.put(ViewType.DETAILS, new DetailsView(getModsList()));
+        views.put(ViewType.TILES, new TilesView(getModsList()));
+        views.put(ViewType.ICONS, new IconsView(getModsList()));
+        views.put(ViewType.DETAILED_ICONS, new DetailedIconsView(getModsList()));
 
         setLayout(cardLayout);
         ModsTableView view;
-        for( Object key : views.keySet() ) {
-            view = (ModsTableView)views.get(key);
-            view.addListSelectionListener( new ModSelectionListener( view ) );
-            
-            add( new JScrollPane(view.getComponent()),
-                 key.toString() );
+        for (Object key : views.keySet()) {
+            view = (ModsTableView) views.get(key);
+            view.addListSelectionListener(new ModSelectionListener(view));
+
+            add(new JScrollPane(view.getComponent()),
+                    key.toString());
         }
 
         setViewMode(_viewMode);
@@ -82,7 +85,7 @@ public final class ModsTable extends JPanel {
     @Override
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
-        for( ModsTableView view : views.values() ) {
+        for (ModsTableView view : views.values()) {
             view.getComponent().setEnabled(enabled);
         }
     }
@@ -96,7 +99,7 @@ public final class ModsTable extends JPanel {
         // return super.isEnabled();
         return getCurrentView().getComponent().isEnabled();
     }
-    
+
     /**
      * @return the modsList
      */
@@ -124,7 +127,7 @@ public final class ModsTable extends JPanel {
      */
     public void setViewMode(ViewType viewType) {
         viewMode = viewType;
-        cardLayout.show( this, viewType.toString());
+        cardLayout.show(this, viewType.toString());
         // This fixes an issue where mods wouldn't be displayed because the
         // interface wasn't repainted after being initialized with the modslist
         // size at 0.
@@ -137,7 +140,7 @@ public final class ModsTable extends JPanel {
      * @return the ModsTableView that corresponds with the provided ViewType
      */
     public ModsTableView getView(ViewType viewType) {
-        return (ModsTableView)(views.get(viewType));
+        return (ModsTableView) (views.get(viewType));
     }
 
     /**
@@ -168,29 +171,35 @@ public final class ModsTable extends JPanel {
      */
     public void setSelectedMod(Mod selectedMod) {
         this.selectedMod = selectedMod;
-        for( Object key : views.values() ) {
-            ((ModsTableView)key).setSelectedMod(selectedMod);
+        for (Object key : views.values()) {
+            ((ModsTableView) key).setSelectedMod(selectedMod);
         }
     }
 
     public class ModSelectionListener implements ListSelectionListener {
+
         ModsTableView view;
 
         public ModSelectionListener(ModsTableView _view) {
             view = _view;
         }
 
+        boolean beenHere = false;
+
         public void valueChanged(ListSelectionEvent e) {
-            if( !e.getValueIsAdjusting() ) {
+            if (!beenHere && getCurrentView() == view && !e.getValueIsAdjusting()) {
+                beenHere = true;
 
                 try {
-                    setSelectedMod( view.getSelectedMod() );
-                ManagerGUI.getInstance().displayModDetail(getSelectedMod());
+                    setSelectedMod(view.getSelectedMod());
+                    ManagerGUI.getInstance().displayModDetail(getSelectedMod());
                 } catch (Exception ex) {
                     // Due to the JTable in DetailsView, we ocassionally get an
                     // exception because the indexes don't work properly when
                     // the table is sorting; but it still works correctly overall.
                 }
+            } else {
+                beenHere = false;
             }
         }
     }
@@ -203,10 +212,9 @@ public final class ModsTable extends JPanel {
         getCurrentView().setModsList(ManagerOptions.getInstance().getMods());
         getCurrentView().getComponent().repaint();
     }
-
     private ArrayList<Mod> modsList;
     private Map<ViewType, ModsTableView> views;
     private Mod selectedMod;
-    private ViewType viewMode = ViewType.DETAILS;
+    private ViewType viewMode = ViewType.ICONS;
     private CardLayout cardLayout = new CardLayout();
 }
