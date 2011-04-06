@@ -284,7 +284,6 @@ public class ManagerCtrl implements Observer {
     }
 
     /**
-     * TODO: Improve this class. This is just terrible.
      * @deprecated not currently used.
      */
     public class CheckBoxHeader extends JCheckBox implements TableCellRenderer, MouseListener {
@@ -760,7 +759,6 @@ public class ManagerCtrl implements Observer {
     class VisitWebsiteListener implements ActionListener {
 
         public void actionPerformed(ActionEvent ae) {
-            // TODO: Check if it's null
             if (!controller.openWebsite(view.getModsTable().getSelectedMod().getWebLink())) {
                 view.showMessage(L10n.getString("error.websitenotsupported"),
                         L10n.getString("error.websitenotsupported.title"),
@@ -842,7 +840,6 @@ public class ManagerCtrl implements Observer {
             } catch (IOException e1) {
             }
             view.setInputEnabled(true);
-            model.updateNotify();
             view.showMessage(L10n.getString("message.modsunapplied"),
                     L10n.getString("message.modsunapplied.title"),
                     JOptionPane.INFORMATION_MESSAGE);
@@ -1020,7 +1017,6 @@ public class ManagerCtrl implements Observer {
                 }
             }
         } catch (Exception ex) {
-            // TODO: Tell the user couldn't load.
         }
         view.getModsTable().redraw();
     }
@@ -1046,7 +1042,6 @@ public class ManagerCtrl implements Observer {
     }
 
     public void deleteSelectedMod() {
-        // TODO: Log this
         Mod m = view.getModsTable().getSelectedMod();
         if (JOptionPane.showConfirmDialog(view, L10n.getString("question.deletemod").replace("#mod#", m.getName()), L10n.getString("question.deletemod.title"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == 0) {
             // Pressed Yes
@@ -1055,6 +1050,7 @@ public class ManagerCtrl implements Observer {
             if (!f.delete()) {
                 view.showMessage("Failed to delete file", "Failed", JOptionPane.ERROR_MESSAGE);
             }
+            logger.info("Deleting mod " + m.getName());
         }
     }
 
@@ -1185,9 +1181,11 @@ public class ManagerCtrl implements Observer {
                 if (lafClass.equals("default")) {
                     logger.info("Changing LaF to Default");
                     UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                    model.setLaf(UIManager.getSystemLookAndFeelClassName());
                 } else {
                     logger.info("Changing LaF to " + lafClass);
                     UIManager.setLookAndFeel(lafClass);
+                    model.setLaf(view.getSelectedLafClass());
                 }
                 // Update UI
                 SwingUtilities.updateComponentTreeUI(view);
@@ -1217,7 +1215,6 @@ public class ManagerCtrl implements Observer {
             model.addProfile(profile);
             new ProfileMenu(profile, view.getMenuProfiles());
         }
-
     }
 
     /**
@@ -1236,7 +1233,7 @@ public class ManagerCtrl implements Observer {
             String oldModsFolder = model.getModPath();
             model.setGamePath(view.getSelectedHonFolder());
             model.setCLArgs(view.getCLArguments());
-            model.setLaf(view.getSelectedLafClass());
+            //model.setLaf(view.getSelectedLafClass()); This shall not be saved here, but when the user presses Apply button
             model.setLanguage(view.getSelectedLanguage());
             model.setModPath(view.getTextFieldModsFolder());
             model.setIgnoreGameVersion(view.getIgnoreGameVersion());
@@ -1263,8 +1260,8 @@ public class ManagerCtrl implements Observer {
             if (!oldModsFolder.equals(model.getModPath())) {
                 loadMods();
                 view.updateModTable();
-                view.getModsTable().redraw();
             }
+            view.getModsTable().redraw();
         }
     }
 
@@ -1273,21 +1270,6 @@ public class ManagerCtrl implements Observer {
         public void actionPerformed(ActionEvent e) {
             loadMods();
             view.getModsTable().redraw();
-        }
-    }
-
-    class LaunchHonButton implements ActionListener {
-
-        public void actionPerformed(ActionEvent e) {
-            try {
-                if (Game.getInstance().getHonExecutable() != null) {
-                    applyMods();
-                    Process game = Runtime.getRuntime().exec(Game.getInstance().getHonExecutable().getAbsolutePath());
-                }
-            } catch (IOException ex) {
-                view.showMessage(L10n.getString("error.gameexecutable"), L10n.getString("error.gameexecutable"), JOptionPane.WARNING_MESSAGE);
-                logger.error("Unable to launch HoN. " + ex.getMessage(), ex);
-            }
         }
     }
 
@@ -1319,6 +1301,12 @@ public class ManagerCtrl implements Observer {
                 File directory = fc.getSelectedFile();
                 view.setTextFieldHonFolder(directory.getPath());
                 logger.info("Hon folder selected: " + directory.getPath());
+            }
+            if (model.getModPath() == null || model.getGamePath().isEmpty()) {
+                String modPath = Game.findModFolder(fc.getSelectedFile().getAbsolutePath());
+                if (modPath != null) {
+                    view.setTextFieldModsFolder(modPath);
+                }
             }
         }
     }
@@ -1459,7 +1447,7 @@ public class ManagerCtrl implements Observer {
                             Mod target = model.getMod(Tuple.get1(element), Tuple.get2(element));
                             enableMod(target);
                         }
-                        // Enable the mod (finally
+                        // Enable the mod (finally)
                         enableMod(mod);
                         view.getModsTable().redraw();
                     }
@@ -1469,13 +1457,11 @@ public class ManagerCtrl implements Observer {
                             JOptionPane.WARNING_MESSAGE);
                     logger.error("Error enabling mod: " + mod.getName() + " because: Game version = " + gameVersion + " - Mod app version = " + e1.getAppVersion() + " ModVersionMissmatchException", e1);
                 } catch (ModConflictException e1) {
-                    // TODO: haven't tested this yet
                     view.showMessage(L10n.getString("error.modconflict").replace("#mod#", mod.getName()).replace("#mod2#", e1.toString()),
                             L10n.getString("error.modconflict.title"),
                             JOptionPane.WARNING_MESSAGE);
                     logger.error("Error enabling mod: " + mod.getName() + " because there are conflict mods (" + e1.toString() + ") enabled", e1);
                 } catch (ModVersionUnsatisfiedException e1) {
-                    // TODO: haven't tested this yet
                     view.showMessage(L10n.getString("error.modversionunsatisfied").replace("#mod#", mod.getName()).replace("#mod2#", e1.toString()),
                             L10n.getString("error.modversionunsatisfied.title"),
                             JOptionPane.WARNING_MESSAGE);
@@ -1530,6 +1516,10 @@ public class ManagerCtrl implements Observer {
         } catch (InvalidModActionParameterException ex) {
             logger.error("Error applying mods. A operation had a invalid parameter. Mod=" + ex.getName() + " | Version=" + ex.getVersion() + " | ActionClass" + ex.getAction().getClass(), ex);
             view.showMessage(L10n.getString("error.modcantapply").replace("#mod#", ex.getName()), L10n.getString("error.modcantapply.title"), JOptionPane.ERROR_MESSAGE);
+        } catch (FileNotFoundException ex) {
+            // TODO: Add this on the Strings file
+            logger.error("Error applying mods. A file wasn't found, so it failed to apply.",ex);
+            view.showMessage("The file" + ex.getLocalizedMessage() + " wasn't found, so the mods couldn't be applied", "File not found", JOptionPane.ERROR_MESSAGE);
         } catch (UnknowModActionException ex) {
             // In theory, this part can't be called
             logger.error("Error applying mods. A unknown action was found. This message should never be logged.", ex);
@@ -1537,6 +1527,7 @@ public class ManagerCtrl implements Observer {
         } catch (SecurityException ex) {
             logger.error("Error applying mods. Security exception found, couldn't do some operations that were needed. " + ex.getClass(), ex);
             view.showMessage("Random error. Please, report it to the software developers", "Random error", JOptionPane.ERROR_MESSAGE);
+            
         } catch (IOException ex) {
             logger.error("Error applying mods. A random I/O exception was thrown, can't apply. " + ex.getClass(), ex);
             view.showMessage("Random error. Please, report it to the software developers", "Random error", JOptionPane.ERROR_MESSAGE);
@@ -1584,9 +1575,17 @@ public class ManagerCtrl implements Observer {
                     // Yes
                     // This is blocking... so the animations (progress bar and text)
                     // won't work.  Big TODO
-                    if (applyMods()) {
-                        exit();
-                    }
+                    Task task = new Task<Void, Void>(Application.getInstance()) {
+
+                        @Override
+                        protected Void doInBackground() throws Exception {
+                            if (applyMods()) {
+                                exit();
+                            }
+                            return null;
+                        }
+                    };
+                    task.execute();
                 } else if (option == 1) {
                     // no
                     exit();

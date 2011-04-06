@@ -8,6 +8,9 @@ import java.util.prefs.Preferences;
 import org.apache.log4j.Logger;
 
 import business.ManagerOptions;
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.PropertyResourceBundle;
 
 /**
  * Takes care of HonModMan localization.
@@ -69,9 +72,12 @@ public class L10n {
                 logger.info("Using user stored locale " + locale);
             }
         }
-        // resource = new PropertyResourceBundle(new FileInputStream(ManagerOptions.MANAGER_FOLDER + File.separator + "HonModMan.properties"));
         try {
-            resource = Utf8ResourceBundle.getBundle(RESOURCE_NAME, loc);
+            if (locale.equals("file")) {
+                resource = new PropertyResourceBundle(new FileInputStream(ManagerOptions.MANAGER_FOLDER + File.separator + "HonModMan.properties"));
+            } else {
+                resource = Utf8ResourceBundle.getBundle(RESOURCE_NAME, loc);
+            }
         } catch (Exception e) {
             load(DEFAULT_LOCALE);
         }

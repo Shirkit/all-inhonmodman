@@ -86,7 +86,6 @@ public class Manager extends Observable {
         after = new HashMap<Mod, HashMap<String, String>>();
         before = new HashMap<Mod, HashMap<String, String>>();
 
-        // TODO: change this with ZIP.getAllFolders() method.
         resources0FolderTree = new ArrayList<String>();
         resources0FolderTree.add("buildings");
         resources0FolderTree.add("core" + File.separator + "cursors");
@@ -181,6 +180,7 @@ public class Manager extends Observable {
     }
 
     private void doSaveOptions() throws IOException {
+        // TODO: Change path of managerOptions.xml
         String name = ManagerOptions.getInstance().getManagerPath() + File.separator + ManagerOptions.getInstance().getOptionsName();
         File f = new File(name);
         if (f.exists()) {
@@ -226,10 +226,8 @@ public class Manager extends Observable {
         if (name.equalsIgnoreCase("HoN folder")) {
             path = Game.findHonFolder();
         } else if (name.equalsIgnoreCase("Mod folder")) {
-            path = Game.findModFolder();
+            path = Game.findModFolder(Game.findHonFolder());
         }
-
-        // TODO: This needs to be changed
 
         if (path == null || path.isEmpty()) {
             JFileChooser fc = new JFileChooser();
@@ -263,7 +261,7 @@ public class Manager extends Observable {
             logger.error("Failed loading options file.", e);
             ManagerOptions.getInstance().setGamePath(Game.findHonFolder());
             logger.info("HoN folder set to=" + ManagerOptions.getInstance().getGamePath());
-            ManagerOptions.getInstance().setModPath(Game.findModFolder());
+            ManagerOptions.getInstance().setModPath(Game.findModFolder(Game.findHonFolder()));
             logger.info("Mods folder set to=" + ManagerOptions.getInstance().getModPath());
             throw e;
         }
@@ -581,7 +579,6 @@ public class Manager extends Observable {
                                     gotDisable.remove(next);
                                 } catch (ModEnabledException ex) {
                                     // Couldn't disable, we need who didn't let disable him
-                                    // TODO: Changed the behavior of the exception, need to be fixed
                                     Iterator<Pair<String, String>> itera = ex.getDeps().iterator();
                                     while (itera.hasNext()) {
                                         Pair<String, String> pair = itera.next();
@@ -987,7 +984,7 @@ public class Manager extends Observable {
                 }
             }
         }
-        logger.info("Started mod applying. Folder=" + tempFolder.getAbsolutePath());
+        logger.info("Started mod applying. Folder=" + tempFolder.getAbsolutePath() + ". Game version=" + Game.getInstance().getVersion());
         tempFolder.mkdirs();
         tempFolder.deleteOnExit();
         Enumeration<Mod> list = Collections.enumeration(applyOrder);
@@ -1002,8 +999,13 @@ public class Manager extends Observable {
             logger.info("Applying Mod=" + mod.getName() + " | Version=" + mod.getVersion());
             for (int j = 0; j < mod.getActions().size(); j++) {
                 Action action = mod.getActions().get(j);
+                String resources0 = ManagerOptions.getInstance().getGamePath() + File.separator + "game" + File.separator + "resources0.s2z";
+                if (!new File(resources0).exists()) {
+                    throw new FileNotFoundException(resources0);
+                }
                 if (action.getClass().equals(ActionCopyFile.class)) {
                     ActionCopyFile copyfile = (ActionCopyFile) action;
+                    System.out.println(copyfile.getFromResource());
                     if (!isValidCondition(action)) {
                         // condition isn't valid, can't apply
                         // No need to throw execption, since if condition isn't valid, this action won't be applied
@@ -1029,7 +1031,11 @@ public class Manager extends Observable {
                                 // Overwrite if newer
                                 if (ZIP.getLastModified(new File(mod.getPath()), toCopy) > temp.lastModified()) {
                                     if (temp.delete() && temp.createNewFile()) {
-                                        FileUtils.writeFile(ZIP.getFile(new File(mod.getPath()), toCopy), temp);
+                                        if (!copyfile.getFromResource()) {
+                                            FileUtils.writeFile(ZIP.getFile(new File(mod.getPath()), toCopy), temp);
+                                        } else {
+                                            FileUtils.writeFile(ZIP.getFile(new File(resources0), toCopy), temp);
+                                        }
                                     } else {
                                         throw new SecurityException();
                                     }
@@ -1037,7 +1043,11 @@ public class Manager extends Observable {
                             } else if (copyfile.overwrite() == 2) {
                                 // overwrite file
                                 if (temp.delete() && temp.createNewFile()) {
-                                    FileUtils.writeFile(ZIP.getFile(new File(mod.getPath()), toCopy), temp);
+                                    if (!copyfile.getFromResource()) {
+                                        FileUtils.writeFile(ZIP.getFile(new File(mod.getPath()), toCopy), temp);
+                                    } else {
+                                        FileUtils.writeFile(ZIP.getFile(new File(resources0), toCopy), temp);
+                                    }
                                 } else {
                                     throw new SecurityException();
                                 }
@@ -1047,9 +1057,17 @@ public class Manager extends Observable {
                             if (!temp.getParentFile().exists() && !temp.getParentFile().mkdirs()) {
                                 throw new SecurityException();
                             }
-                            FileUtils.writeFile(ZIP.getFile(new File(mod.getPath()), toCopy), temp);
+                            if (!copyfile.getFromResource()) {
+                                FileUtils.writeFile(ZIP.getFile(new File(mod.getPath()), toCopy), temp);
+                            } else {
+                                FileUtils.writeFile(ZIP.getFile(new File(resources0), toCopy), temp);
+                            }
                         }
-                        temp.setLastModified(ZIP.getLastModified(new File(mod.getPath()), toCopy));
+                        if (!copyfile.getFromResource()) {
+                            temp.setLastModified(ZIP.getLastModified(new File(mod.getPath()), toCopy));
+                        } else {
+                            temp.setLastModified(ZIP.getLastModified(new File(resources0), toCopy));
+                        }
                     }
                 } else if (action.getClass().equals(ActionEditFile.class)) {
                     ActionEditFile editfile = (ActionEditFile) action;
@@ -1074,8 +1092,7 @@ public class Manager extends Observable {
                             afterEdit = FileUtils.loadFile(f);
                         } else {
                             // Load file from resources0.s2z if no other mod edited this file
-                            String path = ManagerOptions.getInstance().getGamePath() + File.separator + "game" + File.separator + "resources0.s2z";
-                            afterEdit = new String(ZIP.getFile(new File(path), editfile.getName()), "UTF-8");
+                            afterEdit = new String(ZIP.getFile(new File(resources0), editfile.getName()), "UTF-8");
                         }
                         if (editfile.getActions() != null && editfile.getActions().size() > 0) {
                             for (int k = 0; k < editfile.getActions().size(); k++) {
@@ -1291,6 +1308,7 @@ public class Manager extends Observable {
         notifyObservers(counted);
         // --------------- Progress bar update
 
+        deleteFolderTree();
         if (!applyOrder.isEmpty()) {
             if (!outputToFolderTree) {
                 String comment = "All-In Hon ModManager Output\n\nGame Version:" + Game.getInstance().getVersion() + "\n\nApplied Mods:";
@@ -1300,7 +1318,6 @@ public class Manager extends Observable {
                 }
                 ZIP.createZIP(tempFolder.getAbsolutePath(), targetZip.getAbsolutePath(), comment);
             } else {
-                deleteFolderTree();
                 if (OS.isMac()) {
                     FileUtils.copyFolderToFolder(tempFolder, new File(System.getProperty("user.home") + "/Library/Application Support/Heroes of Newerth/game"));
                 } else if (OS.isWindows()) {

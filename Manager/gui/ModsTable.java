@@ -183,7 +183,6 @@ public final class ModsTable extends JPanel {
         public ModSelectionListener(ModsTableView _view) {
             view = _view;
         }
-
         boolean beenHere = false;
 
         public void valueChanged(ListSelectionEvent e) {

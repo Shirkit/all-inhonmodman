@@ -24,6 +24,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import controller.Manager;
+import gui.ProfileMenu;
 
 import utility.XML;
 
@@ -75,6 +76,7 @@ public class ManagerOptions extends Observable {
     public static final String PREFS_HONFOLDER = "honfolder";
 
     private ManagerOptions() {
+        // Set default values
         MODS_FOLDER = "";
         HON_FOLDER = "";
         CLARGS = "";
@@ -252,9 +254,8 @@ public class ManagerOptions extends Observable {
     }
 
     /**
-     * This mode is still in develop.
-     * @param developerMode
-     * TODO: improve this comment.
+     * Activates the option for the Developer Mode.
+     * @param developerMode true if want to activate it, false otherwise.
      */
     public void setDeveloperMode(boolean developerMode) {
         this.developerMode = developerMode;
@@ -285,9 +286,8 @@ public class ManagerOptions extends Observable {
     }
 
     /**
-     * This mode is still in develop.
-     * @return  developerMode
-     * TODO: improve this comment.
+     * Check if the option for Developer mode is active.
+     * @return  developerMode true if it is, false otherwise
      */
     public boolean isDeveloperMode() {
         return developerMode;
@@ -438,12 +438,12 @@ public class ManagerOptions extends Observable {
     /**
      * Retrives a mod with the name and version passed by parameter. Mod's name will be check with <b>String.equalsIgnoreCase</b> method, and the version with the Manager.compareModsVersions().
      * @param name name of the mod.
-     * @param version version of the mod.
+     * @param version version of the mod. This is an expressionVersion, as seen in Manager.compareModsVersions.
      * @return a instance of a Mod, null if no mod was found.
      */
     public Mod getMod(String name, String version) {
         for (int i = 0; i < mods.size(); i++) {
-            if (mods.get(i).getName().equalsIgnoreCase(name) && controller.compareModsVersions(version, mods.get(i).getVersion())) {
+            if (mods.get(i).getName().equalsIgnoreCase(name) && controller.compareModsVersions(mods.get(i).getVersion(), version)) {
                 return mods.get(i);
             }
         }
@@ -555,8 +555,8 @@ public class ManagerOptions extends Observable {
     }
 
     public void setCurrentProfile(ModList currentProfile) {
-        this.currentProfile = currentProfile;
         setChanged();
-        notifyObservers("profile");
+        notifyObservers(this.currentProfile);
+        this.currentProfile = currentProfile;
     }
 }

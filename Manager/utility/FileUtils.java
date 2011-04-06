@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.Random;
+import javax.swing.JFileChooser;
 
 /**
  *
@@ -165,5 +166,37 @@ public class FileUtils {
         tempFolder.deleteOnExit();
 
         return tempFolder;
+    }
+
+    public static File getManagerTempFolder() {
+        File tempFolder = new File(System.getProperty("java.io.tmpdir") + File.separator + "HoN Mod Manager");
+        if (!tempFolder.exists()) {
+            tempFolder.mkdir();
+        }
+        return tempFolder;
+    }
+
+    public static File getManagerPerpetualFolder() {
+        File folder = null;
+
+        if (OS.isLinux()) {
+            folder = new File("~" + File.separator + ".Heroes of Newerth" + File.separator + "All-In HoN ModManager");
+            if (!folder.exists()) {
+                folder.mkdir();
+            }
+        }
+
+        if (OS.isWindows()) {
+            folder = new File(new JFileChooser().getFileSystemView().getDefaultDirectory(), "Heroes of Newerth" + File.separator + "All-In HoN ModManager");
+            if (!folder.exists()) {
+                folder.mkdir();
+            }
+        }
+
+        if (OS.isMac()) {
+            // TODO Need to get this path for all languages
+        }
+
+        return folder;
     }
 }

@@ -178,7 +178,7 @@
 - After adding a mod through "Add Mod" button, next time you press it again, it will start from the folder of the file previously selected. If the Manager closes, the folder will be the location of the Manager.jar file.
 - Fixed bug after adding mods (through any way) and the current view and the other views didn't update to show the added mods.
 
-[b]0.9.3 beta[/b]
+[b]0.9.3 beta - 31/03/2011:[/b]
 - Fixed bug with Details view. Actually, fixed bug with all views. It was processing all 4 views at the same time, independent if you are using that view or not. Changed this behavior, so improved performance on slow computers.
 - Fixed bug with <findall> operation followed by <insert> and <replace> operations. The insert I misschanged the iterator (I did that in all findall actions ¬¬ CTRL+C CTRL+V!) and corrected the difference for the cursor in for the replace action (thanks to Srs Bsns mod, with it I saw those errors).
 - Fixed the table not updating after enabling a dependency mod.
@@ -189,6 +189,20 @@
 - Updated English language file.
 - Added Strings Code Table in the language list for easier translations.
 - Re-organizied the project folder and file tree.
+
+[b]0.9.3.1 beta - 31/03/2011:[/b]
+- Fixed bug that would allow loading un-finished translations.
+
+[b]0.9.4 beta - xx/xx/2011:[/b]
+- Fixed bug while auto-updaing. Now using a String Array it prevents error indepedent of OS, blank spcaes or uncommon characters on path. Problem solved now for life!
+- Added bar animation while applying mods and exiting the Manager.
+- Fixed annoying behavior that changed the LaF without pressing the Apply button.
+- Added new optional attribute to <copyfile>. "fromresource" will copy the source file from the resources0.s2z file to target destination. Althought you can use it without using both "name" and "source" attributes, it doesn't make sense if you use just one of them.
+- Fixed another bug when leaving Developer Mode.
+- Moved "Manager.lock" file to %TEMPDIR%/Hon ModManager
+- Removed fatal log.
+- Removed 2 log files. Now there will be only one Log file with unlimited size.
+- Added auto-complement for Mods folder after finding HoN folder (only if mods folder exists).
 
 
 

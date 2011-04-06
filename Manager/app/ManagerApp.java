@@ -53,7 +53,7 @@ public class ManagerApp extends SingleFrameApplication {
     @Override
     protected void startup() {
         // Check for lock file.
-        if (!lockInstance("Manager.lock")) {
+        if (!lockInstance(FileUtils.getManagerTempFolder() + File.separator + "Manager.lock")) {
             JOptionPane.showMessageDialog(null, "Another instance of the Manager is already running.", "Error", JOptionPane.ERROR_MESSAGE);
             System.exit(0);
         }
@@ -72,6 +72,8 @@ public class ManagerApp extends SingleFrameApplication {
         Properties props = new Properties();
         try {
             props.load(is);
+            // Change path but don't change the filename
+            props.setProperty("log4j.appender.file.File", "c:\\" + props.getProperty("log4j.appender.file.File"));
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(null, "Cannot initialize logging system", "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -130,14 +132,18 @@ public class ManagerApp extends SingleFrameApplication {
 
         try {
             if (hasUpdate.get().booleanValue()) {
+                // If there is a new update
                 if (ManagerOptions.getInstance().isAutoUpdate() || JOptionPane.showConfirmDialog(ManagerGUI.getInstance(), L10n.getString("message.updateavaliabe"), L10n.getString("message.updateavaliabe.title"), JOptionPane.YES_NO_OPTION) == 0) {
+                    // And user accepts it
                     try {
+                        // Extract the Updater jar file
                         InputStream in = getClass().getResourceAsStream("/resources/Updater");
                         FileOutputStream fos = new FileOutputStream(ManagerOptions.MANAGER_FOLDER + File.separator + "Updater.jar");
                         FileUtils.copyInputStream(in, fos);
                         in.close();
                         fos.close();
                         String currentJar = "";
+                        // Get current jar path. Since user may rename this file, we need to do this way
                         try {
                             currentJar = (ManagerApp.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
                             if ((OS.isWindows() && currentJar.startsWith("/")) || (currentJar.startsWith("//") && !OS.isWindows())) {
@@ -146,10 +152,14 @@ public class ManagerApp extends SingleFrameApplication {
                         } catch (URISyntaxException ex) {
                         }
                         String updaterPath = System.getProperty("user.dir") + File.separator + "Updater.jar";
-                        logger.info("Updating manager. java -jar " + updaterPath + " " + currentJar + " " + ManagerOptions.MANAGER_DOWNLOAD_URL + " " + updaterPath);
-                        Runtime.getRuntime().exec("java -jar \"" + updaterPath + "\" \"" + currentJar + "\" \"" + ManagerOptions.MANAGER_DOWNLOAD_URL + "\" \"" + updaterPath + "\"");
-                        System.exit(0);
+                        // Run with an String array to avoid errors with blank spaces and uncommon characters
+                        String[] cmd = {"java", "-jar", updaterPath, currentJar, ManagerOptions.MANAGER_DOWNLOAD_URL, updaterPath};
+                        logger.info("Updating manager.");
+                        Runtime.getRuntime().exec(cmd);
+                        shutdown();
                     } catch (IOException ex) {
+                        // Failed to launch process
+                        logger.fatal(ex);
                     }
 
                 }
@@ -160,11 +170,6 @@ public class ManagerApp extends SingleFrameApplication {
             // Exceptions are never thrown
         }
         pool.shutdown();
-        /*try {
-            Manager.getInstance().importModList(new File("C:\\mods.xml"));
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }*/
     }
 
     /**

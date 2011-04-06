@@ -48,6 +48,14 @@ public class ModList {
         modList.add(mod);
     }
 
+    public Mod removeMod(Mod mod) {
+        return modList.remove(modList.indexOf(mod));
+    }
+
+    public void clearModList() {
+        modList.clear();
+    }
+
     public String getListVersion() {
         return listVersion;
     }

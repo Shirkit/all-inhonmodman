@@ -90,12 +90,13 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         } catch (Exception e) {
             logger.warn("Cannot find application icon");
         }
-        // Set model of the language combo box. This will not be localized
+        // Set model of the language combo box. New languages need to be added here
         comboBoxChooseLanguage.addItem(new Language("English", "en"));
-        //comboBoxChooseLanguage.addItem(new Language("German", "de"));
-        //comboBoxChooseLanguage.addItem(new Language("Português (Brasil)", "pt_br"));
-        //comboBoxChooseLanguage.addItem(new Language("Russian", "ru"));
+        comboBoxChooseLanguage.addItem(new Language("German", "de"));
+        comboBoxChooseLanguage.addItem(new Language("Português (Brasil)", "pt_br"));
+        comboBoxChooseLanguage.addItem(new Language("Russian", "ru"));
         comboBoxChooseLanguage.addItem(new Language("~Strings Code Table", "strings"));
+        comboBoxChooseLanguage.addItem(new Language("~Local HonModMan.properties file", "file"));
         // Set model of the LaF combobox. This will not be localized
         //comboBoxLafs.addItem(new LaF("Default", UIManager.getSystemLookAndFeelClassName()));
         //comboBoxLafs.addItem(new LaF("Metal", UIManager.getCrossPlatformLookAndFeelClassName()));
@@ -905,7 +906,6 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
 
         mainMenu.add(menuHelp);
 
-        menuProfiles.setVisible(false);
         menuProfiles.setText("Profiles");
         menuProfiles.setName("menuProfiles"); // NOI18N
 
@@ -917,6 +917,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         menuProfiles.add(jSeparator5);
 
         mainMenu.add(menuProfiles);
+        menuProfiles.setVisible(false);
 
         setJMenuBar(mainMenu);
 

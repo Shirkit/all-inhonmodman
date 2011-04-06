@@ -1,0 +1,11 @@
+- Copyfile FromResource
+- Modlist finishing
+- Export/Import
+- Profile Import
+- Move supportive files to other folders (managerOptions.xml)
+
+- Copyfile Version attribute not working
+ + Copyfile Overwritting file if there is already a file and no overwrite param was set
+
+Add in strings file
+- view.showMessage("The file" + ex.getLocalizedMessage() + " wasn't found, so the mods couldn't be applied", "File not found", JOptionPane.ERROR_MESSAGE);

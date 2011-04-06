@@ -46,6 +46,17 @@ public class Game {
             // Get the folder from uninstall info in windows registry saved by HoN
             String registryData = WindowsRegistry.getRecord("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\hon", "InstallLocation");
             if (registryData != null && !registryData.isEmpty()) {
+                System.out.println(registryData);
+                return registryData;
+            }
+            registryData = WindowsRegistry.getRecord("SOFTWARE\\Notausgang\\HoN_ModMan", "hondir");
+            if (registryData != null && !registryData.isEmpty()) {
+                System.out.println(registryData);
+                return registryData;
+            }
+            registryData = WindowsRegistry.getRecord("SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\hon", "InstallLocation");
+            if (registryData != null && !registryData.isEmpty()) {
+                System.out.println(registryData);
                 return registryData;
             }
             // TODO: the location is also stored in the registry by Notausgang's
@@ -56,10 +67,13 @@ public class Game {
         // Try to find HoN folder in case we are on Linux
         if (OS.isLinux()) {
             // Try to find HoN in its usual location:
-            String honFolder = "~/.Heroes of Newerth/";
-            File f = new File(honFolder);
+            String[] honFolder = {"~/Heroes of Newerth/","~/HoN/"};
+            for (int i = 0; i < honFolder.length; i++) {
+            File f = new File(honFolder[i]);
             if(f.exists()) {
                 return f.getAbsolutePath();
+            }
+                
             }
         }
         // Try to find HoN folder in case we are on Mac
@@ -79,10 +93,9 @@ public class Game {
      * 
      * @return folder of the mods or null
      */
-    public static String findModFolder() {
+    public static String findModFolder(String gameFolder) {
         // Try to find HoN folder in case we are on Windows
         if (OS.isWindows()) {
-            String gameFolder = findHonFolder();
             if (gameFolder != null) {
                 File folder = new File(gameFolder + File.separator + "game" + File.separator + "mods");
                 if (folder.exists() && folder.isDirectory()) {
@@ -92,7 +105,6 @@ public class Game {
         }
         // Try to find HoN folder in case we are on Linux
         if (OS.isLinux()) {
-            String gameFolder = findHonFolder();
             if (gameFolder != null) {
                 File folder = new File(gameFolder + File.separator + "game" + File.separator + "mods");
                 if (folder.exists() && folder.isDirectory()) {

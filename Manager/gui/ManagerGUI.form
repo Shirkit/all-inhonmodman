@@ -632,7 +632,7 @@
             <Property name="name" type="java.lang.String" value="menuProfiles" noResource="true"/>
           </Properties>
           <AuxValues>
-            <AuxValue name="JavaCodeGenerator_InitCodePre" type="java.lang.String" value="menuProfiles.setVisible(false);"/>
+            <AuxValue name="JavaCodeGenerator_AddingCodePost" type="java.lang.String" value="menuProfiles.setVisible(false);"/>
           </AuxValues>
           <SubComponents>
             <MenuItem class="javax.swing.JMenuItem" name="itemAddProfile">

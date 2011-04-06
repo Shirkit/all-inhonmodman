@@ -34,6 +34,9 @@ public class ActionCopyFile extends Action {
     @XStreamAlias("condition")
     @XStreamAsAttribute
     private String condition;
+    @XStreamAlias("fromresource")
+    @XStreamAsAttribute
+    private boolean fromResource;
 
     /**
      * @return Path1
@@ -97,6 +100,14 @@ public class ActionCopyFile extends Action {
      */
     public String getCondition() {
         return condition;
+    }
+
+    public boolean getFromResource() {
+        return fromResource;
+    }
+
+    public void setFromResource(boolean fromResource) {
+        this.fromResource = fromResource;
     }
 
     /**
