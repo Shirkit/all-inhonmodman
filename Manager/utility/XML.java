@@ -8,6 +8,7 @@ import business.modactions.*;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.StreamException;
 import com.thoughtworks.xstream.mapper.CannotResolveClassException;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -16,6 +17,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.OutputStreamWriter;
+import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.util.ArrayList;
@@ -153,7 +155,7 @@ public class XML {
                     m = (Mod) xstream.fromXML(fileString.substring(1));
                 }
             }
-        }
+        } 
 
         return removeRequiredMods(m);
 

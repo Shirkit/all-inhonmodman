@@ -751,11 +751,11 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="103" groupAlignment="1" attributes="0">
                           <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                              <Component id="labelStatus" alignment="1" min="-2" pref="26" max="-2" attributes="0"/>
                               <Group type="103" alignment="1" groupAlignment="3" attributes="0">
+                                  <Component id="buttonApplyMods" alignment="3" max="32767" attributes="1"/>
                                   <Component id="buttonAddMod" alignment="3" pref="28" max="32767" attributes="1"/>
-                                  <Component id="labelStatus" alignment="3" min="-2" pref="26" max="-2" attributes="0"/>
                               </Group>
-                              <Component id="buttonApplyMods" alignment="1" max="32767" attributes="1"/>
                           </Group>
                           <Component id="progressBar" min="-2" pref="25" max="-2" attributes="1"/>
                       </Group>
@@ -823,13 +823,13 @@
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="jScrollPane4" alignment="0" pref="414" max="32767" attributes="1"/>
+                          <Component id="panelChangelogScrollpaneChangelogEditorPane" alignment="0" pref="414" max="32767" attributes="1"/>
                           <Group type="102" alignment="0" attributes="0">
-                              <Component id="labelModIcon1" min="-2" max="-2" attributes="0"/>
+                              <Component id="panelChangelogLabelModIcon" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="labelModAuthor1" alignment="0" min="-2" pref="184" max="-2" attributes="0"/>
-                                  <Component id="labelModName1" alignment="0" min="-2" pref="184" max="-2" attributes="0"/>
+                                  <Component id="panelChangelogLabelModAuthor" alignment="0" min="-2" pref="184" max="-2" attributes="0"/>
+                                  <Component id="panelChangelogLabelModName" alignment="0" min="-2" pref="184" max="-2" attributes="0"/>
                               </Group>
                           </Group>
                           <Component id="buttonViewModDetails" alignment="0" pref="414" max="32767" attributes="1"/>
@@ -842,15 +842,15 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="labelModIcon1" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="panelChangelogLabelModIcon" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
-                              <Component id="labelModName1" min="-2" max="-2" attributes="0"/>
+                              <Component id="panelChangelogLabelModName" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="labelModAuthor1" min="-2" max="-2" attributes="0"/>
+                              <Component id="panelChangelogLabelModAuthor" min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jScrollPane4" pref="472" max="32767" attributes="0"/>
+                      <Component id="panelChangelogScrollpaneChangelogEditorPane" pref="472" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="buttonViewModDetails" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
@@ -859,33 +859,33 @@
             </DimensionLayout>
           </Layout>
           <SubComponents>
-            <Component class="javax.swing.JLabel" name="labelModIcon1">
+            <Component class="javax.swing.JLabel" name="panelChangelogLabelModIcon">
               <Properties>
                 <Property name="icon" type="javax.swing.Icon" noResource="true" editor="org.netbeans.modules.form.editors2.IconEditor">
                   <Image iconType="3" name="/gui/resources/icon.png"/>
                 </Property>
-                <Property name="name" type="java.lang.String" value="labelModIcon1" noResource="true"/>
+                <Property name="name" type="java.lang.String" value="panelChangelogLabelModIcon" noResource="true"/>
               </Properties>
             </Component>
-            <Component class="javax.swing.JLabel" name="labelModName1">
+            <Component class="javax.swing.JLabel" name="panelChangelogLabelModName">
               <Properties>
                 <Property name="font" type="java.awt.Font" noResource="true" editor="org.netbeans.modules.form.editors2.FontEditor">
                   <FontInfo relative="true">
-                    <Font bold="true" component="labelModName1" property="font" relativeSize="true" size="1"/>
+                    <Font bold="true" component="panelChangelogLabelModName" property="font" relativeSize="true" size="1"/>
                   </FontInfo>
                 </Property>
                 <Property name="horizontalAlignment" type="int" value="0"/>
                 <Property name="text" type="java.lang.String" value="mod name"/>
                 <Property name="toolTipText" type="java.lang.String" value="This is the Mod&apos;s name" noResource="true"/>
-                <Property name="name" type="java.lang.String" value="labelModName1" noResource="true"/>
+                <Property name="name" type="java.lang.String" value="panelChangelogLabelModName" noResource="true"/>
               </Properties>
             </Component>
-            <Component class="javax.swing.JLabel" name="labelModAuthor1">
+            <Component class="javax.swing.JLabel" name="panelChangelogLabelModAuthor">
               <Properties>
                 <Property name="horizontalAlignment" type="int" value="0"/>
                 <Property name="text" type="java.lang.String" value="mod author"/>
                 <Property name="toolTipText" type="java.lang.String" value="This is the Mod&apos;s author" noResource="true"/>
-                <Property name="name" type="java.lang.String" value="labelModAuthor1" noResource="true"/>
+                <Property name="name" type="java.lang.String" value="panelChangelogLabelModAuthor" noResource="true"/>
               </Properties>
             </Component>
             <Component class="javax.swing.JButton" name="buttonViewModDetails">
@@ -897,9 +897,9 @@
                 <Property name="name" type="java.lang.String" value="buttonViewModDetails" noResource="true"/>
               </Properties>
             </Component>
-            <Container class="javax.swing.JScrollPane" name="jScrollPane4">
+            <Container class="javax.swing.JScrollPane" name="panelChangelogScrollpaneChangelogEditorPane">
               <Properties>
-                <Property name="name" type="java.lang.String" value="jScrollPane4" noResource="true"/>
+                <Property name="name" type="java.lang.String" value="panelChangelogScrollpaneChangelogEditorPane" noResource="true"/>
               </Properties>
               <AuxValues>
                 <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
@@ -907,11 +907,11 @@
 
               <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
               <SubComponents>
-                <Component class="javax.swing.JEditorPane" name="jEditorPane1">
+                <Component class="javax.swing.JEditorPane" name="panelChangelogEditorPane">
                   <Properties>
                     <Property name="contentType" type="java.lang.String" value="text/html"/>
                     <Property name="editable" type="boolean" value="false"/>
-                    <Property name="name" type="java.lang.String" value="jEditorPane1" noResource="true"/>
+                    <Property name="name" type="java.lang.String" value="panelChangelogEditorPane" noResource="true"/>
                   </Properties>
                 </Component>
               </SubComponents>
@@ -1077,24 +1077,20 @@
 
                   <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
                   <SubComponents>
-                    <Component class="javax.swing.JTextArea" name="areaModDesc">
+                    <Component class="javax.swing.JEditorPane" name="areaModDesc">
                       <Properties>
                         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                           <Color blue="f0" green="f0" red="f0" type="rgb"/>
                         </Property>
-                        <Property name="columns" type="int" value="20"/>
-                        <Property name="editable" type="boolean" value="false"/>
-                        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                          <Connection component="buttonAddMod" name="getFont" type="method"/>
-                        </Property>
-                        <Property name="lineWrap" type="boolean" value="true"/>
-                        <Property name="rows" type="int" value="5"/>
-                        <Property name="text" type="java.lang.String" value="mod desc"/>
-                        <Property name="wrapStyleWord" type="boolean" value="true"/>
                         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                           <Border info="org.netbeans.modules.form.compat2.border.SoftBevelBorderInfo">
                             <BevelBorder/>
                           </Border>
+                        </Property>
+                        <Property name="contentType" type="java.lang.String" value="text/html" noResource="true"/>
+                        <Property name="editable" type="boolean" value="false"/>
+                        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                          <Connection component="buttonAddMod" name="getFont" type="method"/>
                         </Property>
                         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
                           <Insets value="[5, 5, 5, 5]"/>

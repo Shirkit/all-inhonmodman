@@ -3,6 +3,7 @@
 - Export/Import
 - Profile Import
 - Move supportive files to other folders (managerOptions.xml)
+- Finish the new Updating system
 
 - Copyfile Version attribute not working
  + Copyfile Overwritting file if there is already a file and no overwrite param was set

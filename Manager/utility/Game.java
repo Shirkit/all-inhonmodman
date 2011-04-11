@@ -46,17 +46,14 @@ public class Game {
             // Get the folder from uninstall info in windows registry saved by HoN
             String registryData = WindowsRegistry.getRecord("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\hon", "InstallLocation");
             if (registryData != null && !registryData.isEmpty()) {
-                System.out.println(registryData);
                 return registryData;
             }
             registryData = WindowsRegistry.getRecord("SOFTWARE\\Notausgang\\HoN_ModMan", "hondir");
             if (registryData != null && !registryData.isEmpty()) {
-                System.out.println(registryData);
                 return registryData;
             }
             registryData = WindowsRegistry.getRecord("SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\hon", "InstallLocation");
             if (registryData != null && !registryData.isEmpty()) {
-                System.out.println(registryData);
                 return registryData;
             }
             // TODO: the location is also stored in the registry by Notausgang's

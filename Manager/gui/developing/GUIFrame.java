@@ -17,6 +17,7 @@ import org.jdesktop.application.TaskMonitor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.GregorianCalendar;
 import javax.swing.Icon;
 import javax.swing.Timer;
 import javax.swing.ImageIcon;
@@ -34,8 +35,8 @@ public class GUIFrame extends javax.swing.JFrame {
 
     @Action
     public void processar() {
-        for (int i = 0; i < 99999; i++) {
-            System.out.println(i);
+        long l = GregorianCalendar.getInstance().getTimeInMillis() + 3000;
+        while (GregorianCalendar.getInstance().getTimeInMillis() < l) {
         }
     }
 
@@ -85,6 +86,7 @@ public class GUIFrame extends javax.swing.JFrame {
                 } else if ("done".equals(propertyName)) {
                     busyIconTimer.stop();
                     statusAnimationLabel.setIcon(idleIcon);
+                    statusMessageLabel.setVisible(false);
                     progressBar.setVisible(false);
                     progressBar.setValue(0);
                 } else if ("message".equals(propertyName)) {
@@ -100,7 +102,6 @@ public class GUIFrame extends javax.swing.JFrame {
             }
         });
 
-        System.out.println("antes");
         Task task = new Task<Void, Void>(getApplication(), "desc") {
 
             @Override
@@ -115,16 +116,22 @@ public class GUIFrame extends javax.swing.JFrame {
 
             @Override
             protected Void doInBackground() throws Exception {
+                this.setMessage(getMessage());
+                this.setTitle(getTitle());
+                this.setDescription(getDescription());
+                this.setProgress(5);
+
                 processar();
                 return null;
+            }
+
+            @Override
+            public synchronized String getTitle() {
+                return "title";
             }
         };
         taskService.execute(task);
         taskMonitor.setForegroundTask(task);
-        System.out.println("depois");
-        System.out.println("depois");
-        System.out.println("depois");
-        System.out.println("depois");
     }
 
     /** This method is called from within the constructor to

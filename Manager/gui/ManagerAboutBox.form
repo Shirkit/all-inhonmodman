@@ -189,7 +189,7 @@
     <Component class="javax.swing.JLabel" name="appHomepage">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-          <Connection code="this.model.getHomepage()" type="code"/>
+          <Connection code="model.HOMEPAGE" type="code"/>
         </Property>
         <Property name="name" type="java.lang.String" value="appHomepage" noResource="true"/>
       </Properties>

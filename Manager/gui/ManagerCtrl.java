@@ -123,8 +123,7 @@ public class ManagerCtrl implements Observer {
             view.setBounds(model.getGuiRectangle());
         }
 
-        // ----- DetailsView bug Disable ------
-        // Load last column width for list view
+        // Load last column width for details view
         DetailsView detailsView = (DetailsView) view.getModsTable().getView(ModsTable.ViewType.DETAILS);
         if (model.getColumnsWidth() != null) {
             int i = 0;
@@ -173,7 +172,7 @@ public class ManagerCtrl implements Observer {
         view.buttonModsFolderAddActionListener(new ChooseFolderModsListener());
         view.itemDownloadModUpdates(new DownloadModUpdatesListener());
         // DetailsView bug Disable
-        //((JTable) detailsView.getComponent()).getColumnModel().addColumnModelListener(new Columns2Listener());
+        ((JTable) detailsView.getComponent()).getColumnModel().addColumnModelListener(new Columns2Listener());
         view.addComponentListener(new ComponentEventListener());
         view.getItemRefreshManager().addActionListener(new RefreshManagerListener());
         view.getButtonViewChagelog().addActionListener(new ButtonViewModChangelogListener());
@@ -197,6 +196,12 @@ public class ManagerCtrl implements Observer {
             view.getItemViewIcons().doClick();
         } else if (model.getViewType().equals(ManagerOptions.ViewType.TILES)) {
             view.getItemViewTiles().doClick();
+        }
+
+        try {
+            view.setStatusMessage("<html><font color=#009900>" + (model.getAppliedMods().size()) + "</font>/<font color=#0033cc>" + (model.getMods().size()) + "</font> " + L10n.getString("status.modsenabled") + " - Version: " + Game.getInstance().getVersion() + "</html>", false);
+        } catch (Exception ex) {
+            view.setStatusMessage("<html><font color=#009900>" + (model.getAppliedMods().size()) + "</font>/<font color=#0033cc>" + (model.getMods().size()) + "</font> " + L10n.getString("status.modsenabled") + "</html>", false);
         }
 
         // Display window
@@ -773,7 +778,7 @@ public class ManagerCtrl implements Observer {
     class VisitForumThreadListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
-            controller.openWebsite(model.getHomepage());
+            controller.openWebsite(model.HOMEPAGE);
         }
     }
 
@@ -1016,6 +1021,7 @@ public class ManagerCtrl implements Observer {
                     }
                 }
             }
+        } catch (FileNotFoundException e) {
         } catch (Exception ex) {
         }
         view.getModsTable().redraw();
@@ -1049,6 +1055,8 @@ public class ManagerCtrl implements Observer {
             File f = new File(m.getPath());
             if (!f.delete()) {
                 view.showMessage("Failed to delete file", "Failed", JOptionPane.ERROR_MESSAGE);
+                model.addMod(m, m.isEnabled());
+                view.updateModTable();
             }
             logger.info("Deleting mod " + m.getName());
         }
@@ -1412,7 +1420,7 @@ public class ManagerCtrl implements Observer {
         if (mod.isEnabled()) {
             try {
                 controller.disableMod(mod);
-                logger.info("Mod '" + mod.getName() + "' has been DISABLED");
+                logger.info("Mod '" + mod.getName() + "' " + mod.getVersion() + " has been DISABLED");
             } catch (ModEnabledException ex) {
                 // TODO: Add auto-disable dependencies for at least 2 levels.
                 view.showMessage(L10n.getString("error.modenabled").replace("#mod#", mod.getName()).replace("#mod2#", ex.toString()),
@@ -1425,7 +1433,7 @@ public class ManagerCtrl implements Observer {
                 String gameVersion = Game.getInstance().getVersion();
                 try {
                     controller.enableMod(mod, model.isIgnoreGameVersion());
-                    logger.info("Mod '" + mod.getName() + "' has been ENABLED");
+                    logger.info("Mod '" + mod.getName() + "' " + mod.getVersion() + " has been ENABLED");
                 } catch (NoSuchElementException e1) {
                     view.showMessage(L10n.getString("error.modnotfound"),
                             L10n.getString("error.modnotfound.title"),
@@ -1518,7 +1526,7 @@ public class ManagerCtrl implements Observer {
             view.showMessage(L10n.getString("error.modcantapply").replace("#mod#", ex.getName()), L10n.getString("error.modcantapply.title"), JOptionPane.ERROR_MESSAGE);
         } catch (FileNotFoundException ex) {
             // TODO: Add this on the Strings file
-            logger.error("Error applying mods. A file wasn't found, so it failed to apply.",ex);
+            logger.error("Error applying mods. A file wasn't found, so it failed to apply.", ex);
             view.showMessage("The file" + ex.getLocalizedMessage() + " wasn't found, so the mods couldn't be applied", "File not found", JOptionPane.ERROR_MESSAGE);
         } catch (UnknowModActionException ex) {
             // In theory, this part can't be called
@@ -1527,7 +1535,6 @@ public class ManagerCtrl implements Observer {
         } catch (SecurityException ex) {
             logger.error("Error applying mods. Security exception found, couldn't do some operations that were needed. " + ex.getClass(), ex);
             view.showMessage("Random error. Please, report it to the software developers", "Random error", JOptionPane.ERROR_MESSAGE);
-            
         } catch (IOException ex) {
             logger.error("Error applying mods. A random I/O exception was thrown, can't apply. " + ex.getClass(), ex);
             view.showMessage("Random error. Please, report it to the software developers", "Random error", JOptionPane.ERROR_MESSAGE);
@@ -1538,10 +1545,10 @@ public class ManagerCtrl implements Observer {
         view.setInputEnabled(true);
         //view.setEnabled(true);
         //view.requestFocus();
-        try {
-            controller.exportMods(new File("C:\\mods.xml"));
+        /*try {
+        controller.exportMods(new File("C:\\mods.xml"));
         } catch (IOException ex) {
-        }
+        }*/
         return sucess;
     }
 

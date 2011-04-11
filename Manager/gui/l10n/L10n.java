@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import business.ManagerOptions;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.util.PropertyResourceBundle;
 
 /**
@@ -24,6 +25,7 @@ public class L10n {
     private static final String RESOURCE_NAME = "gui.l10n.HonModMan";
     private static final String DEFAULT_LOCALE = "en";
     private static ResourceBundle resource;
+    private static ResourceBundle defaultResource;
     private static Preferences prefs;
     private static Logger logger = Logger.getLogger(L10n.class.getPackage().getName());
     private static Locale currentLocale;
@@ -74,12 +76,20 @@ public class L10n {
         }
         try {
             if (locale.equals("file")) {
-                resource = new PropertyResourceBundle(new FileInputStream(ManagerOptions.MANAGER_FOLDER + File.separator + "HonModMan.properties"));
+                // This may not work in Java 1.4 and/or 1.5
+                resource = new PropertyResourceBundle(new InputStreamReader(new FileInputStream(ManagerOptions.MANAGER_FOLDER + File.separator + "HonModMan.properties"), "UTF-8"));
             } else {
                 resource = Utf8ResourceBundle.getBundle(RESOURCE_NAME, loc);
             }
+            ManagerOptions.getInstance().setLanguage(loc.toString());
         } catch (Exception e) {
+            logger.error("Error loading language " + loc.toString(), e);
             load(DEFAULT_LOCALE);
+            ManagerOptions.getInstance().setLanguage(DEFAULT_LOCALE);
+        }
+        try {
+            defaultResource = Utf8ResourceBundle.getBundle(RESOURCE_NAME, new Locale(DEFAULT_LOCALE));
+        } catch (Exception e) {
         }
         currentLocale = loc;
     }
@@ -103,8 +113,18 @@ public class L10n {
             }
             return sb.toString();
         } catch (MissingResourceException e) {
-            logger.warn("The key \"" + key + "\" is not defined in the property file!");
-            return key; // nothing else we can do...
+            try {
+                logger.warn("The key \"" + key + "\" is not defined in the property file for " + currentLocale);
+                StringBuffer sb = new StringBuffer(defaultResource.getString(key));
+                int i = sb.indexOf("&");
+                if (i >= 0) {
+                    sb.deleteCharAt(i);
+                }
+                return sb.toString();
+            } catch (MissingResourceException ex) {
+                logger.warn("The key \"" + key + "\" is not defined in the DEFAULT property file!");
+                return key; // nothing else we can do...
+            }
         }
     }
 

@@ -193,16 +193,26 @@
 [b]0.9.3.1 beta - 31/03/2011:[/b]
 - Fixed bug that would allow loading un-finished translations.
 
-[b]0.9.4 beta - xx/xx/2011:[/b]
+[b]0.9.4 beta - 10/04/2011:[/b]
 - Fixed bug while auto-updaing. Now using a String Array it prevents error indepedent of OS, blank spcaes or uncommon characters on path. Problem solved now for life!
 - Added bar animation while applying mods and exiting the Manager.
 - Fixed annoying behavior that changed the LaF without pressing the Apply button.
-- Added new optional attribute to <copyfile>. "fromresource" will copy the source file from the resources0.s2z file to target destination. Althought you can use it without using both "name" and "source" attributes, it doesn't make sense if you use just one of them.
+- Added new optional attribute to <copyfile>. "fromresource" will copy the source file from the resources0.s2z file to target destination. Althougth you can use it without using both "name" and "source" attributes, it doesn't make sense if you use just one of them.
 - Fixed another bug when leaving Developer Mode.
 - Moved "Manager.lock" file to %TEMPDIR%/Hon ModManager
 - Removed fatal log.
 - Removed 2 log files. Now there will be only one Log file with unlimited size.
 - Added auto-complement for Mods folder after finding HoN folder (only if mods folder exists).
+- If deleting a mod fails, now it doesn't vanishs with the mod.
+- After adding a mod, stopped behavior of disabling all current enabled mods.
+- Manager now opens faster, without hanging after the UI is displayed waiting for update check.
+- Loading HonModMan.properties from file now supports UTF-8.
+- Added German, Portuguese (Brazillian), Russian and Turkish languages.
+- Added a SplashScreen.
+- Details View now remembers (again, it was removed) the columns width (not it's positions).
+- If a "string" isn't found on the local language file (russian, for example), now it'll look in the english file. This will allow the ability to put new strings without having instant update on all language files.
+- Java doesn't write BOM bytes in default and ignore them on reading. Made a little hack to make sure write BOM header in all UTF-8 Files, since HoN seems to need it sometimes (famous Unread Bits error). I hope this is finally fixed.
+- Removed Synthetica Look and Feel.
 
 
 

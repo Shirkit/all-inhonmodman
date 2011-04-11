@@ -287,8 +287,8 @@ public class DetailsView extends ModsTableView {
      */
     @Override
     public void setSelectedMod(Mod mod) {
-        int index = getModsList().indexOf(mod);
-        ((JTable)getComponent()).getSelectionModel().setSelectionInterval(0, index);
+        //int index = getModsList().indexOf(mod);
+        //((JTable)getComponent()).getSelectionModel().setSelectionInterval(0, index);
         ManagerGUI.getInstance().displayModDetail(mod);
     }
 

@@ -4,16 +4,20 @@
  */
 package utility;
 
+import business.ManagerOptions;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.util.Random;
 import javax.swing.JFileChooser;
 
@@ -74,6 +78,32 @@ public class FileUtils {
         }
         ByteArrayInputStream in = new ByteArrayInputStream(file);
         FileOutputStream out = new FileOutputStream(destination);
+        copyInputStream(in, out);
+        in.close();
+        out.close();
+    }
+
+    public static void writeFileUtf8(byte[] file, File destination) throws FileNotFoundException, IOException {
+        boolean writeBom = true;
+        if (destination.exists()) {
+            updatePermissions(destination);
+            FileInputStream fis = new FileInputStream(destination);
+            if (fis.available() > 3 && fis.read() == 239 && fis.read() == 187 && fis.read() == 191) {
+                writeBom = false;
+            }
+        } else {
+            destination.createNewFile();
+            if (file[0] == 239 && file[1] == 187 && file[2] == 191) {
+                writeBom = false;
+            }
+        }
+        ByteArrayInputStream in = new ByteArrayInputStream(file);
+        FileOutputStream out = new FileOutputStream(destination);
+        if (writeBom) {
+            out.write(239);
+            out.write(187);
+            out.write(191);
+        }
         copyInputStream(in, out);
         in.close();
         out.close();
@@ -182,19 +212,23 @@ public class FileUtils {
         if (OS.isLinux()) {
             folder = new File("~" + File.separator + ".Heroes of Newerth" + File.separator + "All-In HoN ModManager");
             if (!folder.exists()) {
-                folder.mkdir();
+                if (!folder.mkdirs()) {
+                    return new File(ManagerOptions.MANAGER_FOLDER);
+                }
             }
         }
 
         if (OS.isWindows()) {
             folder = new File(new JFileChooser().getFileSystemView().getDefaultDirectory(), "Heroes of Newerth" + File.separator + "All-In HoN ModManager");
             if (!folder.exists()) {
-                folder.mkdir();
+                if (!folder.mkdirs()) {
+                    return new File(ManagerOptions.MANAGER_FOLDER);
+                }
             }
         }
 
         if (OS.isMac()) {
-            // TODO Need to get this path for all languages
+            return new File(ManagerOptions.MANAGER_FOLDER);
         }
 
         return folder;

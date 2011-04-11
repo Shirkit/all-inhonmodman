@@ -78,6 +78,8 @@ public class Mod {
     private Icon resizedIcon;
     @XStreamOmitField
     private String changelog;
+    @XStreamOmitField
+    private boolean updatedDescription = false;
 
     /**
      * Mod constructor.
@@ -353,13 +355,12 @@ public class Mod {
     public void setIcon(Icon icon) {
         this.icon = icon;
         this.resizedIcon = icon;
-        if( icon.getIconHeight() != ICON_HEIGHT
-         || icon.getIconWidth() != ICON_WIDTH ) {
+        if (icon.getIconHeight() != ICON_HEIGHT
+                || icon.getIconWidth() != ICON_WIDTH) {
             resizedIcon = new ImageIcon(
-               ((ImageIcon)icon).getImage().getScaledInstance( ICON_WIDTH,
-                                                               ICON_HEIGHT,
-                                                               Image.SCALE_SMOOTH )
-                                   );
+                    ((ImageIcon) icon).getImage().getScaledInstance(ICON_WIDTH,
+                    ICON_HEIGHT,
+                    Image.SCALE_SMOOTH));
         }
     }
 
@@ -401,7 +402,7 @@ public class Mod {
     public boolean equals(Object o) {
         Mod compare = (Mod) o;
 
-        if(o == null) {
+        if (o == null) {
             return false;
         }
 

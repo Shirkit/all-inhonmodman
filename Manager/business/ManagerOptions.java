@@ -24,7 +24,6 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import controller.Manager;
-import gui.ProfileMenu;
 
 import utility.XML;
 
@@ -64,16 +63,18 @@ public class ManagerOptions extends Observable {
     Logger logger;
     // Constants
     public static final String MANAGER_VERSION_FILE = "resources/version.txt";
+    /**
+     * Retrieves a string with the current folder path of the Manager.
+     *  String with the path. Example: 'C:\Users\User\Documents\ModManager'. The Manager.jar will be inside that folder.
+     */
     public static final String MANAGER_FOLDER = new File(".").getAbsolutePath();
     public static final String OPTIONS_FILENAME = "managerOptions.xml";
     public static final String MANAGER_CHECK_UPDATE = "http://dl.dropbox.com/u/10303236/version.txt";
+    public static final String MANAGER_CHECK_UPDATE_VERSIONS = "http://dl.dropbox.com/u/10303236/versions.txt";
+    public static final String MANAGER_CHECK_UPDATE_ROOT_FOLDER = "http://dl.dropbox.com/u/10303236/versions/";
     public static final String MANAGER_DOWNLOAD_URL = "http://dl.dropbox.com/u/10303236/Manager.jar";
-    public static final String MANAGER_UPDATE_URL = "http://dl.dropbox.com/u/10303236/Updater.jar";
     public static final String HOMEPAGE = "http://sourceforge.net/projects/all-inhonmodman";
     public static final String PREFS_LOCALE = "locale";
-    public static final String PREFS_LAF = "laf";
-    public static final String PREFS_CLARGUMENTS = "clarguments";
-    public static final String PREFS_HONFOLDER = "honfolder";
 
     private ManagerOptions() {
         // Set default values
@@ -87,7 +88,7 @@ public class ManagerOptions extends Observable {
         controller = Manager.getInstance();
         logger = Logger.getLogger(this.getClass().getPackage().getName());
         ignoreGameVersion = true;
-        autoUpdate = false;
+        autoUpdate = true;
         autoEnableDependencies = false;
         developerMode = false;
         colorCheckboxInTable = true;
@@ -165,7 +166,7 @@ public class ManagerOptions extends Observable {
      * @throws StreamException this exception is thrown if the file is not valid (a user changed, the file is corrupt etc).
      */
     public void loadOptions() throws FileNotFoundException, StreamException {
-        ManagerOptions temp = XML.xmlToManagerOptions(new File(getManagerPath() + File.separator + OPTIONS_FILENAME));
+        ManagerOptions temp = XML.xmlToManagerOptions(new File(MANAGER_FOLDER + File.separator + OPTIONS_FILENAME));
         if (temp.getAppliedMods() != null) {
             instance.setAppliedMods(temp.getAppliedMods());
         }
@@ -309,14 +310,6 @@ public class ManagerOptions extends Observable {
         return pattern;
     }
 
-    public String getOptionsName() {
-        return OPTIONS_FILENAME;
-    }
-
-    public String getHomepage() {
-        return HOMEPAGE;
-    }
-
     public String getLanguage() {
         return LANG;
     }
@@ -352,17 +345,6 @@ public class ManagerOptions extends Observable {
     }
 
     /**
-     * Retrieves a string with the current folder path of the Manager.
-     * @return a String with the path. Example: 'C:\Users\User\Documents\ModManager\'. The Manager.jar will be inside that folder.
-     */
-    public String getManagerPath() {
-        if (MANAGER_FOLDER != null) {
-            return MANAGER_FOLDER;
-        }
-        return "";
-    }
-
-    /**
      * Set's the list of applied mods. Don't create new instances of the mods, just retrieve them with the <b>getMods()</b> method and add to here.
      * @param list set of applied mods.
      */
@@ -372,14 +354,9 @@ public class ManagerOptions extends Observable {
 
     /**
      * Get the list of applied mods. The instances of mods inside here point to the same of the <b>getMods()</b> instances.
-     * @return
      */
     public Set<Mod> getAppliedMods() {
         return applied;
-    }
-
-    public String getUpdateCheckUrl() {
-        return MANAGER_CHECK_UPDATE;
     }
 
     /**
@@ -422,7 +399,7 @@ public class ManagerOptions extends Observable {
      * @param name name of the mod.
      * @return a instance of a Mod, null if no mod was found.
      * @deprecated Avoid using this method, because there is no Version check.
-     * @see ManagerOptions.getMod()
+     * @see #getMod(java.lang.String, java.lang.String)
      */
     public Mod getEnabledModWithName(String name) {
         ArrayList<Mod> list = new ArrayList<Mod>();

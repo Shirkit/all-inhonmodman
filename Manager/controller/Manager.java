@@ -50,6 +50,7 @@ import javax.swing.JFileChooser;
 import utility.FileUtils;
 
 import utility.Game;
+import utility.SplashScreenMain;
 import utility.update.DownloadThread;
 import utility.update.UpdateReturn;
 import utility.update.UpdateThread;
@@ -124,12 +125,13 @@ public class Manager extends Observable {
      * @throws IOException
      */
     public void buildGraphs() {
-        // First reset all new added mods from startup
-        for (int i = 0; i < ManagerOptions.getInstance().getMods().size(); i++) {
-            ManagerOptions.getInstance().getMods().get(i).disable();
-        }
-
         ArrayList<Mod> mods = ManagerOptions.getInstance().getMods();
+        // DISABLED PART BELOW (was causing logical error after adding a honmod after the program is open)
+        // First reset all new added mods from startup
+        //for (int i = 0; i < mods.size(); i++) {
+//            mods.get(i).disable();
+//        }
+
 
         // Now building the graph
         for (int i = 0; i < mods.size(); i++) {
@@ -181,7 +183,7 @@ public class Manager extends Observable {
 
     private void doSaveOptions() throws IOException {
         // TODO: Change path of managerOptions.xml
-        String name = ManagerOptions.getInstance().getManagerPath() + File.separator + ManagerOptions.getInstance().getOptionsName();
+        String name = ManagerOptions.MANAGER_FOLDER + File.separator + ManagerOptions.OPTIONS_FILENAME;
         File f = new File(name);
         if (f.exists()) {
             f.delete();
@@ -201,7 +203,7 @@ public class Manager extends Observable {
      */
     public void saveOptions() throws IOException {
         doSaveOptions();
-        logger.info("Options saved. Path=" + ManagerOptions.getInstance().getManagerPath() + File.separator + ManagerOptions.getInstance().getOptionsName());
+        logger.info("Options saved. Path=" + ManagerOptions.MANAGER_FOLDER + File.separator + ManagerOptions.OPTIONS_FILENAME);
     }
 
     /**
@@ -277,20 +279,14 @@ public class Manager extends Observable {
         // Disable the mod to make sure it is consistent
         ManagerOptions.getInstance().addMod(mod, false);
     }
+    boolean firstLoad = false;
 
     /**
-     * Load all mods from the mods folder (set in Model) and put them into the Model array of mods.
-     * @throws Exception 
+     * This method returns possible Honmod files inside a target folder.
+     * @param targetFolder
+     * @return
      */
-    public ArrayList<ArrayList<Pair<String, String>>> loadMods() throws IOException {
-        ManagerOptions.getInstance().getMods().clear();
-        File modsFolder;
-        try {
-            modsFolder = new File(ManagerOptions.getInstance().getModPath());
-        } catch (NullPointerException ex) {
-            return new ArrayList<ArrayList<Pair<String, String>>>();
-        }
-        // Get mod files from the directory
+    public File[] listHonmodFiles(String targetFolder) {
         FileFilter fileFilter = new FileFilter() {
 
             public boolean accept(File file) {
@@ -304,7 +300,17 @@ public class Manager extends Observable {
                 }
             }
         };
-        File[] files = modsFolder.listFiles(fileFilter);
+        return new File(targetFolder).listFiles(fileFilter);
+    }
+
+    /**
+     * Load all mods from the mods folder (set in Model) and put them into the Model array of mods.
+     * @throws Exception 
+     */
+    public ArrayList<ArrayList<Pair<String, String>>> loadMods() throws IOException {
+        ManagerOptions.getInstance().getMods().clear();
+        // Get mod files from the directory
+        File[] files = listHonmodFiles(ManagerOptions.getInstance().getModPath());
 
         // Exit if no file is found
         if (files == null || files.length == 0) {
@@ -316,11 +322,17 @@ public class Manager extends Observable {
         ArrayList<Pair<String, String>> zip = new ArrayList<Pair<String, String>>();
         ArrayList<Pair<String, String>> duplicate = new ArrayList<Pair<String, String>>();
         ArrayList<ArrayList<Pair<String, String>>> problems = new ArrayList<ArrayList<Pair<String, String>>>();
+        if (SplashScreenMain.getInstance() != null) {
+            SplashScreenMain.getInstance().setProgressMax(files.length);
+        }
         for (int i = 0; i < files.length; i++) {
             try {
                 //logger.error("Adding file - " + files[i].getName() + " from loadMods().");
                 //ManagerCtrl.getGUI().showMessage(L10n.getString("error.loadmodfile").replace("#mod#", files[i].getName()), "TESTING", JOptionPane.ERROR_MESSAGE);
                 addHonmod(files[i], false);
+                if (SplashScreenMain.getInstance() != null) {
+                    SplashScreenMain.getInstance().setProgress("" + i + "/" + files.length, i);
+                }
             } catch (ModStreamException e) {
                 logger.error("StreamException from loadMods(): file - " + files[i].getName() + " - is corrupted.", e);
                 stream.addAll(e.getMods());
@@ -422,7 +434,7 @@ public class Manager extends Observable {
             f.mkdirs();
             FileUtils.copyFile(honmod, new File(f, honmod.getName()));
             logger.info("Mod file copied to mods older");
-            m.setPath(f.getAbsolutePath());
+            m.setPath(f.getAbsolutePath() + File.separator + honmod.getName());
         }
         addMod(m);
     }
@@ -1005,7 +1017,6 @@ public class Manager extends Observable {
                 }
                 if (action.getClass().equals(ActionCopyFile.class)) {
                     ActionCopyFile copyfile = (ActionCopyFile) action;
-                    System.out.println(copyfile.getFromResource());
                     if (!isValidCondition(action)) {
                         // condition isn't valid, can't apply
                         // No need to throw execption, since if condition isn't valid, this action won't be applied
@@ -1255,7 +1266,7 @@ public class Manager extends Observable {
                         }
 
                         // Write String afterEdit to a file
-                        FileUtils.writeFile(afterEdit.getBytes("UTF-8"), temp);
+                        FileUtils.writeFileUtf8(afterEdit.getBytes("UTF-8"), temp);
 
                     }
                     // ApplyAfter, ApplyBefore, Incompatibility, Requirement Action

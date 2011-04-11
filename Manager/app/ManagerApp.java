@@ -31,8 +31,12 @@ import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import javax.swing.ImageIcon;
+import org.jdesktop.application.Task;
 import utility.FileUtils;
 import utility.OS;
+import utility.SplashScreenMain;
+import utility.StdOutErrLog;
 import utility.update.UpdateManager;
 
 /**
@@ -62,114 +66,146 @@ public class ManagerApp extends SingleFrameApplication {
             JOptionPane.showMessageDialog(null, "Please update your JRE environment to the latest version.", "Error", JOptionPane.ERROR_MESSAGE);
         }
 
-        // Look for Manager update
-        ExecutorService pool = Executors.newCachedThreadPool();
-        Future<Boolean> hasUpdate = pool.submit(new UpdateManager());
+        // A separated thread to run the SplashScreen
+        Task<Void, Void> task = new Task<Void, Void>(Application.getInstance()) {
 
-        // Initiate log4j logger and the fatal logger
-        ClassLoader cl = this.getClass().getClassLoader();
-        InputStream is = cl.getResourceAsStream(LOGGER_PROPS);
-        Properties props = new Properties();
-        try {
-            props.load(is);
-            // Change path but don't change the filename
-            props.setProperty("log4j.appender.file.File", "c:\\" + props.getProperty("log4j.appender.file.File"));
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(null, "Cannot initialize logging system", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-        PropertyConfigurator.configure(props);
-        //StdOutErrLog.tieSystemErrToLog();
-        // Log procedure operations
-        logger = Logger.getLogger(this.getClass().getPackage().getName());
-        logger.info("------------------------------------------------------------------------------------------------------------------------");
-        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy - HH:mm:ss");
-        Date date = new Date();
-        logger.info("HonMod manager is starting.");
-        logger.info("Local time: " + dateFormat.format(date));
-        logger.info("Java version: " + System.getProperty("java.version"));
-        logger.info("HonMod manager version: " + ManagerOptions.getInstance().getVersion());
-        logger.info("Running on: " + System.getProperty("os.name") + "|" + System.getProperty("os.version") + "|" + System.getProperty("os.arch"));
-        try {
-            // Try load options. They must be loaded now for language loading
-            try {
-                Manager.getInstance().loadOptions();
-            } catch (StreamException e) {
-                logger.error("StreamException from loadOptions()", e);
-                // Mod options is invalid, just ignore and it will be deleted.
-            } catch (Exception e) {
-                System.out.println(e);
+            @Override
+            protected Void doInBackground() throws Exception {
+                SplashScreenMain splashScreen = new SplashScreenMain(new ImageIcon(getClass().getResource("/gui/resources/splash.jpg")));
+                return null;
             }
-            // Load language, if any
-            if (ManagerOptions.getInstance().getLanguage() != null && !ManagerOptions.getInstance().getLanguage().isEmpty()) {
-                L10n.load(ManagerOptions.getInstance().getLanguage());
-            } else {
-                L10n.load();
-            }
-        } catch (IOException ex) {
-        }
-        logger.info("------------------------------------------------------------------------------------------------------------------------");
+        };
+        task.execute();
 
-        // Load the interface
-        try {
-            ctrl = new ManagerCtrl();
-        } catch (Exception e) {
-            logger.error("Error while starting the manager. " + e.getClass() + " | " + e.getCause() + " | " + e.getMessage(), e);
-            JOptionPane.showMessageDialog(null, " Critical error while starting the manager. " + e.getClass() + " | " + e.getCause() + " | " + e.getMessage(), "Critical Error", JOptionPane.ERROR_MESSAGE);
-            System.exit(0);
-        }
+        // And a another thread to continue loading the manager
+        Task<Void, Void> task2 = new Task<Void, Void>(Application.getInstance()) {
 
-        // Look for Updater.jar file, and try to delete it. If this file is found, it means the last run was an update. We could do some update actions here.
-        File updaterJar = new File(System.getProperty("user.dir") + File.separator + "Updater.jar");
-        if (updaterJar.exists()) {
-            if (!updaterJar.delete()) {
-                updaterJar.deleteOnExit();
-            }
-        }
+            @Override
+            protected Void doInBackground() throws Exception {
 
-        // Wait until the searching for the update is done. This can delay the start of the manager, this should be changed to fire a thread.
-        while (!hasUpdate.isDone()) {
-        }
+                // Look for Manager update
+                final ExecutorService pool = Executors.newCachedThreadPool();
+                final Future<Boolean> hasUpdate = pool.submit(new UpdateManager());
 
-        try {
-            if (hasUpdate.get().booleanValue()) {
-                // If there is a new update
-                if (ManagerOptions.getInstance().isAutoUpdate() || JOptionPane.showConfirmDialog(ManagerGUI.getInstance(), L10n.getString("message.updateavaliabe"), L10n.getString("message.updateavaliabe.title"), JOptionPane.YES_NO_OPTION) == 0) {
-                    // And user accepts it
-                    try {
-                        // Extract the Updater jar file
-                        InputStream in = getClass().getResourceAsStream("/resources/Updater");
-                        FileOutputStream fos = new FileOutputStream(ManagerOptions.MANAGER_FOLDER + File.separator + "Updater.jar");
-                        FileUtils.copyInputStream(in, fos);
-                        in.close();
-                        fos.close();
-                        String currentJar = "";
-                        // Get current jar path. Since user may rename this file, we need to do this way
-                        try {
-                            currentJar = (ManagerApp.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
-                            if ((OS.isWindows() && currentJar.startsWith("/")) || (currentJar.startsWith("//") && !OS.isWindows())) {
-                                currentJar = currentJar.replaceFirst("/", "");
-                            }
-                        } catch (URISyntaxException ex) {
-                        }
-                        String updaterPath = System.getProperty("user.dir") + File.separator + "Updater.jar";
-                        // Run with an String array to avoid errors with blank spaces and uncommon characters
-                        String[] cmd = {"java", "-jar", updaterPath, currentJar, ManagerOptions.MANAGER_DOWNLOAD_URL, updaterPath};
-                        logger.info("Updating manager.");
-                        Runtime.getRuntime().exec(cmd);
-                        shutdown();
-                    } catch (IOException ex) {
-                        // Failed to launch process
-                        logger.fatal(ex);
-                    }
-
+                // Initiate log4j logger and the fatal logger
+                ClassLoader cl = this.getClass().getClassLoader();
+                InputStream is = cl.getResourceAsStream(LOGGER_PROPS);
+                Properties props = new Properties();
+                try {
+                    props.load(is);
+                    // Change path but don't change the filename
+                    props.setProperty("log4j.appender.file.File", FileUtils.getManagerPerpetualFolder().getAbsolutePath() + File.separator + props.getProperty("log4j.appender.file.File"));
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(null, "Cannot initialize logging system", "Error", JOptionPane.ERROR_MESSAGE);
                 }
+                PropertyConfigurator.configure(props);
+                //StdOutErrLog.tieSystemErrToLog();
+                // Log procedure operations
+                logger = Logger.getLogger(this.getClass().getPackage().getName());
+                logger.info("------------------------------------------------------------------------------------------------------------------------");
+                DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy - HH:mm:ss");
+                Date date = new Date();
+                logger.info("HonMod manager is starting.");
+                logger.info("Local time: " + dateFormat.format(date));
+                logger.info("Java version: " + System.getProperty("java.version"));
+                logger.info("HonMod manager version: " + ManagerOptions.getInstance().getVersion());
+                logger.info("Running on: " + System.getProperty("os.name") + "|" + System.getProperty("os.version") + "|" + System.getProperty("os.arch"));
+                try {
+                    // Try load options. They must be loaded now for language loading
+                    try {
+                        Manager.getInstance().loadOptions();
+                    } catch (StreamException e) {
+                        logger.error("StreamException from loadOptions()", e);
+                        // Mod options is invalid, just ignore and it will be deleted.
+                    } catch (Exception e) {
+                        System.out.println(e);
+                    }
+                    // Load language, if any
+                    if (ManagerOptions.getInstance().getLanguage() != null && !ManagerOptions.getInstance().getLanguage().isEmpty()) {
+                        L10n.load(ManagerOptions.getInstance().getLanguage());
+                    } else {
+                        L10n.load();
+                    }
+                } catch (IOException ex) {
+                }
+                logger.info("------------------------------------------------------------------------------------------------------------------------");
+
+                // Load the interface
+                try {
+                    ctrl = new ManagerCtrl();
+                } catch (Exception e) {
+                    logger.error("Error while starting the manager. " + e.getClass() + " | " + e.getCause() + " | " + e.getMessage(), e);
+                    JOptionPane.showMessageDialog(null, " Critical error while starting the manager. " + e.getClass() + " | " + e.getCause() + " | " + e.getMessage(), "Critical Error", JOptionPane.ERROR_MESSAGE);
+                    System.exit(0);
+                }
+
+
+                // Firing a new thread so the Manager can load faster
+                Task<Void, Void> t = new Task(Application.getInstance()) {
+
+                    @Override
+                    protected Object doInBackground() throws Exception {
+                        // Look for Updater.jar file, and try to delete it. If this file is found, it means the last run was an update. We could do some update actions here.
+                        File updaterJar = new File(System.getProperty("user.dir") + File.separator + "Updater.jar");
+                        if (updaterJar.exists()) {
+                            if (!updaterJar.delete()) {
+                                updaterJar.deleteOnExit();
+                            }
+                        }
+
+                        // Wait until the searching for the update is done. This can delay the start of the manager, this should be changed to fire a thread.
+                        while (!hasUpdate.isDone()) {
+                        }
+
+                        try {
+                            if (hasUpdate.get().booleanValue()) {
+                                // If there is a new update
+                                if (ManagerOptions.getInstance().isAutoUpdate() || JOptionPane.showConfirmDialog(ManagerGUI.getInstance(), L10n.getString("message.updateavaliabe"), L10n.getString("message.updateavaliabe.title"), JOptionPane.YES_NO_OPTION) == 0) {
+                                    // And user accepts it
+                                    try {
+                                        // Extract the Updater jar file
+                                        InputStream in = getClass().getResourceAsStream("/resources/Updater");
+                                        FileOutputStream fos = new FileOutputStream(ManagerOptions.MANAGER_FOLDER + File.separator + "Updater.jar");
+                                        FileUtils.copyInputStream(in, fos);
+                                        in.close();
+                                        fos.close();
+                                        String currentJar = "";
+                                        // Get current jar path. Since user may rename this file, we need to do this way
+                                        try {
+                                            currentJar = (ManagerApp.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
+                                            if ((OS.isWindows() && currentJar.startsWith("/")) || (currentJar.startsWith("//") && !OS.isWindows())) {
+                                                currentJar = currentJar.replaceFirst("/", "");
+                                            }
+                                        } catch (URISyntaxException ex) {
+                                        }
+                                        String updaterPath = System.getProperty("user.dir") + File.separator + "Updater.jar";
+                                        // Run with an String array to avoid errors with blank spaces and uncommon characters
+                                        String[] cmd = {"java", "-jar", updaterPath, currentJar, ManagerOptions.MANAGER_DOWNLOAD_URL, updaterPath};
+                                        logger.info("Updating manager.");
+                                        Runtime.getRuntime().exec(cmd);
+                                        shutdown();
+                                    } catch (IOException ex) {
+                                        // Failed to launch process
+                                        logger.fatal(ex);
+                                    }
+
+                                }
+                            }
+                        } catch (InterruptedException ex) {
+                            // Job is never stopped
+                        } catch (ExecutionException ex) {
+                            // Exceptions are never thrown
+                        }
+                        pool.shutdown();
+                        return null;
+                    }
+                };
+                t.execute();
+                SplashScreenMain.getInstance().splashScreenDestruct();
+                return null;
             }
-        } catch (InterruptedException ex) {
-            // Job is never stopped
-        } catch (ExecutionException ex) {
-            // Exceptions are never thrown
-        }
-        pool.shutdown();
+        };
+        task2.execute();
     }
 
     /**
@@ -208,7 +244,7 @@ public class ManagerApp extends SingleFrameApplication {
      * @param lockFile path a file. This should be constant.
      * @return true is there is no other instance running, false otehrwise.
      */
-    private static boolean lockInstance(final String lockFile) {
+    private boolean lockInstance(final String lockFile) {
         try {
             final File file = new File(lockFile);
             final RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw");
@@ -222,14 +258,14 @@ public class ManagerApp extends SingleFrameApplication {
                             randomAccessFile.close();
                             file.delete();
                         } catch (Exception e) {
-                            //log.error("Unable to remove lock file: " + lockFile, e);
+                            logger.error("Unable to remove lock file: " + lockFile, e);
                         }
                     }
                 });
                 return true;
             }
         } catch (Exception e) {
-            //log.error("Unable to create and/or lock file: " + lockFile, e);
+            logger.error("Unable to create and/or lock file: " + lockFile, e);
         }
         return false;
     }

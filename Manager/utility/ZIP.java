@@ -305,7 +305,6 @@ public class ZIP {
 
             in.close();
         } catch (Exception e) {
-            e.printStackTrace();
         }
         return retStr;
     }
