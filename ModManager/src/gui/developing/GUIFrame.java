@@ -1,0 +1,390 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+/*
+ * GUIFrame.java
+ *
+ * Created on 10/09/2010, 12:34:30
+ */
+package gui.developing;
+
+import business.ManagerOptions;
+import gui.ManagerAboutBox;
+import gui.l10n.L10n;
+import org.jdesktop.application.TaskMonitor;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.util.GregorianCalendar;
+import javax.swing.Icon;
+import javax.swing.Timer;
+import javax.swing.ImageIcon;
+import org.jdesktop.application.Action;
+import org.jdesktop.application.Application;
+import org.jdesktop.application.ApplicationContext;
+import org.jdesktop.application.Task;
+import org.jdesktop.application.TaskService;
+
+/**
+ *
+ * @author Shirkit
+ */
+public class GUIFrame extends javax.swing.JFrame {
+
+    @Action
+    public void processar() {
+        long l = GregorianCalendar.getInstance().getTimeInMillis() + 3000;
+        while (GregorianCalendar.getInstance().getTimeInMillis() < l) {
+        }
+    }
+
+    /** Creates new form GUIFrame */
+    public GUIFrame() {
+        initComponents();
+
+        // status bar initialization - message timeout, idle icon and busy animation, etc
+        int messageTimeout = 5000;
+        messageTimer = new Timer(messageTimeout, new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                statusMessageLabel.setText("");
+            }
+        });
+        messageTimer.setRepeats(false);
+        int busyAnimationRate = 30;
+        for (int i = 0; i < busyIcons.length; i++) {
+            busyIcons[i] = new ImageIcon("/gui/resources/busyicons/busy-icon" + i + ".png");
+        }
+        busyIconTimer = new Timer(busyAnimationRate, new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                busyIconIndex = (busyIconIndex + 1) % busyIcons.length;
+                statusAnimationLabel.setIcon(busyIcons[busyIconIndex]);
+            }
+        });
+        idleIcon = new ImageIcon("/gui/resources/busyicons/idle-icon.png");
+        statusAnimationLabel.setIcon(idleIcon);
+        progressBar.setVisible(false);
+
+        // connecting action tasks to status bar via TaskMonitor
+        TaskMonitor taskMonitor = new TaskMonitor(Application.getInstance().getContext());
+        TaskService taskService = getContext().getTaskService();
+        taskMonitor.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                String propertyName = evt.getPropertyName();
+                if ("started".equals(propertyName)) {
+                    if (!busyIconTimer.isRunning()) {
+                        statusAnimationLabel.setIcon(busyIcons[0]);
+                        busyIconIndex = 0;
+                        busyIconTimer.start();
+                    }
+                    progressBar.setVisible(true);
+                    progressBar.setIndeterminate(true);
+                } else if ("done".equals(propertyName)) {
+                    busyIconTimer.stop();
+                    statusAnimationLabel.setIcon(idleIcon);
+                    statusMessageLabel.setVisible(false);
+                    progressBar.setVisible(false);
+                    progressBar.setValue(0);
+                } else if ("message".equals(propertyName)) {
+                    String text = (String) (evt.getNewValue());
+                    statusMessageLabel.setText((text == null) ? "" : text);
+                    messageTimer.restart();
+                } else if ("progress".equals(propertyName)) {
+                    int value = (Integer) (evt.getNewValue());
+                    progressBar.setVisible(true);
+                    progressBar.setIndeterminate(false);
+                    progressBar.setValue(value);
+                }
+            }
+        });
+
+        Task task = new Task<Void, Void>(getApplication(), "desc") {
+
+            @Override
+            public synchronized String getDescription() {
+                return "getdesc";
+            }
+
+            @Override
+            public String getMessage() {
+                return "getmessage";
+            }
+
+            @Override
+            protected Void doInBackground() throws Exception {
+                this.setMessage(getMessage());
+                this.setTitle(getTitle());
+                this.setDescription(getDescription());
+                this.setProgress(5);
+
+                processar();
+                return null;
+            }
+
+            @Override
+            public synchronized String getTitle() {
+                return "title";
+            }
+        };
+        taskService.execute(task);
+        taskMonitor.setForegroundTask(task);
+    }
+
+    /** This method is called from within the constructor to
+     * initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is
+     * always regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        statusPanel = new javax.swing.JPanel();
+        javax.swing.JSeparator statusPanelSeparator = new javax.swing.JSeparator();
+        statusMessageLabel = new javax.swing.JLabel();
+        statusAnimationLabel = new javax.swing.JLabel();
+        progressBar = new javax.swing.JProgressBar();
+        mainMenu = new javax.swing.JMenuBar();
+        menuFile = new javax.swing.JMenu();
+        itemApplyMods = new javax.swing.JMenuItem();
+        itemApplyAndLaunch = new javax.swing.JMenuItem();
+        itemUnapplyAllMods = new javax.swing.JMenuItem();
+        jSeparator1 = new javax.swing.JPopupMenu.Separator();
+        itemOpenModFolder = new javax.swing.JMenuItem();
+        jSeparator3 = new javax.swing.JPopupMenu.Separator();
+        itemDownloadModUpdates = new javax.swing.JMenuItem();
+        jSeparator2 = new javax.swing.JPopupMenu.Separator();
+        itemExit = new javax.swing.JMenuItem();
+        menuOptions = new javax.swing.JMenu();
+        itemOpenPreferences = new javax.swing.JMenuItem();
+        itemRefresh = new javax.swing.JMenuItem();
+        menuHelp = new javax.swing.JMenu();
+        itemVisitForumThread = new javax.swing.JMenuItem();
+        jSeparator4 = new javax.swing.JPopupMenu.Separator();
+        itemAbout = new javax.swing.JMenuItem();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setName("Form"); // NOI18N
+
+        statusPanel.setName("statusPanel"); // NOI18N
+
+        statusPanelSeparator.setName("statusPanelSeparator"); // NOI18N
+
+        statusMessageLabel.setName("statusMessageLabel"); // NOI18N
+
+        statusAnimationLabel.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        statusAnimationLabel.setName("statusAnimationLabel"); // NOI18N
+
+        progressBar.setName("progressBar"); // NOI18N
+
+        javax.swing.GroupLayout statusPanelLayout = new javax.swing.GroupLayout(statusPanel);
+        statusPanel.setLayout(statusPanelLayout);
+        statusPanelLayout.setHorizontalGroup(
+            statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(statusPanelSeparator, javax.swing.GroupLayout.DEFAULT_SIZE, 752, Short.MAX_VALUE)
+            .addGroup(statusPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(statusMessageLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 577, Short.MAX_VALUE)
+                .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(statusAnimationLabel)
+                .addContainerGap())
+        );
+        statusPanelLayout.setVerticalGroup(
+            statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(statusPanelLayout.createSequentialGroup()
+                .addComponent(statusPanelSeparator, javax.swing.GroupLayout.PREFERRED_SIZE, 2, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(statusMessageLabel)
+                    .addComponent(statusAnimationLabel)
+                    .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(3, 3, 3))
+        );
+
+        mainMenu.setName("mainMenu"); // NOI18N
+
+        menuFile.setMnemonic(L10n.getMnemonic("menu.file"));
+        menuFile.setText(L10n.getString("menu.file"));
+        menuFile.setName("menuFile"); // NOI18N
+
+        itemApplyMods.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_MASK));
+        itemApplyMods.setMnemonic(L10n.getMnemonic("menu.file.applymods"));
+        itemApplyMods.setText(L10n.getString("menu.file.applymods"));
+        itemApplyMods.setName("itemApplyMods"); // NOI18N
+        menuFile.add(itemApplyMods);
+
+        itemApplyAndLaunch.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
+        itemApplyAndLaunch.setMnemonic(L10n.getMnemonic("menu.file.applyandlaunch"));
+        itemApplyAndLaunch.setText(L10n.getString("menu.file.applyandlaunch"));
+        itemApplyAndLaunch.setName("itemApplyAndLaunch"); // NOI18N
+        menuFile.add(itemApplyAndLaunch);
+
+        itemUnapplyAllMods.setMnemonic(L10n.getMnemonic("menu.file.unapplymods"));
+        itemUnapplyAllMods.setText(L10n.getString("menu.file.unapplymods"));
+        itemUnapplyAllMods.setName("itemUnapplyAllMods"); // NOI18N
+        menuFile.add(itemUnapplyAllMods);
+
+        jSeparator1.setName("jSeparator1"); // NOI18N
+        menuFile.add(jSeparator1);
+
+        itemOpenModFolder.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F, java.awt.event.InputEvent.CTRL_MASK));
+        itemOpenModFolder.setMnemonic(L10n.getMnemonic("menu.file.openfolder"));
+        itemOpenModFolder.setText(L10n.getString("menu.file.openfolder"));
+        itemOpenModFolder.setName("itemOpenModFolder"); // NOI18N
+        menuFile.add(itemOpenModFolder);
+
+        jSeparator3.setName("jSeparator3"); // NOI18N
+        menuFile.add(jSeparator3);
+
+        itemDownloadModUpdates.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_U, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
+        itemDownloadModUpdates.setMnemonic(L10n.getMnemonic("menu.file.downloadmodupdates"));
+        itemDownloadModUpdates.setText(L10n.getString("menu.file.downloadmodupdates"));
+        itemDownloadModUpdates.setName("itemDownloadModUpdates"); // NOI18N
+        menuFile.add(itemDownloadModUpdates);
+
+        jSeparator2.setName("jSeparator2"); // NOI18N
+        menuFile.add(jSeparator2);
+
+        itemExit.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Q, java.awt.event.InputEvent.CTRL_MASK));
+        itemExit.setMnemonic(L10n.getMnemonic("menu.file.exit"));
+        itemExit.setText(L10n.getString("menu.file.exit"));
+        itemExit.setName("itemExit"); // NOI18N
+        menuFile.add(itemExit);
+
+        mainMenu.add(menuFile);
+
+        menuOptions.setMnemonic(L10n.getMnemonic("menu.options"));
+        menuOptions.setText(L10n.getString("menu.options"));
+        menuOptions.setName("menuOptions"); // NOI18N
+
+        itemOpenPreferences.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.CTRL_MASK));
+        itemOpenPreferences.setMnemonic(L10n.getMnemonic("menu.options.preferences"));
+        itemOpenPreferences.setText(L10n.getString("menu.options.preferences"));
+        itemOpenPreferences.setName("itemOpenPreferences"); // NOI18N
+        itemOpenPreferences.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                itemOpenPreferencesActionPerformed(evt);
+            }
+        });
+        menuOptions.add(itemOpenPreferences);
+
+        itemRefresh.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F5, 0));
+        itemRefresh.setMnemonic(L10n.getMnemonic("menu.options.refresh"));
+        itemRefresh.setText(L10n.getString("menu.options.refresh"));
+        itemRefresh.setName("itemRefresh"); // NOI18N
+        menuOptions.add(itemRefresh);
+
+        mainMenu.add(menuOptions);
+
+        menuHelp.setMnemonic(L10n.getMnemonic("menu.help"));
+        menuHelp.setText(L10n.getString("menu.help"));
+        menuHelp.setName("menuHelp"); // NOI18N
+
+        itemVisitForumThread.setMnemonic(L10n.getMnemonic("menu.help.website"));
+        itemVisitForumThread.setText(L10n.getString("menu.help.website"));
+        itemVisitForumThread.setName("itemVisitForumThread"); // NOI18N
+        menuHelp.add(itemVisitForumThread);
+
+        jSeparator4.setName("jSeparator4"); // NOI18N
+        menuHelp.add(jSeparator4);
+
+        itemAbout.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F1, 0));
+        itemAbout.setMnemonic(L10n.getMnemonic("menu.help.about"));
+        itemAbout.setText(L10n.getString("menu.help.about"));
+        itemAbout.setName("itemAbout"); // NOI18N
+        itemAbout.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                itemAboutActionPerformed(evt);
+            }
+        });
+        menuHelp.add(itemAbout);
+
+        mainMenu.add(menuHelp);
+
+        setJMenuBar(mainMenu);
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(statusPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(314, Short.MAX_VALUE)
+                .addComponent(statusPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void itemOpenPreferencesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemOpenPreferencesActionPerformed
+}//GEN-LAST:event_itemOpenPreferencesActionPerformed
+
+    private void itemAboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemAboutActionPerformed
+        ManagerAboutBox about = new ManagerAboutBox(this, ManagerOptions.getInstance());
+        about.setLocation(this.getX() + 20, this.getY() + 20);
+        about.setVisible(true);
+}//GEN-LAST:event_itemAboutActionPerformed
+
+    private ApplicationContext getContext() {
+        return getApplication().getContext();
+    }
+
+    private Application getApplication() {
+        return Application.getInstance();
+    }
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        java.awt.EventQueue.invokeLater(new Runnable() {
+
+            public void run() {
+                try {
+                    L10n.load();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+                new GUIFrame().setVisible(true);
+            }
+        });
+    }
+    private final Timer messageTimer;
+    private final Timer busyIconTimer;
+    private final Icon idleIcon;
+    private final Icon[] busyIcons = new Icon[15];
+    private int busyIconIndex = 0;
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenuItem itemAbout;
+    private javax.swing.JMenuItem itemApplyAndLaunch;
+    private javax.swing.JMenuItem itemApplyMods;
+    private javax.swing.JMenuItem itemDownloadModUpdates;
+    private javax.swing.JMenuItem itemExit;
+    private javax.swing.JMenuItem itemOpenModFolder;
+    private javax.swing.JMenuItem itemOpenPreferences;
+    private javax.swing.JMenuItem itemRefresh;
+    private javax.swing.JMenuItem itemUnapplyAllMods;
+    private javax.swing.JMenuItem itemVisitForumThread;
+    private javax.swing.JPopupMenu.Separator jSeparator1;
+    private javax.swing.JPopupMenu.Separator jSeparator2;
+    private javax.swing.JPopupMenu.Separator jSeparator3;
+    private javax.swing.JPopupMenu.Separator jSeparator4;
+    private javax.swing.JMenuBar mainMenu;
+    private javax.swing.JMenu menuFile;
+    private javax.swing.JMenu menuHelp;
+    private javax.swing.JMenu menuOptions;
+    private javax.swing.JProgressBar progressBar;
+    private javax.swing.JLabel statusAnimationLabel;
+    private javax.swing.JLabel statusMessageLabel;
+    private javax.swing.JPanel statusPanel;
+    // End of variables declaration//GEN-END:variables
+}
