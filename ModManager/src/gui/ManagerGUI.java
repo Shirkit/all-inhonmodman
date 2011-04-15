@@ -91,12 +91,14 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
             logger.warn("Cannot find application icon");
         }
         // Set model of the language combo box. New languages need to be added here
-        comboBoxChooseLanguage.addItem(new Language("English", "en"));
         comboBoxChooseLanguage.addItem(new Language("German", "de"));
+        comboBoxChooseLanguage.addItem(new Language("English", "en"));
+        comboBoxChooseLanguage.addItem(new Language("Spanish", "es"));
+        comboBoxChooseLanguage.addItem(new Language("Norwegian", "no"));
         comboBoxChooseLanguage.addItem(new Language("Português (Brasil)", "pt_BR"));
         comboBoxChooseLanguage.addItem(new Language("Russian", "ru"));
-        comboBoxChooseLanguage.addItem(new Language("Turkish", "tr"));
         comboBoxChooseLanguage.addItem(new Language("~Strings Code Table", "strings"));
+        comboBoxChooseLanguage.addItem(new Language("Turkish", "tr"));
         comboBoxChooseLanguage.addItem(new Language("~Local HonModMan.properties file", "file"));
         // Set model of the LaF combobox. This will not be localized
         //comboBoxLafs.addItem(new LaF("Default", UIManager.getSystemLookAndFeelClassName()));

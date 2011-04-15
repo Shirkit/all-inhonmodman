@@ -216,10 +216,12 @@
 
 [b]1.0 stable - xx/xx/2011:[/b]
 - Updated Turkish language.
+- Added Spanish and Norwegian languages.
 - Fixed manager updating mods to older version than the current one.
 - Fixed not closing the manager when updating.
 - Added support for retrieving Line Numbers for the actions in the XML.
 - Fixed bugs SplashScreen related.
+- DetailsView now uses L10n for column names
 
 
 

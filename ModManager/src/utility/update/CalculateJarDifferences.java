@@ -40,7 +40,7 @@ public class CalculateJarDifferences {
      * This method should only be run when a new version of the Manager will be released. It tries to make the process more automatic.
      * Currently:
      * - Writes in the Version file in LOCAL DISK (Dropbox folder, so Dropbox must be running!)
-     * - 
+     * - Uploads the file to the correct folder tree in the SourceForge project, creating all needed folder on the way.
      */
     public static void main(String[] args) throws ZipException, IOException, JSchException {
         // First step is to get the version we want to release.
@@ -105,9 +105,9 @@ public class CalculateJarDifferences {
         Session session = null;
         try {
             System.out.println("Connecting to SF");
-            session = jsch.getSession("shirkit,all-inhonmodman", "frs.sourceforge.net", 22);
+            session = jsch.getSession(",all-inhonmodman", "frs.sourceforge.net", 22);
             session.setConfig("StrictHostKeyChecking", "no");
-            session.setPassword("GGpalhaci17");
+            session.setPassword("");
             session.connect();
 
             Channel channel = session.openChannel("sftp");
