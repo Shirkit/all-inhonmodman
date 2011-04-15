@@ -8,7 +8,6 @@ public class OS {
 
     /**
      * Check if we are on MS Windows OS
-     * TODO: this needs to be tested on different systems
      *
      * @return true if the platform is MS Windows, false otherwise
      */
@@ -18,7 +17,6 @@ public class OS {
 
     /**
      * Check if we are on Linux OS
-     * TODO: this needs to be tested on different systems
      *
      * @return true if the platform is Linux
      */
@@ -28,7 +26,6 @@ public class OS {
 
     /**
      * Check if we are on Apple Mac OS
-     * TODO: this needs to be tested on different systems
      *
      * @return true if the platform is Apple Mac OS
      */

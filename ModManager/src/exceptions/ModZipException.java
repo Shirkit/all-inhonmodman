@@ -38,6 +38,7 @@ public class ModZipException extends Exception {
     /**
      * @return a string of mod names separated by comma in array _deps
      */
+    @Override
     public String toString() {
     	String ret = "";
     	Enumeration e = Collections.enumeration(_mods);

@@ -24,6 +24,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import controller.Manager;
+import utility.FileUtils;
 
 import utility.XML;
 
@@ -166,7 +167,7 @@ public class ManagerOptions extends Observable {
      * @throws StreamException this exception is thrown if the file is not valid (a user changed, the file is corrupt etc).
      */
     public void loadOptions() throws FileNotFoundException, StreamException {
-        ManagerOptions temp = XML.xmlToManagerOptions(new File(MANAGER_FOLDER + File.separator + OPTIONS_FILENAME));
+        ManagerOptions temp = XML.xmlToManagerOptions(new File(FileUtils.getManagerPerpetualFolder() + File.separator + OPTIONS_FILENAME));
         if (temp.getAppliedMods() != null) {
             instance.setAppliedMods(temp.getAppliedMods());
         }

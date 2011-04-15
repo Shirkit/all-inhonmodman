@@ -26,6 +26,8 @@ public class ActionEditFileFindUpConverter implements Converter {
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext uc) {
         ActionEditFileFindUp value = new ActionEditFileFindUp();
         value.setContent(reader.getValue());
+        value.setLineStart(reader.getAttribute("lineStart"));
+        value.setLineEnd(reader.getAttribute("lineEnd"));
         return value;
     }
 

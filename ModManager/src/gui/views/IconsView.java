@@ -102,7 +102,6 @@ public class IconsView extends ModsTableView {
             graphics.drawImage(image2, null, 0, 0);
             data.setIcon(new ImageIcon(iamgefinal));
             } catch (Exception ex) {
-            // TODO: do the same when icon.png wasn't found
             System.err.println(m.getName());
             ex.printStackTrace();
             data.setIcon(m.getIcon());

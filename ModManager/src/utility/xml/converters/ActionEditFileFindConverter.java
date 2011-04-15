@@ -29,6 +29,8 @@ public class ActionEditFileFindConverter implements Converter {
         ActionEditFileFind value = new ActionEditFileFind();
         value.setContent(reader.getValue());
         value.setPosition(reader.getAttribute("position"));
+        value.setLineStart(reader.getAttribute("lineStart"));
+        value.setLineEnd(reader.getAttribute("lineEnd"));
         return value;
     }
 

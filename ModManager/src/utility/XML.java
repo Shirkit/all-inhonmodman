@@ -3,6 +3,8 @@ package utility;
 import business.ManagerOptions;
 import business.Mod;
 import business.ModList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import utility.xml.ShirkitDriver;
 import business.modactions.*;
 import com.thoughtworks.xstream.XStream;
@@ -15,9 +17,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.OutputStreamWriter;
-import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.util.ArrayList;
@@ -103,27 +105,14 @@ public class XML {
 
     /**
      * Loads the content of a XML file into a Mod.
-     * @param file to be read.
+     * @param is - InputStream to be read.
      * @return the Mod with all fields already filled up.
-     * @throws FileNotFoundException
      */
-    public static Mod xmlToMod(File file) throws FileNotFoundException, StreamException {
-
-        if (file.exists()) {
-            XStream xstream = new XStream(getDriver());
-            updateAlias(xstream);
-            Mod m = (Mod) xstream.fromXML(new FileInputStream(file));
-            return removeRequiredMods(m);
-        } else {
-            throw new FileNotFoundException();
-        }
-    }
-
-    public static Mod xmlToMod(String fileString, ShirkitDriver driver) throws FileNotFoundException {
+    private static Mod xmlToMod(InputStream is, ShirkitDriver driver) throws StreamException {
 
         XStream xstream = new XStream(driver);
-        xstream = updateAlias(xstream);
-        Mod m = (Mod) xstream.fromXML(fileString);
+        updateAlias(xstream);
+        Mod m = (Mod) xstream.fromXML(is);
         return removeRequiredMods(m);
 
     }
@@ -133,31 +122,39 @@ public class XML {
      * @param fileString to be read.
      * @return the Mod with all fields already filled up.
      */
-    public static Mod xmlToMod(String fileString) throws FileNotFoundException {
-
-        XStream xstream = new XStream(getDriver());
-        xstream = updateAlias(xstream);
-        Mod m = null;
+    public static Mod xmlToMod(String fileString) throws StreamException {
+        InputStream is = null;
         try {
-            m = (Mod) xstream.fromXML(fileString);
-        } catch (StreamException e) {
-            // Remove BOM
+            is = new ByteArrayInputStream(fileString.getBytes("UTF-8"));
+        } catch (UnsupportedEncodingException ex) {
+        }
+        Mod m = null;
+
+        try {
+            // UTF-8
+            m = xmlToMod(is, getDriver());
+        } catch (StreamException e1) {
             try {
-                m = (Mod) xstream.fromXML(fileString.substring(1));
-            } catch (StreamException ex) {
-                // Load another driver
-                xstream = new XStream(getAlternativeDriver());
+                // UTF-16
+                m = xmlToMod(is, getAlternativeDriver());
+            } catch (StreamException e2) {
                 try {
-                    // Try with another driver
-                    m = (Mod) xstream.fromXML(fileString);
-                } catch (StreamException ex1) {
-                    // Remove BOM
-                    m = (Mod) xstream.fromXML(fileString.substring(1));
+                    // Remove the BOM
+                    is = new ByteArrayInputStream(fileString.substring(1).getBytes("UTF-8"));
+                    try {
+                        // UTF-8
+                        m = xmlToMod(is, getDriver());
+                    } catch (StreamException e3) {
+                        // UTF-16
+                        m = xmlToMod(is, getAlternativeDriver());
+                    }
+
+                } catch (UnsupportedEncodingException ex) {
                 }
             }
-        } 
+        }
 
-        return removeRequiredMods(m);
+        return m;
 
     }
 

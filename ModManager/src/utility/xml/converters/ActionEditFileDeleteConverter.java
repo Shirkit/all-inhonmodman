@@ -25,6 +25,8 @@ public class ActionEditFileDeleteConverter implements Converter {
 
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext uc) {
         ActionEditFileDelete value = new ActionEditFileDelete();
+        value.setLineStart(reader.getAttribute("lineStart"));
+        value.setLineEnd(reader.getAttribute("lineEnd"));
         //value.setContent("<![CDATA[" + reader.getValue() + "]]>");
         return value;
     }

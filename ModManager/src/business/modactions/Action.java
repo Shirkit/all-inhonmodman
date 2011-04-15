@@ -1,5 +1,6 @@
     package business.modactions;
 
+import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
 /**
@@ -56,6 +57,26 @@ public class Action {
     // Attributes
     @XStreamOmitField
     private String type;
+    @XStreamAsAttribute
+    private String lineStart;
+    @XStreamAsAttribute
+    private String lineEnd;
+
+    public String getLineEnd() {
+        return lineEnd;
+    }
+
+    public String getLineStart() {
+        return lineStart;
+    }
+
+    public void setLineEnd(String lineEnd) {
+        this.lineEnd = lineEnd;
+    }
+
+    public void setLineStart(String lineStart) {
+        this.lineStart = lineStart;
+    }
 
     /**
      * @return the type of the action. See list of constants

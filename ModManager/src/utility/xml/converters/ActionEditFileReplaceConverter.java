@@ -26,6 +26,8 @@ public class ActionEditFileReplaceConverter implements Converter {
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext uc) {
         ActionEditFileReplace value = new ActionEditFileReplace();
         value.setContent(reader.getValue());
+        value.setLineStart(reader.getAttribute("lineStart"));
+        value.setLineEnd(reader.getAttribute("lineEnd"));
         return value;
     }
 

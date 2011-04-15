@@ -29,6 +29,8 @@ public class ActionEditFileInsertConverter implements Converter {
         ActionEditFileInsert value = new ActionEditFileInsert();
         value.setContent(reader.getValue());
         value.setPosition(reader.getAttribute("position"));
+        value.setLineStart(reader.getAttribute("lineStart"));
+        value.setLineEnd(reader.getAttribute("lineEnd"));
         return value;
     }
 

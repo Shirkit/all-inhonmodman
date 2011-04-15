@@ -43,7 +43,6 @@ public class Notification extends javax.swing.JDialog {
 
     private Notification(String title, String text, String details, int option) {
         super(parentFrame, true);
-        // TODO: Need to apply Look and Feel
         initComponents();
         setTitle(title);
         detailsEditorPane.setText(details);
@@ -186,7 +185,6 @@ public class Notification extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void buttonDetailsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonDetailsActionPerformed
-        // TODO add your handling code here:
         AbstractButton but = (AbstractButton) buttonDetails;
         // This means if he clicked to select the button
         if (but.isSelected()) {

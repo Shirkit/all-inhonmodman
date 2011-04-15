@@ -30,6 +30,8 @@ import java.util.Random;
 import com.mallardsoft.tuple.*;
 import com.thoughtworks.xstream.converters.ConversionException;
 import com.thoughtworks.xstream.io.StreamException;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.nio.channels.FileLockInterruptionException;
 
 import java.security.InvalidParameterException;
@@ -183,7 +185,7 @@ public class Manager extends Observable {
 
     private void doSaveOptions() throws IOException {
         // TODO: Change path of managerOptions.xml
-        String name = ManagerOptions.MANAGER_FOLDER + File.separator + ManagerOptions.OPTIONS_FILENAME;
+        String name = FileUtils.getManagerPerpetualFolder() + File.separator + ManagerOptions.OPTIONS_FILENAME;
         File f = new File(name);
         if (f.exists()) {
             f.delete();
@@ -322,7 +324,7 @@ public class Manager extends Observable {
         ArrayList<Pair<String, String>> zip = new ArrayList<Pair<String, String>>();
         ArrayList<Pair<String, String>> duplicate = new ArrayList<Pair<String, String>>();
         ArrayList<ArrayList<Pair<String, String>>> problems = new ArrayList<ArrayList<Pair<String, String>>>();
-        if (SplashScreenMain.getInstance() != null) {
+        if (SplashScreenMain.getInstance().isSplashScreenActive()) {
             SplashScreenMain.getInstance().setProgressMax(files.length);
         }
         for (int i = 0; i < files.length; i++) {
@@ -330,7 +332,7 @@ public class Manager extends Observable {
                 //logger.error("Adding file - " + files[i].getName() + " from loadMods().");
                 //ManagerCtrl.getGUI().showMessage(L10n.getString("error.loadmodfile").replace("#mod#", files[i].getName()), "TESTING", JOptionPane.ERROR_MESSAGE);
                 addHonmod(files[i], false);
-                if (SplashScreenMain.getInstance() != null) {
+                if (SplashScreenMain.getInstance().isSplashScreenActive()) {
                     SplashScreenMain.getInstance().setProgress("" + i + "/" + files.length, i);
                 }
             } catch (ModStreamException e) {
@@ -1154,7 +1156,7 @@ public class Manager extends Observable {
                                         cursor[0] = afterEdit.toLowerCase().indexOf(find.getContent().toLowerCase(), cursor2[0]);
                                         if (cursor[0] == -1) {
                                             // couldn't find the string, can't apply
-                                            throw new StringNotFoundModActionException(mod.getName(), mod.getVersion(), (Action) find, find.getContent());
+                                            throw new StringNotFoundModActionException(mod.getName(), mod.getVersion(), (Action) find, find.getContent(), mod);
                                         }
                                         cursor2[0] = cursor[0] + find.getContent().length();
                                         isSelected = true;
@@ -1168,7 +1170,7 @@ public class Manager extends Observable {
                                     cursor[0] = afterEdit.toLowerCase().lastIndexOf(findup.getContent().toLowerCase(), cursor2[0]);
                                     if (cursor[0] == -1) {
                                         // couldn't find the string, can't apply
-                                        throw new StringNotFoundModActionException(mod.getName(), mod.getVersion(), (Action) findup, findup.getContent());
+                                        throw new StringNotFoundModActionException(mod.getName(), mod.getVersion(), (Action) findup, findup.getContent(), mod);
                                     }
                                     cursor2[0] = cursor[0] + findup.getContent().length();
                                     isSelected = true;
@@ -1188,7 +1190,7 @@ public class Manager extends Observable {
                                     }
                                     if (firstPosition.isEmpty()) {
                                         // no string was found, can't apply
-                                        throw new StringNotFoundModActionException(mod.getName(), mod.getVersion(), (Action) findall, findall.getContent());
+                                        throw new StringNotFoundModActionException(mod.getName(), mod.getVersion(), (Action) findall, findall.getContent(), mod);
                                     }
                                     // Insert into the array
                                     cursor = new int[firstPosition.size()];

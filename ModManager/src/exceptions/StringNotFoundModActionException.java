@@ -4,6 +4,7 @@
  */
 package exceptions;
 
+import business.Mod;
 import business.modactions.Action;
 
 /**
@@ -16,6 +17,7 @@ public class StringNotFoundModActionException extends Exception {
     private String version;
     private Action action;
     private String string;
+    private Mod mod;
 
     /**
      * @param name of the mod.
@@ -23,12 +25,13 @@ public class StringNotFoundModActionException extends Exception {
      * @param action that thrown this exception.
      * @param string that wasn't found.
      */
-    public StringNotFoundModActionException(String name, String version, Action action, String string) {
+    public StringNotFoundModActionException(String name, String version, Action action, String string, Mod mod) {
         super();
         this.name = name;
         this.version = version;
         this.action = action;
         this.string = string;
+        this.mod = mod;
     }
 
     /**
@@ -57,5 +60,9 @@ public class StringNotFoundModActionException extends Exception {
      */
     public String getString() {
         return string;
+    }
+
+    public Mod getMod() {
+        return mod;
     }
 }

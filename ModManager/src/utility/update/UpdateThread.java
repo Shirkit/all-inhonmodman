@@ -21,6 +21,7 @@ import java.util.concurrent.Callable;
 import controller.Manager;
 import utility.FileUtils;
 import exceptions.UpdateModException;
+import java.util.StringTokenizer;
 
 /**
  *
@@ -45,7 +46,7 @@ public class UpdateThread implements Callable<UpdateThread> {
                 BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                 String str = in.readLine();
                 in.close();
-                if (str != null && !str.toLowerCase().trim().contains("error") && !Manager.getInstance().compareModsVersions(mod.getVersion(), str)) {
+                if (str != null && !str.toLowerCase().trim().contains("error") && !Manager.getInstance().compareModsVersions(str, "*-"+mod.getVersion())) {
                     InputStream is = new URL(mod.getUpdateDownloadUrl().trim()).openStream();
                     file = new File(System.getProperty("java.io.tmpdir") + File.separator + new File(mod.getPath()).getName());
                     FileOutputStream fos = new FileOutputStream(file, false);
@@ -80,7 +81,7 @@ public class UpdateThread implements Callable<UpdateThread> {
                     BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                     String str = in.readLine();
                     in.close();
-                    if (str != null && !str.toLowerCase().trim().contains("error") && !Manager.getInstance().compareModsVersions(mod.getVersion(), str)) {
+                    if (str != null && !str.toLowerCase().trim().contains("error") && !Manager.getInstance().compareModsVersions(str, "*-"+mod.getVersion())) {
                         InputStream is = new URL(mod.getUpdateDownloadUrl().trim()).openStream();
                         file = new File(System.getProperty("java.io.tmpdir") + File.separator + new File(mod.getPath()).getName());
                         FileOutputStream fos = new FileOutputStream(file, false);

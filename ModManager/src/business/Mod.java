@@ -78,8 +78,6 @@ public class Mod {
     private Icon resizedIcon;
     @XStreamOmitField
     private String changelog;
-    @XStreamOmitField
-    private boolean updatedDescription = false;
 
     /**
      * Mod constructor.

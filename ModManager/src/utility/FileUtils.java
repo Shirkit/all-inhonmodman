@@ -206,7 +206,14 @@ public class FileUtils {
         return tempFolder;
     }
 
+    // Caching
+    static File perpetualFolder = null;
+
     public static File getManagerPerpetualFolder() {
+        // Caching
+        if (perpetualFolder!= null) {
+            return perpetualFolder;
+        }
         File folder = null;
 
         if (OS.isLinux()) {
@@ -230,6 +237,8 @@ public class FileUtils {
         if (OS.isMac()) {
             return new File(ManagerOptions.MANAGER_FOLDER);
         }
+
+        perpetualFolder = folder;
 
         return folder;
     }

@@ -22,6 +22,10 @@ public class SplashScreenMain {
         return instance;
     }
 
+    public boolean isSplashScreenActive() {
+        return instance != null && screen != null;
+    }
+
     public SplashScreenMain(ImageIcon icon) {
 
         try {

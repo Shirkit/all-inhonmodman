@@ -222,6 +222,7 @@ public class ManagerApp extends SingleFrameApplication {
         super.shutdown();
 
         logger.error("Shutting down!!");
+        System.exit(0);
     }
 
     /**

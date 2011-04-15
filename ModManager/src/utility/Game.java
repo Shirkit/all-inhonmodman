@@ -31,7 +31,6 @@ public class Game {
      * @return folder where HoN is installed or null if such folder cannot be found
      */
     public static String findHonFolder() {
-        //TODO: finish this function for windows and linux
         // Try to find HoN folder in case we are on Windows
         if (ManagerOptions.getInstance().getGamePath() != null && !ManagerOptions.getInstance().getGamePath().isEmpty()) {
             return ManagerOptions.getInstance().getGamePath();
@@ -56,10 +55,6 @@ public class Game {
             if (registryData != null && !registryData.isEmpty()) {
                 return registryData;
             }
-            // TODO: the location is also stored in the registry by Notausgang's
-            // Mod manager... but our current registry accessing method can't see
-            // it.
-            // We didnt find HoN folder in the registry, try something else?
         }
         // Try to find HoN folder in case we are on Linux
         if (OS.isLinux()) {

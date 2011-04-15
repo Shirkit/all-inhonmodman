@@ -1297,7 +1297,6 @@ public class ManagerGUI1 extends javax.swing.JFrame implements Observer {
         
     /**
      * Highlight the mods that is required to enable before or disable before the current select mod do
-     * TODO: next release, right now don't bother
      */
     public void highlightRequiredMods() {
         int selectedRow = tableModList.getSelectedRow();
