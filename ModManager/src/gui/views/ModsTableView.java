@@ -4,6 +4,7 @@
  */
 package gui.views;
 
+import business.ManagerOptions;
 import business.Mod;
 import java.awt.Point;
 import java.awt.event.KeyListener;
@@ -16,6 +17,8 @@ import javax.swing.event.ListSelectionListener;
  * @author George
  */
 public abstract class ModsTableView {
+
+    protected static final ManagerOptions options = ManagerOptions.getInstance();
 
     public ModsTableView(ArrayList<Mod> _modsList) {
         setModsList(_modsList);
@@ -81,6 +84,8 @@ public abstract class ModsTableView {
         this.component = component;
         this.component.addMouseListener(new TableViewMouseListener());
     }
+
+    public abstract void applyOptions();
 
     public abstract Mod getModAt(int x, int y);
 

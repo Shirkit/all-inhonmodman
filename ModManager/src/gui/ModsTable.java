@@ -31,17 +31,13 @@ import javax.swing.event.ListSelectionListener;
  * @author Gcommer
  *
  * TODO:
- *  - the DetailsView needs preferences for whether or not the are shown
  *  - the DetailsView needs the order of the mods to be displayed
- *  - whether or not the check box column is colored
- *  - (I'm sure there are many more, but I haven't listed them yet.)
  */
 public final class ModsTable extends JPanel {
 
-    private final static int TABLE_HEIGHT = 619, TABLE_WIDTH = 619;
+    private final static int TABLE_HEIGHT = 619, TABLE_WIDTH = 219;
 
     public enum ViewType {
-
         DETAILS,
         ICONS,
         DETAILED_ICONS,
@@ -211,6 +207,7 @@ public final class ModsTable extends JPanel {
         getCurrentView().setModsList(ManagerOptions.getInstance().getMods());
         getCurrentView().getComponent().repaint();
     }
+
     private ArrayList<Mod> modsList;
     private Map<ViewType, ModsTableView> views;
     private Mod selectedMod;

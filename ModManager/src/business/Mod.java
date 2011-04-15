@@ -5,6 +5,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
+import gui.views.DetailsView;
 import java.awt.Image;
 
 import java.util.ArrayList;
@@ -77,6 +78,8 @@ public class Mod {
     @XStreamOmitField
     private Icon resizedIcon;
     @XStreamOmitField
+    private Icon smallIcon;
+    @XStreamOmitField
     private String changelog;
 
     /**
@@ -135,6 +138,7 @@ public class Mod {
         this.enabled = mod.isEnabled();
         this.changelog = mod.getChangelog();
         this.resizedIcon = mod.getSizedIcon();
+        this.smallIcon = mod.getSmallIcon();
         this.icon = mod.getIcon();
     }
 
@@ -351,14 +355,23 @@ public class Mod {
      * @param icon Icon for this mod
      */
     public void setIcon(Icon icon) {
-        this.icon = icon;
-        this.resizedIcon = icon;
+        this.icon = this.resizedIcon = this.smallIcon = icon;
+        
+        // Resize icon to normal size.
         if (icon.getIconHeight() != ICON_HEIGHT
-                || icon.getIconWidth() != ICON_WIDTH) {
+         || icon.getIconWidth() != ICON_WIDTH) {
             resizedIcon = new ImageIcon(
-                    ((ImageIcon) icon).getImage().getScaledInstance(ICON_WIDTH,
-                    ICON_HEIGHT,
-                    Image.SCALE_SMOOTH));
+                    ((ImageIcon) icon).getImage().getScaledInstance(
+                                  ICON_WIDTH, ICON_HEIGHT, Image.SCALE_SMOOTH));
+        }
+
+        // Resize icon to fit in DetailsView
+        if (icon.getIconHeight() != DetailsView.DEFAULT_ROW_HEIGHT) {
+            smallIcon = new ImageIcon(
+                        ((ImageIcon) icon).getImage().getScaledInstance(
+                                              DetailsView.DEFAULT_ROW_HEIGHT,
+                                              DetailsView.DEFAULT_ROW_HEIGHT,
+                                              Image.SCALE_SMOOTH) );
         }
     }
 
@@ -376,6 +389,14 @@ public class Mod {
      */
     public Icon getSizedIcon() {
         return resizedIcon;
+    }
+
+    /**
+     * Returns icon for a mod
+     * @return the smaller icon for this mod to fit into DetailsView
+     */
+    public Icon getSmallIcon() {
+        return smallIcon;
     }
 
     /**

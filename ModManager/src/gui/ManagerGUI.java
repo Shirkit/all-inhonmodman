@@ -3,6 +3,7 @@ package gui;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -300,6 +301,8 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         itemViewIcons = new javax.swing.JRadioButtonMenuItem();
         itemViewDetailedIcons = new javax.swing.JRadioButtonMenuItem();
         itemViewTiles = new javax.swing.JRadioButtonMenuItem();
+        jSeparator6 = new javax.swing.JPopupMenu.Separator();
+        itemUseSmallIcons = new javax.swing.JCheckBoxMenuItem();
         menuHelp = new javax.swing.JMenu();
         itemVisitForumThread = new javax.swing.JMenuItem();
         jSeparator4 = new javax.swing.JPopupMenu.Separator();
@@ -543,14 +546,14 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
             .addGroup(panelModChangelogLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(panelModChangelogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(panelChangelogScrollpaneChangelogEditorPane, javax.swing.GroupLayout.DEFAULT_SIZE, 414, Short.MAX_VALUE)
+                    .addComponent(panelChangelogScrollpaneChangelogEditorPane, javax.swing.GroupLayout.DEFAULT_SIZE, 418, Short.MAX_VALUE)
                     .addGroup(panelModChangelogLayout.createSequentialGroup()
                         .addComponent(panelChangelogLabelModIcon)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(panelModChangelogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(panelChangelogLabelModAuthor, javax.swing.GroupLayout.PREFERRED_SIZE, 184, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(panelChangelogLabelModName, javax.swing.GroupLayout.PREFERRED_SIZE, 184, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(buttonViewModDetails, javax.swing.GroupLayout.DEFAULT_SIZE, 414, Short.MAX_VALUE))
+                    .addComponent(buttonViewModDetails, javax.swing.GroupLayout.DEFAULT_SIZE, 418, Short.MAX_VALUE))
                 .addContainerGap())
         );
         panelModChangelogLayout.setVerticalGroup(
@@ -563,7 +566,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(panelChangelogLabelModAuthor)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(panelChangelogScrollpaneChangelogEditorPane, javax.swing.GroupLayout.DEFAULT_SIZE, 472, Short.MAX_VALUE)
+                .addComponent(panelChangelogScrollpaneChangelogEditorPane, javax.swing.GroupLayout.DEFAULT_SIZE, 497, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(buttonViewModDetails)
                 .addContainerGap())
@@ -628,7 +631,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         panelModDescriptionLayout.setVerticalGroup(
             panelModDescriptionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelModDescriptionLayout.createSequentialGroup()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 354, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 385, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(labelRequirements)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -669,7 +672,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                     .addGroup(panelModDetailsLayout.createSequentialGroup()
                         .addGroup(panelModDetailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addComponent(buttonVisitWebsite, 0, 0, Short.MAX_VALUE)
-                            .addComponent(buttonEnableMod, javax.swing.GroupLayout.PREFERRED_SIZE, 123, Short.MAX_VALUE))
+                            .addComponent(buttonEnableMod, javax.swing.GroupLayout.DEFAULT_SIZE, 123, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(panelModDetailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(buttonUpdateMod, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -725,10 +728,10 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonAddMod)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(labelStatus, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(labelStatus, javax.swing.GroupLayout.DEFAULT_SIZE, 381, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonLaunchHon, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(modsTable, javax.swing.GroupLayout.DEFAULT_SIZE, 391, Short.MAX_VALUE))
+                    .addComponent(modsTable, javax.swing.GroupLayout.DEFAULT_SIZE, 619, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(panelModListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                     .addComponent(progressBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -743,9 +746,9 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
             .addGroup(panelModListLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(panelModListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(modsTable, javax.swing.GroupLayout.DEFAULT_SIZE, 601, Short.MAX_VALUE)
-                    .addComponent(panelModDetails, javax.swing.GroupLayout.DEFAULT_SIZE, 601, Short.MAX_VALUE)
-                    .addComponent(panelModChangelog, javax.swing.GroupLayout.DEFAULT_SIZE, 601, Short.MAX_VALUE))
+                    .addComponent(modsTable, javax.swing.GroupLayout.DEFAULT_SIZE, 618, Short.MAX_VALUE)
+                    .addComponent(panelModDetails, javax.swing.GroupLayout.DEFAULT_SIZE, 618, Short.MAX_VALUE)
+                    .addComponent(panelModChangelog, javax.swing.GroupLayout.DEFAULT_SIZE, 618, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(panelModListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panelModListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -878,6 +881,14 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         itemViewTiles.setName("itemViewTiles"); // NOI18N
         menuView.add(itemViewTiles);
 
+        jSeparator6.setName("jSeparator6"); // NOI18N
+        menuView.add(jSeparator6);
+
+        itemUseSmallIcons.setMnemonic(L10n.getMnemonic("menu.view.tiles"));
+        itemUseSmallIcons.setText(L10n.getString("menu.view.smallicons"));
+        itemUseSmallIcons.setName("itemUseSmallIcons"); // NOI18N
+        menuView.add(itemUseSmallIcons);
+
         mainMenu.add(menuView);
 
         menuHelp.setMnemonic(L10n.getMnemonic("menu.help"));
@@ -924,11 +935,11 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panelModList, javax.swing.GroupLayout.DEFAULT_SIZE, 954, Short.MAX_VALUE)
+            .addComponent(panelModList, javax.swing.GroupLayout.DEFAULT_SIZE, 956, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panelModList, javax.swing.GroupLayout.DEFAULT_SIZE, 662, Short.MAX_VALUE)
+            .addComponent(panelModList, javax.swing.GroupLayout.DEFAULT_SIZE, 674, Short.MAX_VALUE)
         );
 
         java.awt.Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
@@ -1072,36 +1083,6 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         });
 
         dialog.setVisible(true);
-    }
-
-    /**
-     * Custom table model of the mod list table
-     */
-    private class ModTableModel extends DefaultTableModel {
-
-        Class[] types = new Class[]{
-            java.lang.Boolean.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
-        };
-        boolean[] canEdit = new boolean[]{
-            true, false, false, false, false
-        };
-
-        public ModTableModel(Object[][] data, Object[] columnNames) {
-            super(data, columnNames);
-        }
-
-        @Override
-        public Class<?> getColumnClass(int columnIndex) {
-            if (getRowCount() > 0 && getValueAt(0, columnIndex) != null) {
-                return getValueAt(0, columnIndex).getClass();
-            }
-            return super.getColumnClass(columnIndex);
-        }
-
-        @Override
-        public boolean isCellEditable(int rowIndex, int columnIndex) {
-            return canEdit[columnIndex];
-        }
     }
 
     //TODO: Fix this for all views (icons, tiles and table).
@@ -1332,6 +1313,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         itemVisitForumThread.setEnabled(enabled);
         itemViewDetailedIcons.setEnabled(enabled);
         itemViewTiles.setEnabled(enabled);
+        itemUseSmallIcons.setEnabled(enabled);
         modsTable.setEnabled(enabled);
         if (enabled && fullyLoaded) {
             displayModDetail();
@@ -1402,6 +1384,14 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         return itemViewTiles;
     }
 
+    public JCheckBoxMenuItem getItemUseSmallIcons() {
+        return itemUseSmallIcons;
+    }
+
+    public void setItemUseSmallIcons(JCheckBoxMenuItem itemUseSmallIcons) {
+        this.itemUseSmallIcons = itemUseSmallIcons;
+    }
+
     public void buttonEnableModAddActionListener(ActionListener al) {
         buttonEnableMod.addActionListener(al);
     }
@@ -1453,6 +1443,10 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
 
     public void itemViewTilesAddActionListener(ActionListener al) {
         itemViewTiles.addActionListener(al);
+    }
+
+    public void itemUseSmallIconsAddActionListener(ActionListener al) {
+        itemUseSmallIcons.addActionListener(al);
     }
 
     public ModsTable getModsTable() {
@@ -1630,27 +1624,6 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     }
 
     /**
-     * Class to renderer cells in the Icons View list.
-     */
-    private class IconsListCellRenderer extends DefaultListCellRenderer {
-
-        public IconsListCellRenderer() {
-        }
-
-        @Override
-        public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-            super.getListCellRendererComponent(list,
-                    value, index, isSelected, cellHasFocus);
-            setIcon(((Mod) value).getIcon());
-            setText(((Mod) value).getName());
-
-            // Grays out the icons
-            setEnabled(((Mod) value).isEnabled());
-            return this;
-        }
-    }
-
-    /**
      * Class of items in the Select language combo box on preferences dialog
      */
     private class Language {
@@ -1716,6 +1689,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     private javax.swing.JMenuItem itemOpenPreferences;
     private javax.swing.JMenuItem itemRefresh;
     private javax.swing.JMenuItem itemUnapplyAllMods;
+    private javax.swing.JCheckBoxMenuItem itemUseSmallIcons;
     private javax.swing.JRadioButtonMenuItem itemViewDetailedIcons;
     private javax.swing.JRadioButtonMenuItem itemViewDetails;
     private javax.swing.JRadioButtonMenuItem itemViewIcons;
@@ -1728,6 +1702,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     private javax.swing.JPopupMenu.Separator jSeparator3;
     private javax.swing.JPopupMenu.Separator jSeparator4;
     private javax.swing.JPopupMenu.Separator jSeparator5;
+    private javax.swing.JPopupMenu.Separator jSeparator6;
     private javax.swing.JLabel labelCLArguments;
     private javax.swing.JLabel labelChangeLanguageImplication;
     private javax.swing.JLabel labelChooseLanguage;

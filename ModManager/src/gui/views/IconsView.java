@@ -8,6 +8,7 @@ import javax.swing.AbstractListModel;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionListener;
 
@@ -16,12 +17,14 @@ import javax.swing.event.ListSelectionListener;
  * @author Gcommer
  */
 public class IconsView extends ModsTableView {
+    
+    private final IconsListCellRenderer cellRenderer = new IconsListCellRenderer();
 
     public IconsView(ArrayList<Mod> _modsList) {
         super(_modsList);
 
         JList comp = new JList(new ModsListModel());
-        comp.setCellRenderer(new IconsListCellRenderer());
+        comp.setCellRenderer(cellRenderer);
         comp.setLayoutOrientation(JList.HORIZONTAL_WRAP);
         comp.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         comp.setVisibleRowCount(-1);
@@ -52,6 +55,14 @@ public class IconsView extends ModsTableView {
         throw new IndexOutOfBoundsException("IconsView: Mouse not over a mod.");
     }
 
+    @Override
+    public void applyOptions() {
+        // TODO: Find a cleaner way of forcing icon views to properly refresh.
+        // reapint, revalidate, invalidate, etc. all don't work.
+        ((JList) getComponent()).setCellRenderer(new DefaultListCellRenderer());
+        ((JList) getComponent()).setCellRenderer(cellRenderer);
+    }
+
     /**
      * Class to renderer cells in the Icons View list.
      *
@@ -70,7 +81,12 @@ public class IconsView extends ModsTableView {
                     cellHasFocus);
             Mod mod = ((Mod) value);
 
-            setIcon(mod.getSizedIcon());
+            if(options.usingSmallIcons()) {
+                setIcon(mod.getSmallIcon());
+            } else {
+                setIcon(mod.getSizedIcon());
+            }
+
             // We display this mod in <HTML> to allow the text to wrap.
             setText("<HTML><CENTER>" + mod.getName() + "</CENTER></HTML>");
             // Grays out the icon
@@ -121,6 +137,11 @@ public class IconsView extends ModsTableView {
     }
 
     private class ModsListModel extends AbstractListModel {
+
+        @Override
+        protected void fireContentsChanged(Object source, int index0, int index1) {
+            super.fireContentsChanged(source, index0, index1);
+        }
 
         public Object getElementAt(int i) {
             return getModsList().get(i);

@@ -25,7 +25,6 @@ import business.Mod;
 import business.ModList;
 import java.awt.Component;
 import java.awt.event.ComponentListener;
-import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -55,7 +54,6 @@ import java.util.NoSuchElementException;
 import java.util.Observer;
 import java.util.Set;
 import java.util.prefs.Preferences;
-import javax.swing.AbstractButton;
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
@@ -78,6 +76,7 @@ import exceptions.UnknowModActionException;
 import gui.views.DetailsView;
 import java.io.BufferedReader;
 import java.io.StringReader;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JList;
 import org.jdesktop.application.Application;
 import org.jdesktop.application.Task;
@@ -158,6 +157,7 @@ public class ManagerCtrl implements Observer {
         view.itemViewIconsAddActionListener(new ViewChangeListener(ModsTable.ViewType.ICONS));
         view.itemViewTilesAddActionListener(new ViewChangeListener(ModsTable.ViewType.TILES));
         view.itemViewDetailedIconsAddActionListener(new ViewChangeListener(ModsTable.ViewType.DETAILED_ICONS));
+        view.itemUseSmallIconsAddActionListener(new SmallIconsListener());
         view.itemExitAddActionListener(new ExitListener());
         view.itemAddProfileAddActionListener(new AddProfileListener());
 
@@ -182,7 +182,6 @@ public class ManagerCtrl implements Observer {
         view.getButtonLaunchHon().addActionListener(new ApplyAndLaunchListener());
         view.itemImportFromOldModManagerAddActionListener(new ImportModsFromOldModManager());
         view.getModsTable().addKeyListener(new ModTableKeyListener());
-        //view.getModListTable().getColumnModel().getColumn(0).setHeaderRenderer(new CheckBoxHeader(new MyItemListener()));
 
         // Add file drop functionality
         new FileDrop(view, new DropListener());
@@ -196,6 +195,11 @@ public class ManagerCtrl implements Observer {
             view.getItemViewIcons().doClick();
         } else if (model.getViewType().equals(ManagerOptions.ViewType.TILES)) {
             view.getItemViewTiles().doClick();
+        }
+
+        // Load the user's small icons preference.
+        if (model.usingSmallIcons()) {
+            view.getItemUseSmallIcons().doClick();
         }
 
         try {
@@ -363,7 +367,6 @@ public class ManagerCtrl implements Observer {
                         view.updateModTable();
                     }
                 }
-                CheckBoxHeader c = new CheckBoxHeader(new CheckBoxHeaderItemListener());
                 try {
                     this.finalize();
                 } catch (Throwable ex) {
@@ -394,25 +397,6 @@ public class ManagerCtrl implements Observer {
         }
 
         public void mouseExited(MouseEvent e) {
-        }
-    }
-
-    /**
-     * @deprecated not currently used.
-     */
-    public class CheckBoxHeaderItemListener implements ItemListener {
-
-        public void itemStateChanged(ItemEvent e) {
-            Object source = e.getSource();
-            if (source instanceof AbstractButton == false) {
-                return;
-            }
-            boolean checked = e.getStateChange() == ItemEvent.SELECTED;
-            Iterator it = model.getMods().iterator();
-            while (it.hasNext()) {
-                ((Mod) it.next()).setEnabled(false);
-            }
-            view.getModsTable().redraw();
         }
     }
 
@@ -946,6 +930,17 @@ public class ManagerCtrl implements Observer {
                     model.setViewType(ManagerOptions.ViewType.TILES);
                 }
             }
+        }
+    }
+
+    /**
+     * Listener for changes to the icon size preference.
+     */
+    class SmallIconsListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            ManagerOptions.getInstance().setUseSmallIcons(((JCheckBoxMenuItem)e.getSource()).isSelected());
+            view.getModsTable().getCurrentView().applyOptions();
+            view.getModsTable().redraw();
         }
     }
 

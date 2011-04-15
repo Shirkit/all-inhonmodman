@@ -180,6 +180,7 @@ public class ManagerApp extends SingleFrameApplication {
                                         }
                                         String updaterPath = System.getProperty("user.dir") + File.separator + "Updater.jar";
                                         // Run with an String array to avoid errors with blank spaces and uncommon characters
+                                        // Gcommer: TODO: Not all users will have "java" in their PATH.
                                         String[] cmd = {"java", "-jar", updaterPath, currentJar, ManagerOptions.MANAGER_DOWNLOAD_URL, updaterPath};
                                         logger.info("Updating manager.");
                                         Runtime.getRuntime().exec(cmd);

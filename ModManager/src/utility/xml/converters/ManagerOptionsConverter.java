@@ -88,6 +88,10 @@ public class ManagerOptionsConverter implements Converter {
             writer.addAttribute("showicons", Boolean.toString(opt.iconsShownInTable()));
         } catch (NullPointerException ex) {
         }
+        try {
+            writer.addAttribute("smallicons", Boolean.toString(opt.usingSmallIcons()));
+        } catch (NullPointerException ex) {
+        }
 
         if (opt.getColumnsWidth() != null) {
             Iterator<Integer> it = opt.getColumnsWidth().iterator();
@@ -148,6 +152,22 @@ public class ManagerOptionsConverter implements Converter {
         }
         try {
             value.setAutoUpdate(Boolean.parseBoolean(reader.getAttribute("autoupdate")));
+        } catch (Exception e) {
+        }
+        try {
+            value.setDeveloperMode(Boolean.parseBoolean(reader.getAttribute("developermode")));
+        } catch (Exception e) {
+        }
+        try {
+            value.setColorCheckboxesInTable(Boolean.parseBoolean(reader.getAttribute("colorcheckboxes")));
+        } catch (Exception e) {
+        }
+        try {
+            value.setShowIconsInTable(Boolean.parseBoolean(reader.getAttribute("showicons")));
+        } catch (Exception e) {
+        }
+        try {
+            value.setUseSmallIcons(Boolean.parseBoolean(reader.getAttribute("smallicons")));
         } catch (Exception e) {
         }
         try {

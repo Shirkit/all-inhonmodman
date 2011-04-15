@@ -51,6 +51,7 @@ public class ManagerOptions extends Observable {
     private boolean developerMode;
     private boolean colorCheckboxInTable;
     private boolean showIconsInTable;
+    private boolean useSmallIcons;
     private String lastHonVersion;
     private ViewType viewType;
     // TODO: Save this in the options file.
@@ -198,6 +199,7 @@ public class ManagerOptions extends Observable {
         if (temp.getProfiles() != null) {
             instance.setProfiles(temp.getProfiles());
         }
+        instance.setUseSmallIcons(temp.usingSmallIcons());
         instance.setColorCheckboxesInTable(temp.getCheckboxesInTableColored());
         instance.setShowIconsInTable(temp.iconsShownInTable());
         instance.setIgnoreGameVersion(temp.isIgnoreGameVersion());
@@ -287,6 +289,22 @@ public class ManagerOptions extends Observable {
      */
     public boolean isAutoEnableDependencies() {
         return autoEnableDependencies;
+    }
+
+    /**
+     * Whether or not views use small icons.
+     * @return useSmallIcons true if small icons are being used
+     */
+    public boolean usingSmallIcons() {
+        return useSmallIcons;
+    }
+
+    /**
+     * Set whether views should use small icons.
+     * @param useSmallIcons true if views should use small icons, false otherwise.
+     */
+    public void setUseSmallIcons(boolean useSmallIcons) {
+        this.useSmallIcons = useSmallIcons;
     }
 
     /**

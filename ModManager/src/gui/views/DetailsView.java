@@ -27,10 +27,8 @@ import javax.swing.table.DefaultTableModel;
  * @author Gcommer
  */
 public class DetailsView extends ModsTableView {
-
-    private static final ManagerOptions options = ManagerOptions.getInstance();
     
-    private static final int DEFAULT_ROW_HEIGHT = 25;
+    public static final int DEFAULT_ROW_HEIGHT = 25;
     private static final String[] COLUMN_NAMES = {"",
                                 L10n.getString("table.modname"),
                                 L10n.getString("table.modauthor"),
@@ -81,10 +79,11 @@ public class DetailsView extends ModsTableView {
     /**
      * Gets options from ManagerOptions and changes the table accordingly.
      */
-    private void applyOptions() {
+    @Override
+    public void applyOptions() {
         JTable table = (JTable) getComponent();
 
-        if(columnShown[5]){
+        if(columnShown[5] && !options.usingSmallIcons()) {
             table.setRowHeight(Mod.ICON_HEIGHT);
         } else {
             table.setRowHeight(DEFAULT_ROW_HEIGHT);
@@ -194,7 +193,11 @@ public class DetailsView extends ModsTableView {
                         }
                     case 5:
                         if(columnShown[5]) {
-                            return mod.getSizedIcon();
+                            if(options.usingSmallIcons()) {
+                                return mod.getSmallIcon();
+                            } else {
+                                return mod.getSizedIcon();
+                            }
                         }
                 }
                 }
@@ -217,8 +220,7 @@ public class DetailsView extends ModsTableView {
             
             columnOptions = new JPopupMenu();
 
-            // TODO: Using L10n is better, but it messes up the gui builder >_>
-            JMenuItem color = new JCheckBoxMenuItem( "Color Checkboxes" ); //L10n.getString("table.options.colorcheckboxes") );
+            JMenuItem color = new JCheckBoxMenuItem( L10n.getString("table.options.colorcheckboxes") );
             color.setSelected(colorCheckboxes);
             color.addItemListener(new ItemListener() {
                 public void itemStateChanged(ItemEvent e) {
@@ -231,7 +233,7 @@ public class DetailsView extends ModsTableView {
                 }
             });
 
-            JMenuItem icons = new JCheckBoxMenuItem( "Icons" ); //L10n.getString("table.options.showicons") );
+            JMenuItem icons = new JCheckBoxMenuItem( L10n.getString("table.options.showicons") );
             icons.setSelected(columnShown[5]);
             icons.addItemListener(new ItemListener() {
                 public void itemStateChanged(ItemEvent e) {
@@ -305,8 +307,6 @@ public class DetailsView extends ModsTableView {
      * @param i index of column to set the width for
      * @param w desired width of column i
      */
-    // TODO: Move these ColumnWidth methods to ModsTable.java so that if there
-    // are ever
     public void setColumnWidth(int i, int w) {
         ((JTable)getComponent()).getColumnModel().getColumn(i).setPreferredWidth(w);
         ((JTable)getComponent()).getColumnModel().getColumn(i).setWidth(w);
