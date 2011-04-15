@@ -70,7 +70,7 @@ public class ManagerAboutBox extends javax.swing.JDialog {
         appAuthorsLabel = new javax.swing.JLabel();
         appAuthors = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        aboutTextArea = new javax.swing.JTextArea();
+        aboutTextArea = new javax.swing.JEditorPane();
         changelogToggleButton = new javax.swing.JToggleButton();
         jScrollPane3 = new javax.swing.JScrollPane();
         changelogEditorPane = new javax.swing.JEditorPane();
@@ -129,15 +129,13 @@ public class ManagerAboutBox extends javax.swing.JDialog {
         jScrollPane1.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         jScrollPane1.setName("jScrollPane1"); // NOI18N
 
-        aboutTextArea.setColumns(20);
-        aboutTextArea.setEditable(false);
-        aboutTextArea.setFont(new java.awt.Font("Tahoma", 0, 11));
-        aboutTextArea.setLineWrap(true);
-        aboutTextArea.setRows(3);
-        aboutTextArea.setText(L10n.getString("about.description"));
-        aboutTextArea.setWrapStyleWord(true);
-        aboutTextArea.setAutoscrolls(false);
+        aboutTextArea.setBackground(javax.swing.UIManager.getDefaults().getColor("menu"));
         aboutTextArea.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        aboutTextArea.setContentType("text/html");
+        aboutTextArea.setEditable(false);
+        aboutTextArea.setFont(new java.awt.Font("Tahoma", 0, 11)); // NOI18N
+        aboutTextArea.setText(L10n.getString("about.description"));
+        aboutTextArea.setAutoscrolls(false);
         aboutTextArea.setName("descTextArea"); // NOI18N
         jScrollPane1.setViewportView(aboutTextArea);
 
@@ -271,7 +269,7 @@ public class ManagerAboutBox extends javax.swing.JDialog {
         }
     }//GEN-LAST:event_changelogToggleButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTextArea aboutTextArea;
+    private javax.swing.JEditorPane aboutTextArea;
     private javax.swing.JLabel appAuthors;
     private javax.swing.JLabel appAuthorsLabel;
     private javax.swing.JLabel appLicense;
