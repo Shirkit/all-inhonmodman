@@ -80,6 +80,15 @@ public class ManagerOptionsConverter implements Converter {
             }
         } catch (NullPointerException ex) {
         }
+        try {
+            writer.addAttribute("colorcheckboxes",  Boolean.toString(opt.getCheckboxesInTableColored()));
+        } catch (NullPointerException ex) {
+        }
+        try {
+            writer.addAttribute("showicons", Boolean.toString(opt.iconsShownInTable()));
+        } catch (NullPointerException ex) {
+        }
+
         if (opt.getColumnsWidth() != null) {
             Iterator<Integer> it = opt.getColumnsWidth().iterator();
             int i = 0;

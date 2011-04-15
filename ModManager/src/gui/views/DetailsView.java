@@ -28,18 +28,20 @@ import javax.swing.table.DefaultTableModel;
  */
 public class DetailsView extends ModsTableView {
 
+    private static final ManagerOptions options = ManagerOptions.getInstance();
+    
     private static final int DEFAULT_ROW_HEIGHT = 25;
-    /*
     private static final String[] COLUMN_NAMES = {"",
                                 L10n.getString("table.modname"),
                                 L10n.getString("table.modauthor"),
                                 L10n.getString("table.modversion"),
                                 L10n.getString("table.modstatus"),
                                 L10n.getString("table.icons")};
-     * TODO: The above is obviously better, but using L10n messes with the gui builder...
+    /*
+    private static final String[] COLUMN_NAMES = {"","Name","Author","Version","Status","Icons"};
+     * Using L10n messes up the GUI builder unfortunately, so if you have to
+     * change the GUI, temporarily use the non-L10n definition of COLUMN_NAMES.
      */
-    private static final String[] COLUMN_NAMES = {"",
-                                "Name","Author","Version","Status","Icons"};
     private static final Class[] COLUMN_TYPES = new Class [] {
         java.lang.Boolean.class, java.lang.String.class, java.lang.String.class,
         java.lang.String.class, java.lang.String.class, javax.swing.ImageIcon.class
@@ -55,6 +57,9 @@ public class DetailsView extends ModsTableView {
     public DetailsView(ArrayList<Mod> _modsList) {
         super(_modsList);
 
+        columnShown[5] = options.iconsShownInTable();
+        colorCheckboxes = options.getCheckboxesInTableColored();
+
         JTable comp = new JTable(new DetailsViewTableModel());
         
         comp.getTableHeader().addMouseListener(new ColumnHeaderMouseAdapter());
@@ -62,14 +67,13 @@ public class DetailsView extends ModsTableView {
         comp.setAutoCreateRowSorter(true);
 
         setComponent(comp);
-        refreshOptions();
+        applyOptions();
     }
 
     /**
      * Saves options to ManagerOptions
      */
     private void saveOptions() {
-        ManagerOptions options = ManagerOptions.getInstance();
         options.setShowIconsInTable(columnShown[5]);
         options.setColorCheckboxesInTable(colorCheckboxes);
     }
@@ -77,11 +81,8 @@ public class DetailsView extends ModsTableView {
     /**
      * Gets options from ManagerOptions and changes the table accordingly.
      */
-    private void refreshOptions() {
-        ManagerOptions options = ManagerOptions.getInstance();
+    private void applyOptions() {
         JTable table = (JTable) getComponent();
-        columnShown[5] = options.iconsShownInTable();
-        colorCheckboxes = options.getCheckboxesInTableColored();
 
         if(columnShown[5]){
             table.setRowHeight(Mod.ICON_HEIGHT);
@@ -224,7 +225,7 @@ public class DetailsView extends ModsTableView {
                     colorCheckboxes = e.getStateChange() == ItemEvent.SELECTED;
 
                     saveOptions();
-                    refreshOptions();
+                    applyOptions();
 
                     getComponent().repaint();
                 }
@@ -237,7 +238,7 @@ public class DetailsView extends ModsTableView {
                     columnShown[5] = e.getStateChange() == ItemEvent.SELECTED;
 
                     saveOptions();
-                    refreshOptions();
+                    applyOptions();
 
                     ((DefaultTableModel)((JTable)getComponent()).getModel()).fireTableStructureChanged();
                 }
