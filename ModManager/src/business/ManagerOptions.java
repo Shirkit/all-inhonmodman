@@ -198,6 +198,8 @@ public class ManagerOptions extends Observable {
         if (temp.getProfiles() != null) {
             instance.setProfiles(temp.getProfiles());
         }
+        instance.setColorCheckboxesInTable(temp.getCheckboxesInTableColored());
+        instance.setShowIconsInTable(temp.iconsShownInTable());
         instance.setIgnoreGameVersion(temp.isIgnoreGameVersion());
         instance.setAutoUpdate(temp.isAutoUpdate());
         instance.setDeveloperMode(temp.isDeveloperMode());
