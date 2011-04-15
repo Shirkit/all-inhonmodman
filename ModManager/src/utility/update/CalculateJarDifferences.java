@@ -29,6 +29,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -105,9 +106,10 @@ public class CalculateJarDifferences {
         Session session = null;
         try {
             System.out.println("Connecting to SF");
-            session = jsch.getSession(",all-inhonmodman", "frs.sourceforge.net", 22);
+
+            session = jsch.getSession(JOptionPane.showInputDialog("SourceForge Username")+",all-inhonmodman", "frs.sourceforge.net", 22);
             session.setConfig("StrictHostKeyChecking", "no");
-            session.setPassword("");
+            session.setPassword(JOptionPane.showInputDialog("SourceForge Password"));
             session.connect();
 
             Channel channel = session.openChannel("sftp");
