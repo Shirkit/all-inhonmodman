@@ -931,6 +931,7 @@ public class Manager extends Observable {
         }*/
 
         // Sorting by deps TODO:Need Fix
+        // TODO: This aint working, sometimes this fails to put in a correct order: https://sourceforge.net/tracker/?func=detail&aid=3264773&group_id=319502&atid=1343313
         left = beforeSort(afterSort(depSort(left)));
 
         /*
