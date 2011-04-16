@@ -124,7 +124,7 @@ public class ProfileMenu extends JMenu implements Observer {
     class ExportListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
-            File tempFolder = FileUtils.generateTempFolder();
+            File tempFolder = FileUtils.generateTempFolder(true);
             ModList modlist = new ModList();
             Iterator<Mod> mods = ManagerOptions.getInstance().getAppliedMods().iterator();
             JFileChooser jfc = new JFileChooser();

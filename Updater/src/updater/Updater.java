@@ -1,3 +1,5 @@
+package updater;
+
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
@@ -58,7 +60,7 @@ public class Updater {
         Dialog dialog = new Dialog();
         try {
             // Validation of arguments
-            if (args.length != 4) {
+            if (args.length != 5) {
                 throw new InvalidParameterException("\n\nInvalid nunmber of parameters.\n\nCall must be \"java  -jar  Updater.jar  PATH_TO_MANAGER.JAR  CURRENT_MANAGER_VERSION  VERIONS.TXT_CONTROL_FILE  ROOT_WEBSERVER_FOLDER  LOCAL_TEMPORARY_FOLDER\"");
             }
             File managerJar = new File(args[0]);
@@ -92,16 +94,16 @@ public class Updater {
                 ArrayList<File> filesDownloaded = new ArrayList<File>();
                 // Need to download from the older to the newer and apply the patchs in this order
                 int k = 0;
-                for (int i = versions.size()-1; i >= 0; i--) {
+                for (int i = index-1; i >= 0; i--) {
                     dialog.updateLabel("Connecting " + ++k + "/" + index + " files");
-                    URL url = new URL(root + versions.get(i) + ".jar");
+                    URL url = new URL(root + versions.get(i).replaceAll(" ", "%20") + ".jar");
                     URLConnection con = url.openConnection();
                     con.setConnectTimeout(10000);
                     dialog.progressBar.setValue(0);
                     dialog.progressBar.setMaximum(con.getContentLength());
                     File f = new File(args[4] + File.separator + versions.get(i) + ".jar");
                     InputStream in = con.getInputStream();
-                    OutputStream out = new FileOutputStream(f);
+                    FileOutputStream out = new FileOutputStream(f,false);
                     dialog.updateLabel("Downloading " + i + "/" + index + " files");
                     copyInputStream(in, out, dialog.progressBar);
                     in.close();

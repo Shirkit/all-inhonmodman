@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
-import java.util.Random;
 
 import com.mallardsoft.tuple.*;
 import com.thoughtworks.xstream.converters.ConversionException;
@@ -979,27 +978,8 @@ public class Manager extends Observable {
      */
     public void applyMods(boolean outputToFolderTree) throws IOException, UnknowModActionException, NothingSelectedModActionException, StringNotFoundModActionException, InvalidModActionParameterException, SecurityException, FileLockInterruptionException {
         ArrayList<Mod> applyOrder = sortMods();
-        Random r = new Random();
-        // This generates a temp folder. If it isn't possible, generates a random folder inside the OS's temp folder.
-        File tempFolder = new File(System.getProperty("java.io.tmpdir") + File.separator + "HoN Mod Manager" + File.separator + r.nextLong());
-        if (tempFolder.exists()) {
-            if (!tempFolder.delete()) {
-                tempFolder = new File(System.getProperty("java.io.tmpdir") + File.separator + "HoN Mod Manager" + File.separator + r.nextLong());
-                if (tempFolder.exists()) {
-                    if (!tempFolder.delete()) {
-                        tempFolder = new File(System.getProperty("java.io.tmpdir") + File.separator + "HoN Mod Manager" + File.separator + r.nextLong());
-                        if (tempFolder.exists()) {
-                            if (!tempFolder.delete()) {
-                                throw new SecurityException();
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        File tempFolder = FileUtils.generateTempFolder(true);
         logger.info("Started mod applying. Folder=" + tempFolder.getAbsolutePath() + ". Game version=" + Game.getInstance().getVersion());
-        tempFolder.mkdirs();
-        tempFolder.deleteOnExit();
         Enumeration<Mod> list = Collections.enumeration(applyOrder);
         int counted[] = new int[1];
         while (list.hasMoreElements()) {
@@ -1708,7 +1688,7 @@ public class Manager extends Observable {
             destination.delete();
         }
 
-        File tempFolder = FileUtils.generateTempFolder();
+        File tempFolder = FileUtils.generateTempFolder(true);
         ModList modlist = new ModList();
         Iterator<Mod> mods = ManagerOptions.getInstance().getAppliedMods().iterator();
 

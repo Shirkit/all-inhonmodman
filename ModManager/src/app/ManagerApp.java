@@ -181,8 +181,12 @@ public class ManagerApp extends SingleFrameApplication {
                                         String updaterPath = System.getProperty("user.dir") + File.separator + "Updater.jar";
                                         // Run with an String array to avoid errors with blank spaces and uncommon characters
                                         // Gcommer: TODO: Not all users will have "java" in their PATH.
-                                        String[] cmd = {"java", "-jar", updaterPath, currentJar, ManagerOptions.MANAGER_DOWNLOAD_URL, updaterPath};
-                                        logger.info("Updating manager.");
+                                        String[] cmd = {"java", "-jar", updaterPath, currentJar, ManagerOptions.getInstance().getVersion(), ManagerOptions.MANAGER_CHECK_UPDATE_VERSIONS, ManagerOptions.MANAGER_CHECK_UPDATE_ROOT_FOLDER, FileUtils.generateTempFolder(false).getAbsolutePath()};
+                                        String s = "";
+                                        for (int i = 0; i < cmd.length; i++) {
+                                            s += " "+cmd[i];
+                                        }
+                                        logger.info("Updating manager." + s);
                                         Runtime.getRuntime().exec(cmd);
                                         shutdown();
                                     } catch (IOException ex) {
@@ -221,8 +225,8 @@ public class ManagerApp extends SingleFrameApplication {
     @Override
     protected void shutdown() {
         super.shutdown();
-
         logger.error("Shutting down!!");
+        FileUtils.deleteTemporaryFolders();
         System.exit(0);
     }
 
@@ -232,6 +236,10 @@ public class ManagerApp extends SingleFrameApplication {
      */
     public static ManagerApp getApplication() {
         return Application.getInstance(ManagerApp.class);
+    }
+
+    public static void requestShutdown() {
+        getApplication().shutdown();
     }
 
     /**

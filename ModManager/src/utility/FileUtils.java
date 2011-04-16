@@ -6,18 +6,16 @@ package utility;
 
 import business.ManagerOptions;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 import java.util.Random;
 import javax.swing.JFileChooser;
 
@@ -172,12 +170,25 @@ public class FileUtils {
         f.setExecutable(true);
     }
 
+    private static ArrayList<File> temporaryFolders = new ArrayList<File>();
+
+    /**
+     * This method should be called when the Manager exits, so it can clean up the folders it created.
+     */
+    public static void deleteTemporaryFolders() {
+        for (int i = 0; i < temporaryFolders.size(); i++) {
+            File file = temporaryFolders.get(i);
+            deleteDir(file);
+        }
+    }
+
     /**
      * This method generates a temporary folder for the Manager operations. It attemps to create a folder in %TEMPDIR%\HoN Mod Manager\%RANDOM FOLDER% directory. If it fails, an exception is thrown.
+     * @param deleteOnExit - wheter the temporary folder should be deleted on exit or not.
      * @return a File with the path for the created folder.
      * @throws SecurityException is failed to create a folder.
      */
-    public static File generateTempFolder() {
+    public static File generateTempFolder(boolean deleteOnExit) {
         Random r = new Random();
         File tempFolder = null;
         for (int i = 0; i < 100; i++) {
@@ -187,13 +198,19 @@ public class FileUtils {
                 } else {
                     i = 100;
                 }
+            } else {
+                i = 100;
+
             }
         }
         if (tempFolder == null) {
             throw new SecurityException();
         }
         tempFolder.mkdirs();
-        tempFolder.deleteOnExit();
+        if (deleteOnExit) {
+            temporaryFolders.add(tempFolder);
+            tempFolder.deleteOnExit();
+        }
 
         return tempFolder;
     }
@@ -205,13 +222,12 @@ public class FileUtils {
         }
         return tempFolder;
     }
-
     // Caching
     static File perpetualFolder = null;
 
     public static File getManagerPerpetualFolder() {
         // Caching
-        if (perpetualFolder!= null) {
+        if (perpetualFolder != null) {
             return perpetualFolder;
         }
         File folder = null;

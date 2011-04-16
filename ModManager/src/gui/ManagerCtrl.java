@@ -1,5 +1,6 @@
 package gui;
 
+import app.ManagerApp;
 import java.awt.event.ComponentEvent;
 import java.util.Observable;
 import javax.swing.event.ChangeEvent;
@@ -1607,7 +1608,6 @@ public class ManagerCtrl implements Observer {
             logger.error("Unable to save options");
         }
         logger.info("Closing HonModManager...");
-        System.exit(0);
-        throw new RuntimeException();
+        ManagerApp.requestShutdown();
     }
 }

@@ -71,10 +71,8 @@ public class ManagerOptions extends Observable {
      */
     public static final String MANAGER_FOLDER = new File(".").getAbsolutePath();
     public static final String OPTIONS_FILENAME = "managerOptions.xml";
-    public static final String MANAGER_CHECK_UPDATE = "http://dl.dropbox.com/u/10303236/version.txt";
     public static final String MANAGER_CHECK_UPDATE_VERSIONS = "http://dl.dropbox.com/u/10303236/versions.txt";
     public static final String MANAGER_CHECK_UPDATE_ROOT_FOLDER = "http://dl.dropbox.com/u/10303236/versions/";
-    public static final String MANAGER_DOWNLOAD_URL = "http://dl.dropbox.com/u/10303236/Manager.jar";
     public static final String HOMEPAGE = "http://sourceforge.net/projects/all-inhonmodman";
     public static final String PREFS_LOCALE = "locale";
 

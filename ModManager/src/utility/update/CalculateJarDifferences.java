@@ -107,7 +107,7 @@ public class CalculateJarDifferences {
         try {
             System.out.println("Connecting to SF");
 
-            session = jsch.getSession(JOptionPane.showInputDialog("SourceForge Username")+",all-inhonmodman", "frs.sourceforge.net", 22);
+            session = jsch.getSession(JOptionPane.showInputDialog("SourceForge Username") + ",all-inhonmodman", "frs.sourceforge.net", 22);
             session.setConfig("StrictHostKeyChecking", "no");
             session.setPassword(JOptionPane.showInputDialog("SourceForge Password"));
             session.connect();
