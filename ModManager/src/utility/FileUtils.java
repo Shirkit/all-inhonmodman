@@ -26,13 +26,13 @@ import javax.swing.JFileChooser;
 public class FileUtils {
 
     /**
-     * This uses encoding 'UTF-8' for default.
-     * @param f
-     * @return
-     * @throws IOException
+     * Loads a text file to a String.
+     * @param f file to be read.
+     * @param encoding encode to be used for loading the file.
+     * @return a String containing the content of the read file.
+     * @throws IOException if an I/O error occurs.
      */
-    public static String loadFile(File f) throws IOException {
-        String encoding = "UTF-8";
+    public static String loadFile(File f, String encoding) throws IOException {
         StringBuilder sb = new StringBuilder();
         BufferedReader br = null;
         try {
@@ -51,23 +51,55 @@ public class FileUtils {
         return sb.toString();
     }
 
-    public static void copyFile(File file, File destination) throws FileNotFoundException, IOException {
+    /**
+     * Copies a source file to target destination
+     * @param source file to be copied.
+     * @param destination file where source will be copied to.
+     * @throws FileNotFoundException if couldn't read/access the source file or if couldn't access(if exists)/create destination file.
+     * @throws IOException if an I/O error occurs.
+     */
+    public static void copyFile(File source, File destination) throws FileNotFoundException, IOException {
         if (destination.exists()) {
             updatePermissions(destination);
         } else {
             destination.createNewFile();
         }
-        FileInputStream in = new FileInputStream(file);
+        FileInputStream in = new FileInputStream(source);
         FileOutputStream out = new FileOutputStream(destination);
         copyInputStream(in, out);
         in.close();
         out.close();
     }
 
-    public static void copyFile(File file, String destination) throws FileNotFoundException, IOException {
-        copyFile(file, new File(destination));
+    /**
+     * Copies a source file to target destination
+     * @param source file to be copied.
+     * @param destination file where source will be copied to.
+     * @throws FileNotFoundException if couldn't read/access the source file or if couldn't access(if exists)/create destination file.
+     * @throws IOException if an I/O error occurs.
+     */
+    public static void copyFile(File source, String destination) throws FileNotFoundException, IOException {
+        copyFile(source, new File(destination));
     }
 
+    /**
+     * Copies a source file to target destination
+     * @param source file to be copied.
+     * @param destination file where source will be copied to.
+     * @throws FileNotFoundException if couldn't read/access the source file or if couldn't access(if exists)/create destination file.
+     * @throws IOException if an I/O error occurs.
+     */
+    public static void copyFile(String source, String destination) throws FileNotFoundException, IOException {
+        copyFile(new File(source), new File(destination));
+    }
+
+    /**
+     * Writes the content of a byte array to a target file.
+     * @param file byte array with the content of the file to be written.
+     * @param destination destination file where the file will be written
+     * @throws FileNotFoundException if couldn't access, write or create the <b>destination</b> param file.
+     * @throws IOException if an I/O error occurs.
+     */
     public static void writeFile(byte[] file, File destination) throws FileNotFoundException, IOException {
         if (destination.exists()) {
             updatePermissions(destination);
@@ -81,7 +113,14 @@ public class FileUtils {
         out.close();
     }
 
-    public static void writeFileUtf8(byte[] file, File destination) throws FileNotFoundException, IOException {
+    /**
+     * Writes a file with the BOM bytes in the start of the file.
+     * @param file byte array with the content of the file to be written.
+     * @param destination destination file where the file will be written
+     * @throws FileNotFoundException if couldn't access, write or create the <b>destination</b> param file.
+     * @throws IOException - if an I/O error occurs.
+     */
+    public static void writeFileWithBom(byte[] file, File destination) throws FileNotFoundException, IOException {
         boolean writeBom = true;
         if (destination.exists()) {
             updatePermissions(destination);
@@ -164,16 +203,20 @@ public class FileUtils {
         out.flush();
     }
 
+    /**
+     * Tries to update the permissions of the target file with the possible {@code File} permissions methods.
+     * @param f file to be updated.
+     */
     private static void updatePermissions(File f) {
         f.setWritable(true);
         f.setReadable(true);
         f.setExecutable(true);
     }
-
     private static ArrayList<File> temporaryFolders = new ArrayList<File>();
 
     /**
-     * This method should be called when the Manager exits, so it can clean up the folders it created.
+     * This method attemps to clean up all the temporary folder folders created during this execution by the method referenced in this doc.
+     * @see FileUtils.#generateTempFolder(boolean)
      */
     public static void deleteTemporaryFolders() {
         for (int i = 0; i < temporaryFolders.size(); i++) {
@@ -215,6 +258,10 @@ public class FileUtils {
         return tempFolder;
     }
 
+    /**
+     * This method returns the folder located in Operational System's temporary folder {@code "tmpdir/Hon Mod Manager"}
+     * @return the temp folder.
+     */
     public static File getManagerTempFolder() {
         File tempFolder = new File(System.getProperty("java.io.tmpdir") + File.separator + "HoN Mod Manager");
         if (!tempFolder.exists()) {
@@ -225,6 +272,10 @@ public class FileUtils {
     // Caching
     static File perpetualFolder = null;
 
+    /**
+     * This method returns the folder that it's content won't be clean by the operational systems from times to times. It is Operational System dependent.
+     * @return the target folder.
+     */
     public static File getManagerPerpetualFolder() {
         // Caching
         if (perpetualFolder != null) {

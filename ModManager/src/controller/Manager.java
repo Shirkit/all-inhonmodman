@@ -121,7 +121,6 @@ public class Manager extends Observable {
 
     /**
      * This should be called after adding all the honmod files to build and initialize the arrays
-     * @throws IOException
      */
     public void buildGraphs() {
         ArrayList<Mod> mods = ManagerOptions.getInstance().getMods();
@@ -807,7 +806,7 @@ public class Manager extends Observable {
 
     /**
      * Tries to disable a mod given by it's name. Throws exception if an error occurred  .
-     * @param name of the mod.
+     * @param m name of the mod.
      * @throws ModEnabledException if another mod is enabled and requires the given by parameter mod to continue enabled.
      */
     public void disableMod(Mod m) throws ModEnabledException {
@@ -1081,7 +1080,7 @@ public class Manager extends Observable {
                         String afterEdit = "";
                         if (f.exists()) {
                             // Load file from temp folder. If any other mod changes the file, it's actions won't be lost.
-                            afterEdit = FileUtils.loadFile(f);
+                            afterEdit = FileUtils.loadFile(f, "UTF-8");
                         } else {
                             // Load file from resources0.s2z if no other mod edited this file
                             afterEdit = new String(ZIP.getFile(new File(resources0), editfile.getName()), "UTF-8");
@@ -1247,7 +1246,7 @@ public class Manager extends Observable {
                         }
 
                         // Write String afterEdit to a file
-                        FileUtils.writeFileUtf8(afterEdit.getBytes("UTF-8"), temp);
+                        FileUtils.writeFileWithBom(afterEdit.getBytes("UTF-8"), temp);
 
                     }
                     // ApplyAfter, ApplyBefore, Incompatibility, Requirement Action

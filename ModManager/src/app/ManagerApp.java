@@ -224,9 +224,8 @@ public class ManagerApp extends SingleFrameApplication {
 
     @Override
     protected void shutdown() {
-        super.shutdown();
-        logger.error("Shutting down!!");
-        FileUtils.deleteTemporaryFolders();
+        logger.error("Shutting down!");
+        FileUtils.deleteTemporaryFolders(); // This can slow down closing speed if the user applied the mods lots and lots of times
         System.exit(0);
     }
 
