@@ -181,7 +181,7 @@ public class FileUtils {
         Random r = new Random();
         File tempFolder = null;
         for (int i = 0; i < 100; i++) {
-            tempFolder = new File(System.getProperty("java.io.tmpdir") + File.separator + "HoN Mod Manager" + File.separator + r.nextLong());
+            tempFolder = new File(getManagerTempFolder() + File.separator + r.nextLong());
             if (tempFolder.exists()) {
                 if (!tempFolder.delete()) {
                 } else {
@@ -201,7 +201,7 @@ public class FileUtils {
     public static File getManagerTempFolder() {
         File tempFolder = new File(System.getProperty("java.io.tmpdir") + File.separator + "HoN Mod Manager");
         if (!tempFolder.exists()) {
-            tempFolder.mkdir();
+            tempFolder.mkdirs();
         }
         return tempFolder;
     }

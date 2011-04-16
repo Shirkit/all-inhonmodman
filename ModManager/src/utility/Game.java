@@ -13,7 +13,6 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
-
 /**
  * Attributes and Methods related to the HoN
  * @author Usuário
@@ -24,21 +23,22 @@ public class Game {
     private String version;
     private static Game instance = null;
     private static Logger logger = Logger.getLogger(Game.class.getPackage().getName());
-    
+
     /**
      * Try to find HoN installation folder on different platforms.
      *
      * @return folder where HoN is installed or null if such folder cannot be found
      */
     public static String findHonFolder() {
-        // Try to find HoN folder in case we are on Windows
+        // First, see if we already found the HoN folder
         if (ManagerOptions.getInstance().getGamePath() != null && !ManagerOptions.getInstance().getGamePath().isEmpty()) {
             return ManagerOptions.getInstance().getGamePath();
         }
+        // Try to find HoN folder in case we are on Windows
         if (OS.isWindows()) {
             // Try to find HoN in its usual location:
             String honFolder = "C:\\Program Files\\Heroes of Newerth\\";
-            if((new File(honFolder)).exists()) {
+            if ((new File(honFolder)).exists()) {
                 return honFolder;
             }
 
@@ -59,23 +59,23 @@ public class Game {
         // Try to find HoN folder in case we are on Linux
         if (OS.isLinux()) {
             // Try to find HoN in its usual location:
-            String[] honFolder = {"~/Heroes of Newerth/","~/HoN/"};
+            String[] honFolder = {"~/Heroes of Newerth/", "~/HoN/"};
             for (int i = 0; i < honFolder.length; i++) {
-            File f = new File(honFolder[i]);
-            if(f.exists()) {
-                return f.getAbsolutePath();
-            }
-                
+                File f = new File(honFolder[i]);
+                if (f.exists()) {
+                    return f.getAbsolutePath();
+                }
+
             }
         }
         // Try to find HoN folder in case we are on Mac
         if (OS.isMac()) {
             File a = new File("/Applications/Heroes of Newerth.app");
             if (a.exists()) {
-            	logger.info("GAME: Mac: " + a.getPath() + " exists");
-            	return a.getAbsolutePath();
+                logger.info("GAME: Mac: " + a.getPath() + " exists");
+                return a.getAbsolutePath();
             }
-        }        
+        }
         // Let the user guide us.
         return null;
     }
@@ -110,7 +110,7 @@ public class Game {
             logger.error("GAME: " + a.getPath());
             return a.exists() ? a.getPath() : null;
         }
-        
+
         return null;
     }
 
@@ -145,9 +145,11 @@ public class Game {
      * @throws IllegalArgumentException if the attribute Game.path is null.
      */
     public String getVersion() throws IllegalArgumentException, FileNotFoundException, IOException {
-        this.path = findHonFolder();
         if (this.path == null) {
-            throw new IllegalArgumentException("Attribute 'path' not set yet.");
+            this.path = findHonFolder();
+            if (this.path == null) {
+                throw new IllegalArgumentException("Attribute 'path' not set yet.");
+            }
         }
         if (this.version == null) {
             setVersion(getVersion(getPath()));

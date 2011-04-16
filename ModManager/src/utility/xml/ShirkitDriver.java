@@ -92,7 +92,8 @@ public class ShirkitDriver extends AbstractXmlDriver {
                 source.setEncoding(encoding);
             }
             //Document document = documentBuilder.parse(source);
-            if (source.getByteStream() != null) {
+            // Disabled, it isn't working for now, white spaces bug
+            if (source.getByteStream() != null && false) {
                 Document document = readXML(source.getByteStream(), "lineStart", "lineEnd");
                 return new ShirkitReader(document, xmlFriendlyReplacer());
             } else {

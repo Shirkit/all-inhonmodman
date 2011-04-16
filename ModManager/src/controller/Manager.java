@@ -30,8 +30,6 @@ import java.util.Random;
 import com.mallardsoft.tuple.*;
 import com.thoughtworks.xstream.converters.ConversionException;
 import com.thoughtworks.xstream.io.StreamException;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.nio.channels.FileLockInterruptionException;
 
 import java.security.InvalidParameterException;
@@ -205,7 +203,7 @@ public class Manager extends Observable {
      */
     public void saveOptions() throws IOException {
         doSaveOptions();
-        logger.info("Options saved. Path=" + ManagerOptions.MANAGER_FOLDER + File.separator + ManagerOptions.OPTIONS_FILENAME);
+        logger.info("Options saved. Path=" + FileUtils.getManagerPerpetualFolder() + File.separator + ManagerOptions.OPTIONS_FILENAME);
     }
 
     /**
@@ -838,8 +836,8 @@ public class Manager extends Observable {
                 Iterator it = deps.get(m).entrySet().iterator();
                 while (it.hasNext()) {
                     Map.Entry entry = (Map.Entry) it.next();
-                    Mod mod = ManagerOptions.getInstance().getEnabledModWithName((String) entry.getKey());
-                    if (mod != null && !ulayer.contains(mod)) {
+                    Mod mod = ManagerOptions.getInstance().getMod((String) entry.getKey(), (String) entry.getValue());
+                    if (mod != null && !ulayer.contains(mod) && mod.isEnabled()) {
                         ulayer.add(mod);
                     }
                 }
@@ -871,8 +869,8 @@ public class Manager extends Observable {
                 Iterator it = after.get(m).entrySet().iterator();
                 while (it.hasNext()) {
                     Map.Entry entry = (Map.Entry) it.next();
-                    Mod mod = ManagerOptions.getInstance().getEnabledModWithName((String) entry.getKey());
-                    if (mod != null) {
+                    Mod mod = ManagerOptions.getInstance().getMod((String) entry.getKey(), (String) entry.getValue());
+                    if (mod != null && mod.isEnabled()) {
                         if (list.indexOf(mod) >= list.indexOf(m)) {
                             // Swap
                             int j = list.indexOf(mod);
@@ -896,8 +894,8 @@ public class Manager extends Observable {
                 Iterator it = before.get(m).entrySet().iterator();
                 while (it.hasNext()) {
                     Map.Entry entry = (Map.Entry) it.next();
-                    Mod mod = ManagerOptions.getInstance().getEnabledModWithName((String) entry.getKey());
-                    if (mod != null) {
+                    Mod mod = ManagerOptions.getInstance().getMod((String) entry.getKey(), (String) entry.getValue());
+                    if (mod != null && mod.isEnabled()) {
                         if (list.indexOf(mod) <= list.indexOf(m)) {
                             // Swap
                             int j = list.indexOf(mod);

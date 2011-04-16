@@ -224,11 +224,16 @@
 - DetailsView now uses L10n for column names.
 - Fixed bug while loading managerOptions.xml
 
-[b]0.9.6 BETA - PENDING:[/b]
+[b]0.9.5.1 BETA - 16/04/2011:[/b]
+- Restored older Driver for parsing XML because the one I used to retrieve LineNumbers didn't worked.
 - Added small icons feature.
 - DetailsView now uses L10n for header options.
 - Note: Changes to strings file have been made
 - Details View options "color checkboxes" and "show icons" are now properly saved
+
+
+
+
 
 
 

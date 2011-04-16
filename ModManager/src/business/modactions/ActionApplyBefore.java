@@ -34,7 +34,11 @@ public class ActionApplyBefore extends Action {
      * @return the version of the Other mod to be applied before this mod.
      */
     public String getVersion() {
+        if (version != null && !version.isEmpty()) {
         return version;
+        } else {
+            return "*";
+        }
     }
 
     /**

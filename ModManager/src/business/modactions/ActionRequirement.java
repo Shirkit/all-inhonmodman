@@ -34,7 +34,11 @@ public class ActionRequirement extends Action {
      * @return the version of the Other mod that is required to be enabled to enable this mod.
      */
     public String getVersion() {
+        if (version != null && !version.isEmpty()) {
         return version;
+        } else {
+            return "*";
+        }
     }
 
     /**

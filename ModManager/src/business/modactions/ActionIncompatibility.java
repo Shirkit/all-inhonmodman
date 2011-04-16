@@ -34,7 +34,11 @@ public class ActionIncompatibility extends Action {
      * @return the version of ther Other mod that can't be enabled with this one.
      */
     public String getVersion() {
+        if (version != null && !version.isEmpty()) {
         return version;
+        } else {
+            return "*";
+        }
     }
 
     /**
