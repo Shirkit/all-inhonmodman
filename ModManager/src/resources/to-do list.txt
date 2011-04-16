@@ -2,9 +2,11 @@
 - Modlist finishing
 - Export/Import
 - Profile Import
-- Move supportive files to other folders (managerOptions.xml)
+- Move supportive files to other folders (managerOptions.xml) (Only for Mac now)
 - Finish the new Updating system
 - BardUI++ AND SplitChat should apply!
+- "java" sometimes won't be avaliable in the user's path
+- Fix the SAX parser whitespaces bug
 
 - Copyfile Version attribute not working
  + Copyfile Overwritting file if there is already a file and no overwrite param was set
