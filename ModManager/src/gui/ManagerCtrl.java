@@ -123,8 +123,9 @@ public class ManagerCtrl implements Observer {
             view.setBounds(model.getGuiRectangle());
         }
 
-        // Load last column width for details view
+        // Load last column order and widths for details view
         DetailsView detailsView = (DetailsView) view.getModsTable().getView(ModsTable.ViewType.DETAILS);
+        detailsView.deserializeColumnOrder(model.getColumnsOrder());
         if (model.getColumnsWidth() != null) {
             int i = 0;
             Iterator<Integer> it = model.getColumnsWidth().iterator();
@@ -1342,6 +1343,7 @@ public class ManagerCtrl implements Observer {
                 temp.add(detailsView.getColumnWidth(i));
             }
             model.setColumnsWidth(temp);
+            model.setColumnsOrder(detailsView.serializeColumnOrder());
             wantToSaveOptions();
         }
     }

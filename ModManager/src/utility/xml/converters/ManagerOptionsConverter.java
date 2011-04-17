@@ -92,7 +92,11 @@ public class ManagerOptionsConverter implements Converter {
             writer.addAttribute("smallicons", Boolean.toString(opt.usingSmallIcons()));
         } catch (NullPointerException ex) {
         }
-
+        try {
+            writer.addAttribute("columnsorder", opt.getColumnsOrder());
+        } catch (NullPointerException ex) {
+        }
+        
         if (opt.getColumnsWidth() != null) {
             Iterator<Integer> it = opt.getColumnsWidth().iterator();
             int i = 0;
@@ -140,6 +144,10 @@ public class ManagerOptionsConverter implements Converter {
         }
         try {
             value.setLaf(reader.getAttribute("laf"));
+        } catch (Exception e) {
+        }
+        try {
+            value.setColumnsOrder(reader.getAttribute("columnsorder"));
         } catch (Exception e) {
         }
         try {

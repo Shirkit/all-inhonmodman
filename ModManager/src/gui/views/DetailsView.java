@@ -21,13 +21,16 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumnModel;
+import org.apache.log4j.Logger;
 
 /**
  * A ModsTable view mode with details, arranged in a table.
  * @author Gcommer
  */
 public class DetailsView extends ModsTableView {
-    
+    private static final Logger logger = Logger.getLogger(DetailsView.class.getPackage().getName());
+
     public static final int DEFAULT_ROW_HEIGHT = 25;
     private static final String[] COLUMN_NAMES = {"",
                                 L10n.getString("table.modname"),
@@ -310,6 +313,32 @@ public class DetailsView extends ModsTableView {
     public void setColumnWidth(int i, int w) {
         ((JTable)getComponent()).getColumnModel().getColumn(i).setPreferredWidth(w);
         ((JTable)getComponent()).getColumnModel().getColumn(i).setWidth(w);
+    }
+
+    /**
+     * @return a string representing the current order of the columns.
+     */
+    public String serializeColumnOrder() {
+        JTable comp = (JTable) getComponent();
+        String ret = "";
+        int lim = COLUMN_NAMES.length - (columnShown[5]? 0:1);
+        for(int n=0; n < lim; ++n) {
+            ret += comp.getTableHeader().getColumnModel().getColumn(n).getModelIndex() + "-";
+        }
+        return ret.substring(0, ret.length()-1);
+    }
+    
+    public void deserializeColumnOrder(String data) {
+        TableColumnModel model = ((JTable) getComponent()).getColumnModel();
+        String[] indexes = data.split("-");
+        int lim = COLUMN_NAMES.length - (columnShown[5]? 0:1);
+        for(int n=0; n < indexes.length && n < lim; ++n) {
+            int i = Integer.parseInt(indexes[n]);
+            if(i < lim && i < COLUMN_NAMES.length) {
+                model.getColumn(n).setModelIndex(i);
+                model.getColumn(n).setHeaderValue(COLUMN_NAMES[i]);
+            }
+        }
     }
 
     /**

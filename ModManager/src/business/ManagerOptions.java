@@ -45,6 +45,7 @@ public class ManagerOptions extends Observable {
     private Set<Mod> applied;
     private Rectangle guiRectangle;
     private ArrayList<Integer> columnsWidth;
+    private String columnsOrder;
     private boolean ignoreGameVersion;
     private boolean autoUpdate;
     private boolean autoEnableDependencies;
@@ -153,10 +154,19 @@ public class ManagerOptions extends Observable {
     }
 
     /**
-     * Stores the GUI's columns width. Since the logic of the preferences has been brought to this class, this should be called whenever the Column's width changes.
+     * Stores the GUI's columns width. Since the logic of the preferences has
+     * been brought to this class, this should be called whenever the Column's width changes.
      */
     public void setColumnsWidth(ArrayList<Integer> columnsWidth) {
         this.columnsWidth = columnsWidth;
+    }
+    
+    public String getColumnsOrder() {
+        return columnsOrder;
+    }
+
+    public void setColumnsOrder(String colOrder) {
+        this.columnsOrder = colOrder;
     }
 
     /**
@@ -190,6 +200,9 @@ public class ManagerOptions extends Observable {
         }
         if (temp.getColumnsWidth() != null) {
             instance.setColumnsWidth(temp.getColumnsWidth());
+        }
+        if (temp.getColumnsOrder() != null) {
+            instance.setColumnsOrder(temp.getColumnsOrder());
         }
         if (temp.getViewType() != null) {
             instance.setViewType(temp.getViewType());

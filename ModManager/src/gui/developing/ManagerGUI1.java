@@ -1170,6 +1170,7 @@ public class ManagerGUI1 extends javax.swing.JFrame implements Observer {
      * @param mods list of mods to display
      */
     public void updateModTable() {
+        /*
                     animating = false;
         int enabled = 0, disabled = 0, applied = 0;
         // Store how the table is currently sorted
@@ -1265,9 +1266,11 @@ public class ManagerGUI1 extends javax.swing.JFrame implements Observer {
                     if (model.getColumnsWidth().size() != tableModList.getColumnModel().getColumnCount()) {
                         // If we change the interface (columns number from one version to another), nothing else will need to be done =]
                         model.setColumnsWidth(null);
+                        model.setColumnsOrder(null);
                     } else {
+                        tableModList.deserializeColumnOrder(model.getColumnsOrder());
                         int i = 0;
-                        Iterator<Integer> it = ManagerOptions.getInstance().getColumnsWidth().iterator();
+                        Iterator<Integer> it = model.getColumnsWidth().iterator();
                         while (it.hasNext()) {
                             Integer integer = it.next();
                             tableModList.getColumnModel().getColumn(i).setWidth(integer);
@@ -1293,7 +1296,8 @@ public class ManagerGUI1 extends javax.swing.JFrame implements Observer {
         // Display details of selected mod
         displayModDetail();
         setStatusMessage("<html><font color=#009900>" + (enabled + applied) + "</font>/<font color=#0033cc>" + (enabled + disabled + applied) + "</font> " + L10n.getString("status.modsenabled") + "</html>", false);
-                }
+        */
+    }
         
     /**
      * Highlight the mods that is required to enable before or disable before the current select mod do
