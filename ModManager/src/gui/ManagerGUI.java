@@ -95,6 +95,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         comboBoxChooseLanguage.addItem(new Language("German", "de"));
         comboBoxChooseLanguage.addItem(new Language("English", "en"));
         comboBoxChooseLanguage.addItem(new Language("Spanish", "es"));
+        comboBoxChooseLanguage.addItem(new Language("Itallian", "it"));
         comboBoxChooseLanguage.addItem(new Language("Norwegian", "no"));
         comboBoxChooseLanguage.addItem(new Language("Português (Brasil)", "pt_BR"));
         comboBoxChooseLanguage.addItem(new Language("Russian", "ru"));

@@ -56,14 +56,14 @@ public class ActionEditFileFind extends Action implements ActionEditFileActions 
     }
 
     public boolean isPositionAtStart() {
-        if (this.position.equalsIgnoreCase("start") || this.position.equalsIgnoreCase("begin") || this.position.equalsIgnoreCase("head") || this.position.equalsIgnoreCase("before")) {
+        if (this.position != null && (this.position.equalsIgnoreCase("start") || this.position.equalsIgnoreCase("begin") || this.position.equalsIgnoreCase("head") || this.position.equalsIgnoreCase("before"))) {
             return true;
         }
         return false;
     }
 
     public boolean isPositionAtEnd() {
-        if (this.position.equalsIgnoreCase("end") || this.position.equalsIgnoreCase("tail") || this.position.equalsIgnoreCase("after") || this.position.equalsIgnoreCase("eof")) {
+        if (this.position != null && (this.position.equalsIgnoreCase("end") || this.position.equalsIgnoreCase("tail") || this.position.equalsIgnoreCase("after") || this.position.equalsIgnoreCase("eof"))) {
             return true;
         }
         return false;

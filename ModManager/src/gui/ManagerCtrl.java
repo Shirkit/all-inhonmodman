@@ -24,6 +24,9 @@ import gui.l10n.L10n;
 import business.ManagerOptions;
 import business.Mod;
 import business.ModList;
+import business.modactions.Action;
+import business.modactions.ActionEditFile;
+import business.modactions.ActionEditFileActions;
 import java.awt.Component;
 import java.awt.event.ComponentListener;
 import java.awt.event.ItemListener;
@@ -125,7 +128,9 @@ public class ManagerCtrl implements Observer {
 
         // Load last column order and widths for details view
         DetailsView detailsView = (DetailsView) view.getModsTable().getView(ModsTable.ViewType.DETAILS);
-        detailsView.deserializeColumnOrder(model.getColumnsOrder());
+        if (model.getColumnsOrder() != null) {
+            detailsView.deserializeColumnOrder(model.getColumnsOrder());
+        }
         if (model.getColumnsWidth() != null) {
             int i = 0;
             Iterator<Integer> it = model.getColumnsWidth().iterator();
@@ -939,8 +944,9 @@ public class ManagerCtrl implements Observer {
      * Listener for changes to the icon size preference.
      */
     class SmallIconsListener implements ActionListener {
+
         public void actionPerformed(ActionEvent e) {
-            ManagerOptions.getInstance().setUseSmallIcons(((JCheckBoxMenuItem)e.getSource()).isSelected());
+            ManagerOptions.getInstance().setUseSmallIcons(((JCheckBoxMenuItem) e.getSource()).isSelected());
             view.getModsTable().getCurrentView().applyOptions();
             view.getModsTable().redraw();
         }
@@ -1533,7 +1539,7 @@ public class ManagerCtrl implements Observer {
         } catch (SecurityException ex) {
             logger.error("Error applying mods. Security exception found, couldn't do some operations that were needed. " + ex.getClass(), ex);
             view.showMessage("Random error. Please, report it to the software developers", "Random error", JOptionPane.ERROR_MESSAGE);
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             logger.error("Error applying mods. A random I/O exception was thrown, can't apply. " + ex.getClass(), ex);
             view.showMessage("Random error. Please, report it to the software developers", "Random error", JOptionPane.ERROR_MESSAGE);
         } finally {

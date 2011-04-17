@@ -70,8 +70,6 @@ public class Mod {
     @XStreamAsAttribute
     private String path;
     @XStreamOmitField
-    private int id;
-    @XStreamOmitField
     private boolean enabled;
     @XStreamOmitField
     private Icon icon;
@@ -305,20 +303,6 @@ public class Mod {
     }
 
     /**
-     * @deprecated not used yet.
-     */
-    public int getId() {
-        return id;
-    }
-
-    /**
-     * @deprecated not used yet.
-     */
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    /**
      * Method to check if the mod is enabled.
      * @return true if the mod is enabled, false otherwise.
      */
@@ -356,22 +340,22 @@ public class Mod {
      */
     public void setIcon(Icon icon) {
         this.icon = this.resizedIcon = this.smallIcon = icon;
-        
+
         // Resize icon to normal size.
         if (icon.getIconHeight() != ICON_HEIGHT
-         || icon.getIconWidth() != ICON_WIDTH) {
+                || icon.getIconWidth() != ICON_WIDTH) {
             resizedIcon = new ImageIcon(
                     ((ImageIcon) icon).getImage().getScaledInstance(
-                                  ICON_WIDTH, ICON_HEIGHT, Image.SCALE_SMOOTH));
+                    ICON_WIDTH, ICON_HEIGHT, Image.SCALE_SMOOTH));
         }
 
         // Resize icon to fit in DetailsView
         if (icon.getIconHeight() != DetailsView.DEFAULT_ROW_HEIGHT) {
             smallIcon = new ImageIcon(
-                        ((ImageIcon) icon).getImage().getScaledInstance(
-                                              DetailsView.DEFAULT_ROW_HEIGHT,
-                                              DetailsView.DEFAULT_ROW_HEIGHT,
-                                              Image.SCALE_SMOOTH) );
+                    ((ImageIcon) icon).getImage().getScaledInstance(
+                    DetailsView.DEFAULT_ROW_HEIGHT,
+                    DetailsView.DEFAULT_ROW_HEIGHT,
+                    Image.SCALE_SMOOTH));
         }
     }
 
@@ -401,6 +385,7 @@ public class Mod {
 
     /**
      * Returns a String with the content of the mod's Changelog in it.
+     * @return a String with the chanelog. If it's null or empty, returns an empty string.
      */
     public String getChangelog() {
         if (changelog != null) {
@@ -414,22 +399,17 @@ public class Mod {
     }
 
     /**
-     * Override for HashSet comparison
+     * This method checks if a Mod is equal to another one. To be equal, it's Name and Version must be equals, so that's what this checks.
      */
     @Override
-    @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
     public boolean equals(Object o) {
-        Mod compare = (Mod) o;
-
-        if (o == null) {
-            return false;
+        if (o != null && o.getClass().equals(Mod.class)) {
+            Mod compare = (Mod) o;
+            if (compare.getName().equals(this.getName()) && compare.getVersion().equals(this.getVersion())) {
+                return true;
+            }
         }
-
-        if (compare.getName().equals(this.getName()) && compare.getVersion().equals(this.getVersion())) {
-            return true;
-        } else {
-            return false;
-        }
+        return false;
     }
 
     @Override

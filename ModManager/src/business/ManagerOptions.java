@@ -65,12 +65,18 @@ public class ManagerOptions extends Observable {
     private boolean noOptionsFile;
     Logger logger;
     // Constants
+    /**
+     * Returns the relative path of the version file, wich contains the current version of the software.
+     */
     public static final String MANAGER_VERSION_FILE = "resources/version.txt";
     /**
      * Retrieves a string with the current folder path of the Manager.
      *  String with the path. Example: 'C:\Users\User\Documents\ModManager'. The Manager.jar will be inside that folder.
      */
     public static final String MANAGER_FOLDER = new File(".").getAbsolutePath();
+    /**
+     * Returns the name of the file that contains the options of the software.
+     */
     public static final String OPTIONS_FILENAME = "managerOptions.xml";
     public static final String MANAGER_CHECK_UPDATE_VERSIONS = "http://dl.dropbox.com/u/10303236/versions.txt";
     public static final String MANAGER_CHECK_UPDATE_ROOT_FOLDER = "http://dl.dropbox.com/u/10303236/versions/";

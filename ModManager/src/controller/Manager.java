@@ -303,7 +303,6 @@ public class Manager extends Observable {
 
     /**
      * Load all mods from the mods folder (set in Model) and put them into the Model array of mods.
-     * @throws Exception 
      */
     public ArrayList<ArrayList<Pair<String, String>>> loadMods() throws IOException {
         ManagerOptions.getInstance().getMods().clear();
@@ -424,7 +423,6 @@ public class Manager extends Observable {
         m.setChangelog(changelog);
         m.setIcon(icon);
         logger.info("Mod file opened. Mod name: " + m.getName());
-        m.setId(0);
         if (copy && !(new File(ManagerOptions.getInstance().getModPath() + File.separator + honmod.getName()).exists())) {
             // Copy the honmod file to mods directory
             logger.info("Mod file copied to mods folder");
@@ -989,6 +987,8 @@ public class Manager extends Observable {
             // --------------- Progress bar update
             Mod mod = list.nextElement();
             logger.info("Applying Mod=" + mod.getName() + " | Version=" + mod.getVersion());
+            Action lastAction = null;
+            Action beforeLastAction = null;
             for (int j = 0; j < mod.getActions().size(); j++) {
                 Action action = mod.getActions().get(j);
                 String resources0 = ManagerOptions.getInstance().getGamePath() + File.separator + "game" + File.separator + "resources0.s2z";
@@ -997,6 +997,8 @@ public class Manager extends Observable {
                 }
                 if (action.getClass().equals(ActionCopyFile.class)) {
                     ActionCopyFile copyfile = (ActionCopyFile) action;
+                    beforeLastAction = lastAction;
+                    lastAction = copyfile;
                     if (!isValidCondition(action)) {
                         // condition isn't valid, can't apply
                         // No need to throw execption, since if condition isn't valid, this action won't be applied
@@ -1062,6 +1064,8 @@ public class Manager extends Observable {
                     }
                 } else if (action.getClass().equals(ActionEditFile.class)) {
                     ActionEditFile editfile = (ActionEditFile) action;
+                    beforeLastAction = lastAction;
+                    lastAction = editfile;
                     if (!isValidCondition(action)) {
                         // condition isn't valid, can't apply
                         // No need to throw execption, since if condition isn't valid, this action won't be applied
@@ -1091,6 +1095,8 @@ public class Manager extends Observable {
 
                                 // Delete Action
                                 if (editFileAction.getClass().equals(ActionEditFileDelete.class)) {
+                                    beforeLastAction = lastAction;
+                                    lastAction = (ActionEditFileDelete) editFileAction;
                                     if (isSelected) {
                                         for (int i = 0; i < cursor.length; i++) {
                                             afterEdit = afterEdit.substring(0, cursor[i]) + afterEdit.substring(cursor2[i]);
@@ -1110,8 +1116,15 @@ public class Manager extends Observable {
                                     // Find Action
                                 } else if (editFileAction.getClass().equals(ActionEditFileFind.class)) {
                                     ActionEditFileFind find = (ActionEditFileFind) editFileAction;
-                                    cursor = new int[]{cursor[0]};
-                                    cursor2 = new int[]{cursor2[0]};
+                                    if (beforeLastAction != null && beforeLastAction.getClass().equals(ActionEditFileFindAll.class)) {
+                                        cursor = new int[]{0};
+                                        cursor2 = new int[]{0};
+                                    } else {
+                                        cursor = new int[]{cursor[0]};
+                                        cursor2 = new int[]{cursor2[0]};
+                                    }
+                                    beforeLastAction = lastAction;
+                                    lastAction = find;
                                     if (find.getContent() == null || find.getContent().isEmpty()) {
                                         if (find.isPositionAtEnd()) {
                                             cursor[0] = afterEdit.length();
@@ -1143,8 +1156,15 @@ public class Manager extends Observable {
                                     // FindUp Action
                                 } else if (editFileAction.getClass().equals(ActionEditFileFindUp.class)) {
                                     ActionEditFileFindUp findup = (ActionEditFileFindUp) editFileAction;
-                                    cursor = new int[]{cursor[0]};
-                                    cursor2 = new int[]{cursor2[0]};
+                                    if (beforeLastAction != null && beforeLastAction.getClass().equals(ActionEditFileFindAll.class)) {
+                                        cursor = new int[]{0};
+                                        cursor2 = new int[]{0};
+                                    } else {
+                                        cursor = new int[]{cursor[0]};
+                                        cursor2 = new int[]{cursor2[0]};
+                                    }
+                                    beforeLastAction = lastAction;
+                                    lastAction = findup;
                                     cursor[0] = afterEdit.toLowerCase().lastIndexOf(findup.getContent().toLowerCase(), cursor2[0]);
                                     if (cursor[0] == -1) {
                                         // couldn't find the string, can't apply
@@ -1156,6 +1176,8 @@ public class Manager extends Observable {
                                     // FindAll Action
                                 } else if (editFileAction.getClass().equals(ActionEditFileFindAll.class)) {
                                     ActionEditFileFindAll findall = (ActionEditFileFindAll) editFileAction;
+                                    beforeLastAction = lastAction;
+                                    lastAction = findall;
                                     // Preparation
                                     ArrayList<Integer> firstPosition = new ArrayList<Integer>();
                                     ArrayList<Integer> lastPosition = new ArrayList<Integer>();
@@ -1182,6 +1204,8 @@ public class Manager extends Observable {
                                     // Insert Action
                                 } else if (editFileAction.getClass().equals(ActionEditFileInsert.class)) {
                                     ActionEditFileInsert insert = (ActionEditFileInsert) editFileAction;
+                                    beforeLastAction = lastAction;
+                                    lastAction = insert;
                                     if (isSelected || (!isSelected && lastIsDelete)) {
                                         for (int i = 0; i < cursor.length; i++) {
                                             if (insert.isPositionAfter()) {
@@ -1213,6 +1237,8 @@ public class Manager extends Observable {
                                     // Replace Action
                                 } else if (editFileAction.getClass().equals(ActionEditFileReplace.class)) {
                                     ActionEditFileReplace replace = (ActionEditFileReplace) editFileAction;
+                                    beforeLastAction = lastAction;
+                                    lastAction = replace;
                                     if (isSelected) {
                                         for (int i = 0; i < cursor.length; i++) {
                                             afterEdit = afterEdit.substring(0, cursor[i]) + replace.getContent() + afterEdit.substring(cursor2[i]);

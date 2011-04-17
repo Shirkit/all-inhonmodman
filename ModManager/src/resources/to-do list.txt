@@ -2,6 +2,7 @@
 - Move supportive files to other folders (Only for Mac : managerOptions.xml FileUtils.getManagerPerpetualFolder())
 - "java" sometimes won't be avaliable in the user's path
 - controller.Manager.sortMods() ain't working, sometimes this fails to put in a correct order: https://sourceforge.net/tracker/?func=detail&aid=3264773&group_id=319502&atid=1343313
+- Double clicking on Details View to enable a mod isn't working correctly. It enables a random mod.
 
 - Copyfile Version attribute not working
  + Copyfile Overwritting file if there is already a file and no overwrite param was set
