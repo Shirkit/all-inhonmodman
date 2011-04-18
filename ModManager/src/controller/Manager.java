@@ -1143,6 +1143,9 @@ public class Manager extends Observable {
                         String afterEdit = "";
                         if (f.exists()) {
                             // Load file from temp folder. If any other mod changes the file, it's actions won't be lost.
+                            if (editfile.getName().contains("bard_libs_bottomcenter.package")) {
+                                int i = 0;
+                            }
                             afterEdit = FileUtils.loadFile(f, "UTF-8");
                         } else {
                             // Load file from resources0.s2z if no other mod edited this file
@@ -1591,13 +1594,19 @@ public class Manager extends Observable {
                 continue;
             } else {
                 String ret = "";
+                boolean added = false;
                 while (st.hasMoreTokens()) {
                     ret += token;
+                    added = true;
                     try {
                         token = st.nextToken();
+                        added = false;
                     } catch (Exception e) {
                         break;
                     }
+                }
+                if (!added) {
+                    ret += token;
                 }
                 return ret;
             }

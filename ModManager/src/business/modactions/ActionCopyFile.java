@@ -125,7 +125,7 @@ public class ActionCopyFile extends Action {
      * <br/>-1 if illegal argument
      */
     public int overwrite() {
-        if (condition == null || condition.equalsIgnoreCase("no")) {
+        if (condition == null || condition.equalsIgnoreCase("no") || condition.isEmpty()) {
             return 0;
         } else if (condition.equalsIgnoreCase("yes")) {
             return 2;

@@ -238,6 +238,7 @@
 - DetailsView now saves column order.
 - Added new method to sort mods. This shall fix some uncommon errors while many mods are active.
 - Added basic export feature.
+- Fixed bug while applying mods. Actions with conditional for 3 mods (not 'MiniUI' and not 'Bang! Misclick Master' and not 'BardUI++', the same as before) was ignoring the last word due to a little logical error.
 
 
 

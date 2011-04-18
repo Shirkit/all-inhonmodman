@@ -115,6 +115,7 @@ public class Mod {
 
     /**
      * Copies the passed mod by param to this mod. Only it's content are copied, the instances continues to exist.
+     * <b>The argument mod is the one who will be copied, and the caller is the one who will recieve a copy of the parameter mod.</b>
      * @param mod to be copied.
      */
     public void copy(Mod mod) {
@@ -124,20 +125,20 @@ public class Mod {
         this.application = mod.getApplication();
         this.appversion = mod.getAppVersion();
         this.author = mod.getAuthor();
+        this.changelog = mod.getChangelog();
         this.date = mod.getDate();
         this.description = mod.getDescription();
+        this.enabled = mod.isEnabled();
+        this.icon = mod.getIcon();
         this.mmversion = mod.getMmVersion();
         this.name = mod.getName();
+        this.path = mod.getPath();
+        this.resizedIcon = mod.getSizedIcon();
+        this.smallIcon = mod.getSmallIcon();
         this.updatecheckurl = mod.getUpdateCheckUrl();
         this.updatedownloadurl = mod.getUpdateDownloadUrl();
         this.version = mod.getVersion();
         this.weblink = mod.getWebLink();
-        this.path = mod.getPath();
-        this.enabled = mod.isEnabled();
-        this.changelog = mod.getChangelog();
-        this.resizedIcon = mod.getSizedIcon();
-        this.smallIcon = mod.getSmallIcon();
-        this.icon = mod.getIcon();
     }
 
     /**
