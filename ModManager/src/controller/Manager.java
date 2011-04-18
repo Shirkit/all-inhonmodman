@@ -5,6 +5,8 @@ import business.Mod;
 import business.ModList;
 import business.ModsOutOfDateReminder;
 import business.modactions.*;
+import java.util.Arrays;
+import java.util.Map.Entry;
 
 import java.util.concurrent.ExecutionException;
 
@@ -907,6 +909,92 @@ public class Manager extends Observable {
         return list;
     }
 
+    public ArrayList<Mod> newSort(ArrayList<Mod> mods) {
+        boolean changed = false;
+        Mod[] sorted = new Mod[mods.size()];
+        Iterator<Mod> it = mods.iterator();
+        for (int i = 0; i < sorted.length; i++) {
+            sorted[i] = mods.get(i);
+        }
+        it = mods.iterator();
+        while (it.hasNext()) {
+            Mod mod = it.next();
+            if (deps.containsKey(mod)) {
+                Iterator<Entry<String, String>> iterator1 = deps.get(mod).entrySet().iterator();
+                while (iterator1.hasNext()) {
+                    Entry<String, String> entry = iterator1.next();
+                    Mod m = ManagerOptions.getInstance().getMod(entry.getKey(), entry.getValue());
+                    if (m != null && m.isEnabled()) {
+                        int actual = indexOf(sorted, mod);
+                        int target = indexOf(sorted, m);
+                        if (actual < target) {
+                            changed = true;
+                            for (int i = actual; i < target; i++) {
+                                Mod x = sorted[i + 1];
+                                sorted[i + 1] = sorted[i];
+                                sorted[i] = x;
+                            }
+                        }
+                    }
+                }
+            }
+            if (after.containsKey(mod)) {
+                Iterator<Entry<String, String>> iterator1 = after.get(mod).entrySet().iterator();
+                while (iterator1.hasNext()) {
+                    Entry<String, String> entry = iterator1.next();
+                    Mod m = ManagerOptions.getInstance().getMod(entry.getKey(), entry.getValue());
+                    if (m != null && m.isEnabled()) {
+                        int actual = indexOf(sorted, mod);
+                        int target = indexOf(sorted, m);
+                        if (actual < target) {
+                            changed = true;
+                            for (int i = actual; i < target; i++) {
+                                Mod x = sorted[i + 1];
+                                sorted[i + 1] = sorted[i];
+                                sorted[i] = x;
+                            }
+                        }
+                    }
+                }
+            }
+            if (before.containsKey(mod)) {
+                Iterator<Entry<String, String>> iterator1 = before.get(mod).entrySet().iterator();
+                while (iterator1.hasNext()) {
+                    Entry<String, String> entry = iterator1.next();
+                    Mod m = ManagerOptions.getInstance().getMod(entry.getKey(), entry.getValue());
+                    if (m != null && m.isEnabled()) {
+                        int actual = indexOf(sorted, mod);
+                        int target = indexOf(sorted, m);
+                        if (actual > target) {
+                            changed = true;
+                            for (int i = actual; i > target; i--) {
+                                Mod x = sorted[i - 1];
+                                sorted[i - 1] = sorted[i];
+                                sorted[i] = x;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        ArrayList<Mod> returnn = new ArrayList<Mod>();
+        returnn.addAll(Arrays.asList(sorted));
+        if (changed) {
+            returnn = newSort(returnn);
+        }
+        return returnn;
+    }
+
+    private int indexOf(Mod[] list, Mod m) {
+        for (int i = 0; i < list.length; i++) {
+            if (list[i] == m) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     /**
      *
      * @return
@@ -922,41 +1010,12 @@ public class Manager extends Observable {
             }
         }
 
-        /*for (int i = 0; i < left.size(); i++) {
-        logger.error("left before sort #" + i + " = " + left.get(i).getName());
-        }*/
-
-        // Sorting by deps TODO:Need Fix
-        // TODO: This aint working, sometimes this fails to put in a correct order: https://sourceforge.net/tracker/?func=detail&aid=3264773&group_id=319502&atid=1343313
-        left = beforeSort(afterSort(depSort(left)));
-
-        /*
-        // Sorting by before after
-        for (int i = 0; i < left.size(); i++) {
-        Mod m = left.get(i);
-        int j = i - 1;
-        while (j >= 0 && after.containsKey(left.get(j)) && after.get(left.get(j)).containsKey(m.getName())) {
-        // Swap
-        left.set(j + 1, left.get(j));
-        j--;
-        left.set(j + 1, m);
+        try {
+            left = newSort(left);
+        } catch (Exception e) {
+            logger.error("Failed to use the new sorting method, attemping to use the old one");
+            left = beforeSort(afterSort(depSort(left)));
         }
-        }
-        for (int i = 0; i < left.size(); i++) {
-        Mod m = left.get(i);
-        int j = i - 1;
-        while (j >= 0 && before.containsKey(m) && before.get(m).containsKey(left.get(j).getName())) {
-        // Swap
-        left.set(j + 1, left.get(j));
-        j--;
-        left.set(j + 1, m);
-        }
-        }
-         */
-        // Print out the result
-        /*for (int i = 0; i < left.size(); i++) {
-        logger.error("applying order #" + i + " = " + left.get(i).getName());
-        }*/
 
         return left;
     }

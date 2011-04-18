@@ -236,6 +236,7 @@
 - Restored new SAX XML Driver for parsing the mods.
 - Fixed problem with position attribute in a find action.
 - DetailsView now saves column order.
+- Added new method to sort mods. This shall fix some uncommon errors while many mods are active.
 
 
 
