@@ -290,6 +290,9 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         itemOpenModFolder = new javax.swing.JMenuItem();
         itemImportFromOldModManager = new javax.swing.JMenuItem();
         jSeparator3 = new javax.swing.JPopupMenu.Separator();
+        jMenu1 = new javax.swing.JMenu();
+        itemExportOverview = new javax.swing.JMenuItem();
+        jSeparator7 = new javax.swing.JPopupMenu.Separator();
         itemDownloadModUpdates = new javax.swing.JMenuItem();
         jSeparator2 = new javax.swing.JPopupMenu.Separator();
         itemExit = new javax.swing.JMenuItem();
@@ -729,10 +732,10 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonAddMod)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(labelStatus, javax.swing.GroupLayout.DEFAULT_SIZE, 381, Short.MAX_VALUE)
+                        .addComponent(labelStatus, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonLaunchHon, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(modsTable, javax.swing.GroupLayout.DEFAULT_SIZE, 619, Short.MAX_VALUE))
+                    .addComponent(modsTable, javax.swing.GroupLayout.DEFAULT_SIZE, 280, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(panelModListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                     .addComponent(progressBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -804,6 +807,21 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
 
         jSeparator3.setName("jSeparator3"); // NOI18N
         menuFile.add(jSeparator3);
+
+        jMenu1.setMnemonic(L10n.getMnemonic("menu.file.export"));
+        jMenu1.setText(L10n.getString("menu.file.export"));
+        jMenu1.setName("itemExportMenu"); // NOI18N
+        jMenu1.setOpaque(true);
+
+        itemExportOverview.setMnemonic(L10n.getMnemonic("menu.file.export.overview"));
+        itemExportOverview.setText(L10n.getString("menu.file.export.overview"));
+        itemExportOverview.setName("itemExportOverview"); // NOI18N
+        jMenu1.add(itemExportOverview);
+
+        menuFile.add(jMenu1);
+
+        jSeparator7.setName("jSeparator7"); // NOI18N
+        menuFile.add(jSeparator7);
 
         itemDownloadModUpdates.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_U, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
         itemDownloadModUpdates.setMnemonic(L10n.getMnemonic("menu.file.downloadmodupdates"));
@@ -1442,6 +1460,10 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         itemViewDetailedIcons.addActionListener(al);
     }
 
+    void itemExportOverviewAddActionListener(ActionListener al) {
+        itemExportOverview.addActionListener(al);
+    }
+
     public void itemViewTilesAddActionListener(ActionListener al) {
         itemViewTiles.addActionListener(al);
     }
@@ -1685,6 +1707,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     private javax.swing.JMenuItem itemApplyMods;
     private javax.swing.JMenuItem itemDownloadModUpdates;
     private javax.swing.JMenuItem itemExit;
+    private javax.swing.JMenuItem itemExportOverview;
     private javax.swing.JMenuItem itemImportFromOldModManager;
     private javax.swing.JMenuItem itemOpenModFolder;
     private javax.swing.JMenuItem itemOpenPreferences;
@@ -1696,6 +1719,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     private javax.swing.JRadioButtonMenuItem itemViewIcons;
     private javax.swing.JRadioButtonMenuItem itemViewTiles;
     private javax.swing.JMenuItem itemVisitForumThread;
+    private javax.swing.JMenu jMenu1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JPopupMenu.Separator jSeparator1;
@@ -1704,6 +1728,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     private javax.swing.JPopupMenu.Separator jSeparator4;
     private javax.swing.JPopupMenu.Separator jSeparator5;
     private javax.swing.JPopupMenu.Separator jSeparator6;
+    private javax.swing.JPopupMenu.Separator jSeparator7;
     private javax.swing.JLabel labelCLArguments;
     private javax.swing.JLabel labelChangeLanguageImplication;
     private javax.swing.JLabel labelChooseLanguage;

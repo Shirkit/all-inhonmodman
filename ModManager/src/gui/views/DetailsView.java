@@ -106,7 +106,8 @@ public class DetailsView extends ModsTableView {
 
     @Override
     public Mod getModAt(Point p) {
-        int index = ((JTable)getComponent()).rowAtPoint(p);
+        JTable comp = ((JTable)getComponent());
+        int index = comp.convertRowIndexToModel(comp.rowAtPoint(p));
         if(index == -1) {
             throw new IndexOutOfBoundsException("DetailsView: Mouse not over a mod.");
         }
@@ -311,6 +312,8 @@ public class DetailsView extends ModsTableView {
      * @param w desired width of column i
      */
     public void setColumnWidth(int i, int w) {
+        if(i > COLUMN_NAMES.length - (columnShown[5]? 0:1))
+            return; // We should probably thrown an exception, but OH WELL
         ((JTable)getComponent()).getColumnModel().getColumn(i).setPreferredWidth(w);
         ((JTable)getComponent()).getColumnModel().getColumn(i).setWidth(w);
     }

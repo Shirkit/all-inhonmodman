@@ -3,6 +3,7 @@ package gui;
 import app.ManagerApp;
 import java.awt.event.ComponentEvent;
 import java.util.Observable;
+import java.util.logging.Level;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.TableColumnModelEvent;
 import javax.swing.event.TableColumnModelListener;
@@ -24,9 +25,6 @@ import gui.l10n.L10n;
 import business.ManagerOptions;
 import business.Mod;
 import business.ModList;
-import business.modactions.Action;
-import business.modactions.ActionEditFile;
-import business.modactions.ActionEditFileActions;
 import java.awt.Component;
 import java.awt.event.ComponentListener;
 import java.awt.event.ItemListener;
@@ -79,9 +77,12 @@ import exceptions.StringNotFoundModActionException;
 import exceptions.UnknowModActionException;
 import gui.views.DetailsView;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.StringReader;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JList;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import org.jdesktop.application.Application;
 import org.jdesktop.application.Task;
 import utility.ZIP;
@@ -165,6 +166,7 @@ public class ManagerCtrl implements Observer {
         view.itemViewTilesAddActionListener(new ViewChangeListener(ModsTable.ViewType.TILES));
         view.itemViewDetailedIconsAddActionListener(new ViewChangeListener(ModsTable.ViewType.DETAILED_ICONS));
         view.itemUseSmallIconsAddActionListener(new SmallIconsListener());
+        view.itemExportOverviewAddActionListener(new ExportOverviewListener());
         view.itemExitAddActionListener(new ExitListener());
         view.itemAddProfileAddActionListener(new AddProfileListener());
 
@@ -949,6 +951,32 @@ public class ManagerCtrl implements Observer {
             ManagerOptions.getInstance().setUseSmallIcons(((JCheckBoxMenuItem) e.getSource()).isSelected());
             view.getModsTable().getCurrentView().applyOptions();
             view.getModsTable().redraw();
+        }
+    }
+
+    /**
+     * Listener for exporting an overview
+     */
+    class ExportOverviewListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            JFileChooser saveDialog = new JFileChooser(".");
+            saveDialog.addChoosableFileFilter(new FileNameExtensionFilter("TXT file","txt"));
+            if(saveDialog.showSaveDialog(view) == JFileChooser.APPROVE_OPTION) {
+                File outFile = saveDialog.getSelectedFile();
+                // TODO: Check if file already exists and warn user.
+
+                try {
+                    BufferedWriter outStream = new BufferedWriter(new FileWriter(outFile));
+                    for(Mod mod : model.getMods()) {
+                        outStream.write(mod.getName());
+                        outStream.newLine();
+                    }
+                    outStream.close();
+                } catch (IOException ex) {
+                    logger.error("Could not open write to file.");
+                    // TODO: Nicer message box here.
+                }
+            }
         }
     }
 
