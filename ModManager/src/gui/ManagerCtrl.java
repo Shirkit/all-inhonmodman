@@ -168,7 +168,6 @@ public class ManagerCtrl implements Observer {
         view.itemUseSmallIconsAddActionListener(new SmallIconsListener());
         view.itemExportOverviewAddActionListener(new ExportOverviewListener());
         view.itemExitAddActionListener(new ExitListener());
-        view.itemAddProfileAddActionListener(new AddProfileListener());
 
         view.buttonVisitWebsiteAddActionListener(new VisitWebsiteListener());
         view.popupMenuItemVisitWebsiteAddActionListener(new VisitWebsiteListener());
@@ -1235,24 +1234,6 @@ public class ManagerCtrl implements Observer {
                 logger.warn("Unable to change Look and feel: " + ex.getMessage());
                 //TODO: some error message?
             }
-        }
-    }
-
-    class AddProfileListener implements ActionListener {
-
-        public void actionPerformed(ActionEvent e) {
-            ModList profile = new ModList();
-            String name = JOptionPane.showInputDialog(view, "What will be the name of this profile?");
-            profile.setName(name);
-            Iterator<Mod> it = model.getMods().iterator();
-            while (it.hasNext()) {
-                Mod mod = it.next();
-                if (mod.isEnabled()) {
-                    profile.addMod(mod);
-                }
-            }
-            model.addProfile(profile);
-            new ProfileMenu(profile, view.getMenuProfiles());
         }
     }
 

@@ -672,28 +672,6 @@
             </MenuItem>
           </SubComponents>
         </Menu>
-        <Menu class="javax.swing.JMenu" name="menuProfiles">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Profiles"/>
-            <Property name="name" type="java.lang.String" value="menuProfiles" noResource="true"/>
-          </Properties>
-          <AuxValues>
-            <AuxValue name="JavaCodeGenerator_AddingCodePost" type="java.lang.String" value="menuProfiles.setVisible(false);"/>
-          </AuxValues>
-          <SubComponents>
-            <MenuItem class="javax.swing.JMenuItem" name="itemAddProfile">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Add Profile"/>
-                <Property name="name" type="java.lang.String" value="itemAddProfile" noResource="true"/>
-              </Properties>
-            </MenuItem>
-            <MenuItem class="javax.swing.JPopupMenu$Separator" name="jSeparator5">
-              <Properties>
-                <Property name="name" type="java.lang.String" value="jSeparator5" noResource="true"/>
-              </Properties>
-            </MenuItem>
-          </SubComponents>
-        </Menu>
       </SubComponents>
     </Menu>
   </NonVisualComponents>
@@ -733,12 +711,12 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Component id="panelModList" alignment="0" pref="956" max="32767" attributes="0"/>
+          <Component id="panelModList" alignment="0" pref="954" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Component id="panelModList" alignment="0" pref="674" max="32767" attributes="0"/>
+          <Component id="panelModList" alignment="0" pref="662" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
   </Layout>
@@ -769,7 +747,7 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="buttonLaunchHon" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <Component id="modsTable" pref="280" max="32767" attributes="0"/>
+                      <Component id="modsTable" pref="391" max="32767" attributes="0"/>
                   </Group>
                   <EmptySpace type="unrelated" min="-2" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="1" max="-2" attributes="0">
@@ -789,9 +767,9 @@
               <Group type="102" attributes="0">
                   <EmptySpace min="-2" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="modsTable" pref="618" max="32767" attributes="0"/>
-                      <Component id="panelModDetails" pref="618" max="32767" attributes="1"/>
-                      <Component id="panelModChangelog" alignment="0" pref="618" max="32767" attributes="0"/>
+                      <Component id="modsTable" pref="601" max="32767" attributes="0"/>
+                      <Component id="panelModDetails" pref="601" max="32767" attributes="1"/>
+                      <Component id="panelModChangelog" alignment="0" pref="601" max="32767" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
@@ -849,7 +827,7 @@
           <Properties>
             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
               <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                <TitledBorder title="&lt;User Code&gt;">
+                <TitledBorder title="&lt;C&#xf3;digo do usu&#xe1;rio&gt;">
                   <Connection PropertyName="titleX" code="&quot; &quot;+L10n.getString(&quot;panel.details.label&quot;)+&quot; &quot;" type="code"/>
                 </TitledBorder>
               </Border>
@@ -869,7 +847,7 @@
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="panelChangelogScrollpaneChangelogEditorPane" alignment="0" pref="418" max="32767" attributes="1"/>
+                          <Component id="panelChangelogScrollpaneChangelogEditorPane" alignment="0" pref="414" max="32767" attributes="1"/>
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="panelChangelogLabelModIcon" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
@@ -878,7 +856,7 @@
                                   <Component id="panelChangelogLabelModName" alignment="0" min="-2" pref="184" max="-2" attributes="0"/>
                               </Group>
                           </Group>
-                          <Component id="buttonViewModDetails" alignment="0" pref="418" max="32767" attributes="1"/>
+                          <Component id="buttonViewModDetails" alignment="0" pref="414" max="32767" attributes="1"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -896,7 +874,7 @@
                           </Group>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="panelChangelogScrollpaneChangelogEditorPane" pref="497" max="32767" attributes="0"/>
+                      <Component id="panelChangelogScrollpaneChangelogEditorPane" pref="472" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="buttonViewModDetails" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
@@ -968,7 +946,7 @@
           <Properties>
             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
               <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                <TitledBorder title="&lt;User Code&gt;">
+                <TitledBorder title="&lt;C&#xf3;digo do usu&#xe1;rio&gt;">
                   <Connection PropertyName="titleX" code="&quot; &quot;+L10n.getString(&quot;panel.details.label&quot;)+&quot; &quot;" type="code"/>
                 </TitledBorder>
               </Border>
@@ -1098,7 +1076,7 @@
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="1" attributes="0">
-                          <Component id="jScrollPane2" pref="385" max="32767" attributes="0"/>
+                          <Component id="jScrollPane2" pref="354" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="labelRequirements" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>

@@ -313,7 +313,7 @@ public class DetailsView extends ModsTableView {
      */
     public void setColumnWidth(int i, int w) {
         if(i > COLUMN_NAMES.length - (columnShown[5]? 0:1))
-            return; // We should probably thrown an exception, but OH WELL
+            return; // TODO: We should probably thrown an exception, but OH WELL
         ((JTable)getComponent()).getColumnModel().getColumn(i).setPreferredWidth(w);
         ((JTable)getComponent()).getColumnModel().getColumn(i).setWidth(w);
     }

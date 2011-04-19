@@ -179,11 +179,9 @@ public final class ModsTable extends JPanel {
         public ModSelectionListener(ModsTableView _view) {
             view = _view;
         }
-        boolean beenHere = false;
 
         public void valueChanged(ListSelectionEvent e) {
-            if (!beenHere && getCurrentView() == view && !e.getValueIsAdjusting()) {
-                beenHere = true;
+            if (getCurrentView() == view && !e.getValueIsAdjusting()) {
 
                 try {
                     setSelectedMod(view.getSelectedMod());
@@ -193,8 +191,6 @@ public final class ModsTable extends JPanel {
                     // exception because the indexes don't work properly when
                     // the table is sorting; but it still works correctly overall.
                 }
-            } else {
-                beenHere = false;
             }
         }
     }

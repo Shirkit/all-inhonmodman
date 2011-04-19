@@ -55,9 +55,6 @@ public class ManagerOptions extends Observable {
     private boolean useSmallIcons;
     private String lastHonVersion;
     private ViewType viewType;
-    // TODO: Save this in the options file.
-    private ArrayList<ModList> profiles;
-    private ModList currentProfile;
     // Hidden fields from XML
     private ArrayList<Mod> mods;
     private static ManagerOptions instance;
@@ -104,8 +101,6 @@ public class ManagerOptions extends Observable {
         columnsWidth = new ArrayList<Integer>();
         viewType = ViewType.DETAILS;
         noOptionsFile = true;
-        profiles = new ArrayList<ModList>();
-        currentProfile = null;
     }
 
     /**
@@ -212,9 +207,6 @@ public class ManagerOptions extends Observable {
         }
         if (temp.getViewType() != null) {
             instance.setViewType(temp.getViewType());
-        }
-        if (temp.getProfiles() != null) {
-            instance.setProfiles(temp.getProfiles());
         }
         instance.setUseSmallIcons(temp.usingSmallIcons());
         instance.setColorCheckboxesInTable(temp.getCheckboxesInTableColored());
@@ -545,33 +537,5 @@ public class ManagerOptions extends Observable {
 
     public String getLastHonVersion() {
         return lastHonVersion;
-    }
-
-    /**
-     * This method should only be used by the ManagerOptions class and it's converter.
-     */
-    public ArrayList<ModList> getProfiles() {
-        return profiles;
-    }
-
-    /**
-     * This method should only be used by the ManagerOptions class and it's converter.
-     */
-    public void setProfiles(ArrayList<ModList> profiles) {
-        this.profiles = profiles;
-    }
-
-    public void addProfile(ModList profile) {
-        this.profiles.add(profile);
-    }
-
-    public ModList getCurrentProfile() {
-        return currentProfile;
-    }
-
-    public void setCurrentProfile(ModList currentProfile) {
-        setChanged();
-        notifyObservers(this.currentProfile);
-        this.currentProfile = currentProfile;
     }
 }

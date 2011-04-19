@@ -45,7 +45,7 @@ public class ModList {
     }
 
     public void addMod(Mod mod) {
-        modList.add(mod);
+        modList.add(new Mod(mod.getName(), mod.getVersion(), mod.getAuthor(), mod.getUpdateDownloadUrl(), mod.getPath()));
     }
 
     public Mod removeMod(Mod mod) {
