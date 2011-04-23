@@ -155,7 +155,7 @@ public class ZIP {
 
     /**
      * This is the main method. It unzips a zuo file.
-     * @param zip the file .honmod to be extracted.
+     * @param zip the zip file to be extracted.
      * @param folder the folder to where the .honmod file will be extracted.
      * @return folder with the files extracted.
      * @throws IOException if an I/O error has occurred
@@ -272,6 +272,7 @@ public class ZIP {
             while ((bytesIn = fis.read(readBuffer)) != -1) {
                 zos.write(readBuffer, 0, bytesIn);
             }
+            zos.closeEntry();
             anEntry.setTime(f.lastModified());
             //close the Stream
             fis.close();

@@ -207,10 +207,9 @@ public class FileUtils {
      * Tries to update the permissions of the target file with the possible {@code File} permissions methods.
      * @param f file to be updated.
      */
-    private static void updatePermissions(File f) {
+    public static void updatePermissions(File f) {
         f.setWritable(true);
         f.setReadable(true);
-        f.setExecutable(true);
     }
     private static ArrayList<File> temporaryFolders = new ArrayList<File>();
 

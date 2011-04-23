@@ -234,30 +234,16 @@ public class XML {
         fos.close();
     }
 
+    public static ModList xmlToModList(byte[] byteFile) throws FileNotFoundException {
+        XStream xstream = new XStream(getDriver());
+        xstream = updateAlias(xstream);
+        return (ModList) xstream.fromXML(new ByteArrayInputStream(byteFile));
+    }
+
     public static ModList xmlToModList(File file) throws FileNotFoundException {
         XStream xstream = new XStream(getDriver());
         xstream = updateAlias(xstream);
-
-        ArrayList<Mod> mods = new ArrayList<Mod>();
-        try {
-            ObjectInputStream in = xstream.createObjectInputStream(new FileInputStream(file.getAbsolutePath()));
-            while (true) {
-                try {
-                    Object o = in.readObject();
-                    if (o.getClass().equals(Mod.class)) {
-                        mods.add((Mod) o);
-                    }
-                } catch (CannotResolveClassException e) {
-                } catch (ClassNotFoundException e) {
-                }
-            }
-
-        } catch (IOException ex) {
-        }
-        ModList temp = (ModList) xstream.fromXML(new FileInputStream(file));
-        temp.setModList(mods);
-
-        return temp;
+        return (ModList) xstream.fromXML(new FileInputStream(file));
     }
 
     /**

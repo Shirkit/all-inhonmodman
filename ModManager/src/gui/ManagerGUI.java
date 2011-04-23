@@ -127,6 +127,9 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                 itemExit.doClick();
             }
         });
+        
+        // Disable the Export menu
+        jMenu1.setVisible(false);
 
         getProgressBar().setStringPainted(false);
         updateModTable();
@@ -325,12 +328,16 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         textFieldHonFolder.setName("textFieldHonFolder"); // NOI18N
 
         buttonHonFolder.setText(L10n.getString("prefs.button.change"));
+        buttonHonFolder.setMinimumSize(new java.awt.Dimension(70, 25));
         buttonHonFolder.setName("buttonHonFolder"); // NOI18N
+        buttonHonFolder.setPreferredSize(new java.awt.Dimension(70, 25));
 
         comboBoxLafs.setName("comboBoxLafs"); // NOI18N
 
         buttonApplyLaf.setText(L10n.getString("prefs.button.apply"));
+        buttonApplyLaf.setMinimumSize(new java.awt.Dimension(70, 25));
         buttonApplyLaf.setName("buttonApplyLaf"); // NOI18N
+        buttonApplyLaf.setPreferredSize(new java.awt.Dimension(70, 25));
 
         buttonCancel.setText(L10n.getString("button.cancel"));
         buttonCancel.setName("buttonCancel"); // NOI18N
@@ -355,7 +362,9 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         labelChangeLanguageImplication.setName("labelChangeLanguageImplication"); // NOI18N
 
         buttonModsFolder.setText(L10n.getString("prefs.button.change"));
+        buttonModsFolder.setMinimumSize(new java.awt.Dimension(70, 25));
         buttonModsFolder.setName("buttonModsFolder"); // NOI18N
+        buttonModsFolder.setPreferredSize(new java.awt.Dimension(70, 25));
 
         labelModsFolder.setText(L10n.getString("prefs.label.modsfolder"));
         labelModsFolder.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -405,16 +414,16 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                                     .addComponent(labelCLArguments, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 121, Short.MAX_VALUE))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(dialogOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(textFieldHonFolder, javax.swing.GroupLayout.DEFAULT_SIZE, 368, Short.MAX_VALUE)
-                                    .addComponent(comboBoxChooseLanguage, javax.swing.GroupLayout.Alignment.LEADING, 0, 368, Short.MAX_VALUE)
-                                    .addComponent(textFieldModsFolder, javax.swing.GroupLayout.DEFAULT_SIZE, 368, Short.MAX_VALUE)
-                                    .addComponent(comboBoxLafs, javax.swing.GroupLayout.Alignment.LEADING, 0, 368, Short.MAX_VALUE)
-                                    .addComponent(textFieldCLArguments, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 368, Short.MAX_VALUE))
+                                    .addComponent(textFieldHonFolder, javax.swing.GroupLayout.DEFAULT_SIZE, 427, Short.MAX_VALUE)
+                                    .addComponent(comboBoxChooseLanguage, javax.swing.GroupLayout.Alignment.LEADING, 0, 427, Short.MAX_VALUE)
+                                    .addComponent(textFieldModsFolder, javax.swing.GroupLayout.DEFAULT_SIZE, 427, Short.MAX_VALUE)
+                                    .addComponent(comboBoxLafs, javax.swing.GroupLayout.Alignment.LEADING, 0, 427, Short.MAX_VALUE)
+                                    .addComponent(textFieldCLArguments, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 427, Short.MAX_VALUE))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(dialogOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(buttonModsFolder, javax.swing.GroupLayout.DEFAULT_SIZE, 167, Short.MAX_VALUE)
-                                    .addComponent(buttonHonFolder, javax.swing.GroupLayout.DEFAULT_SIZE, 167, Short.MAX_VALUE)
-                                    .addComponent(buttonApplyLaf, javax.swing.GroupLayout.DEFAULT_SIZE, 167, Short.MAX_VALUE)))
+                                    .addComponent(buttonModsFolder, javax.swing.GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)
+                                    .addComponent(buttonHonFolder, javax.swing.GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)
+                                    .addComponent(buttonApplyLaf, javax.swing.GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)))
                             .addGroup(dialogOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                                 .addComponent(checkBoxDeveloperMode, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(checkBoxAutoUpdate, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -428,11 +437,11 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                 .addGroup(dialogOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(labelHonFolder)
                     .addComponent(textFieldHonFolder, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(buttonHonFolder))
+                    .addComponent(buttonHonFolder, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(dialogOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(labelModsFolder)
-                    .addComponent(buttonModsFolder)
+                    .addComponent(buttonModsFolder, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(textFieldModsFolder, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(dialogOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -442,7 +451,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                 .addGroup(dialogOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(labelChooseLookAndFeel)
                     .addComponent(comboBoxLafs, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(buttonApplyLaf))
+                    .addComponent(buttonApplyLaf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(dialogOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(labelChooseLanguage)
@@ -998,7 +1007,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         checkBoxIgnoreGameVersion.setSelected(ManagerOptions.getInstance().isIgnoreGameVersion());
         checkBoxAutoUpdate.setSelected(ManagerOptions.getInstance().isAutoUpdate());
         checkBoxDeveloperMode.setSelected(ManagerOptions.getInstance().isDeveloperMode());
-        dialogOptions.setSize(600, 410);
+        //dialogOptions.setSize(600, 500);
         dialogOptions.setLocationRelativeTo(this);
         dialogOptions.setVisible(true);
     }//GEN-LAST:event_itemOpenPreferencesActionPerformed

@@ -3,7 +3,6 @@ package gui;
 import app.ManagerApp;
 import java.awt.event.ComponentEvent;
 import java.util.Observable;
-import java.util.logging.Level;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.TableColumnModelEvent;
 import javax.swing.event.TableColumnModelListener;
@@ -24,7 +23,6 @@ import com.mallardsoft.tuple.Tuple;
 import gui.l10n.L10n;
 import business.ManagerOptions;
 import business.Mod;
-import business.ModList;
 import java.awt.Component;
 import java.awt.event.ComponentListener;
 import java.awt.event.ItemListener;
@@ -129,10 +127,10 @@ public class ManagerCtrl implements Observer {
 
         // Load last column order and widths for details view
         DetailsView detailsView = (DetailsView) view.getModsTable().getView(ModsTable.ViewType.DETAILS);
-        if (model.getColumnsOrder() != null) {
+        if (detailsView != null && model.getColumnsOrder() != null) {
             detailsView.deserializeColumnOrder(model.getColumnsOrder());
         }
-        if (model.getColumnsWidth() != null) {
+        if (detailsView != null && model.getColumnsWidth() != null) {
             int i = 0;
             Iterator<Integer> it = model.getColumnsWidth().iterator();
             while (it.hasNext()) {
@@ -426,11 +424,14 @@ public class ManagerCtrl implements Observer {
                 logger.info("Setting LaF to Default");
                 if (OS.isWindows()) {
                     try {
-                        UIManager.setLookAndFeel("com.jgoodies.looks.plastic.PlasticXPLookAndFeel");
+                        UIManager.setLookAndFeel("com.jgoodies.looks.windows.WindowsLookAndFeel");
+                        ManagerOptions.getInstance().setLaf("com.jgoodies.looks.windows.WindowsLookAndFeel");
                     } catch (Exception e) {
                         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                        ManagerOptions.getInstance().setLaf(UIManager.getSystemLookAndFeelClassName());
                     }
                 } else {
+                    ManagerOptions.getInstance().setLaf(UIManager.getSystemLookAndFeelClassName());
                     UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
                 }
                 SwingUtilities.updateComponentTreeUI(view);
@@ -806,6 +807,7 @@ public class ManagerCtrl implements Observer {
                     if (applyMods()) {
                         try {
                             Process game = Runtime.getRuntime().exec(Game.getInstance().getHonExecutable().getAbsolutePath());
+                            game = null;
                         } catch (IOException ex) {
                             view.showMessage(L10n.getString("message.honnotfound"),
                                     L10n.getString("message.honnotfound.title"),
@@ -957,16 +959,17 @@ public class ManagerCtrl implements Observer {
      * Listener for exporting an overview
      */
     class ExportOverviewListener implements ActionListener {
+
         public void actionPerformed(ActionEvent e) {
             JFileChooser saveDialog = new JFileChooser(".");
-            saveDialog.addChoosableFileFilter(new FileNameExtensionFilter("TXT file","txt"));
-            if(saveDialog.showSaveDialog(view) == JFileChooser.APPROVE_OPTION) {
+            saveDialog.addChoosableFileFilter(new FileNameExtensionFilter("TXT file", "txt"));
+            if (saveDialog.showSaveDialog(view) == JFileChooser.APPROVE_OPTION) {
                 File outFile = saveDialog.getSelectedFile();
                 // TODO: Check if file already exists and warn user.
 
                 try {
                     BufferedWriter outStream = new BufferedWriter(new FileWriter(outFile));
-                    for(Mod mod : model.getMods()) {
+                    for (Mod mod : model.getMods()) {
                         outStream.write(mod.getName());
                         outStream.newLine();
                     }
