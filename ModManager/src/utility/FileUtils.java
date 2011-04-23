@@ -284,7 +284,7 @@ public class FileUtils {
         File folder = null;
 
         if (OS.isLinux()) {
-            folder = new File("~" + File.separator + ".Heroes of Newerth" + File.separator + "All-In HoN ModManager");
+            folder = new File("/~" + File.separator + ".Heroes of Newerth" + File.separator + "All-In HoN ModManager");
             if (!folder.exists()) {
                 if (!folder.mkdirs()) {
                     return new File(ManagerOptions.MANAGER_FOLDER);
