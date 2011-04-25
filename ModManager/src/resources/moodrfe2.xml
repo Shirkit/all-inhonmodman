@@ -5,17 +5,17 @@
 	author="Shirkit (from Notausgang)"
 	>	
 	
-	<editfile name="ui/fe2/main.interface">
+    <editfile name="ui/fe2/main.interface">
 			
-		<find><![CDATA[CallEvent('event_login',1);]]></find>
-		<insert position="after"><![CDATA[Trigger('modsood_check');]]></insert>
+        <find><![CDATA[CallEvent('event_login',1);]]></find>
+        <insert position="after"><![CDATA[Trigger('modsood_check');]]></insert>
 			
-	</editfile>
+    </editfile>
 	
-	<editfile name="ui/fe2/social_groups.package">
+    <editfile name="ui/fe2/social_groups.package">
 			
-		<find><![CDATA[</package>]]></find>
-		<insert position="before"><![CDATA[<!-- Mods-out-of-Date Patch Notice -->
+        <find><![CDATA[</package>]]></find>
+        <insert position="before"><![CDATA[<!-- Mods-out-of-Date Patch Notice -->
 	<trigger name="modsood_check" />
 	<template name="modsood_body">
 		<panel y="0.5h" width="100%" float="bottom" color="invisible" grow="1">
@@ -52,6 +52,6 @@
 		/>
 	</panel>]]></insert>
 			
-	</editfile>
+    </editfile>
 	
 </modification>

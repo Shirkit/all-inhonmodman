@@ -97,9 +97,12 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         comboBoxChooseLanguage.addItem(new Language("Spanish", "es"));
         comboBoxChooseLanguage.addItem(new Language("Itallian", "it"));
         comboBoxChooseLanguage.addItem(new Language("Norwegian", "no"));
+        comboBoxChooseLanguage.addItem(new Language("Polish", "pl"));
         comboBoxChooseLanguage.addItem(new Language("Português (Brasil)", "pt_BR"));
         comboBoxChooseLanguage.addItem(new Language("Russian", "ru"));
+        comboBoxChooseLanguage.addItem(new Language("Slovak", "sk"));
         comboBoxChooseLanguage.addItem(new Language("~Strings Code Table", "strings"));
+        comboBoxChooseLanguage.addItem(new Language("Swedish", "sv"));
         comboBoxChooseLanguage.addItem(new Language("Turkish", "tr"));
         comboBoxChooseLanguage.addItem(new Language("~Local HonModMan.properties file", "file"));
         // Set model of the LaF combobox. This will not be localized

@@ -3,6 +3,7 @@ Important! - Support for Chinese language. I couldn't find a way to make it work
 - Modlist finishing / Export/Import / Profile Import
 - Move supportive files to other folders (Only for Mac : managerOptions.xml FileUtils.getManagerPerpetualFolder())
 - "java" sometimes won't be avaliable in the user's path
+- Remove all hmtl tags from the code and put them into the langauge files.
 
 - Copyfile Version attribute not working
  + Copyfile Overwritting file if there is already a file and no overwrite param was set

@@ -551,7 +551,7 @@ public class ManagerCtrl implements Observer {
                     }
                 }
                 if (!stream.isEmpty() || !zip.isEmpty()) {
-                    view.showMessage("<html>" + L10n.getString("error.modcorrupt").replace("#mod#", "<strong>" + stream + zip + "</strong>") + "</html>", L10n.getString("error.modcorrupt.title"), JOptionPane.ERROR_MESSAGE);
+                    view.showMessage(L10n.getString("error.modcorrupt").replace("#mod#", "<strong>" + stream + zip + "</strong>"), L10n.getString("error.modcorrupt.title"), JOptionPane.ERROR_MESSAGE);
                 }
 
                 if (!notfound.isEmpty()) {
@@ -712,15 +712,15 @@ public class ManagerCtrl implements Observer {
                     controller.addHonmod(files[i], true);
                 } catch (ModNotFoundException ex) {
                     Pair<String, String> item = ex.getMods().get(0);
-                    view.showMessage("<html>" + L10n.getString("error.modsnotfound").replace("#mod#", "<strong>" + Tuple.get1(item) + "</strong>") + "</html>", L10n.getString("error.modsnotfound.title"), JOptionPane.ERROR_MESSAGE);
+                    view.showMessage(L10n.getString("error.modsnotfound").replace("#mod#", Tuple.get1(item)), L10n.getString("error.modsnotfound.title"), JOptionPane.ERROR_MESSAGE);
                     logger.error("Cannot open honmod file: " + Tuple.get1(item));
                 } catch (ModStreamException ex) {
                     Pair<String, String> item = ex.getMods().get(0);
-                    view.showMessage("<html>" + L10n.getString("error.modcorrupt").replace("#mod#", "<strong>" + Tuple.get1(item) + "</strong>") + "</html>", L10n.getString("error.modcorrupt.title"), JOptionPane.ERROR_MESSAGE);
+                    view.showMessage(L10n.getString("error.modcorrupt").replace("#mod#", Tuple.get1(item)), L10n.getString("error.modcorrupt.title"), JOptionPane.ERROR_MESSAGE);
                     logger.error("Honmod file corrupt: " + Tuple.get1(item));
                 } catch (ModZipException ex) {
                     Pair<String, String> item = ex.getMods().get(0);
-                    view.showMessage("<html>" + L10n.getString("error.modcorrupt").replace("#mod#", "<strong>" + Tuple.get1(item) + "</strong>") + "</html>", L10n.getString("error.modcorrupt.title"), JOptionPane.ERROR_MESSAGE);
+                    view.showMessage(L10n.getString("error.modcorrupt").replace("#mod#", Tuple.get1(item)), L10n.getString("error.modcorrupt.title"), JOptionPane.ERROR_MESSAGE);
                     logger.error("Honmod file corrupt: " + Tuple.get1(item));
                 } catch (ModDuplicateException ex) {
                     Pair<String, String> item = ex.getMods().get(0);
