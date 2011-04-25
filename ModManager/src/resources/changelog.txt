@@ -231,7 +231,7 @@
 - Note: Changes to strings file have been made
 - Details View options "color checkboxes" and "show icons" are now properly saved
 
-[b]0.9.6 BETA - xx/yy/2011:[/b]
+[b]0.9.6 BETA - 25/04/2011:[/b]
 - New Updating System working. Now the Manager will only download the files that we're added/edited/replaced, reducing download size by, at minimum, 80%.
 - Restored new SAX XML Driver for parsing the mods.
 - Fixed problem with position attribute in a find action.
