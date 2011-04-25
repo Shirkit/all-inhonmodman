@@ -242,6 +242,7 @@
 - Changed button size on the Preferences Dialog.
 - Set the default LaF correctly when the manager runs for the first time.
 - Fixed little bug on Linux. It was missing a '/' before the '~' to retrieve the correct user path dir.
+- Updated language files.
 
 
 
