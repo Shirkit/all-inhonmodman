@@ -22,7 +22,7 @@ import java.io.UnsupportedEncodingException;
 public class PropertiesToWiki {
 
     public static void main(String[] args) throws FileNotFoundException, UnsupportedEncodingException, IOException {
-        if (args.length < 2) {
+        if (args.length < 1 || args[0].equals("h") || args[0].equals("help") || args[0].equals("?") || args[0].equals("-h") || args[0].equals("-help") || args[0].equals("-?") || args[0].equals("/?") || args[0].equals("/h") || args[0].equals("/help")) {
             System.out.println();
             System.out.println("Usage: prop2wiki SOURCE <DEST> <ENCODE>");
             System.out.println("       SOURCE = Source file");
