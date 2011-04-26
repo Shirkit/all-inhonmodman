@@ -244,6 +244,11 @@
 - Fixed little bug on Linux. It was missing a '/' before the '~' to retrieve the correct user path dir.
 - Updated language files.
 
+[b]0.9.7 BETA - xx/xx/2011:[/b]
+- Changed default font to display Chinese characters correctly.
+- Changing language doesn't need to restart the Manager anymore.
+- Tried another way to solve linux home user path problem.
+
 
 
 

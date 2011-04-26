@@ -49,7 +49,8 @@ public class L10n {
         load(languageLocale);
     }
 
-    public static void load(String locale) throws IOException {
+    public static boolean load(String locale) throws IOException {
+        boolean result = false;
         Locale loc;
         if (locale.equals("DUMMY_DEFAULT")) {
             loc = Locale.getDefault();
@@ -82,6 +83,7 @@ public class L10n {
                 resource = Utf8ResourceBundle.getBundle(RESOURCE_NAME, loc);
             }
             ManagerOptions.getInstance().setLanguage(loc.toString());
+            result = true;
         } catch (Exception e) {
             logger.error("Error loading language " + loc.toString(), e);
             load(DEFAULT_LOCALE);
@@ -92,6 +94,7 @@ public class L10n {
         } catch (Exception e) {
         }
         currentLocale = loc;
+        return result;
     }
 
     /**
@@ -178,5 +181,13 @@ public class L10n {
 
     public static String getDefaultLocale() {
         return DEFAULT_LOCALE;
+    }
+
+    public static ResourceBundle getResource() {
+        return resource;
+    }
+
+    public static void setResource(ResourceBundle resource) {
+        L10n.resource = resource;
     }
 }

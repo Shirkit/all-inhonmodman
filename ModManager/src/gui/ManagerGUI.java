@@ -2,6 +2,7 @@ package gui;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
+import java.util.Enumeration;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JList;
@@ -39,12 +40,15 @@ import org.jdesktop.application.Task;
 import utility.BBCode;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Font;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JEditorPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
+import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
+import javax.swing.plaf.FontUIResource;
 import utility.Game;
 
 /**
@@ -104,6 +108,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         comboBoxChooseLanguage.addItem(new Language("~Strings Code Table", "strings"));
         comboBoxChooseLanguage.addItem(new Language("Swedish", "sv"));
         comboBoxChooseLanguage.addItem(new Language("Turkish", "tr"));
+        //comboBoxChooseLanguage.addItem(new Language("Chinese (Traditional)", "zh"));
         comboBoxChooseLanguage.addItem(new Language("~Local HonModMan.properties file", "file"));
         // Set model of the LaF combobox. This will not be localized
         //comboBoxLafs.addItem(new LaF("Default", UIManager.getSystemLookAndFeelClassName()));
@@ -130,7 +135,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                 itemExit.doClick();
             }
         });
-        
+
         // Disable the Export menu
         jMenu1.setVisible(false);
 
@@ -152,6 +157,11 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
             instanceCreated = true;
             instance = new ManagerGUI();
         }
+        return instance;
+    }
+
+    public static ManagerGUI newInstance() {
+        instance = new ManagerGUI();
         return instance;
     }
 
@@ -253,6 +263,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         checkBoxIgnoreGameVersion = new javax.swing.JCheckBox();
         checkBoxAutoUpdate = new javax.swing.JCheckBox();
         checkBoxDeveloperMode = new javax.swing.JCheckBox();
+        buttonApplyLanguage = new javax.swing.JButton();
         rightClickTableMenu = new javax.swing.JPopupMenu();
         popupItemMenuEnableDisableMod = new javax.swing.JMenuItem();
         popupItemMenuUpdateMod = new javax.swing.JMenuItem();
@@ -360,9 +371,10 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
 
         textFieldCLArguments.setName("textFieldCLArguments"); // NOI18N
 
-        labelChangeLanguageImplication.setFont(new java.awt.Font("Tahoma", 0, 10));
+        labelChangeLanguageImplication.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
         labelChangeLanguageImplication.setText(L10n.getString("prefs.label.languagechanges"));
         labelChangeLanguageImplication.setName("labelChangeLanguageImplication"); // NOI18N
+        labelChangeLanguageImplication.setVisible(false);
 
         buttonModsFolder.setText(L10n.getString("prefs.button.change"));
         buttonModsFolder.setMinimumSize(new java.awt.Dimension(70, 25));
@@ -389,6 +401,11 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         checkBoxDeveloperMode.setText(L10n.getString("prefs.label.developermode"));
         checkBoxDeveloperMode.setToolTipText(L10n.getString("tooltip.prefs.developermode"));
         checkBoxDeveloperMode.setName("checkBoxDeveloperMode"); // NOI18N
+
+        buttonApplyLanguage.setText(L10n.getString("prefs.button.apply"));
+        buttonApplyLanguage.setMinimumSize(new java.awt.Dimension(70, 25));
+        buttonApplyLanguage.setName("buttonApplyLanguage"); // NOI18N
+        buttonApplyLanguage.setPreferredSize(new java.awt.Dimension(70, 25));
 
         javax.swing.GroupLayout dialogOptionsLayout = new javax.swing.GroupLayout(dialogOptions.getContentPane());
         dialogOptions.getContentPane().setLayout(dialogOptionsLayout);
@@ -423,10 +440,11 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                                     .addComponent(comboBoxLafs, javax.swing.GroupLayout.Alignment.LEADING, 0, 427, Short.MAX_VALUE)
                                     .addComponent(textFieldCLArguments, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 427, Short.MAX_VALUE))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(dialogOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(buttonModsFolder, javax.swing.GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)
-                                    .addComponent(buttonHonFolder, javax.swing.GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)
-                                    .addComponent(buttonApplyLaf, javax.swing.GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)))
+                                .addGroup(dialogOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(buttonApplyLanguage, javax.swing.GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)
+                                    .addComponent(buttonModsFolder, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)
+                                    .addComponent(buttonHonFolder, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)
+                                    .addComponent(buttonApplyLaf, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)))
                             .addGroup(dialogOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                                 .addComponent(checkBoxDeveloperMode, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(checkBoxAutoUpdate, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -458,14 +476,15 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(dialogOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(labelChooseLanguage)
-                    .addComponent(comboBoxChooseLanguage, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(comboBoxChooseLanguage, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(buttonApplyLanguage, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(20, 20, 20)
                 .addComponent(checkBoxIgnoreGameVersion)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(checkBoxAutoUpdate)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(checkBoxDeveloperMode)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 29, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 26, Short.MAX_VALUE)
                 .addComponent(labelChangeLanguageImplication)
                 .addGap(7, 7, 7)
                 .addGroup(dialogOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1472,6 +1491,10 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         buttonApplyLaf.addActionListener(al);
     }
 
+    public void buttonApplyLanguageAddActionListener(ActionListener al) {
+        buttonApplyLanguage.addActionListener(al);
+    }
+
     public void buttonOkAddActionListener(ActionListener al) {
         buttonOk.addActionListener(al);
     }
@@ -1672,6 +1695,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     private javax.swing.JEditorPane areaModDesc;
     private javax.swing.JButton buttonAddMod;
     private javax.swing.JButton buttonApplyLaf;
+    private javax.swing.JButton buttonApplyLanguage;
     private javax.swing.JButton buttonApplyMods;
     private javax.swing.JButton buttonCancel;
     private javax.swing.JButton buttonEnableMod;

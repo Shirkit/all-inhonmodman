@@ -47,12 +47,12 @@ public class CalculateJarDifferences {
         // First step is to get the version we want to release.
         String targetVersion = ManagerOptions.getInstance().getVersion();
         // Get the old jar
-        File oldJarVersion = new File("C:\\Users\\Shirkit\\Dropbox\\Public\\versions\\Manager.jar");
+        File oldJarVersion = new File("C:\\Users\\Shirkit\\Dropbox\\HonModManager\\Dropbox\\Public\\versions\\Manager.jar");
         // And the newly generated one
         File newJarVersion = new File("store\\Manager.jar");
         // Target output for where the differences will be generated
-        String verionsFile = "C:\\Users\\Shirkit\\Dropbox\\Public\\versions.txt";
-        File rootVersionsFolder = new File("C:\\Users\\Shirkit\\Dropbox\\Public\\versions\\");
+        String verionsFile = "C:\\Users\\Shirkit\\Dropbox\\HonModManager\\Dropbox\\Public\\versions.txt";
+        File rootVersionsFolder = new File("C:\\Users\\Shirkit\\Dropbox\\HonModManager\\Dropbox\\Public\\versions\\");
         File output = new File(rootVersionsFolder, targetVersion + ".jar");
 
         System.out.println("Version to be released=" + targetVersion);

@@ -3,6 +3,7 @@ package gui;
 import app.ManagerApp;
 import java.awt.event.ComponentEvent;
 import java.util.Observable;
+import java.util.ResourceBundle;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.TableColumnModelEvent;
 import javax.swing.event.TableColumnModelListener;
@@ -74,6 +75,7 @@ import exceptions.NothingSelectedModActionException;
 import exceptions.StringNotFoundModActionException;
 import exceptions.UnknowModActionException;
 import gui.views.DetailsView;
+import java.awt.Font;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -81,6 +83,7 @@ import java.io.StringReader;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JList;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.plaf.FontUIResource;
 import org.jdesktop.application.Application;
 import org.jdesktop.application.Task;
 import utility.ZIP;
@@ -120,98 +123,12 @@ public class ManagerCtrl implements Observer {
         // Set up look and feel
         loadLaf();
 
-        // Set up last window position
-        if (model.getGuiRectangle() != null) {
-            view.setBounds(model.getGuiRectangle());
-        }
-
-        // Load last column order and widths for details view
-        DetailsView detailsView = (DetailsView) view.getModsTable().getView(ModsTable.ViewType.DETAILS);
-        if (detailsView != null && model.getColumnsOrder() != null) {
-            detailsView.deserializeColumnOrder(model.getColumnsOrder());
-        }
-        if (detailsView != null && model.getColumnsWidth() != null) {
-            int i = 0;
-            Iterator<Integer> it = model.getColumnsWidth().iterator();
-            while (it.hasNext()) {
-                int width = it.next();
-                detailsView.setColumnWidth(i, width);
-                ++i;
-            }
-        }
+        initViewComponents(view);
 
         loadMods();
 
         if (model.getAppliedMods().isEmpty()) {
             importModsFromOldModManager();
-        }
-
-        // Update table
-        view.getModsTable().getCurrentView().getComponent().repaint();
-
-        // Add listeners to view components
-        view.buttonAddModAddActionListener(new AddModListener());
-        view.buttonEnableModAddActionListener(new EnableModListener());
-        view.popupMenuItemEnableDisableModAddActionListener(new EnableModListener());
-        view.itemApplyModsAddActionListener(new ApplyModsListener());
-        view.itemApplyAndLaunchAddActionListener(new ApplyAndLaunchListener());
-        view.itemUnapplyAllModsAddActionListener(new UnapplyAllModsListener());
-        view.itemOpenModFolderAddActionListener(new OpenModFolderListener());
-        view.itemVisitForumThreadAddActionListener(new VisitForumThreadListener());
-        // ----- DetailsView bug Disable ------
-        view.itemViewDetailsAddActionListener(new ViewChangeListener(ModsTable.ViewType.DETAILS));
-        view.itemViewIconsAddActionListener(new ViewChangeListener(ModsTable.ViewType.ICONS));
-        view.itemViewTilesAddActionListener(new ViewChangeListener(ModsTable.ViewType.TILES));
-        view.itemViewDetailedIconsAddActionListener(new ViewChangeListener(ModsTable.ViewType.DETAILED_ICONS));
-        view.itemUseSmallIconsAddActionListener(new SmallIconsListener());
-        view.itemExportOverviewAddActionListener(new ExportOverviewListener());
-        view.itemExitAddActionListener(new ExitListener());
-
-        view.buttonVisitWebsiteAddActionListener(new VisitWebsiteListener());
-        view.popupMenuItemVisitWebsiteAddActionListener(new VisitWebsiteListener());
-        view.buttonApplyLafAddActionListener(new ApplyLafListener());
-        view.buttonOkAddActionListener(new PrefsOkListener());
-        view.buttonCancelAddActionListener(new PrefsCancelListener());
-        view.buttonHonFolderAddActionListener(new ChooseFolderHonListener());
-        view.buttonUpdateModActionListener(new UpdateModListener());
-        view.popupMenuItemUpdateModAddActionListener(new UpdateModListener());
-        view.buttonModsFolderAddActionListener(new ChooseFolderModsListener());
-        view.itemDownloadModUpdates(new DownloadModUpdatesListener());
-        // DetailsView bug Disable
-        ((JTable) detailsView.getComponent()).getColumnModel().addColumnModelListener(new Columns2Listener());
-        view.addComponentListener(new ComponentEventListener());
-        view.getItemRefreshManager().addActionListener(new RefreshManagerListener());
-        view.getButtonViewChagelog().addActionListener(new ButtonViewModChangelogListener());
-        view.popupMenuItemViewChangelogAddActionListener(new ButtonViewModChangelogListener());
-        view.popupItemMenuDeleteModAddActionListener(new DeleteModListener());
-        view.getButtonViewModDetails().addActionListener(new ButtonViewModChangelogListener());
-        view.getButtonLaunchHon().addActionListener(new ApplyAndLaunchListener());
-        view.itemImportFromOldModManagerAddActionListener(new ImportModsFromOldModManager());
-        view.getModsTable().addKeyListener(new ModTableKeyListener());
-
-        // Add file drop functionality
-        new FileDrop(view, new DropListener());
-
-        // Load the user's chosen view
-        if (model.getViewType().equals(ManagerOptions.ViewType.DETAILED_ICONS)) {
-            view.getItemViewDetailedIcons().doClick();
-        } else if (model.getViewType().equals(ManagerOptions.ViewType.DETAILS)) {
-            view.getItemViewDetails().doClick();
-        } else if (model.getViewType().equals(ManagerOptions.ViewType.ICONS)) {
-            view.getItemViewIcons().doClick();
-        } else if (model.getViewType().equals(ManagerOptions.ViewType.TILES)) {
-            view.getItemViewTiles().doClick();
-        }
-
-        // Load the user's small icons preference.
-        if (model.usingSmallIcons()) {
-            view.getItemUseSmallIcons().doClick();
-        }
-
-        try {
-            view.setStatusMessage("<html><font color=#009900>" + (model.getAppliedMods().size()) + "</font>/<font color=#0033cc>" + (model.getMods().size()) + "</font> " + L10n.getString("status.modsenabled") + " - Version: " + Game.getInstance().getVersion() + "</html>", false);
-        } catch (Exception ex) {
-            view.setStatusMessage("<html><font color=#009900>" + (model.getAppliedMods().size()) + "</font>/<font color=#0033cc>" + (model.getMods().size()) + "</font> " + L10n.getString("status.modsenabled") + "</html>", false);
         }
 
         // Display window
@@ -296,6 +213,115 @@ public class ManagerCtrl implements Observer {
 
     public static ManagerCtrl getInstance() {
         return instance;
+    }
+
+    private void initViewComponents(ManagerGUI view) {
+        changeFonts(new FontUIResource("Dialog", Font.PLAIN, 14));
+
+        // Set up last window position
+        if (model.getGuiRectangle() != null) {
+            view.setBounds(model.getGuiRectangle());
+        }
+
+        // Load last column order and widths for details view
+        DetailsView detailsView = (DetailsView) view.getModsTable().getView(ModsTable.ViewType.DETAILS);
+        if (detailsView != null && model.getColumnsOrder() != null) {
+            detailsView.deserializeColumnOrder(model.getColumnsOrder());
+        }
+        if (detailsView != null && model.getColumnsWidth() != null) {
+            int i = 0;
+            Iterator<Integer> it = model.getColumnsWidth().iterator();
+            while (it.hasNext()) {
+                int width = it.next();
+                detailsView.setColumnWidth(i, width);
+                ++i;
+            }
+        }
+
+        // Update table
+        view.getModsTable().getCurrentView().getComponent().repaint();
+
+        // Add listeners to view components
+        view.buttonAddModAddActionListener(new AddModListener());
+        view.buttonEnableModAddActionListener(new EnableModListener());
+        view.popupMenuItemEnableDisableModAddActionListener(new EnableModListener());
+        view.itemApplyModsAddActionListener(new ApplyModsListener());
+        view.itemApplyAndLaunchAddActionListener(new ApplyAndLaunchListener());
+        view.itemUnapplyAllModsAddActionListener(new UnapplyAllModsListener());
+        view.itemOpenModFolderAddActionListener(new OpenModFolderListener());
+        view.itemVisitForumThreadAddActionListener(new VisitForumThreadListener());
+        // ----- DetailsView bug Disable ------
+        view.itemViewDetailsAddActionListener(new ViewChangeListener(ModsTable.ViewType.DETAILS));
+        view.itemViewIconsAddActionListener(new ViewChangeListener(ModsTable.ViewType.ICONS));
+        view.itemViewTilesAddActionListener(new ViewChangeListener(ModsTable.ViewType.TILES));
+        view.itemViewDetailedIconsAddActionListener(new ViewChangeListener(ModsTable.ViewType.DETAILED_ICONS));
+        view.itemUseSmallIconsAddActionListener(new SmallIconsListener());
+        view.itemExportOverviewAddActionListener(new ExportOverviewListener());
+        view.itemExitAddActionListener(new ExitListener());
+
+        view.buttonVisitWebsiteAddActionListener(new VisitWebsiteListener());
+        view.popupMenuItemVisitWebsiteAddActionListener(new VisitWebsiteListener());
+        view.buttonApplyLafAddActionListener(new ApplyLafListener());
+        view.buttonApplyLanguageAddActionListener(new ApplyLanguageListener());
+        view.buttonOkAddActionListener(new PrefsOkListener());
+        view.buttonCancelAddActionListener(new PrefsCancelListener());
+        view.buttonHonFolderAddActionListener(new ChooseFolderHonListener());
+        view.buttonUpdateModActionListener(new UpdateModListener());
+        view.popupMenuItemUpdateModAddActionListener(new UpdateModListener());
+        view.buttonModsFolderAddActionListener(new ChooseFolderModsListener());
+        view.itemDownloadModUpdates(new DownloadModUpdatesListener());
+        // DetailsView bug Disable
+        if (detailsView != null) {
+            ((JTable) detailsView.getComponent()).getColumnModel().addColumnModelListener(new Columns2Listener());
+        }
+        view.addComponentListener(new ComponentEventListener());
+        view.getItemRefreshManager().addActionListener(new RefreshManagerListener());
+        view.getButtonViewChagelog().addActionListener(new ButtonViewModChangelogListener());
+        view.popupMenuItemViewChangelogAddActionListener(new ButtonViewModChangelogListener());
+        view.popupItemMenuDeleteModAddActionListener(new DeleteModListener());
+        view.getButtonViewModDetails().addActionListener(new ButtonViewModChangelogListener());
+        view.getButtonLaunchHon().addActionListener(new ApplyAndLaunchListener());
+        view.itemImportFromOldModManagerAddActionListener(new ImportModsFromOldModManager());
+        view.getModsTable().addKeyListener(new ModTableKeyListener());
+
+        // Add file drop functionality
+        new FileDrop(view, new DropListener());
+
+        // Load the user's chosen view
+        if (model.getViewType().equals(ManagerOptions.ViewType.DETAILED_ICONS)) {
+            view.getItemViewDetailedIcons().doClick();
+        } else if (model.getViewType().equals(ManagerOptions.ViewType.DETAILS)) {
+            view.getItemViewDetails().doClick();
+        } else if (model.getViewType().equals(ManagerOptions.ViewType.ICONS)) {
+            view.getItemViewIcons().doClick();
+        } else if (model.getViewType().equals(ManagerOptions.ViewType.TILES)) {
+            view.getItemViewTiles().doClick();
+        }
+
+        // Load the user's small icons preference.
+        if (model.usingSmallIcons()) {
+            view.getItemUseSmallIcons().doClick();
+        }
+
+        try {
+            view.setStatusMessage("<html><font color=#009900>" + (model.getAppliedMods().size()) + "</font>/<font color=#0033cc>" + (model.getMods().size()) + "</font> " + L10n.getString("status.modsenabled") + " - Version: " + Game.getInstance().getVersion() + "</html>", false);
+        } catch (Exception ex) {
+            view.setStatusMessage("<html><font color=#009900>" + (model.getAppliedMods().size()) + "</font>/<font color=#0033cc>" + (model.getMods().size()) + "</font> " + L10n.getString("status.modsenabled") + "</html>", false);
+        }
+
+    }
+
+    public void changeFonts(FontUIResource f) {
+        Enumeration<Object> keys = UIManager.getDefaults().keys();
+        while (keys.hasMoreElements()) {
+            Object key = keys.nextElement();
+            Object value = UIManager.get(key);
+            if (value instanceof javax.swing.plaf.FontUIResource) {
+                UIManager.put(key, f);
+            }
+        }
+        SwingUtilities.updateComponentTreeUI(view);
+        SwingUtilities.updateComponentTreeUI(view.getPrefsDialog());
     }
 
     /**
@@ -1241,6 +1267,32 @@ public class ManagerCtrl implements Observer {
     }
 
     /**
+     * Listener for 'Apply Language' button. Canges LaF of the application
+     */
+    class ApplyLanguageListener implements ActionListener {
+
+        public void actionPerformed(ActionEvent e) {
+            String selectedLanguage = view.getSelectedLanguage();
+            ResourceBundle backup = L10n.getResource();
+            try {
+                if (L10n.load(selectedLanguage)) {
+                    ManagerGUI newone = ManagerGUI.newInstance();
+                    newone.pack();
+                    newone.getPrefsDialog().pack();
+                    initViewComponents(newone);
+                    view.setVisible(false);
+                    view.getPrefsDialog().setVisible(false);
+                    newone.setVisible(true);
+                    ManagerOptions.getInstance().setLanguage(selectedLanguage);
+                    view = newone;
+                }
+            } catch (Exception ex) {
+                L10n.setResource(backup);
+            }
+        }
+    }
+
+    /**
      * Listener for 'Ok' button on the preferences dialog
      */
     class PrefsOkListener implements ActionListener {
@@ -1257,7 +1309,7 @@ public class ManagerCtrl implements Observer {
             model.setGamePath(view.getSelectedHonFolder());
             model.setCLArgs(view.getCLArguments());
             //model.setLaf(view.getSelectedLafClass()); This shall not be saved here, but when the user presses Apply button
-            model.setLanguage(view.getSelectedLanguage());
+            //model.setLanguage(view.getSelectedLanguage()); This shall not be saved here, but when the user presses Apply button
             model.setModPath(view.getTextFieldModsFolder());
             model.setIgnoreGameVersion(view.getIgnoreGameVersion());
             model.setAutoUpdate(view.getAutoUpdate());
