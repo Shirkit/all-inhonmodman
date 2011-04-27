@@ -3,22 +3,34 @@
  */
 package app;
 
-import business.ManagerOptions;
 import com.thoughtworks.xstream.io.StreamException;
+
+import org.jdesktop.application.Application;
+import org.jdesktop.application.Task;
+import org.jdesktop.application.SingleFrameApplication;
+
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
+
+import business.ManagerOptions;
 import controller.Manager;
 import gui.ManagerCtrl;
 import gui.ManagerGUI;
+import gui.l10n.L10n;
+import utility.FileUtils;
+import utility.OS;
+import utility.SplashScreenMain;
+import utility.update.UpdateManager;
+
+import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
+
 import java.util.concurrent.ExecutionException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-import javax.swing.JOptionPane;
-import org.jdesktop.application.Application;
-import org.jdesktop.application.SingleFrameApplication;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
-import gui.l10n.L10n;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.RandomAccessFile;
@@ -27,17 +39,9 @@ import java.nio.channels.FileLock;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import javax.swing.ImageIcon;
-import org.jdesktop.application.Task;
-import utility.FileUtils;
-import utility.OS;
-import utility.SplashScreenMain;
-import utility.StdOutErrLog;
-import utility.update.UpdateManager;
 
 /**
  * @author Shirkit
@@ -184,7 +188,7 @@ public class ManagerApp extends SingleFrameApplication {
                                         String[] cmd = {"java", "-jar", updaterPath, currentJar, ManagerOptions.getInstance().getVersion(), ManagerOptions.MANAGER_CHECK_UPDATE_VERSIONS, ManagerOptions.MANAGER_CHECK_UPDATE_ROOT_FOLDER, FileUtils.generateTempFolder(false).getAbsolutePath()};
                                         String s = "";
                                         for (int i = 0; i < cmd.length; i++) {
-                                            s += " "+cmd[i];
+                                            s += " " + cmd[i];
                                         }
                                         logger.info("Updating manager." + s);
                                         Runtime.getRuntime().exec(cmd);

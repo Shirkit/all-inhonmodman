@@ -1,8 +1,9 @@
 package business.modactions;
 
-import utility.xml.converters.ActionEditFileDeleteConverter;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
+
+import utility.xml.converters.ActionEditFileDeleteConverter;
 
 /**
  * Deletes the string pointed to by the "cursor". Does not require a source string.

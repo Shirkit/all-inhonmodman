@@ -1,17 +1,20 @@
 package business;
 
-import business.modactions.*;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
+
+import business.modactions.*;
 import gui.views.DetailsView;
+
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+
 import java.awt.Image;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 
 /**
  * @author Shirkit

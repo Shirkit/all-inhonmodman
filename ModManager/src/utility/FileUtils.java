@@ -5,6 +5,9 @@
 package utility;
 
 import business.ManagerOptions;
+
+import javax.swing.JFileChooser;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -17,7 +20,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Random;
-import javax.swing.JFileChooser;
 
 /**
  *

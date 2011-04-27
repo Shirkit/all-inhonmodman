@@ -1,13 +1,15 @@
 package gui.l10n;
 
+import org.apache.log4j.Logger;
+
+import business.ManagerOptions;
+
 import java.io.IOException;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
-import org.apache.log4j.Logger;
 
-import business.ManagerOptions;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;

@@ -44,6 +44,17 @@ public class CalculateJarDifferences {
      * - Uploads the file to the correct folder tree in the SourceForge project, creating all needed folder on the way.
      */
     public static void main(String[] args) throws ZipException, IOException, JSchException {
+        
+        /*
+         * IMPORTANT
+         * 
+         * Before releasing a new version of the Manager, please, follow these instructions:
+         * 1 - Check if the older version is fully compatible with this one after an update. managerOptions.xml shall not be lost by any reasons.
+         * 2 - Check if the file paths below are correct.
+         * 3 - Goto Sourceforge.net and update the LABEL and the OS supported for the new Manager file.
+         * 4 - Update in the HoN forums page (changelog, topic title and version in first line)
+         */
+        
         // First step is to get the version we want to release.
         String targetVersion = ManagerOptions.getInstance().getVersion();
         // Get the old jar
@@ -74,8 +85,12 @@ public class CalculateJarDifferences {
 
             System.out.println(s);
 
-            if (s.contains("\n")) {
-                System.out.println("Older version=" + s.substring(0, s.indexOf("\n")));
+            if (!s.trim().isEmpty()) {
+                if (s.contains("\n")) {
+                    System.out.println("Older version=" + s.substring(0, s.indexOf("\n")));
+                } else {
+                    System.out.println("Older version=" + s);
+                }
                 s = targetVersion + "\n" + s;
             } else {
                 System.out.println("First version!");

@@ -1,8 +1,9 @@
 package business.modactions;
 
-import utility.xml.converters.ActionEditFileFindUpConverter;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
+
+import utility.xml.converters.ActionEditFileFindUpConverter;
 
 /**
  * synonyms for "findup" are "seekup" and "searchup"

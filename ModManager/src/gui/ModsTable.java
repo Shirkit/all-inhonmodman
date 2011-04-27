@@ -7,16 +7,19 @@ import gui.views.DetailsView;
 import gui.views.IconsView;
 import gui.views.ModsTableView;
 import gui.views.TilesView;
-import java.awt.CardLayout;
-import java.awt.Dimension;
-import java.awt.Point;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+
+import java.awt.CardLayout;
+import java.awt.Dimension;
+import java.awt.Point;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A JPanel that displays a list of mods and allows them to be displayed in
@@ -38,6 +41,7 @@ public final class ModsTable extends JPanel {
     private final static int TABLE_HEIGHT = 619, TABLE_WIDTH = 219;
 
     public enum ViewType {
+
         DETAILS,
         ICONS,
         DETAILED_ICONS,
@@ -203,7 +207,6 @@ public final class ModsTable extends JPanel {
         getCurrentView().setModsList(ManagerOptions.getInstance().getMods());
         getCurrentView().getComponent().repaint();
     }
-
     private ArrayList<Mod> modsList;
     private Map<ViewType, ModsTableView> views;
     private Mod selectedMod;

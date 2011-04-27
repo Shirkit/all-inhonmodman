@@ -1,60 +1,33 @@
 package gui;
 
-import app.ManagerApp;
-import java.awt.event.ComponentEvent;
-import java.util.Observable;
-import java.util.ResourceBundle;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.TableColumnModelEvent;
-import javax.swing.event.TableColumnModelListener;
-import controller.Manager;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.UnsupportedEncodingException;
+import org.jdesktop.application.Application;
+import org.jdesktop.application.Task;
 
-import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileFilter;
 import org.apache.log4j.Logger;
 
 import com.mallardsoft.tuple.Pair;
 import com.mallardsoft.tuple.Tuple;
 
-import gui.l10n.L10n;
+import app.ManagerApp;
 import business.ManagerOptions;
 import business.Mod;
-import java.awt.Component;
-import java.awt.event.ComponentListener;
-import java.awt.event.ItemListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import controller.Manager;
+import gui.l10n.L10n;
+import gui.views.DetailsView;
 import utility.FileDrop;
 import utility.OS;
 import utility.Game;
-import exceptions.ModConflictException;
-import exceptions.ModEnabledException;
-import exceptions.ModNotEnabledException;
-import exceptions.ModNotFoundException;
-import exceptions.ModSameNameDifferentVersionsException;
-import exceptions.ModStreamException;
-import exceptions.ModVersionMissmatchException;
-import exceptions.ModVersionUnsatisfiedException;
+import utility.ZIP;
+import utility.update.UpdateReturn;
 
-import java.io.IOException;
-import java.nio.channels.FileLockInterruptionException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.util.Observer;
-import java.util.Set;
-import java.util.prefs.Preferences;
+import java.util.Observable;
+import java.util.ResourceBundle;
+
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.TableColumnModelEvent;
+import javax.swing.event.TableColumnModelListener;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
@@ -68,26 +41,57 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JList;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.plaf.FontUIResource;
+
+import java.awt.event.ComponentEvent;
+import java.awt.Component;
+import java.awt.event.ComponentListener;
+import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.Font;
+
+import java.nio.channels.FileLockInterruptionException;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
+import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.Observer;
+import java.util.Set;
+import java.util.prefs.Preferences;
+
+import exceptions.ModConflictException;
+import exceptions.ModEnabledException;
+import exceptions.ModNotEnabledException;
+import exceptions.ModNotFoundException;
+import exceptions.ModSameNameDifferentVersionsException;
+import exceptions.ModStreamException;
+import exceptions.ModVersionMissmatchException;
+import exceptions.ModVersionUnsatisfiedException;
 import exceptions.InvalidModActionParameterException;
 import exceptions.ModDuplicateException;
 import exceptions.ModZipException;
 import exceptions.NothingSelectedModActionException;
 import exceptions.StringNotFoundModActionException;
 import exceptions.UnknowModActionException;
-import gui.views.DetailsView;
-import java.awt.Font;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.StringReader;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JList;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.plaf.FontUIResource;
-import org.jdesktop.application.Application;
-import org.jdesktop.application.Task;
-import utility.ZIP;
-import utility.update.UpdateReturn;
 
 /**
  * Controller for the ManagerGUI. This is the 'controller' part of the MVC framework
@@ -1285,6 +1289,8 @@ public class ManagerCtrl implements Observer {
                     newone.setVisible(true);
                     ManagerOptions.getInstance().setLanguage(selectedLanguage);
                     view = newone;
+                } else {
+                    L10n.setResource(backup);
                 }
             } catch (Exception ex) {
                 L10n.setResource(backup);

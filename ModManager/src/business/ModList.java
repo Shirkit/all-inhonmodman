@@ -4,16 +4,18 @@
  */
 package business;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.zip.ZipException;
+
 import utility.FileUtils;
 import utility.XML;
 import utility.ZIP;
@@ -123,7 +125,7 @@ public class ModList {
         while (it.hasNext()) {
             ModListNode next = it.next();
             if (next.isCompressed()) {
-                Mod m = ManagerOptions.getInstance().getMod(next.getName(), next.getVersion()+"-*");
+                Mod m = ManagerOptions.getInstance().getMod(next.getName(), next.getVersion());
                 FileUtils.copyFile(new File(m.getPath()), new File(tempFolder, new File(m.getPath()).getName()));
             }
         }

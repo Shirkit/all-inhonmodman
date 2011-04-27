@@ -4,12 +4,14 @@
  */
 package business;
 
-import utility.xml.converters.ManagerOptionsConverter;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
 import com.thoughtworks.xstream.io.StreamException;
 
+import org.apache.log4j.Logger;
+
 import java.awt.Rectangle;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -21,12 +23,10 @@ import java.util.HashSet;
 import java.util.Observable;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
-
 import controller.Manager;
 import utility.FileUtils;
-
 import utility.XML;
+import utility.xml.converters.ManagerOptionsConverter;
 
 /**
  * This is the Manager data holder. This class holds all data from the project.

@@ -1,8 +1,9 @@
 package business.modactions;
 
-import utility.xml.converters.ActionEditFileReplaceConverter;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
+
+import utility.xml.converters.ActionEditFileReplaceConverter;
 
 /**
  * Replaces the string pointed to by the "cursor" with the source string.

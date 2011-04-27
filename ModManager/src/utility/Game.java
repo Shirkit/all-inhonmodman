@@ -1,6 +1,7 @@
 package utility;
 
 import business.ManagerOptions;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -10,7 +11,9 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.log4j.Logger;
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
@@ -37,9 +40,12 @@ public class Game {
         // Try to find HoN folder in case we are on Windows
         if (OS.isWindows()) {
             // Try to find HoN in its usual location:
-            String honFolder = "C:\\Program Files\\Heroes of Newerth\\";
-            if ((new File(honFolder)).exists()) {
-                return honFolder;
+            String[] honFolder = {"C:\\Program Files\\Heroes of Newerth\\", "C:\\Program Files (x86)\\Heroes of Newerth\\"};
+            for (int i = 0; i < honFolder.length; i++) {
+                File f = new File(honFolder[i]);
+                if (f.exists()) {
+                    return f.getAbsolutePath();
+                }
             }
 
             // Get the folder from uninstall info in windows registry saved by HoN
@@ -55,6 +61,11 @@ public class Game {
             if (registryData != null && !registryData.isEmpty()) {
                 return registryData;
             }
+            // From Notausgang's ModManager
+            registryData = WindowsRegistry.getRecord("SOFTWARE\\Notausgang\\HoN_ModMan", "hondir");
+            if (registryData != null && !registryData.isEmpty()) {
+                return registryData;
+            }
         }
         // Try to find HoN folder in case we are on Linux
         if (OS.isLinux()) {
@@ -65,7 +76,6 @@ public class Game {
                 if (f.exists()) {
                     return f.getAbsolutePath();
                 }
-
             }
         }
         // Try to find HoN folder in case we are on Mac
@@ -97,8 +107,12 @@ public class Game {
         }
         // Try to find HoN folder in case we are on Linux
         if (OS.isLinux()) {
+            File folder = new File(System.getProperty("user.home") + File.separator + ".Heroes of Newerth" + File.separator + "mods");
+                if (folder.exists() && folder.isDirectory()) {
+                    return folder.getAbsolutePath();
+                }
             if (gameFolder != null) {
-                File folder = new File(gameFolder + File.separator + "game" + File.separator + "mods");
+                folder = new File(gameFolder + File.separator + "game" + File.separator + "mods");
                 if (folder.exists() && folder.isDirectory()) {
                     return folder.getAbsolutePath();
                 }

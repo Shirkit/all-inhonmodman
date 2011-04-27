@@ -1,55 +1,51 @@
 package gui;
 
-import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.util.Enumeration;
-import javax.swing.JButton;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JList;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import gui.l10n.L10n;
-import javax.swing.JPanel;
-import controller.Manager;
-import business.ManagerOptions;
-import business.Mod;
-import java.awt.Toolkit;
-import java.awt.event.ActionListener;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Observable;
-import java.util.Observer;
-import javax.swing.JDialog;
-import javax.swing.table.DefaultTableModel;
 import org.apache.log4j.Logger;
-import javax.swing.UIManager;
-import business.modactions.Action;
-import business.modactions.ActionRequirement;
-import java.awt.Color;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.util.Iterator;
-import javax.swing.ButtonGroup;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.DefaultListModel;
-import javax.swing.JProgressBar;
-import javax.swing.UIManager.LookAndFeelInfo;
+
 import org.jdesktop.application.Application;
 import org.jdesktop.application.Task;
-import utility.BBCode;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Font;
+
+import java.awt.event.ActionEvent;
+import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JEditorPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
-import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
-import javax.swing.plaf.FontUIResource;
+import javax.swing.JPanel;
+import javax.swing.ButtonGroup;
+import javax.swing.DefaultListModel;
+import javax.swing.JProgressBar;
+import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.JDialog;
+import javax.swing.UIManager;
+
+import java.awt.Toolkit;
+import java.awt.event.ActionListener;
+import java.awt.Color;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+
+import controller.Manager;
+import business.ManagerOptions;
+import business.Mod;
+import business.modactions.Action;
+import business.modactions.ActionRequirement;
+import gui.l10n.L10n;
+import utility.BBCode;
 import utility.Game;
+
+import java.util.ArrayList;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.Iterator;
+import java.net.URL;
 
 /**
  * Main form of the ModManager. This class is the 'view' part of the MVC framework
@@ -102,7 +98,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         comboBoxChooseLanguage.addItem(new Language("Itallian", "it"));
         comboBoxChooseLanguage.addItem(new Language("Norwegian", "no"));
         comboBoxChooseLanguage.addItem(new Language("Polish", "pl"));
-        comboBoxChooseLanguage.addItem(new Language("Português (Brasil)", "pt_BR"));
+        comboBoxChooseLanguage.addItem(new Language("Portuguese (Brazil)", "pt_BR"));
         comboBoxChooseLanguage.addItem(new Language("Russian", "ru"));
         comboBoxChooseLanguage.addItem(new Language("Slovak", "sk"));
         comboBoxChooseLanguage.addItem(new Language("~Strings Code Table", "strings"));

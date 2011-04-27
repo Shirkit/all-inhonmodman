@@ -1,21 +1,22 @@
 package gui;
 
-import java.awt.Frame;
-import java.io.IOException;
-import java.net.URISyntaxException;
-
 import org.apache.log4j.Logger;
 import org.jdesktop.application.Action;
 
 import business.ManagerOptions;
+import controller.Manager;
 import gui.l10n.L10n;
+import utility.BBCode;
+
+import javax.swing.AbstractButton;
 import java.awt.Dimension;
+import java.awt.Frame;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
-import javax.swing.AbstractButton;
-import controller.Manager;
-import utility.BBCode;
 
 /**
  * About dialog

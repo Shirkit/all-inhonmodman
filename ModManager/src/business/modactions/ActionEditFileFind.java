@@ -1,9 +1,10 @@
 package business.modactions;
 
-import utility.xml.converters.ActionEditFileFindConverter;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
+
+import utility.xml.converters.ActionEditFileFindConverter;
 
 /**
  * synonyms for "find" are "seek" and "search"

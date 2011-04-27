@@ -1,25 +1,35 @@
 package controller;
 
+import com.thoughtworks.xstream.converters.ConversionException;
+import com.thoughtworks.xstream.io.StreamException;
+
+import com.mallardsoft.tuple.Pair;
+import com.mallardsoft.tuple.Tuple;
+
+import org.apache.log4j.Logger;
+
 import business.ManagerOptions;
 import business.Mod;
-import business.ModList;
 import business.ModsOutOfDateReminder;
 import business.modactions.*;
-import java.util.Arrays;
-import java.util.Map.Entry;
-
-import java.util.concurrent.ExecutionException;
-
+import exceptions.*;
 import utility.OS;
 import utility.XML;
 import utility.ZIP;
-import exceptions.*;
+import utility.FileUtils;
+import utility.Game;
+import utility.SplashScreenMain;
+import utility.update.UpdateReturn;
+import utility.update.UpdateThread;
 
+import java.nio.channels.FileLockInterruptionException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.FileFilter;
-
+import java.util.Arrays;
+import java.util.Map.Entry;
+import java.util.concurrent.ExecutionException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -27,13 +37,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
-
-import com.mallardsoft.tuple.*;
-import com.thoughtworks.xstream.converters.ConversionException;
-import com.thoughtworks.xstream.io.StreamException;
-import java.nio.channels.FileLockInterruptionException;
-
-import java.security.InvalidParameterException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Observable;
@@ -41,20 +44,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.zip.ZipException;
-
-import org.apache.log4j.Logger;
+import java.security.InvalidParameterException;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
-
-import utility.FileUtils;
-
-import utility.Game;
-import utility.SplashScreenMain;
-import utility.update.DownloadThread;
-import utility.update.UpdateReturn;
-import utility.update.UpdateThread;
 
 /**
  * Implementation of the core functionality of HoN modification manager. This class is
@@ -1020,9 +1014,10 @@ public class Manager extends Observable {
         return left;
     }
 
+     // TODO: CHANGE THIS COMMENT FOR FUTURE IMPLEMENTATION OF SEMANTHICS AND LOGICAL WARNINS AND ERRORS PARSING.
     /**
      * Tries to apply the currently enabled mods. They can be found in the Model class.
-     * @param outputToFolderTree If true, the Manager will output the current mods to a folder tree in the HoN/game folder puting the files inside. If not, it will generate the resources999.s2z file. This sould be true for 'Developer Mode'.
+     * @param developerMode If true, the Manager will output the current mods to a folder tree in the HoN/game folder puting the files inside. If not, it will generate the resources999.s2z file. This sould be true for 'Developer Mode'.
      * @throws IOException if a random I/O error happened.
      * @throws UnknowModActionException if a unkown Action was found. Actions that aren't know by the program can't be applied.
      * @throws NothingSelectedModActionException if a action tried to do a action that involves a string, but no string was selected.
@@ -1032,7 +1027,7 @@ public class Manager extends Observable {
      * @throws SecurityException if the Manager couldn't do a action because of security business.
      * @throws FileLockInterruptionException if the Manager couldn't open the resources999.s2z file.
      */
-    public void applyMods(boolean outputToFolderTree) throws IOException, UnknowModActionException, NothingSelectedModActionException, StringNotFoundModActionException, InvalidModActionParameterException, SecurityException, FileLockInterruptionException {
+    public void applyMods(boolean developerMode) throws IOException, UnknowModActionException, NothingSelectedModActionException, StringNotFoundModActionException, InvalidModActionParameterException, SecurityException, FileLockInterruptionException {
         ArrayList<Mod> applyOrder = sortMods();
         File tempFolder = FileUtils.generateTempFolder(true);
         logger.info("Started mod applying. Folder=" + tempFolder.getAbsolutePath() + ". Game version=" + Game.getInstance().getVersion());
@@ -1178,7 +1173,7 @@ public class Manager extends Observable {
                                     // Find Action
                                 } else if (editFileAction.getClass().equals(ActionEditFileFind.class)) {
                                     ActionEditFileFind find = (ActionEditFileFind) editFileAction;
-                                    if (beforeLastAction != null && beforeLastAction.getClass().equals(ActionEditFileFindAll.class)) {
+                                    if (cursor.length > 1) {
                                         cursor = new int[]{0};
                                         cursor2 = new int[]{0};
                                     } else {
@@ -1218,7 +1213,7 @@ public class Manager extends Observable {
                                     // FindUp Action
                                 } else if (editFileAction.getClass().equals(ActionEditFileFindUp.class)) {
                                     ActionEditFileFindUp findup = (ActionEditFileFindUp) editFileAction;
-                                    if (beforeLastAction != null && beforeLastAction.getClass().equals(ActionEditFileFindAll.class)) {
+                                    if (cursor.length > 1) {
                                         cursor = new int[]{0};
                                         cursor2 = new int[]{0};
                                     } else {
@@ -1389,7 +1384,7 @@ public class Manager extends Observable {
 
         deleteFolderTree();
         if (!applyOrder.isEmpty()) {
-            if (!outputToFolderTree) {
+            if (!developerMode) {
                 String comment = "All-In Hon ModManager Output\n\nGame Version:" + Game.getInstance().getVersion() + "\n\nApplied Mods:";
                 for (Iterator<Mod> it = applyOrder.iterator(); it.hasNext();) {
                     Mod mod = it.next();
