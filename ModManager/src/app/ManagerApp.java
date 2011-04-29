@@ -119,7 +119,7 @@ public class ManagerApp extends SingleFrameApplication {
                     try {
                         Manager.getInstance().loadOptions();
                     } catch (StreamException e) {
-                        logger.error("StreamException from loadOptions()", e);
+                        logger.error("StreamException from loadOptions(), couldn't load options file.");
                         // Mod options is invalid, just ignore and it will be deleted.
                     } catch (Exception e) {
                         System.out.println(e);

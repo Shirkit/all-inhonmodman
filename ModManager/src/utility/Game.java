@@ -181,8 +181,7 @@ public class Game {
         // Different folder for diffrent OS
         File folder = new File(path);
         File honWindows = new File(folder.getAbsolutePath() + File.separator + "hon.exe");
-        File honLinux = new File(folder.getAbsolutePath() + File.separator + "hon-x86");
-        File honLinux64 = new File(folder.getAbsolutePath() + File.separator + "hon-x86_64");
+        File honLinux = new File(folder.getAbsolutePath() + File.separator + "manifest.xml");
         File honMac = new File(folder.getAbsolutePath() + File.separator + "manifest.xml");
         String gameVersion = "";
 
@@ -192,11 +191,7 @@ public class Game {
             if (OS.isWindows()) {
                 gameVersion = getGameVersionWindows(honWindows);
             } else if (OS.isLinux()) {
-                if (honLinux.exists()) {
-                    gameVersion = getGameVersionLinux(honLinux);
-                } else if (honLinux64.exists()) {
-                    gameVersion = getGameVersionLinux(honLinux64);
-                }
+                gameVersion = getGameVersionLinux(honLinux);
             } else if (OS.isMac()) {
                 gameVersion = getGameVersionMac(honMac);
             } else {
@@ -246,25 +241,37 @@ public class Game {
      * @throws FileNotFoundException if the @param File hon was not found.
      * @throws IOException if occurred some I/O exception while reading/writing.
      */
-    private String getGameVersionLinux(File hon) throws FileNotFoundException, IOException {
-        FileImageInputStream fos = new FileImageInputStream(hon);
-        byte[] buffer = new byte[(int) hon.length()];
-        fos.read(buffer, 0, buffer.length);
-        fos.close();
-        int i = FindInByteStream(buffer, new byte[]{0x43, 0, 0x55, 0, 0x52, 0, 0x45, 0, 0x20, 0, 0x43, 0, 0x52, 0, 0x54, 0, 0x5D, 0, 0, 0});
-        String gameVersion = "";
-        if (i >= 0) {
-            i += 40;
-            int j;
-            do {
-                j = buffer[i] + 256 * (buffer[i + 1] + 256 * (buffer[i + 2] + 256 * buffer[i + 3]));
-                if (j > 0) {
-                    gameVersion += Character.toString((char) j);
-                }
-                i += 4;
-            } while ((j != 0) && (gameVersion.length() < 10));
+    private String getGameVersionLinux(File manifest) throws FileNotFoundException, IOException {
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        Document dom = null;
+
+        try {
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            dom = db.parse(manifest);
+            // TODO: Handle exceptions
+        } catch (ParserConfigurationException pce) {
+        } catch (SAXException se) {
+        } catch (IOException ioe) {
         }
-        return gameVersion;
+
+        Element docEle = dom.getDocumentElement();
+        NodeList nl = docEle.getElementsByTagName("file");
+
+        if (nl != null && nl.getLength() > 0) {
+            for (int i = nl.getLength(); i >= 0; i--) {
+                Element el = (Element) nl.item(i);
+
+                if (el != null && el.getAttribute("path").equalsIgnoreCase("hon-x86")) {
+
+                    String gameVersion = el.getAttribute("version");
+                    logger.error("GAME: gameversion: " + gameVersion);
+
+                    return gameVersion;
+                }
+            }
+        }
+
+        return "*";
     }
 
     private String getGameVersionMac(File manifest) throws FileNotFoundException, IOException {

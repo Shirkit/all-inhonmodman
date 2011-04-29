@@ -1384,9 +1384,11 @@ public class ManagerCtrl implements Observer {
                 logger.info("Hon folder selected: " + directory.getPath());
             }
             if (model.getModPath() == null || model.getGamePath().isEmpty()) {
-                String modPath = Game.findModFolder(fc.getSelectedFile().getAbsolutePath());
-                if (modPath != null) {
-                    view.setTextFieldModsFolder(modPath);
+                if (fc.getSelectedFile() != null) {
+                    String modPath = Game.findModFolder(fc.getSelectedFile().getAbsolutePath());
+                    if (modPath != null) {
+                        view.setTextFieldModsFolder(modPath);
+                    }
                 }
             }
         }

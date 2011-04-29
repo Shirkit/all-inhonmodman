@@ -249,6 +249,8 @@
 - Changing language doesn't need to restart the Manager anymore.
 - Tried another way to solve linux home user path problem.
 - Added auto-search for mods folder on Linux on both hidden folder and game folder. Added auto-search also from Notausgang's ModManager and (x86) Program Files folder.
+- Fixed possible crash exceptions.
+- Fixed manager not getting the current Linux version.
 
 
 

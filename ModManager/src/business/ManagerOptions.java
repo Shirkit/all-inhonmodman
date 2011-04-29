@@ -177,6 +177,9 @@ public class ManagerOptions extends Observable {
      * @throws StreamException this exception is thrown if the file is not valid (a user changed, the file is corrupt etc).
      */
     public void loadOptions() throws FileNotFoundException, StreamException {
+        if (!new File(FileUtils.getManagerPerpetualFolder() + File.separator + OPTIONS_FILENAME).exists()) {
+            throw new FileNotFoundException(OPTIONS_FILENAME);
+        }
         ManagerOptions temp = XML.xmlToManagerOptions(new File(FileUtils.getManagerPerpetualFolder() + File.separator + OPTIONS_FILENAME));
         if (temp.getAppliedMods() != null) {
             instance.setAppliedMods(temp.getAppliedMods());
