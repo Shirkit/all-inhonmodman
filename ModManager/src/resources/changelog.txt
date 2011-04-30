@@ -244,13 +244,14 @@
 - Fixed little bug on Linux. It was missing a '/' before the '~' to retrieve the correct user path dir.
 - Updated language files.
 
-[b]0.9.7 BETA - xx/xx/2011:[/b]
+[b]0.9.7 BETA - 30/04/2011:[/b]
 - Changed default font to display Chinese characters correctly.
 - Changing language doesn't need to restart the Manager anymore.
 - Tried another way to solve linux home user path problem.
 - Added auto-search for mods folder on Linux on both hidden folder and game folder. Added auto-search also from Notausgang's ModManager and (x86) Program Files folder.
 - Fixed possible crash exceptions.
-- Fixed manager not getting the current Linux version.
+- Changed way that manager gets the current game version.
+- Little fix for launching HoN and making sure the line is called as only one argument, even with spaces.
 
 
 

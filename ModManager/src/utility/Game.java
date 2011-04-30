@@ -108,9 +108,9 @@ public class Game {
         // Try to find HoN folder in case we are on Linux
         if (OS.isLinux()) {
             File folder = new File(System.getProperty("user.home") + File.separator + ".Heroes of Newerth" + File.separator + "mods");
-                if (folder.exists() && folder.isDirectory()) {
-                    return folder.getAbsolutePath();
-                }
+            if (folder.exists() && folder.isDirectory()) {
+                return folder.getAbsolutePath();
+            }
             if (gameFolder != null) {
                 folder = new File(gameFolder + File.separator + "game" + File.separator + "mods");
                 if (folder.exists() && folder.isDirectory()) {
@@ -178,24 +178,19 @@ public class Game {
      * @return the game version. This method checks for the path of the game, and from there he tries to get it's version.
      */
     private String getVersion(String path) throws FileNotFoundException, IOException {
-        // Different folder for diffrent OS
         File folder = new File(path);
-        File honWindows = new File(folder.getAbsolutePath() + File.separator + "hon.exe");
-        File honLinux = new File(folder.getAbsolutePath() + File.separator + "manifest.xml");
-        File honMac = new File(folder.getAbsolutePath() + File.separator + "manifest.xml");
-        String gameVersion = "";
+        File manifest = new File(folder.getAbsolutePath() + File.separator + "manifest.xml");
+        String gameVersion = "*";
 
         if (!folder.exists()) {
             throw new FileNotFoundException("HoN folder doesn't exist. " + path);
         } else {
             if (OS.isWindows()) {
-                gameVersion = getGameVersionWindows(honWindows);
+                gameVersion = getGameVersion(manifest, "hon.exe");
             } else if (OS.isLinux()) {
-                gameVersion = getGameVersionLinux(honLinux);
+                gameVersion = getGameVersion(manifest, "hon-x86");
             } else if (OS.isMac()) {
-                gameVersion = getGameVersionMac(honMac);
-            } else {
-                throw new FileNotFoundException("HoN file wasn't found. " + path);
+                gameVersion = getGameVersion(manifest, "HoN");
             }
         }
         return gameVersion;
@@ -209,125 +204,29 @@ public class Game {
      * @throws FileNotFoundException if the @param File hon was not found.
      * @throws IOException if occurred some I/O exception while reading/writing.
      */
-    private String getGameVersionWindows(File hon) throws FileNotFoundException, IOException {
+    private String getGameVersion(File manifest, String attributeValue) throws FileNotFoundException, IOException {
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        Document dom = null;
+
         try {
-            FileImageInputStream fos = new FileImageInputStream(hon);
-            byte[] buffer = new byte[(int) hon.length()];
-            fos.read(buffer, 0, buffer.length);
-            fos.close();
-            int i = FindInByteStream(buffer, new byte[]{0x43, 0, 0x55, 0, 0x52, 0, 0x45, 0, 0x20, 0, 0x43, 0, 0x52, 0, 0x54, 0, 0x5D, 0, 0, 0});
-            String gameVersion = "";
-            if (i >= 0) {
-                i += 20;
-                int j;
-                do {
-                    j = buffer[i] + 256 * buffer[i + 1];
-                    if (j > 0) {
-                        gameVersion += Character.toString((char) j);
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            dom = db.parse(manifest);
+            Element docEle = dom.getDocumentElement();
+            NodeList nl = docEle.getElementsByTagName("file");
+
+            if (nl != null && nl.getLength() > 0) {
+                for (int i = nl.getLength(); i >= 0; i--) {
+                    Element el = (Element) nl.item(i);
+                    if (el != null && el.getAttribute("path").equalsIgnoreCase(attributeValue)) {
+                        String gameVersion = el.getAttribute("version");
+                        return gameVersion;
                     }
-                    i += 2;
-                } while ((j != 0) && (gameVersion.length() < 10));
-            }
-            return gameVersion;
-        } catch (FileNotFoundException e1) {
-            throw new FileNotFoundException("HoN file wasn't found. " + path);
-        }
-    }
-
-    /**
-     *
-     * @param file of the 'hon.exe'. This algorithm was taken from the HoN ModManager.
-     * @return a String with the game version.
-     * @throws FileNotFoundException if the @param File hon was not found.
-     * @throws IOException if occurred some I/O exception while reading/writing.
-     */
-    private String getGameVersionLinux(File manifest) throws FileNotFoundException, IOException {
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        Document dom = null;
-
-        try {
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            dom = db.parse(manifest);
-            // TODO: Handle exceptions
-        } catch (ParserConfigurationException pce) {
-        } catch (SAXException se) {
-        } catch (IOException ioe) {
-        }
-
-        Element docEle = dom.getDocumentElement();
-        NodeList nl = docEle.getElementsByTagName("file");
-
-        if (nl != null && nl.getLength() > 0) {
-            for (int i = nl.getLength(); i >= 0; i--) {
-                Element el = (Element) nl.item(i);
-
-                if (el != null && el.getAttribute("path").equalsIgnoreCase("hon-x86")) {
-
-                    String gameVersion = el.getAttribute("version");
-                    logger.error("GAME: gameversion: " + gameVersion);
-
-                    return gameVersion;
                 }
             }
+        } catch (Exception e) {
         }
 
         return "*";
-    }
-
-    private String getGameVersionMac(File manifest) throws FileNotFoundException, IOException {
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        Document dom = null;
-
-        try {
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            dom = db.parse(manifest);
-            // TODO: Handle exceptions
-        } catch (ParserConfigurationException pce) {
-        } catch (SAXException se) {
-        } catch (IOException ioe) {
-        }
-
-        Element docEle = dom.getDocumentElement();
-        NodeList nl = docEle.getElementsByTagName("file");
-
-        if (nl != null && nl.getLength() > 0) {
-            for (int i = 0; i < nl.getLength(); i++) {
-                Element el = (Element) nl.item(i);
-
-                if (el.getAttribute("path").equalsIgnoreCase("HoN")) {
-
-                    String gameVersion = el.getAttribute("version");
-                    logger.error("GAME: gameversion: " + gameVersion);
-
-                    return gameVersion;
-                }
-            }
-        }
-
-        return "*";
-    }
-
-    /**
-     *
-     * @param buffer is the search place.
-     * @param needle is the thing that is you are looking for.
-     * @return
-     * <br/><b>-1</b> if nothing was found.
-     * <br/>A integer of the position found.
-     */
-    private int FindInByteStream(byte[] buffer, byte[] needle) {
-        for (int i = 0; i < (buffer.length - needle.length); i++) {
-            int j;
-            for (j = 0; j < needle.length; j++) {
-                if (buffer[i + j] != needle[j]) {
-                    break;
-                }
-            }
-            if (j >= needle.length) {
-                return i;
-            }
-        }
-        return -1;
     }
 
     /**

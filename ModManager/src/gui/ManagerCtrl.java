@@ -836,7 +836,7 @@ public class ManagerCtrl implements Observer {
                 protected Void doInBackground() throws Exception {
                     if (applyMods()) {
                         try {
-                            Process game = Runtime.getRuntime().exec(Game.getInstance().getHonExecutable().getAbsolutePath());
+                            Process game = Runtime.getRuntime().exec(new String[]{Game.getInstance().getHonExecutable().getAbsolutePath()});
                             game = null;
                         } catch (IOException ex) {
                             view.showMessage(L10n.getString("message.honnotfound"),

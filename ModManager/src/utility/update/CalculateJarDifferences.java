@@ -4,13 +4,17 @@
  */
 package utility.update;
 
-import business.ManagerOptions;
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
+
+import javax.swing.JOptionPane;
+
+import business.ManagerOptions;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,7 +33,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
-import javax.swing.JOptionPane;
 
 /**
  *
@@ -44,17 +47,18 @@ public class CalculateJarDifferences {
      * - Uploads the file to the correct folder tree in the SourceForge project, creating all needed folder on the way.
      */
     public static void main(String[] args) throws ZipException, IOException, JSchException {
-        
+
         /*
          * IMPORTANT
          * 
          * Before releasing a new version of the Manager, please, follow these instructions:
+         * 0 - Update the Changelog.txt and Version.txt files
          * 1 - Check if the older version is fully compatible with this one after an update. managerOptions.xml shall not be lost by any reasons.
          * 2 - Check if the file paths below are correct.
          * 3 - Goto Sourceforge.net and update the LABEL and the OS supported for the new Manager file.
          * 4 - Update in the HoN forums page (changelog, topic title and version in first line)
          */
-        
+
         // First step is to get the version we want to release.
         String targetVersion = ManagerOptions.getInstance().getVersion();
         // Get the old jar
