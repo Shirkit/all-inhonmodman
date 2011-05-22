@@ -119,7 +119,7 @@ public class ManagerApp extends SingleFrameApplication {
                     try {
                         Manager.getInstance().loadOptions();
                     } catch (StreamException e) {
-                        logger.error("StreamException from loadOptions(), couldn't load options file.");
+                        logger.error("StreamException from loadOptions(), couldn't load options file.", e);
                         // Mod options is invalid, just ignore and it will be deleted.
                     } catch (Exception e) {
                         System.out.println(e);
@@ -228,7 +228,7 @@ public class ManagerApp extends SingleFrameApplication {
 
     @Override
     protected void shutdown() {
-        logger.error("Shutting down!");
+        logger.info("Shutting down!");
         FileUtils.deleteTemporaryFolders(); // This can slow down closing speed if the user applied the mods lots and lots of times
         System.exit(0);
     }

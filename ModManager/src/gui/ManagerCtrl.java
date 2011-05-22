@@ -127,10 +127,11 @@ public class ManagerCtrl implements Observer {
         // Set up look and feel
         loadLaf();
 
+        loadMods();
+        
         initViewComponents(view);
 
-        loadMods();
-
+        
         if (model.getAppliedMods().isEmpty()) {
             importModsFromOldModManager();
         }
@@ -306,7 +307,7 @@ public class ManagerCtrl implements Observer {
         if (model.usingSmallIcons()) {
             view.getItemUseSmallIcons().doClick();
         }
-
+        
         try {
             view.setStatusMessage("<html><font color=#009900>" + (model.getAppliedMods().size()) + "</font>/<font color=#0033cc>" + (model.getMods().size()) + "</font> " + L10n.getString("status.modsenabled") + " - Version: " + Game.getInstance().getVersion() + "</html>", false);
         } catch (Exception ex) {
@@ -446,7 +447,7 @@ public class ManagerCtrl implements Observer {
         return view;
     }
 
-    public void loadLaf() {
+    private void loadLaf() {
         // Get selected LaF and apply it
         String lafClass = model.getLaf();
         try {
@@ -1042,7 +1043,7 @@ public class ManagerCtrl implements Observer {
         }
     }
 
-    public void importModsFromOldModManager() {
+    private void importModsFromOldModManager() {
         try {
             String extractZipComment = ZIP.extractZipComment(model.getGamePath() + File.separator + "game" + File.separator + "resources999.s2z");
             ArrayList<String> modArray = new ArrayList<String>();
@@ -1139,7 +1140,10 @@ public class ManagerCtrl implements Observer {
                     ArrayList<Mod> toUpdate = new ArrayList<Mod>();
                     Iterator<Mod> it = model.getMods().iterator();
                     while (it.hasNext()) {
-                        toUpdate.add(it.next());
+                        Mod next = it.next();
+                        if (next.getUpdateCheckUrl() != null && !next.getUpdateCheckUrl().isEmpty()) {
+                            toUpdate.add(next);
+                        }
                     }
                     view.getProgressBar().setMaximum(toUpdate.size());
                     view.getProgressBar().paint(view.getProgressBar().getGraphics());
@@ -1595,7 +1599,7 @@ public class ManagerCtrl implements Observer {
             logger.error("Error applying mods. Nothing was selected and a operation that needs something to be selected was called. Mod=" + ex.getName() + " | Version=" + ex.getVersion() + " | ActionClass=" + ex.getAction().getClass(), ex);
             view.showMessage(L10n.getString("error.modcantapply").replace("#mod#", ex.getName()), L10n.getString("error.modcantapply.title"), JOptionPane.ERROR_MESSAGE);
         } catch (StringNotFoundModActionException ex) {
-            logger.error("Error applying mods. A find operation didn't find it's string. Mod=" + ex.getName() + " | Version=" + ex.getVersion() + " | String=" + ex.getString(), ex);
+            logger.error("Error applying mods. A find operation didn't find it's string. Mod=" + ex.getName() + " | Version=" + ex.getVersion() + " | String=" + ex.getString() + " | " + ex.getAction().getLineStart(), ex);
             view.showMessage(L10n.getString("error.modcantapply").replace("#mod#", ex.getName()), L10n.getString("error.modcantapply.title"), JOptionPane.ERROR_MESSAGE);
         } catch (InvalidModActionParameterException ex) {
             logger.error("Error applying mods. A operation had a invalid parameter. Mod=" + ex.getName() + " | Version=" + ex.getVersion() + " | ActionClass" + ex.getAction().getClass(), ex);
