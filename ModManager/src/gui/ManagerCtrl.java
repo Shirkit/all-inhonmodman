@@ -128,10 +128,10 @@ public class ManagerCtrl implements Observer {
         loadLaf();
 
         loadMods();
-        
+
         initViewComponents(view);
 
-        
+
         if (model.getAppliedMods().isEmpty()) {
             importModsFromOldModManager();
         }
@@ -153,7 +153,10 @@ public class ManagerCtrl implements Observer {
                             ArrayList<Mod> toUpdate = new ArrayList<Mod>();
                             Iterator<Mod> it = model.getMods().iterator();
                             while (it.hasNext()) {
-                                toUpdate.add(it.next());
+                                Mod next = it.next();
+                                if (next.getUpdateCheckUrl() != null && !next.getUpdateCheckUrl().trim().isEmpty()) {
+                                    toUpdate.add(next);
+                                }
                             }
                             view.getProgressBar().setMaximum(toUpdate.size());
                             view.getProgressBar().paint(view.getProgressBar().getGraphics());
@@ -307,7 +310,7 @@ public class ManagerCtrl implements Observer {
         if (model.usingSmallIcons()) {
             view.getItemUseSmallIcons().doClick();
         }
-        
+
         try {
             view.setStatusMessage("<html><font color=#009900>" + (model.getAppliedMods().size()) + "</font>/<font color=#0033cc>" + (model.getMods().size()) + "</font> " + L10n.getString("status.modsenabled") + " - Version: " + Game.getInstance().getVersion() + "</html>", false);
         } catch (Exception ex) {
@@ -1141,7 +1144,7 @@ public class ManagerCtrl implements Observer {
                     Iterator<Mod> it = model.getMods().iterator();
                     while (it.hasNext()) {
                         Mod next = it.next();
-                        if (next.getUpdateCheckUrl() != null && !next.getUpdateCheckUrl().isEmpty()) {
+                        if (next.getUpdateCheckUrl() != null && !next.getUpdateCheckUrl().trim().isEmpty()) {
                             toUpdate.add(next);
                         }
                     }

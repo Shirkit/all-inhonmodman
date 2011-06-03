@@ -256,6 +256,8 @@
 [b]0.9.8 BETA - 30/04/2011:[/b]
 - Removed error thrown after a developer uses a Delete+Replace, Replace+Replace, Replace+Delete and Delete+Delete. None of those make sense, but it won't throw errors saying can't apply. Future (not far) implementation of semanthics and errors check for developers will warn the mode developer about that.
 - Fixed little bug while updating mods.
+- Added copyfile attribute fromresource, accepting a boolean as it's value. Example: <copyfile ... fromresource="true"/> this will copy the file from the resources0.s2z file. Using this without both NAME and SOURCE doesn't make sense, but won't throw a error if you do.
+- Started thinking about a self repository with a automatically upload mods through the Manager.
 
 
 

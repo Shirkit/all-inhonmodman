@@ -55,8 +55,9 @@ public class CalculateJarDifferences {
          * 0 - Update the Changelog.txt and Version.txt files
          * 1 - Check if the older version is fully compatible with this one after an update. managerOptions.xml shall not be lost by any reasons.
          * 2 - Check if the file paths below are correct.
-         * 3 - Goto Sourceforge.net and update the LABEL and the OS supported for the new Manager file.
-         * 4 - Update in the HoN forums page (changelog, topic title and version in first line)
+         * 3 - Clean and build the project, then Package-for-store the Manager.jar
+         * 4 - Goto Sourceforge.net and update the LABEL and the OS supported for the new Manager file.
+         * 5 - Update in the HoN forums page (changelog, topic title and version in first line)
          */
 
         // First step is to get the version we want to release.
