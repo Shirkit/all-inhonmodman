@@ -53,6 +53,7 @@ public class ManagerOptions extends Observable {
     private boolean colorCheckboxInTable;
     private boolean showIconsInTable;
     private boolean useSmallIcons;
+    private boolean deleteFolderTree;
     private String lastHonVersion;
     private ViewType viewType;
     // Hidden fields from XML
@@ -93,8 +94,9 @@ public class ManagerOptions extends Observable {
         logger = Logger.getLogger(this.getClass().getPackage().getName());
         ignoreGameVersion = true;
         autoUpdate = true;
-        autoEnableDependencies = false;
+        autoEnableDependencies = true;
         developerMode = false;
+        deleteFolderTree = false;
         colorCheckboxInTable = true;
         showIconsInTable = true;
         guiRectangle = null;
@@ -217,6 +219,7 @@ public class ManagerOptions extends Observable {
         instance.setIgnoreGameVersion(temp.isIgnoreGameVersion());
         instance.setAutoUpdate(temp.isAutoUpdate());
         instance.setDeveloperMode(temp.isDeveloperMode());
+        instance.setDeleteFolderTree(temp.isDeleteFolderTree());
     }
 
     /**
@@ -271,6 +274,10 @@ public class ManagerOptions extends Observable {
         this.autoEnableDependencies = autoEnableDependencies;
     }
 
+    public void setDeleteFolderTree(boolean deleteFolderTree) {
+        this.deleteFolderTree = deleteFolderTree;
+    }
+
     /**
      * Activates the option for the Developer Mode.
      * @param developerMode true if want to activate it, false otherwise.
@@ -301,6 +308,10 @@ public class ManagerOptions extends Observable {
      */
     public boolean isAutoEnableDependencies() {
         return autoEnableDependencies;
+    }
+
+    public boolean isDeleteFolderTree() {
+        return deleteFolderTree;
     }
 
     /**

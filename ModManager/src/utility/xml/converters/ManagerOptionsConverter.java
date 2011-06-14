@@ -71,6 +71,10 @@ public class ManagerOptionsConverter implements Converter {
         } catch (NullPointerException ex) {
         }
         try {
+            writer.addAttribute("deletefoldertree", Boolean.toString(opt.isDeleteFolderTree()));
+        } catch (NullPointerException ex) {
+        }
+        try {
             writer.addAttribute("viewtype", opt.getViewType().toString());
         } catch (NullPointerException ex) {
         }
@@ -164,6 +168,10 @@ public class ManagerOptionsConverter implements Converter {
         }
         try {
             value.setDeveloperMode(Boolean.parseBoolean(reader.getAttribute("developermode")));
+        } catch (Exception e) {
+        }
+        try {
+            value.setDeleteFolderTree(Boolean.parseBoolean(reader.getAttribute("deletefoldertree")));
         } catch (Exception e) {
         }
         try {

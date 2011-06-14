@@ -1,5 +1,7 @@
 package gui;
 
+import java.io.IOException;
+import java.util.logging.Level;
 import org.apache.log4j.Logger;
 
 import org.jdesktop.application.Application;
@@ -38,6 +40,8 @@ import business.Mod;
 import business.modactions.Action;
 import business.modactions.ActionRequirement;
 import gui.l10n.L10n;
+import java.awt.event.MouseEvent;
+import java.io.File;
 import utility.BBCode;
 import utility.Game;
 
@@ -46,6 +50,7 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Iterator;
 import java.net.URL;
+import utility.OS;
 
 /**
  * Main form of the ModManager. This class is the 'view' part of the MVC framework
@@ -260,6 +265,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         checkBoxAutoUpdate = new javax.swing.JCheckBox();
         checkBoxDeveloperMode = new javax.swing.JCheckBox();
         buttonApplyLanguage = new javax.swing.JButton();
+        checkBoxDeleteFolderTree = new javax.swing.JCheckBox();
         rightClickTableMenu = new javax.swing.JPopupMenu();
         popupItemMenuEnableDisableMod = new javax.swing.JMenuItem();
         popupItemMenuUpdateMod = new javax.swing.JMenuItem();
@@ -367,7 +373,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
 
         textFieldCLArguments.setName("textFieldCLArguments"); // NOI18N
 
-        labelChangeLanguageImplication.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
+        labelChangeLanguageImplication.setFont(new java.awt.Font("Tahoma", 0, 10));
         labelChangeLanguageImplication.setText(L10n.getString("prefs.label.languagechanges"));
         labelChangeLanguageImplication.setName("labelChangeLanguageImplication"); // NOI18N
         labelChangeLanguageImplication.setVisible(false);
@@ -402,6 +408,15 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         buttonApplyLanguage.setMinimumSize(new java.awt.Dimension(70, 25));
         buttonApplyLanguage.setName("buttonApplyLanguage"); // NOI18N
         buttonApplyLanguage.setPreferredSize(new java.awt.Dimension(70, 25));
+
+        checkBoxDeleteFolderTree.setText(L10n.getString("prefs.label.deletefoldertree"));
+        checkBoxDeleteFolderTree.setToolTipText(L10n.getString("tooltip.prefs.deletefoldertree"));
+        checkBoxDeleteFolderTree.setName("checkBoxDeleteFolderTree"); // NOI18N
+        checkBoxDeleteFolderTree.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                checkBoxDeleteFolderTreeMouseClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout dialogOptionsLayout = new javax.swing.GroupLayout(dialogOptions.getContentPane());
         dialogOptions.getContentPane().setLayout(dialogOptionsLayout);
@@ -442,9 +457,10 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                                     .addComponent(buttonHonFolder, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)
                                     .addComponent(buttonApplyLaf, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)))
                             .addGroup(dialogOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addComponent(checkBoxDeveloperMode, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(checkBoxAutoUpdate, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(checkBoxIgnoreGameVersion, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 179, Short.MAX_VALUE)))))
+                                .addComponent(checkBoxIgnoreGameVersion, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 179, Short.MAX_VALUE)
+                                .addComponent(checkBoxDeleteFolderTree, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(checkBoxDeveloperMode, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
                 .addContainerGap())
         );
         dialogOptionsLayout.setVerticalGroup(
@@ -480,7 +496,9 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                 .addComponent(checkBoxAutoUpdate)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(checkBoxDeveloperMode)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 26, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(checkBoxDeleteFolderTree)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 51, Short.MAX_VALUE)
                 .addComponent(labelChangeLanguageImplication)
                 .addGap(7, 7, 7)
                 .addGroup(dialogOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -574,14 +592,14 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
             .addGroup(panelModChangelogLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(panelModChangelogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(panelChangelogScrollpaneChangelogEditorPane, javax.swing.GroupLayout.DEFAULT_SIZE, 414, Short.MAX_VALUE)
+                    .addComponent(panelChangelogScrollpaneChangelogEditorPane, javax.swing.GroupLayout.DEFAULT_SIZE, 418, Short.MAX_VALUE)
                     .addGroup(panelModChangelogLayout.createSequentialGroup()
                         .addComponent(panelChangelogLabelModIcon)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(panelModChangelogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(panelChangelogLabelModAuthor, javax.swing.GroupLayout.PREFERRED_SIZE, 184, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(panelChangelogLabelModName, javax.swing.GroupLayout.PREFERRED_SIZE, 184, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(buttonViewModDetails, javax.swing.GroupLayout.DEFAULT_SIZE, 414, Short.MAX_VALUE))
+                    .addComponent(buttonViewModDetails, javax.swing.GroupLayout.DEFAULT_SIZE, 418, Short.MAX_VALUE))
                 .addContainerGap())
         );
         panelModChangelogLayout.setVerticalGroup(
@@ -594,7 +612,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(panelChangelogLabelModAuthor)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(panelChangelogScrollpaneChangelogEditorPane, javax.swing.GroupLayout.DEFAULT_SIZE, 472, Short.MAX_VALUE)
+                .addComponent(panelChangelogScrollpaneChangelogEditorPane, javax.swing.GroupLayout.DEFAULT_SIZE, 497, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(buttonViewModDetails)
                 .addContainerGap())
@@ -659,7 +677,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         panelModDescriptionLayout.setVerticalGroup(
             panelModDescriptionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelModDescriptionLayout.createSequentialGroup()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 354, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 385, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(labelRequirements)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -759,7 +777,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                         .addComponent(labelStatus, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonLaunchHon, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(modsTable, javax.swing.GroupLayout.DEFAULT_SIZE, 391, Short.MAX_VALUE))
+                    .addComponent(modsTable, javax.swing.GroupLayout.DEFAULT_SIZE, 352, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(panelModListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                     .addComponent(progressBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -774,9 +792,9 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
             .addGroup(panelModListLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(panelModListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(modsTable, javax.swing.GroupLayout.DEFAULT_SIZE, 601, Short.MAX_VALUE)
-                    .addComponent(panelModDetails, javax.swing.GroupLayout.DEFAULT_SIZE, 601, Short.MAX_VALUE)
-                    .addComponent(panelModChangelog, javax.swing.GroupLayout.DEFAULT_SIZE, 601, Short.MAX_VALUE))
+                    .addComponent(modsTable, javax.swing.GroupLayout.DEFAULT_SIZE, 618, Short.MAX_VALUE)
+                    .addComponent(panelModDetails, javax.swing.GroupLayout.DEFAULT_SIZE, 618, Short.MAX_VALUE)
+                    .addComponent(panelModChangelog, javax.swing.GroupLayout.DEFAULT_SIZE, 618, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(panelModListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panelModListLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -965,11 +983,11 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panelModList, javax.swing.GroupLayout.DEFAULT_SIZE, 954, Short.MAX_VALUE)
+            .addComponent(panelModList, javax.swing.GroupLayout.DEFAULT_SIZE, 956, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panelModList, javax.swing.GroupLayout.DEFAULT_SIZE, 662, Short.MAX_VALUE)
+            .addComponent(panelModList, javax.swing.GroupLayout.DEFAULT_SIZE, 674, Short.MAX_VALUE)
         );
 
         java.awt.Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
@@ -1025,6 +1043,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         checkBoxIgnoreGameVersion.setSelected(ManagerOptions.getInstance().isIgnoreGameVersion());
         checkBoxAutoUpdate.setSelected(ManagerOptions.getInstance().isAutoUpdate());
         checkBoxDeveloperMode.setSelected(ManagerOptions.getInstance().isDeveloperMode());
+        checkBoxDeleteFolderTree.setSelected(ManagerOptions.getInstance().isDeleteFolderTree());
         //dialogOptions.setSize(600, 500);
         dialogOptions.setLocationRelativeTo(this);
         dialogOptions.setVisible(true);
@@ -1049,6 +1068,22 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
 
     private void itemViewDetailsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemViewDetailsActionPerformed
     }//GEN-LAST:event_itemViewDetailsActionPerformed
+
+    private void checkBoxDeleteFolderTreeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_checkBoxDeleteFolderTreeMouseClicked
+        if (evt.getButton() == MouseEvent.BUTTON2 || evt.getButton() == MouseEvent.BUTTON3) {
+            String dest = null;
+            if (OS.isWindows() || OS.isLinux()) {
+                dest = ManagerOptions.getInstance().getGamePath() + File.separator + "game" + File.separator;
+            } else if (OS.isMac()) {
+                dest = System.getProperty("user.home") + "/Library/Application Support/Heroes of Newerth/game/";
+            }
+            String result = "<html>";
+            for (String s : Manager.getInstance().getResources0FolderTree()) {
+                result = result + dest + "<strong>" + s + "</strong>" + "<br/>";
+            }
+            JOptionPane.showMessageDialog(dialogOptions, result + "</html>", "", JOptionPane.PLAIN_MESSAGE);
+        }
+    }//GEN-LAST:event_checkBoxDeleteFolderTreeMouseClicked
 
     /**
      * Display specified message to the user using JOptionPane
@@ -1565,6 +1600,10 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     public boolean getDeveloperMode() {
         return checkBoxDeveloperMode.isSelected();
     }
+    
+    public boolean getDeleteFolderTree() {
+        return checkBoxDeleteFolderTree.isSelected();
+    }
 
     public String getSelectedLafClass() {
         return ((LaF) comboBoxLafs.getSelectedItem()).getLafClass();
@@ -1704,6 +1743,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     private javax.swing.JButton buttonViewModDetails;
     private javax.swing.JButton buttonVisitWebsite;
     private javax.swing.JCheckBox checkBoxAutoUpdate;
+    private javax.swing.JCheckBox checkBoxDeleteFolderTree;
     private javax.swing.JCheckBox checkBoxDeveloperMode;
     private javax.swing.JCheckBox checkBoxIgnoreGameVersion;
     private javax.swing.JComboBox comboBoxChooseLanguage;

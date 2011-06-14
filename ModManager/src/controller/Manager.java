@@ -115,6 +115,10 @@ public class Manager extends Observable {
         return instance;
     }
 
+    public ArrayList<String> getResources0FolderTree() {
+        return resources0FolderTree;
+    }
+
     /**
      * This should be called after adding all the honmod files to build and initialize the arrays
      */
@@ -622,7 +626,7 @@ public class Manager extends Observable {
             } catch (IOException ex) {
                 logger.error("Random I/O Exception happened", ex);
                 // Random IO Exception
-            } 
+            }
         }
         pool.shutdown();
         return returnValue;
@@ -1023,7 +1027,7 @@ public class Manager extends Observable {
      * @throws SecurityException if the Manager couldn't do a action because of security business.
      * @throws FileLockInterruptionException if the Manager couldn't open the resources999.s2z file.
      */
-    public void applyMods(boolean developerMode) throws IOException, UnknowModActionException, NothingSelectedModActionException, StringNotFoundModActionException, InvalidModActionParameterException, SecurityException, FileLockInterruptionException {
+    public void applyMods(boolean developerMode, boolean deleteFolderTree) throws IOException, UnknowModActionException, NothingSelectedModActionException, StringNotFoundModActionException, InvalidModActionParameterException, SecurityException, FileLockInterruptionException {
         ArrayList<Mod> applyOrder = sortMods();
         File tempFolder = FileUtils.generateTempFolder(true);
         logger.info("Started mod applying. Folder=" + tempFolder.getAbsolutePath() + ". Game version=" + Game.getInstance().getVersion());
@@ -1374,8 +1378,9 @@ public class Manager extends Observable {
         setChanged();
         notifyObservers(counted);
         // --------------- Progress bar update
-
-        deleteFolderTree();
+        if (deleteFolderTree) {
+            deleteFolderTree();
+        }
         if (!applyOrder.isEmpty()) {
             if (!developerMode) {
                 String comment = "All-In Hon ModManager Output\n\nGame Version:" + Game.getInstance().getVersion() + "\n\nApplied Mods:";
@@ -1387,9 +1392,7 @@ public class Manager extends Observable {
             } else {
                 if (OS.isMac()) {
                     FileUtils.copyFolderToFolder(tempFolder, new File(System.getProperty("user.home") + "/Library/Application Support/Heroes of Newerth/game"));
-                } else if (OS.isWindows()) {
-                    FileUtils.copyFolderToFolder(tempFolder, new File(ManagerOptions.getInstance().getGamePath() + File.separator + "game"));
-                } else if (OS.isLinux()) {
+                } else if (OS.isWindows() || OS.isLinux()) {
                     FileUtils.copyFolderToFolder(tempFolder, new File(ManagerOptions.getInstance().getGamePath() + File.separator + "game"));
                 }
 
@@ -1398,9 +1401,7 @@ public class Manager extends Observable {
                     File folder = null;
                     if (OS.isMac()) {
                         folder = new File(System.getProperty("user.home") + "/Library/Application Support/Heroes of Newerth/game" + File.separator + it.next());
-                    } else if (OS.isWindows()) {
-                        folder = new File(ManagerOptions.getInstance().getGamePath() + File.separator + "game" + File.separator + it.next());
-                    } else if (OS.isLinux()) {
+                    } else if (OS.isWindows() || OS.isLinux()) {
                         folder = new File(ManagerOptions.getInstance().getGamePath() + File.separator + "game" + File.separator + it.next());
                     }
 
@@ -1428,7 +1429,7 @@ public class Manager extends Observable {
      * @throws SecurityException if a security issue happened, and the action couldn't be completed.
      * @throws IOException if a random I/O exception happened.
      */
-    public void unapplyMods() throws SecurityException, IOException {
+    public void unapplyMods(boolean deleteFolderTree) throws SecurityException, IOException {
         ManagerOptions.getInstance().getAppliedMods().clear();
         Iterator<Mod> i = ManagerOptions.getInstance().getMods().iterator();
         while (i.hasNext()) {
@@ -1436,7 +1437,7 @@ public class Manager extends Observable {
         }
         deleteFolderTree();
         try {
-            applyMods(false);
+            applyMods(false, deleteFolderTree);
         } catch (IOException ex) {
             throw ex;
         } catch (UnknowModActionException ex) {
