@@ -56,6 +56,7 @@ public class ManagerOptions extends Observable {
     private boolean deleteFolderTree;
     private String lastHonVersion;
     private ViewType viewType;
+    private String developingMod;
     // Hidden fields from XML
     private ArrayList<Mod> mods;
     private static ManagerOptions instance;
@@ -88,6 +89,8 @@ public class ManagerOptions extends Observable {
         CLARGS = "";
         LANG = "";
         LAF = "default";
+        developingMod = "";
+        columnsOrder = "";
         applied = new HashSet<Mod>();
         mods = new ArrayList<Mod>();
         controller = Manager.getInstance();
@@ -213,6 +216,9 @@ public class ManagerOptions extends Observable {
         if (temp.getViewType() != null) {
             instance.setViewType(temp.getViewType());
         }
+        if (temp.getDevelopingMod() != null) {
+            instance.setDevelopingMod(temp.getDevelopingMod());
+        }
         instance.setUseSmallIcons(temp.usingSmallIcons());
         instance.setColorCheckboxesInTable(temp.getCheckboxesInTableColored());
         instance.setShowIconsInTable(temp.iconsShownInTable());
@@ -248,6 +254,10 @@ public class ManagerOptions extends Observable {
 
     public void setCLArgs(String p) {
         CLARGS = p;
+    }
+
+    public void setDevelopingMod(String developingMod) {
+        this.developingMod = developingMod;
     }
 
     /**
@@ -364,6 +374,10 @@ public class ManagerOptions extends Observable {
 
     public String getCLArgs() {
         return CLARGS;
+    }
+
+    public String getDevelopingMod() {
+        return developingMod;
     }
 
     /**

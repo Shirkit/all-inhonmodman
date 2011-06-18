@@ -263,6 +263,9 @@
 - Fixed wrong release date in 0.9.8.
 - Added option "deleteFolderTree" to prevent unwanted folder tree deletion. Default: OFF.
 - Added strings in english file.
+- Fixed behavior of <findall> operation not reseting the cursor to the begin of the file.
+- Added field for developers to work in one specific mod. Just enable Developer Mod to check it out. And read the tooltips.
+- Progress bar while applying is really more accurate.
 
 
 

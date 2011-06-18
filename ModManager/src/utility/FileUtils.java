@@ -30,7 +30,7 @@ public class FileUtils {
     /**
      * Loads a text file to a String.
      * @param f file to be read.
-     * @param encoding encode to be used for loading the file.
+     * @param encoding encode to be used for loading the file, or null to none.
      * @return a String containing the content of the read file.
      * @throws IOException if an I/O error occurs.
      */
@@ -38,7 +38,11 @@ public class FileUtils {
         StringBuilder sb = new StringBuilder();
         BufferedReader br = null;
         try {
-            br = new BufferedReader(new InputStreamReader(new FileInputStream(f), encoding));
+            if (encoding != null) {
+                br = new BufferedReader(new InputStreamReader(new FileInputStream(f), encoding));
+            } else {
+                br = new BufferedReader(new InputStreamReader(new FileInputStream(f)));
+            }
             for (String line = br.readLine(); line != null; line = br.readLine()) {
                 sb.append(line).append("\n");
             }

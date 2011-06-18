@@ -233,7 +233,7 @@ public class ManagerCtrl implements Observer {
 
         // Load last column order and widths for details view
         DetailsView detailsView = (DetailsView) view.getModsTable().getView(ModsTable.ViewType.DETAILS);
-        if (detailsView != null && model.getColumnsOrder() != null) {
+        if (detailsView != null && model.getColumnsOrder() != null && !model.getColumnsOrder().isEmpty()) {
             detailsView.deserializeColumnOrder(model.getColumnsOrder());
         }
         if (detailsView != null && model.getColumnsWidth() != null) {
@@ -274,6 +274,7 @@ public class ManagerCtrl implements Observer {
         view.buttonOkAddActionListener(new PrefsOkListener());
         view.buttonCancelAddActionListener(new PrefsCancelListener());
         view.buttonHonFolderAddActionListener(new ChooseFolderHonListener());
+        view.buttonDevelopingModAddActionListener(new ChooseFolderDevelopingModListener());
         view.buttonUpdateModActionListener(new UpdateModListener());
         view.popupMenuItemUpdateModAddActionListener(new UpdateModListener());
         view.buttonModsFolderAddActionListener(new ChooseFolderModsListener());
@@ -299,7 +300,12 @@ public class ManagerCtrl implements Observer {
         if (model.getViewType().equals(ManagerOptions.ViewType.DETAILED_ICONS)) {
             view.getItemViewDetailedIcons().doClick();
         } else if (model.getViewType().equals(ManagerOptions.ViewType.DETAILS)) {
-            view.getItemViewDetails().doClick();
+            // Little hack for the L10n bug while developing
+            try {
+                view.getItemViewDetails().doClick();
+            } catch (NullPointerException e) {
+                view.getItemViewIcons().doClick();
+            }
         } else if (model.getViewType().equals(ManagerOptions.ViewType.ICONS)) {
             view.getItemViewIcons().doClick();
         } else if (model.getViewType().equals(ManagerOptions.ViewType.TILES)) {
@@ -492,8 +498,12 @@ public class ManagerCtrl implements Observer {
      */
     public void update(Observable o, Object arg) {
         if (o.getClass().equals(Manager.class)) {
-            int[] ints = (int[]) arg;
-            view.getProgressBar().setValue(ints[0]);
+            if (arg.getClass().equals(String.class)) {
+                view.setStatusMessage(L10n.getString("status.applyingmods") + "-" + arg, true);
+            } else {
+                int[] ints = (int[]) arg;
+                view.getProgressBar().setValue(ints[0]);
+            }
         }
 
     }
@@ -501,7 +511,7 @@ public class ManagerCtrl implements Observer {
     private void loadMods() {
         view.setInputEnabled(false);
         try {
-            ArrayList<ArrayList<Pair<String, String>>> exs = controller.loadMods();
+            ArrayList<ArrayList<Pair<String, String>>> exs = controller.loadMods(model.isDeveloperMode());
             controller.buildGraphs();
             Set<Mod> newApplied = new HashSet<Mod>();
             Iterator<Mod> applied = model.getAppliedMods().iterator();
@@ -1497,6 +1507,37 @@ public class ManagerCtrl implements Observer {
             }
         }
     }
+
+    class ChooseFolderDevelopingModListener implements ActionListener {
+
+        public void actionPerformed(ActionEvent e) {
+            JFileChooser fc = new JFileChooser();
+            fc.setAcceptAllFileFilterUsed(false);
+            if (OS.isMac()) {
+                HoNFilter filter = new HoNFilter();
+                fc.setFileFilter(filter);
+            } else {
+                fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            }
+
+
+            if (OS.isLinux() || OS.isWindows()) {
+                if (model.getDevelopingMod() != null && !model.getDevelopingMod().isEmpty()) {
+                    fc.setCurrentDirectory(new File(model.getDevelopingMod()));
+                } else if (model.getModPath() != null && !model.getModPath().isEmpty()) {
+                    fc.setCurrentDirectory(new File(model.getModPath()));
+                } else if (model.getGamePath() != null && !model.getGamePath().isEmpty()) {
+                    fc.setCurrentDirectory(new File(model.getGamePath()));
+                }
+            }
+            int returnVal = fc.showOpenDialog(view.getPrefsDialog());
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                File directory = fc.getSelectedFile();
+                view.setTextFieldDevelopingMod(directory.getPath());
+                logger.info("Developing mod folder selected: " + directory.getPath());
+            }
+        }
+    }
     private long date;
 
     private void wantToSaveOptions() {
@@ -1594,17 +1635,9 @@ public class ManagerCtrl implements Observer {
         boolean sucess = false;
         view.setInputEnabled(false);
         try {
-            int count = 0;
-            Iterator<Mod> iterator = model.getMods().iterator();
-            while (iterator.hasNext()) {
-                if (iterator.next().isEnabled()) {
-                    count += 2;
-                }
-            }
-            count = count + 3;
             view.setStatusMessage(L10n.getString("status.applyingmods"), true);
             view.getProgressBar().setStringPainted(true);
-            view.getProgressBar().setMaximum(count);
+            view.getProgressBar().setMaximum(controller.getApplyIterationsCount());
             view.getProgressBar().paint(view.getProgressBar().getGraphics());
             controller.applyMods(model.isDeveloperMode(), model.isDeleteFolderTree());
             view.getModsTable().redraw();

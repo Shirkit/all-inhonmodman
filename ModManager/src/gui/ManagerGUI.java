@@ -266,6 +266,8 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         checkBoxDeveloperMode = new javax.swing.JCheckBox();
         buttonApplyLanguage = new javax.swing.JButton();
         checkBoxDeleteFolderTree = new javax.swing.JCheckBox();
+        textFieldDevelopingMod = new javax.swing.JTextField();
+        buttonDevelopingMod = new javax.swing.JButton();
         rightClickTableMenu = new javax.swing.JPopupMenu();
         popupItemMenuEnableDisableMod = new javax.swing.JMenuItem();
         popupItemMenuUpdateMod = new javax.swing.JMenuItem();
@@ -403,6 +405,11 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         checkBoxDeveloperMode.setText(L10n.getString("prefs.label.developermode"));
         checkBoxDeveloperMode.setToolTipText(L10n.getString("tooltip.prefs.developermode"));
         checkBoxDeveloperMode.setName("checkBoxDeveloperMode"); // NOI18N
+        checkBoxDeveloperMode.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                checkBoxDeveloperModeActionPerformed(evt);
+            }
+        });
 
         buttonApplyLanguage.setText(L10n.getString("prefs.button.apply"));
         buttonApplyLanguage.setMinimumSize(new java.awt.Dimension(70, 25));
@@ -417,6 +424,12 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                 checkBoxDeleteFolderTreeMouseClicked(evt);
             }
         });
+
+        textFieldDevelopingMod.setToolTipText(L10n.getString("tooltip.prefs.developingmod"));
+        textFieldDevelopingMod.setName("textFieldDevelopingMod"); // NOI18N
+
+        buttonDevelopingMod.setText(L10n.getString("prefs.button.browse"));
+        buttonDevelopingMod.setName("buttonDevelopingMod"); // NOI18N
 
         javax.swing.GroupLayout dialogOptionsLayout = new javax.swing.GroupLayout(dialogOptions.getContentPane());
         dialogOptions.getContentPane().setLayout(dialogOptionsLayout);
@@ -445,22 +458,26 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                                     .addComponent(labelCLArguments, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 121, Short.MAX_VALUE))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(dialogOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(textFieldHonFolder, javax.swing.GroupLayout.DEFAULT_SIZE, 427, Short.MAX_VALUE)
-                                    .addComponent(comboBoxChooseLanguage, javax.swing.GroupLayout.Alignment.LEADING, 0, 427, Short.MAX_VALUE)
-                                    .addComponent(textFieldModsFolder, javax.swing.GroupLayout.DEFAULT_SIZE, 427, Short.MAX_VALUE)
-                                    .addComponent(comboBoxLafs, javax.swing.GroupLayout.Alignment.LEADING, 0, 427, Short.MAX_VALUE)
-                                    .addComponent(textFieldCLArguments, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 427, Short.MAX_VALUE))
+                                    .addComponent(textFieldHonFolder, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+                                    .addComponent(comboBoxChooseLanguage, javax.swing.GroupLayout.Alignment.LEADING, 0, 400, Short.MAX_VALUE)
+                                    .addComponent(textFieldModsFolder, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+                                    .addComponent(comboBoxLafs, javax.swing.GroupLayout.Alignment.LEADING, 0, 400, Short.MAX_VALUE)
+                                    .addComponent(textFieldCLArguments, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)))
+                            .addGroup(dialogOptionsLayout.createSequentialGroup()
+                                .addGroup(dialogOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                    .addComponent(checkBoxAutoUpdate, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(checkBoxIgnoreGameVersion, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 179, Short.MAX_VALUE)
+                                    .addComponent(checkBoxDeleteFolderTree, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(checkBoxDeveloperMode, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(dialogOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(buttonApplyLanguage, javax.swing.GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)
-                                    .addComponent(buttonModsFolder, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)
-                                    .addComponent(buttonHonFolder, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)
-                                    .addComponent(buttonApplyLaf, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)))
-                            .addGroup(dialogOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addComponent(checkBoxAutoUpdate, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(checkBoxIgnoreGameVersion, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 179, Short.MAX_VALUE)
-                                .addComponent(checkBoxDeleteFolderTree, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(checkBoxDeveloperMode, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
+                                .addComponent(textFieldDevelopingMod, javax.swing.GroupLayout.DEFAULT_SIZE, 344, Short.MAX_VALUE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(dialogOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(buttonApplyLanguage, javax.swing.GroupLayout.DEFAULT_SIZE, 135, Short.MAX_VALUE)
+                            .addComponent(buttonModsFolder, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 135, Short.MAX_VALUE)
+                            .addComponent(buttonHonFolder, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 135, Short.MAX_VALUE)
+                            .addComponent(buttonApplyLaf, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 135, Short.MAX_VALUE)
+                            .addComponent(buttonDevelopingMod, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         dialogOptionsLayout.setVerticalGroup(
@@ -495,10 +512,13 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(checkBoxAutoUpdate)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(checkBoxDeveloperMode)
+                .addGroup(dialogOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(checkBoxDeveloperMode)
+                    .addComponent(textFieldDevelopingMod, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(buttonDevelopingMod))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(checkBoxDeleteFolderTree)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 51, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 43, Short.MAX_VALUE)
                 .addComponent(labelChangeLanguageImplication)
                 .addGap(7, 7, 7)
                 .addGroup(dialogOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1040,10 +1060,18 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         } else {
             textFieldModsFolder.setText(modsFolder);
         }
+        String developingModFolder = ManagerOptions.getInstance().getDevelopingMod();
+        if (developingModFolder == null || developingModFolder.isEmpty()) {
+            textFieldDevelopingMod.setText("");
+        } else {
+            textFieldDevelopingMod.setText(developingModFolder);
+        }
         checkBoxIgnoreGameVersion.setSelected(ManagerOptions.getInstance().isIgnoreGameVersion());
         checkBoxAutoUpdate.setSelected(ManagerOptions.getInstance().isAutoUpdate());
         checkBoxDeveloperMode.setSelected(ManagerOptions.getInstance().isDeveloperMode());
         checkBoxDeleteFolderTree.setSelected(ManagerOptions.getInstance().isDeleteFolderTree());
+        textFieldDevelopingMod.setVisible(checkBoxDeveloperMode.isSelected());
+        buttonDevelopingMod.setVisible(checkBoxDeveloperMode.isSelected());
         //dialogOptions.setSize(600, 500);
         dialogOptions.setLocationRelativeTo(this);
         dialogOptions.setVisible(true);
@@ -1084,6 +1112,11 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
             JOptionPane.showMessageDialog(dialogOptions, result + "</html>", "", JOptionPane.PLAIN_MESSAGE);
         }
     }//GEN-LAST:event_checkBoxDeleteFolderTreeMouseClicked
+
+    private void checkBoxDeveloperModeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkBoxDeveloperModeActionPerformed
+        textFieldDevelopingMod.setVisible(checkBoxDeveloperMode.isSelected());
+        buttonDevelopingMod.setVisible(checkBoxDeveloperMode.isSelected());
+    }//GEN-LAST:event_checkBoxDeveloperModeActionPerformed
 
     /**
      * Display specified message to the user using JOptionPane
@@ -1384,6 +1417,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
             displayModDetail();
         }
     }
+    int msgControl = 0;
 
     public void setStatusMessage(String status, boolean animate) {
         animating = animate;
@@ -1397,7 +1431,8 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
                 @Override
                 protected Void doInBackground() throws Exception {
                     originalMessage = labelStatus.getText();
-                    while (animating) {
+                    int myMessageControl = ++msgControl;
+                    while (animating && myMessageControl == msgControl) {
                         if (dots < 3) {
                             labelStatus.setText(labelStatus.getText() + ".");
                             dots++;
@@ -1526,6 +1561,10 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         buttonApplyLanguage.addActionListener(al);
     }
 
+    public void buttonDevelopingModAddActionListener(ActionListener al) {
+        buttonDevelopingMod.addActionListener(al);
+    }
+
     public void buttonOkAddActionListener(ActionListener al) {
         buttonOk.addActionListener(al);
     }
@@ -1581,6 +1620,10 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
         textFieldHonFolder.setText(txt);
     }
 
+    public void setTextFieldDevelopingMod(String txt) {
+        textFieldDevelopingMod.setText(txt);
+    }
+
     public void setTextFieldModsFolder(String txt) {
         textFieldModsFolder.setText(txt);
     }
@@ -1600,7 +1643,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     public boolean getDeveloperMode() {
         return checkBoxDeveloperMode.isSelected();
     }
-    
+
     public boolean getDeleteFolderTree() {
         return checkBoxDeleteFolderTree.isSelected();
     }
@@ -1733,6 +1776,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     private javax.swing.JButton buttonApplyLanguage;
     private javax.swing.JButton buttonApplyMods;
     private javax.swing.JButton buttonCancel;
+    private javax.swing.JButton buttonDevelopingMod;
     private javax.swing.JButton buttonEnableMod;
     private javax.swing.JButton buttonHonFolder;
     private javax.swing.JButton buttonLaunchHon;
@@ -1810,6 +1854,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
     private javax.swing.JProgressBar progressBar;
     private javax.swing.JPopupMenu rightClickTableMenu;
     private javax.swing.JTextField textFieldCLArguments;
+    private javax.swing.JTextField textFieldDevelopingMod;
     private javax.swing.JTextField textFieldHonFolder;
     private javax.swing.JTextField textFieldModsFolder;
     // End of variables declaration//GEN-END:variables
