@@ -34,7 +34,7 @@ import utility.xml.converters.ManagerOptionsConverter;
  */
 @XStreamAlias("options")
 @XStreamConverter(ManagerOptionsConverter.class)
-public class ManagerOptions extends Observable {
+public class ManagerOptions extends Observable implements Cloneable {
 
     // Fields that are going to be saved into XML File
     private String MODS_FOLDER;
@@ -56,6 +56,7 @@ public class ManagerOptions extends Observable {
     private boolean deleteFolderTree;
     private String lastHonVersion;
     private ViewType viewType;
+    private int programExecutions;
     private String developingMod;
     // Hidden fields from XML
     private ArrayList<Mod> mods;
@@ -88,6 +89,7 @@ public class ManagerOptions extends Observable {
         HON_FOLDER = "";
         CLARGS = "";
         LANG = "";
+        columnsOrder = "";
         LAF = "default";
         developingMod = "";
         columnsOrder = "";
@@ -106,6 +108,7 @@ public class ManagerOptions extends Observable {
         columnsWidth = new ArrayList<Integer>();
         viewType = ViewType.DETAILS;
         noOptionsFile = true;
+        programExecutions = 1;
     }
 
     /**
@@ -118,6 +121,11 @@ public class ManagerOptions extends Observable {
             instance = new ManagerOptions();
         }
         return instance;
+    }
+
+    
+    public Object clonar() throws CloneNotSupportedException {
+        return clone();
     }
 
     /**
@@ -216,6 +224,7 @@ public class ManagerOptions extends Observable {
         if (temp.getViewType() != null) {
             instance.setViewType(temp.getViewType());
         }
+        instance.setProgramExecutions(temp.getProgramExecutions() + 1);
         if (temp.getDevelopingMod() != null) {
             instance.setDevelopingMod(temp.getDevelopingMod());
         }
@@ -542,6 +551,14 @@ public class ManagerOptions extends Observable {
      */
     public boolean iconsShownInTable() {
         return showIconsInTable;
+    }
+
+    public int getProgramExecutions() {
+        return programExecutions;
+    }
+
+    public void setProgramExecutions(int programExecutions) {
+        this.programExecutions = programExecutions;
     }
 
     /**

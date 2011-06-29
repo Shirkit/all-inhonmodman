@@ -1498,6 +1498,17 @@ public class Manager extends Observable {
         }
     }
 
+    public boolean hasUnappliedMods() {
+        Iterator<Mod> it = ManagerOptions.getInstance().getMods().iterator();
+        while (it.hasNext()) {
+            Mod mod = it.next();
+            if ((mod.isEnabled() && !ManagerOptions.getInstance().getAppliedMods().contains(mod)) || (!mod.isEnabled() && ManagerOptions.getInstance().getAppliedMods().contains(mod))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * Compares the singleVersion of a Mod and another expressionVersion. Letters are ignored (they are removed before the test) and commas (,) are replaced by dots (.)
      * @param singleVersion is the base version to be compared of. For example, a Mod's version go in here ('1.3', '3.2.57').

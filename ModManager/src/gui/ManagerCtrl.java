@@ -1692,22 +1692,14 @@ public class ManagerCtrl implements Observer {
             view.getPrefsDialog().setVisible(false);
         }
     }
-
+    
     /**
      * Listener for 'Exit' menu item
      */
     class ExitListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
-            Iterator<Mod> it = model.getMods().iterator();
-            boolean hasUnapplied = false;
-            while (it.hasNext()) {
-                Mod mod = it.next();
-                if ((mod.isEnabled() && !model.getAppliedMods().contains(mod)) || (!mod.isEnabled() && model.getAppliedMods().contains(mod))) {
-                    hasUnapplied = true;
-                }
-            }
-            if (hasUnapplied) {
+            if (controller.hasUnappliedMods()) {
                 int option = JOptionPane.showConfirmDialog(view, L10n.getString("message.unappliedmods"), L10n.getString("message.unappliedmods.title"), JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
                 if (option == 0) {
                     // Yes

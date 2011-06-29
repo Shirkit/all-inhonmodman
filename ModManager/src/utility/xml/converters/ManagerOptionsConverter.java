@@ -104,6 +104,10 @@ public class ManagerOptionsConverter implements Converter {
             writer.addAttribute("columnsorder", opt.getColumnsOrder());
         } catch (NullPointerException ex) {
         }
+        try {
+            writer.addAttribute("programexecution", Integer.toString(opt.getProgramExecutions()));
+        } catch (NullPointerException ex) {
+        }
         
         if (opt.getColumnsWidth() != null) {
             Iterator<Integer> it = opt.getColumnsWidth().iterator();
@@ -200,6 +204,10 @@ public class ManagerOptionsConverter implements Converter {
         }
         try {
             value.setViewType(ManagerOptions.ViewType.valueOf(reader.getAttribute("viewtype")));
+        } catch (Exception e) {
+        }
+        try {
+            value.setProgramExecutions(Integer.parseInt(reader.getAttribute("programexecution")));
         } catch (Exception e) {
         }
         int x = -9999999, y = -9999999, height = -9999999, width = -9999999;
