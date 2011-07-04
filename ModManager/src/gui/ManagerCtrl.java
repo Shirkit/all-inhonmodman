@@ -127,10 +127,9 @@ public class ManagerCtrl implements Observer {
         // Set up look and feel
         loadLaf();
 
-        loadMods();
-
         initViewComponents(view);
-
+        // For an unknown reason, if we load the mods after initializing the components our ModList will be correctly sorted.
+        loadMods();
 
         if (model.getAppliedMods().isEmpty()) {
             importModsFromOldModManager();

@@ -168,6 +168,7 @@ public class DetailsView extends ModsTableView {
                         // From Shirkit: The line above causes after enabling the mod to clear the mod selection and disabling it causes no strange behavior.
                         //fireTableDataChanged();
                         setSelectedMod(mod);
+                        getComponent().repaint();
                     }
                 }
             }

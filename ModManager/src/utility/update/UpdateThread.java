@@ -19,6 +19,8 @@ import java.net.URLConnection;
 import java.security.InvalidParameterException;
 import java.util.concurrent.Callable;
 import controller.Manager;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import utility.FileUtils;
 import exceptions.UpdateModException;
 import java.util.StringTokenizer;
@@ -37,81 +39,42 @@ public class UpdateThread implements Callable<UpdateThread> {
         this.file = null;
     }
 
-    public UpdateThread call() throws UpdateModException {
-        try {
-            if (mod.getUpdateCheckUrl() != null && mod.getUpdateDownloadUrl() != null) {
-                URL url = new URL(mod.getUpdateCheckUrl().trim());
-                URLConnection connection = url.openConnection();
-                connection.setConnectTimeout(5000);
-                BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                String str = in.readLine();
-                in.close();
-                if (str != null && !str.toLowerCase().trim().contains("error") && !Manager.getInstance().compareModsVersions(str, "*-"+mod.getVersion())) {
-                    InputStream is = new URL(mod.getUpdateDownloadUrl().trim()).openStream();
-                    file = new File(System.getProperty("java.io.tmpdir") + File.separator + new File(mod.getPath()).getName());
-                    FileOutputStream fos = new FileOutputStream(file, false);
-                    FileUtils.copyInputStream(is, fos);
-                    is.close();
-                    fos.flush();
-                    fos.close();
-                }
-            }
-        } catch (MalformedURLException ex) {
-            file = null;
-            throw new UpdateModException(mod, ex);
-        } catch (ConnectException ex) {
-            file = null;
-            throw new UpdateModException(mod, ex);
-        } catch (NullPointerException ex) {
-            file = null;
-            throw new UpdateModException(mod, ex);
-        } catch (InvalidParameterException ex) {
-            file = null;
-            throw new UpdateModException(mod, ex);
-        } catch (FileNotFoundException ex) {
-            file = null;
-            throw new UpdateModException(mod, ex);
-        } catch (IOException ex) {
-            // If timeout (and other errors, but that's ok) happens, just try again, this may fix problems for slow connections.
-            try {
-                if (mod.getUpdateCheckUrl() != null && mod.getUpdateDownloadUrl() != null) {
-                    URL url = new URL(mod.getUpdateCheckUrl().trim());
-                    URLConnection connection = url.openConnection();
-                    connection.setConnectTimeout(5000);
-                    BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                    String str = in.readLine();
-                    in.close();
-                    if (str != null && !str.toLowerCase().trim().contains("error") && !Manager.getInstance().compareModsVersions(str, "*-"+mod.getVersion())) {
-                        InputStream is = new URL(mod.getUpdateDownloadUrl().trim()).openStream();
-                        file = new File(System.getProperty("java.io.tmpdir") + File.separator + new File(mod.getPath()).getName());
-                        FileOutputStream fos = new FileOutputStream(file, false);
-                        FileUtils.copyInputStream(is, fos);
-                        is.close();
-                        fos.flush();
-                        fos.close();
-                    }
-                }
-            } catch (MalformedURLException ex2) {
-                file = null;
-                throw new UpdateModException(mod, ex2);
-            } catch (ConnectException ex2) {
-                file = null;
-                throw new UpdateModException(mod, ex2);
-            } catch (NullPointerException ex2) {
-                file = null;
-                throw new UpdateModException(mod, ex2);
-            } catch (InvalidParameterException ex2) {
-                file = null;
-                throw new UpdateModException(mod, ex2);
-            } catch (FileNotFoundException ex2) {
-                file = null;
-                throw new UpdateModException(mod, ex2);
-            } catch (IOException ex2) {
-                file = null;
-                throw new UpdateModException(mod, ex2);
+    private void work(int timeout) throws Exception {
+        if (mod.getUpdateCheckUrl() != null && mod.getUpdateDownloadUrl() != null) {
+            URL url = new URL(mod.getUpdateCheckUrl().trim());
+            URLConnection connection = url.openConnection();
+            connection.setConnectTimeout(timeout);
+            connection.setReadTimeout(timeout);
+            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            String str = in.readLine();
+            in.close();
+            if (str != null && !str.toLowerCase().trim().contains("error") && !Manager.getInstance().compareModsVersions(str, "*-" + mod.getVersion())) {
+                InputStream is = new URL(mod.getUpdateDownloadUrl().trim()).openStream();
+                file = new File(System.getProperty("java.io.tmpdir") + File.separator + new File(mod.getPath()).getName());
+                FileOutputStream fos = new FileOutputStream(file, false);
+                FileUtils.copyInputStream(is, fos);
+                is.close();
+                fos.flush();
+                fos.close();
             }
         }
-        return this;
+    }
+
+    public UpdateThread call() throws UpdateModException {
+        Exception e = null;
+        // If timeout (and other errors, but that's ok) happens, just try again, this may fix problems for slow connections.
+        for (int timeout = 3000; timeout < 10000; timeout += 2000) {
+            if (file == null) {
+                try {
+                    work(timeout);
+                    return this; // No error, just finish
+                } catch (Exception ex) {
+                    e = ex; // Error, let's grab the last error
+                    file = null;
+                }
+            }
+        }
+        throw new UpdateModException(mod, e);
     }
 
     public Mod getMod() {

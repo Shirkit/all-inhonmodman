@@ -266,6 +266,11 @@
 - Fixed behavior of <findall> operation not reseting the cursor to the begin of the file.
 - Added field for developers to work in one specific mod. Just enable Developer Mod to check it out. And read the tooltips.
 - Progress bar while applying is really more accurate.
+- Fixed a bug while updating mods. If the website accepts the connection, but it refuses to upload the data, it was causing an infite hang.
+- Changed the connections timeout. Now it tries with 3/5/7/9 seconds. These four attemps should avoid timeout errors for slow connections once and for all.
+- Now the Manager only updates if the version that it's trying to update is newer than the current one, not just if it's different. That should avoid wrong update releases and improve Manager development.
+- Fixed bug that cause Details View not be sorting the mods by it's name.
+- Fixed clicking on checkbox in DetailsView not updating the String in the Status column.
 
 
 

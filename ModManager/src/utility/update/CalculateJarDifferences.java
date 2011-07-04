@@ -101,7 +101,10 @@ public class CalculateJarDifferences {
                 System.out.println("First version!");
                 s = targetVersion;
             }
-
+            
+            if (JOptionPane.showConfirmDialog(null, "Confirm upload?", "Confirmation", JOptionPane.YES_NO_OPTION) != 0) {
+                System.exit(0);
+            }
 
             // Write new versions file with the new released version
             FileWriter fw = new FileWriter(verionsFile);
