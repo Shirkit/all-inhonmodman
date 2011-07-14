@@ -271,6 +271,7 @@
 - Now the Manager only updates if the version that it's trying to update is newer than the current one, not just if it's different. That should avoid wrong update releases and improve Manager development.
 - Fixed bug that cause Details View not be sorting the mods by it's name.
 - Fixed clicking on checkbox in DetailsView not updating the String in the Status column.
+- Changed the HTTP User Agent header field to identify the Java ModManager.
 
 
 

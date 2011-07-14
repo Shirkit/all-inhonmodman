@@ -23,6 +23,7 @@ public class UpdateManager implements Callable<Boolean> {
     private boolean work() throws MalformedURLException, IOException {
         URL url = new URL(ManagerOptions.MANAGER_CHECK_UPDATE_VERSIONS.trim());
         URLConnection connection = url.openConnection();
+        connection.setRequestProperty("User-Agent", "All-In HoN ModManager");
         connection.setConnectTimeout(5000);
         BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         String str = in.readLine();

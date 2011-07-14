@@ -69,7 +69,9 @@ public class ManagerApp extends SingleFrameApplication {
         if (System.getProperty("java.version").startsWith("1.5") || System.getProperty("java.version").startsWith("1.4")) {
             JOptionPane.showMessageDialog(null, "Please update your JRE environment to the latest version.", "Error", JOptionPane.ERROR_MESSAGE);
         }
-
+        
+        System.setProperty("http.agent", "");
+        
         // A separated thread to run the SplashScreen
         Task<Void, Void> task = new Task<Void, Void>(Application.getInstance()) {
 
