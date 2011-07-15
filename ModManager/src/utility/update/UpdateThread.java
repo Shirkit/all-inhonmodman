@@ -43,7 +43,6 @@ public class UpdateThread implements Callable<UpdateThread> {
         if (mod.getUpdateCheckUrl() != null && mod.getUpdateDownloadUrl() != null) {
             URL url = new URL(mod.getUpdateCheckUrl().trim());
             URLConnection connection = url.openConnection();
-            connection.setRequestProperty("User-Agent", "All-In HoN ModManager");
             connection.setConnectTimeout(timeout);
             connection.setReadTimeout(timeout);
             BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));

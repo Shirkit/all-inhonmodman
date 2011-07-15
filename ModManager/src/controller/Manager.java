@@ -630,7 +630,7 @@ public class Manager extends Observable {
                             }
                         }
                         returnValue.addUpdated(mod.getMod(), olderVersion);
-                        logger.info(mod.getMod().getName() + "was updated to " + newMod.getVersion() + " from " + olderVersion);
+                        logger.info(mod.getMod().getName() + " was updated to " + newMod.getVersion() + " from " + olderVersion);
                     }
                 } else {
                     logger.info(mod.getMod().getName() + " is up-to-date");

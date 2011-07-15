@@ -70,7 +70,7 @@ public class ManagerApp extends SingleFrameApplication {
             JOptionPane.showMessageDialog(null, "Please update your JRE environment to the latest version.", "Error", JOptionPane.ERROR_MESSAGE);
         }
         
-        System.setProperty("http.agent", "");
+        System.setProperty("http.agent", "All-In HoN ModManager");
         
         // A separated thread to run the SplashScreen
         Task<Void, Void> task = new Task<Void, Void>(Application.getInstance()) {
