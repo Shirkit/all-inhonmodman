@@ -281,6 +281,10 @@
 - Fixed wrong release date (sorry).
 - Fixed possible major bug (didn't cleaned the project before uploading it).
 
+[b]0.9.9.2 BETA - 08/08/2011:[/b]
+- Fixed message display bug wich caused to don't load the message.
+- Fixed a bug caused by a null possibility (thanks to Trollolo).
+
 
 
 

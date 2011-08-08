@@ -1648,7 +1648,7 @@ public class ManagerCtrl implements Observer {
             view.showMessage(L10n.getString("error.cantacessfile").replace("#file#", model.getGamePath() + File.separator + "game" + File.separator + "resources999.s2z"), L10n.getString("error.cantacessfile"), JOptionPane.ERROR_MESSAGE);
         } catch (NothingSelectedModActionException ex) {
             logger.error("Error applying mods. Nothing was selected and a operation that needs something to be selected was called. Mod=" + ex.getName() + " | Version=" + ex.getVersion() + " | ActionClass=" + ex.getAction().getClass(), ex);
-                view.showMessage(L10n.getString("error.modcantapply").replace("#mod#", ex.getName()), L10n.getString("error.modcantapply.title"), JOptionPane.ERROR_MESSAGE);
+            view.showMessage(L10n.getString("error.modcantapply").replace("#mod#", ex.getName()), L10n.getString("error.modcantapply.title"), JOptionPane.ERROR_MESSAGE);
         } catch (StringNotFoundModActionException ex) {
             logger.error("Error applying mods. A find operation didn't find it's string. Mod=" + ex.getName() + " | Version=" + ex.getVersion() + " | String=" + ex.getString() + " | " + ex.getAction().getLineStart(), ex);
             view.showMessage(L10n.getString("error.modcantapply").replace("#mod#", ex.getName()), L10n.getString("error.modcantapply.title"), JOptionPane.ERROR_MESSAGE);
@@ -1661,7 +1661,7 @@ public class ManagerCtrl implements Observer {
         } catch (FileNotFoundException ex) {
             // TODO: Add this on the Strings file
             logger.error("Error applying mods. A file wasn't found, so it failed to apply.", ex);
-            view.showMessage("error.filenotfound", "error.filenotfound.title", JOptionPane.ERROR_MESSAGE);
+            view.showMessage(L10n.getString("error.filenotfound"), L10n.getString("error.filenotfound.title"), JOptionPane.ERROR_MESSAGE);
         } catch (UnknowModActionException ex) {
             // In theory, this part can't be called
             logger.error("Error applying mods. A unknown action was found. This message should never be logged.", ex);
@@ -1671,7 +1671,7 @@ public class ManagerCtrl implements Observer {
             view.showMessage(L10n.getString("error.cantacessfile").replace("#file#", ex.getMessage()), L10n.getString("error.cantacessfile"), JOptionPane.ERROR_MESSAGE);
         } catch (Exception ex) {
             logger.error("Error applying mods. A random I/O exception was thrown, can't apply. " + ex.getClass(), ex);
-            view.showMessage("error.randomerror", "error.randomerror.title", JOptionPane.ERROR_MESSAGE);
+            view.showMessage(L10n.getString("error.randomerror"), L10n.getString("error.randomerror.title"), JOptionPane.ERROR_MESSAGE);
         } finally {
             view.getProgressBar().setValue(0);
             view.getProgressBar().setStringPainted(false);

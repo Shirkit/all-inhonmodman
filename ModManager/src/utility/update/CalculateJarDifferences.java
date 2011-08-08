@@ -123,6 +123,7 @@ public class CalculateJarDifferences {
             System.out.println();
         } else {
             System.err.println("No differences file. Output file not generated.");
+            System.exit(0);
         }
 
         JSch jsch = new JSch();

@@ -1049,8 +1049,10 @@ public class Manager extends Observable {
                     total++;
                     if (a.getClass().equals(ActionEditFile.class)) {
                         ActionEditFile ac = (ActionEditFile) a;
-                        for (ActionEditFileActions b : ac.getActions()) {
-                            total++;
+                        if (ac.getActions() != null) {
+                            for (ActionEditFileActions b : ac.getActions()) {
+                                total++;
+                            }
                         }
                     }
                 }
