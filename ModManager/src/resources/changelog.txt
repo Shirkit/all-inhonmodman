@@ -259,7 +259,7 @@
 - Added copyfile attribute fromresource, accepting a boolean as it's value. Example: <copyfile ... fromresource="true"/> this will copy the file from the resources0.s2z file. Using this without both NAME and SOURCE doesn't make sense, but won't throw a error if you do.
 - Started thinking about a self repository with a automatically upload mods through the Manager.
 
-[b]0.9.9 BETA - 13/07/2011:[/b]
+[b]0.9.9 BETA - 08/08/2011:[/b]
 - This is the last Beta release. Next version will go out in stable/mature production. It doesn't make difference in the software itself, but it says that most of the bugs were properly fixed in the Beta phase.
 - Fixed wrong release date in 0.9.8.
 - Added option "deleteFolderTree" to prevent unwanted folder tree deletion. Default: OFF.
@@ -276,6 +276,11 @@
 - Changed the HTTP User Agent header field to identify the Java ModManager.
 - Fixed small string error while applying the mods.
 - Added counter of number of times the Manager has been launched (will be used in future versions, will be explained later).
+
+[b]0.9.9.1 BETA - 08/08/2011:[/b]
+- Fixed wrong release date (sorry).
+- Fixed possible major bug (didn't cleaned the project before uploading it).
+
 
 
 
