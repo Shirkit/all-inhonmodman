@@ -1072,7 +1072,7 @@ public class Manager extends Observable {
      * @throws SecurityException if the Manager couldn't do a action because of security business.
      * @throws FileLockInterruptionException if the Manager couldn't open the resources999.s2z file.
      */
-    public void applyMods(boolean developerMode, boolean deleteFolderTree) throws IOException, UnknowModActionException, NothingSelectedModActionException, StringNotFoundModActionException, InvalidModActionParameterException, SecurityException, FileLockInterruptionException {
+    public void applyMods(boolean developerMode, boolean deleteFolderTree) throws IOException, UnknowModActionException, NothingSelectedModActionException, StringNotFoundModActionException, InvalidModActionParameterException, SecurityException, FileLockInterruptionException, ModFileNotFoundException {
         ArrayList<Mod> applyOrder = sortMods();
         File tempFolder = FileUtils.generateTempFolder(true);
         logger.info("Started mod applying. Folder=" + tempFolder.getAbsolutePath() + ". Game version=" + Game.getInstance().getVersion());
@@ -1133,7 +1133,7 @@ public class Manager extends Observable {
                                             FileUtils.writeFile(ZIP.getFile(new File(resources0), toCopy), temp);
                                         }
                                     } else {
-                                        throw new SecurityException();
+                                        throw new SecurityException(temp.getAbsolutePath());
                                     }
                                 }
                             } else if (copyfile.overwrite() == 2) {
@@ -1145,13 +1145,13 @@ public class Manager extends Observable {
                                         FileUtils.writeFile(ZIP.getFile(new File(resources0), toCopy), temp);
                                     }
                                 } else {
-                                    throw new SecurityException();
+                                    throw new SecurityException(temp.getAbsolutePath());
                                 }
                             }
                         } else {
                             // if temporary file doesn't exists
                             if (!temp.getParentFile().exists() && !temp.getParentFile().mkdirs()) {
-                                throw new SecurityException();
+                                throw new SecurityException(temp.getAbsolutePath());
                             }
                             if (!copyfile.getFromResource()) {
                                 FileUtils.writeFile(ZIP.getFile(new File(mod.getPath()), toCopy), temp);
@@ -1195,7 +1195,11 @@ public class Manager extends Observable {
                             afterEdit = FileUtils.loadFile(f, "UTF-8");
                         } else {
                             // Load file from resources0.s2z if no other mod edited this file
-                            afterEdit = new String(ZIP.getFile(new File(resources0), editfile.getName()), "UTF-8");
+                            try {
+                                afterEdit = new String(ZIP.getFile(new File(resources0), editfile.getName()), "UTF-8");
+                            } catch (FileNotFoundException e) {
+                                throw new ModFileNotFoundException(mod.getName(), mod.getVersion(), e.getLocalizedMessage(), action, mod);
+                            }
                         }
                         if (editfile.getActions() != null && editfile.getActions().size() > 0) {
                             for (int k = 0; k < editfile.getActions().size(); k++) {
@@ -1473,6 +1477,7 @@ public class Manager extends Observable {
         } catch (IOException ex) {
             throw ex;
         } catch (UnknowModActionException ex) {
+        } catch (ModFileNotFoundException ex) {
         } catch (NothingSelectedModActionException ex) {
         } catch (StringNotFoundModActionException ex) {
         } catch (InvalidModActionParameterException ex) {

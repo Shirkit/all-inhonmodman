@@ -5,6 +5,7 @@ import business.Mod;
 import business.ModList;
 import utility.xml.ShirkitDriver;
 import business.modactions.*;
+import business.statistics.Statistics;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.StreamException;
 import com.thoughtworks.xstream.mapper.CannotResolveClassException;
@@ -211,6 +212,26 @@ public class XML {
         fos.flush();
         fos.close();
     }
+    
+    public static void statsToXml(Statistics stats, File where) throws IOException {
+        
+        XStream xstream = new XStream(getDriver());
+        updateAlias(xstream);
+        
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        Writer writer = new OutputStreamWriter(outputStream, "UTF-8");
+        xstream.toXML(stats, writer);
+        String temp = outputStream.toString("UTF-8");
+
+        temp = replaceInvalidHtmlChars(temp);
+
+        temp = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + temp;
+
+        FileOutputStream fos = new FileOutputStream(where, false);
+        fos.write(temp.getBytes("UTF-8"));
+        fos.flush();
+        fos.close();
+    }
 
     public static void modListToXml(File destination, ModList modlist) throws IOException {
         XStream xstream = new XStream(getDriver());
@@ -266,6 +287,7 @@ public class XML {
         xstream.processAnnotations(ActionRequirement.class);
         xstream.processAnnotations(ManagerOptions.class);
         xstream.processAnnotations(ModList.class);
+        xstream.processAnnotations(Statistics.class);
 
         xstream.aliasField("find", ActionEditFileFind.class, "seek");
         xstream.aliasField("find", ActionEditFileFind.class, "search");

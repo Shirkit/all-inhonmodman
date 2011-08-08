@@ -108,7 +108,7 @@ public class ManagerOptions extends Observable implements Cloneable {
         columnsWidth = new ArrayList<Integer>();
         viewType = ViewType.DETAILS;
         noOptionsFile = true;
-        programExecutions = 1;
+        programExecutions = -1;
     }
 
     /**

@@ -88,6 +88,7 @@ import exceptions.ModVersionMissmatchException;
 import exceptions.ModVersionUnsatisfiedException;
 import exceptions.InvalidModActionParameterException;
 import exceptions.ModDuplicateException;
+import exceptions.ModFileNotFoundException;
 import exceptions.ModZipException;
 import exceptions.NothingSelectedModActionException;
 import exceptions.StringNotFoundModActionException;
@@ -498,7 +499,7 @@ public class ManagerCtrl implements Observer {
     public void update(Observable o, Object arg) {
         if (o.getClass().equals(Manager.class)) {
             if (arg.getClass().equals(String.class)) {
-                view.setStatusMessage(L10n.getString("status.applyingmods") + "-" + arg, true);
+                view.setStatusMessage(L10n.getString("status.applyingmods") + " - " + arg, true);
             } else {
                 int[] ints = (int[]) arg;
                 view.getProgressBar().setValue(ints[0]);
@@ -1644,30 +1645,33 @@ public class ManagerCtrl implements Observer {
             view.showMessage(L10n.getString("message.modsapplied"), L10n.getString("message.modsapplied.title"), JOptionPane.INFORMATION_MESSAGE);
         } catch (FileLockInterruptionException ex) {
             logger.error("Error applying mods. Can't write on the resources999.s2z file", ex);
-            view.showMessage(L10n.getString("error.resources999").replace("#file#", model.getGamePath() + File.separator + "game" + File.separator + "resources999.s2z"), L10n.getString("error.resources999"), JOptionPane.ERROR_MESSAGE);
+            view.showMessage(L10n.getString("error.cantacessfile").replace("#file#", model.getGamePath() + File.separator + "game" + File.separator + "resources999.s2z"), L10n.getString("error.cantacessfile"), JOptionPane.ERROR_MESSAGE);
         } catch (NothingSelectedModActionException ex) {
             logger.error("Error applying mods. Nothing was selected and a operation that needs something to be selected was called. Mod=" + ex.getName() + " | Version=" + ex.getVersion() + " | ActionClass=" + ex.getAction().getClass(), ex);
-            view.showMessage(L10n.getString("error.modcantapply").replace("#mod#", ex.getName()), L10n.getString("error.modcantapply.title"), JOptionPane.ERROR_MESSAGE);
+                view.showMessage(L10n.getString("error.modcantapply").replace("#mod#", ex.getName()), L10n.getString("error.modcantapply.title"), JOptionPane.ERROR_MESSAGE);
         } catch (StringNotFoundModActionException ex) {
             logger.error("Error applying mods. A find operation didn't find it's string. Mod=" + ex.getName() + " | Version=" + ex.getVersion() + " | String=" + ex.getString() + " | " + ex.getAction().getLineStart(), ex);
             view.showMessage(L10n.getString("error.modcantapply").replace("#mod#", ex.getName()), L10n.getString("error.modcantapply.title"), JOptionPane.ERROR_MESSAGE);
         } catch (InvalidModActionParameterException ex) {
             logger.error("Error applying mods. A operation had a invalid parameter. Mod=" + ex.getName() + " | Version=" + ex.getVersion() + " | ActionClass" + ex.getAction().getClass(), ex);
             view.showMessage(L10n.getString("error.modcantapply").replace("#mod#", ex.getName()), L10n.getString("error.modcantapply.title"), JOptionPane.ERROR_MESSAGE);
+        } catch (ModFileNotFoundException ex) {
+            logger.error("Error applying mods. A mod tried to load an inexistent file. Mod=" + ex.getName() + " | Version=" + ex.getVersion() + " | ActionClass" + ex.getAction().getClass() + " | File = " + ex.getFile(), ex);
+            view.showMessage(L10n.getString("error.modcantapply").replace("#mod#", ex.getName()), L10n.getString("error.modcantapply.title"), JOptionPane.ERROR_MESSAGE);
         } catch (FileNotFoundException ex) {
             // TODO: Add this on the Strings file
             logger.error("Error applying mods. A file wasn't found, so it failed to apply.", ex);
-            view.showMessage("The file" + ex.getLocalizedMessage() + " wasn't found, so the mods couldn't be applied", "File not found", JOptionPane.ERROR_MESSAGE);
+            view.showMessage("error.filenotfound", "error.filenotfound.title", JOptionPane.ERROR_MESSAGE);
         } catch (UnknowModActionException ex) {
             // In theory, this part can't be called
             logger.error("Error applying mods. A unknown action was found. This message should never be logged.", ex);
             view.showMessage(L10n.getString("error.modcantapply").replace("#mod#", ex.getName()), L10n.getString("error.modcantapply.title"), JOptionPane.ERROR_MESSAGE);
         } catch (SecurityException ex) {
             logger.error("Error applying mods. Security exception found, couldn't do some operations that were needed. " + ex.getClass(), ex);
-            view.showMessage("Random error. Please, report it to the software developers", "Random error", JOptionPane.ERROR_MESSAGE);
+            view.showMessage(L10n.getString("error.cantacessfile").replace("#file#", ex.getMessage()), L10n.getString("error.cantacessfile"), JOptionPane.ERROR_MESSAGE);
         } catch (Exception ex) {
             logger.error("Error applying mods. A random I/O exception was thrown, can't apply. " + ex.getClass(), ex);
-            view.showMessage("Random error. Please, report it to the software developers", "Random error", JOptionPane.ERROR_MESSAGE);
+            view.showMessage("error.randomerror", "error.randomerror.title", JOptionPane.ERROR_MESSAGE);
         } finally {
             view.getProgressBar().setValue(0);
             view.getProgressBar().setStringPainted(false);
@@ -1691,7 +1695,7 @@ public class ManagerCtrl implements Observer {
             view.getPrefsDialog().setVisible(false);
         }
     }
-    
+
     /**
      * Listener for 'Exit' menu item
      */

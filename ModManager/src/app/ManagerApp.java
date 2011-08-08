@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
 import business.ManagerOptions;
+import business.statistics.Statistics;
 import controller.Manager;
 import gui.ManagerCtrl;
 import gui.ManagerGUI;
@@ -42,6 +43,7 @@ import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import utility.XML;
 
 /**
  * @author Shirkit
@@ -135,7 +137,7 @@ public class ManagerApp extends SingleFrameApplication {
                 } catch (IOException ex) {
                 }
                 logger.info("------------------------------------------------------------------------------------------------------------------------");
-
+                
                 // Load the interface
                 try {
                     ctrl = new ManagerCtrl();
