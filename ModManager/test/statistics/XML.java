@@ -4,9 +4,9 @@
  */
 package statistics;
 
-import business.statistics.Statistics;
+import modmanager.business.statistics.Statistics;
 import com.thoughtworks.xstream.XStream;
-import utility.xml.ShirkitDriver;
+import modmanager.utility.xml.ShirkitDriver;
 
 /**
  *

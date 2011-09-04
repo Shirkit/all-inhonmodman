@@ -5,9 +5,9 @@
 package dao;
 
 /**
- *
+ * This class is for helping the Hibernate to work.
  * @author Shirkit
  */
-public abstract class Entity {
+public abstract class MyEntity {
     
 }

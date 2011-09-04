@@ -1,8 +1,8 @@
 package business;
-import java.io.Serializable;
 
-import javax.persistence.Table;
+import java.io.Serializable;
 import javax.persistence.Entity;
+import javax.persistence.Table;
 
 
 /**
@@ -10,8 +10,8 @@ import javax.persistence.Entity;
  *
  */
 @Entity
-@Table(name="modification")
-public class Mod extends dao.Entity implements Serializable {
+@Table(name="modss")
+public class Mod extends dao.MyEntity implements Serializable {
 
     public static final String MOD_FILENAME = "mod.xml";
     public static final String ICON_FILENAME = "icon.png";
@@ -22,9 +22,9 @@ public class Mod extends dao.Entity implements Serializable {
     @javax.persistence.Id
     private String name;
     private String version;
+    private String author;
     
     private String date_;
-    private String author;
     private String description;
     private String application;
     private String appversion;

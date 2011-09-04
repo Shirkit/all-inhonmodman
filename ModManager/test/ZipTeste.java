@@ -1,12 +1,12 @@
 
-import business.Mod;
+import modmanager.business.Mod;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
-import utility.XML;
-import utility.ZIP;
+import modmanager.utility.XML;
+import modmanager.utility.ZIP;
 
 /*
  * To change this template, choose Tools | Templates

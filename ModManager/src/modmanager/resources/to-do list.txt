@@ -1,0 +1,17 @@
+Message to tell user that is zipping files
+Try to enable a mod that requires another, and that another doesn't exist
+Details view, all strings on the table says Applied
+When a mod is deleted, the UI freezes.
+
+Important! - Support for Chinese language. I couldn't find a way to make it working.
+
+- Modlist finishing / Export/Import / Profile Import
+- Move supportive files to other folders (Only for Mac : managerOptions.xml FileUtils.getManagerPerpetualFolder())
+- "java" sometimes won't be avaliable in the user's path
+- Remove all hmtl tags from the code and put them into the langauge files.
+
+- Copyfile Version attribute not working
+ + Copyfile Overwritting file if there is already a file and no overwrite param was set
+
+Add in strings file
+- view.showMessage("The file" + ex.getLocalizedMessage() + " wasn't found, so the mods couldn't be applied", "File not found", JOptionPane.ERROR_MESSAGE);

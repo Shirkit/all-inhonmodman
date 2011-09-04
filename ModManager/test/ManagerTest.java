@@ -1,5 +1,5 @@
 
-import gui.developing.Notification;
+import modmanager.gui.developing.Notification;
 import java.io.File;
 import javax.swing.JFileChooser;
 

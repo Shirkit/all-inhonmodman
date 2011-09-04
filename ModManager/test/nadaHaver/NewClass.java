@@ -4,8 +4,8 @@
  */
 package nadaHaver;
 
-import business.ManagerOptions;
-import business.Mod;
+import modmanager.business.ManagerOptions;
+import modmanager.business.Mod;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
@@ -16,7 +16,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.zip.ZipException;
-import utility.ZIP;
+import modmanager.utility.ZIP;
 
 /**
  *
@@ -59,7 +59,7 @@ public class NewClass {
                 String stringVersion = versions.next();
                 Mod mod = ManagerOptions.getInstance().getMod(stringMod, stringVersion);
                 try {
-                    controller.Manager.getInstance().enableMod(mod, ManagerOptions.getInstance().isIgnoreGameVersion());
+                    modmanager.controller.Manager.getInstance().enableMod(mod, ManagerOptions.getInstance().isIgnoreGameVersion());
                     mods.remove();
                     versions.remove();
                 } catch (Exception ex) {
