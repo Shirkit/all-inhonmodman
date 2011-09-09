@@ -21,6 +21,7 @@ import java.util.concurrent.Callable;
 public class UpdateManager implements Callable<Boolean> {
 
     private boolean work() throws MalformedURLException, IOException {
+        Thread.currentThread().setName("UpdateManager");
         URL url = new URL(ManagerOptions.MANAGER_CHECK_UPDATE_VERSIONS.trim());
         URLConnection connection = url.openConnection();
         connection.setConnectTimeout(5000);

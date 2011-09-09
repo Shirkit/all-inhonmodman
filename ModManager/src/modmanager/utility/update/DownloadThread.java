@@ -17,7 +17,6 @@ import java.security.InvalidParameterException;
 import java.util.concurrent.Callable;
 import modmanager.utility.FileUtils;
 import modmanager.exceptions.UpdateModException;
-import java.net.URLStreamHandlerFactory;
 
 /**
  *
@@ -42,6 +41,7 @@ public class DownloadThread implements Callable<DownloadThread> {
 
     public DownloadThread call() throws UpdateModException {
         try {
+            Thread.currentThread().setName("Download - " + modName);
             if (url != null) {
                 URL urls = new URL(this.url);
                 URLConnection connection = urls.openConnection();

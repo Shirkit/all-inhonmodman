@@ -7,23 +7,15 @@ package modmanager.utility.update;
 import modmanager.business.Mod;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.ConnectException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.security.InvalidParameterException;
 import java.util.concurrent.Callable;
 import modmanager.controller.Manager;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import modmanager.utility.FileUtils;
 import modmanager.exceptions.UpdateModException;
-import java.util.StringTokenizer;
 
 /**
  *
@@ -40,6 +32,7 @@ public class UpdateThread implements Callable<UpdateThread> {
     }
 
     private void work(int timeout) throws Exception {
+        Thread.currentThread().setName("Update - " + mod.getName());
         if (mod.getUpdateCheckUrl() != null && mod.getUpdateDownloadUrl() != null) {
             URL url = new URL(mod.getUpdateCheckUrl().trim());
             URLConnection connection = url.openConnection();

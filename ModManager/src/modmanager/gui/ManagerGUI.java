@@ -1194,6 +1194,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
      */
     public void updateModTable() {
         animating = false;
+        getModsTable().setModsList(ManagerOptions.getInstance().getMods());
         getModsTable().redraw();
         displayModDetail();
     }
