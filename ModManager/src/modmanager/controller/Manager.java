@@ -1111,7 +1111,7 @@ public class Manager extends Observable {
                         }
 
                         File temp = new File(tempFolder.getAbsolutePath() + File.separator + copyfile.getName());
-                        
+
                         if (temp.exists()) {
                             if (copyfile.overwrite() == -1) {
                                 throw new InvalidModActionParameterException(mod.getName(), mod.getVersion(), (Action) copyfile);
@@ -1288,18 +1288,21 @@ public class Manager extends Observable {
                                         lastPosition.add(index + findall.getContent().length());
                                         lastIndex = index + findall.getContent().length();
                                     }
-                                    if (firstPosition.isEmpty()) {
+                                    if (!firstPosition.isEmpty()) {
                                         // no string was found, can't apply
-                                        throw new StringNotFoundModActionException(mod.getName(), mod.getVersion(), (Action) findall, findall.getContent(), mod);
-                                    }
-                                    // Insert into the array
-                                    cursor = new int[firstPosition.size()];
-                                    cursor2 = new int[firstPosition.size()];
-                                    for (int i = 0; i < cursor.length; i++) {
-                                        cursor[i] = firstPosition.get(i);
-                                        cursor2[i] = lastPosition.get(i);
-                                    }
+                                        // Insert into the array
+                                        cursor = new int[firstPosition.size()];
+                                        cursor2 = new int[firstPosition.size()];
+                                        for (int i = 0; i < cursor.length; i++) {
+                                            cursor[i] = firstPosition.get(i);
+                                            cursor2[i] = lastPosition.get(i);
+                                        }
 
+                                        //throw new StringNotFoundModActionException(mod.getName(), mod.getVersion(), (Action) findall, findall.getContent(), mod);
+                                    } else {
+                                        cursor = new int[0];
+                                        cursor2 = new int[0];
+                                    }
                                     // Insert Action
                                 } else if (editFileAction.getClass().equals(ActionEditFileInsert.class)) {
                                     ActionEditFileInsert insert = (ActionEditFileInsert) editFileAction;
