@@ -285,6 +285,8 @@
 - Fixed message display bug wich caused to don't load the message.
 - Fixed a bug caused by a null possibility (thanks to Trollolo).
 
+[b]0.9.9.3 BETA - 01/12/2011:[/b]
+- Added a quick fix to show the developers where the Find actions failed to apply. Shows only in Developer Mode, and shows the line start, finish, and the string itself.
 
 
 - Fixed bug that caused mods that didn't specify an overwrite condition in the copyfile to don't apply, even if the file in question doesn't exist.

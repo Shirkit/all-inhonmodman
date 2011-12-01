@@ -79,6 +79,8 @@ import java.util.Observer;
 import java.util.Set;
 import java.util.prefs.Preferences;
 
+import modmanager.business.modactions.ActionEditFileActions;
+import modmanager.business.modactions.ActionEditFileFind;
 import modmanager.exceptions.ModConflictException;
 import modmanager.exceptions.ModEnabledException;
 import modmanager.exceptions.ModNotEnabledException;
@@ -1154,7 +1156,7 @@ public class ManagerCtrl implements Observer {
                 @Override
                 protected Void doInBackground() throws Exception {
                     Thread.currentThread().setName("UpdateMods");
-                    
+
                     view.setInputEnabled(false);
                     view.setStatusMessage("Updating mods", true);
                     view.getProgressBar().setVisible(true);
@@ -1624,7 +1626,7 @@ public class ManagerCtrl implements Observer {
                     logger.error("Error enabling mod: " + mod.getName() + " because some mods (" + e1.toString() + ") version(s) is/are not satisfied", e1);
                 } catch (IllegalArgumentException e1) {
                     e1.printStackTrace();
-                    
+
                 } catch (ModSameNameDifferentVersionsException e1) {
                     view.showMessage(L10n.getString("error.modsameversion").replace("#mod#", mod.getName()), L10n.getString("error.modsameversion.title"), JOptionPane.ERROR_MESSAGE);
                     logger.error("Error enabling mod: " + mod.getName() + " because another mod is already enabled.", e1);
@@ -1654,13 +1656,29 @@ public class ManagerCtrl implements Observer {
             view.showMessage(L10n.getString("error.cantacessfile").replace("#file#", model.getGamePath() + File.separator + "game" + File.separator + "resources999.s2z"), L10n.getString("error.cantacessfile"), JOptionPane.ERROR_MESSAGE);
         } catch (NothingSelectedModActionException ex) {
             logger.error("Error applying mods. Nothing was selected and a operation that needs something to be selected was called. Mod=" + ex.getName() + " | Version=" + ex.getVersion() + " | ActionClass=" + ex.getAction().getClass(), ex);
-            view.showMessage(L10n.getString("error.modcantapply").replace("#mod#", ex.getName()), L10n.getString("error.modcantapply.title"), JOptionPane.ERROR_MESSAGE);
+            String s = L10n.getString("error.modcantapply").replace("#mod#", ex.getName());
+            if (model.isDeveloperMode()) {
+                s += "\n\n" + L10n.getString("error.atline").replace("#start#", ex.getAction().getLineStart()).replace("#end#", ex.getAction().getLineEnd());
+                ActionEditFileActions find = (ActionEditFileActions) ex.getAction();
+                s = s.replace("#content#", find.getContent());
+            }
+            view.showMessage(s, L10n.getString("error.modcantapply.title"), JOptionPane.ERROR_MESSAGE);
         } catch (StringNotFoundModActionException ex) {
             logger.error("Error applying mods. A find operation didn't find it's string. Mod=" + ex.getName() + " | Version=" + ex.getVersion() + " | String=" + ex.getString() + " | " + ex.getAction().getLineStart(), ex);
-            view.showMessage(L10n.getString("error.modcantapply").replace("#mod#", ex.getName()), L10n.getString("error.modcantapply.title"), JOptionPane.ERROR_MESSAGE);
+            String s = L10n.getString("error.modcantapply").replace("#mod#", ex.getName());
+            if (model.isDeveloperMode()) {
+                s += "\n\n" + L10n.getString("error.atline").replace("#start#", ex.getAction().getLineStart()).replace("#end#", ex.getAction().getLineEnd());
+                ActionEditFileActions find = (ActionEditFileActions) ex.getAction();
+                s = s.replace("#content#", find.getContent());
+            }
+            view.showMessage(s, L10n.getString("error.modcantapply.title"), JOptionPane.ERROR_MESSAGE);
         } catch (InvalidModActionParameterException ex) {
             logger.error("Error applying mods. A operation had a invalid parameter. Mod=" + ex.getName() + " | Version=" + ex.getVersion() + " | ActionClass" + ex.getAction().getClass() + "  | " + ex.getAction().getLineStart(), ex);
-            view.showMessage(L10n.getString("error.modcantapply").replace("#mod#", ex.getName()), L10n.getString("error.modcantapply.title"), JOptionPane.ERROR_MESSAGE);
+            String s = L10n.getString("error.modcantapply").replace("#mod#", ex.getName());
+            if (model.isDeveloperMode()) {
+                s += "\n\n" + L10n.getString("error.atline").replace("#start#", ex.getAction().getLineStart()).replace("#end#", ex.getAction().getLineEnd());
+            }
+            view.showMessage(s, L10n.getString("error.modcantapply.title"), JOptionPane.ERROR_MESSAGE);
         } catch (ModFileNotFoundException ex) {
             logger.error("Error applying mods. A mod tried to load an inexistent file. Mod=" + ex.getName() + " | Version=" + ex.getVersion() + " | ActionClass" + ex.getAction().getClass() + " | File = " + ex.getFile(), ex);
             view.showMessage(L10n.getString("error.modcantapply").replace("#mod#", ex.getName()), L10n.getString("error.modcantapply.title"), JOptionPane.ERROR_MESSAGE);

@@ -138,6 +138,8 @@ public class FileUtils {
             destination.createNewFile();
             if (file[0] == 239 && file[1] == 187 && file[2] == 191) {
                 writeBom = false;
+            } else if ((0xff & file[0]) == 239 && (0xff & file[1]) == 187 && (0xff & file[2]) == 191) {
+                writeBom = false;
             }
         }
         ByteArrayInputStream in = new ByteArrayInputStream(file);
