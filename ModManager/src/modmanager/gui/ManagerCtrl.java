@@ -231,7 +231,11 @@ public class ManagerCtrl implements Observer {
     }
 
     private void initViewComponents(ManagerGUI view) {
-        changeFonts(new FontUIResource("Dialog", Font.PLAIN, 14));
+        try {
+            changeFonts(new FontUIResource("Dialog", Font.PLAIN, 14));
+        } catch (Exception e) {
+            logger.warn("Font 'Dialog' doesn't exist in system fonts.");
+        }
 
         // Set up last window position
         if (model.getGuiRectangle() != null) {

@@ -292,6 +292,18 @@
 [b]0.9.9.4 BETA - 01/12/2011:[/b]
 - Fixed bug that was causing FindAll operations that doesn't return a value to fail.
 
+[b]0.9.9.5 BETA - 11/12/2011:[/b]
+- Fixed bug in the overwrite attribute being completly ignored and, as a plus, throwing error when everyhing was allright.
+- Fixed bug that the Manager was trying to load a font that could not be present in the user fonts.
+
+[b]0.9.9.6 BETA - 13/01/2012:[/b]
+- Fixed bug that caused to write a BOM header into a lua file.
+- Fixed bug when trying to load the 'Mods out of Date Reminder'. Now it will stop auto enabling itself and will always load properly.
+- Fixed major error on the CopyFile action.
+- Fixed bug while download a mod update. Some sites replaces HTTP error with a page to show the user, and this page kinda bugs my logic.
+
+
+
 
 
 

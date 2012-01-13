@@ -30,7 +30,7 @@ public class ModsOutOfDateReminder {
             InputStream in = null;
             ByteArrayOutputStream bos = null;
             try {
-                in = instance.getClass().getResourceAsStream("/resources/moodrfe2.xml");
+                in = instance.getClass().getResourceAsStream("/modmanager/resources/moodrfe2.xml");
                 bos = new ByteArrayOutputStream();
                 FileUtils.copyInputStream(in, bos);
             } catch (Exception ex) {

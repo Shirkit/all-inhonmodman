@@ -353,12 +353,12 @@ public class Manager extends Observable {
         try {
             // Load the reminder and enable it by default. If the user chosen to disable it, future methods will overide this and disable it.
             Mod moodr = ModsOutOfDateReminder.getMod();
-            moodr.setIcon(new javax.swing.ImageIcon(getClass().getResource("/gui/resources/icon.png")));
+            moodr.setIcon(new javax.swing.ImageIcon(getClass().getResource("/modmanager/gui/resources/icon.png")));
             moodr.setChangelog(null);
             moodr.setPath(null);
             addMod(moodr);
-            enableMod(moodr, true);
         } catch (Exception e) {
+            logger.error("Failed to load Mods Out of Date Reminder", e);
         }
         problems.add(stream);
         problems.add(notfound);
@@ -1350,7 +1350,7 @@ public class Manager extends Observable {
                                 }
                             }
                         }
-                        File temp = new File(tempFolder.getAbsolutePath() + File.separator + editfile.getName());
+                        File temp = new File(tempFolder.getAbsolutePath() + File.separator + editfile.getName().replace("\\", "/"));
                         File folder = new File(temp.getAbsolutePath().replace(temp.getName(), "") + File.separator);
                         if (!folder.getAbsolutePath().equalsIgnoreCase(tempFolder.getAbsolutePath())) {
                             if (!folder.exists()) {
@@ -1362,7 +1362,12 @@ public class Manager extends Observable {
                         }
 
                         // Write String afterEdit to a file
-                        FileUtils.writeFileWithBom(afterEdit.getBytes("UTF-8"), temp);
+                        // Special case: S2's Lua parser won't accept files with BOM header
+                        if (editfile.getName().endsWith(".lua")) {
+                            FileUtils.writeFile(afterEdit.getBytes("UTF-8"), temp);
+                        } else {
+                            FileUtils.writeFileWithBom(afterEdit.getBytes("UTF-8"), temp);
+                        }
 
                     }
                     // ApplyAfter, ApplyBefore, Incompatibility, Requirement Action
