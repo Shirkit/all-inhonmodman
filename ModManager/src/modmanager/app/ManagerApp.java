@@ -34,6 +34,7 @@ import java.util.Properties;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.RandomAccessFile;
+import java.lang.instrument.Instrumentation;
 import java.net.URISyntaxException;
 import java.nio.channels.FileLock;
 import java.text.DateFormat;

@@ -1184,7 +1184,7 @@ public class ManagerGUI extends javax.swing.JFrame implements Observer {
 
     //TODO: Fix this for all views (icons, tiles and table).
     public void deleteSelectedMod() {
-        Mod mod = ManagerGUI.getInstance().getModsTable().getSelectedMod();
+        Mod mod = getModsTable().getSelectedMod();
         model.removeMod(mod);
         updateModTable();
     }

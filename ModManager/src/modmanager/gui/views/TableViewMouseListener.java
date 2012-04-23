@@ -24,12 +24,10 @@ public class TableViewMouseListener extends MouseAdapter {
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        ManagerGUI view = ManagerGUI.getInstance();
-        ModsTable modsTable = view.getModsTable();
         Mod mod;
 
         try {
-            mod = view.getModsTable().getModAtPoint(e.getPoint());
+            mod = ManagerGUI.getInstance().getModsTable().getModAtPoint(e.getPoint());
         } catch(IndexOutOfBoundsException ex) {
             // Expected exception here if the mouse was not released over a
             // mod on the table.
@@ -37,18 +35,18 @@ public class TableViewMouseListener extends MouseAdapter {
         }
         
         if (e.isPopupTrigger()) { // Show context menu
-            view.preparePopupMenu(mod);
+            ManagerGUI.getInstance().preparePopupMenu(mod);
 
             // This is actually required, not just a design decision.  When
             // options are selected, they use the same handlers as the "normal"
             // buttons, and the actions apply themselves to the selected mod.
-            modsTable.setSelectedMod(mod);
+            ManagerGUI.getInstance().getModsTable().setSelectedMod(mod);
 
-            view.getRightClickTableMenu().show(e.getComponent(), e.getX(), e.getY());
+            ManagerGUI.getInstance().getRightClickTableMenu().show(e.getComponent(), e.getX(), e.getY());
         } else if(e.getClickCount() == 2) { // Double click - toggle current mod
             ManagerCtrl.getInstance().enableMod(mod);
-            view.displayModDetail(mod);
-            modsTable.redraw();
+            ManagerGUI.getInstance().displayModDetail(mod);
+            ManagerGUI.getInstance().getModsTable().redraw();
         }
     }
 }
