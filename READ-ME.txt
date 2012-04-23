@@ -1,0 +1,16 @@
+All-In HoN ModManager
+
+Java Modification Manager for Heroes of Newerth - offers an easy management for user made modifications.
+This application is based on the original ModMan (.exe) created by the user "Notausgang".
+
+Here you have access to the source code of our project.
+Currently, this is divided in some parts:
+- ModManager
+- PropertiesToWiki
+- RepoIntegration
+- Updater
+
+Each one of those folders contains the source code for it's own part of the project.
+
+If you want to contribute, please, talk to the developers in the SourceForge before you start working.
+That way you can get some help, introduction and some tasks that needs to be done.
